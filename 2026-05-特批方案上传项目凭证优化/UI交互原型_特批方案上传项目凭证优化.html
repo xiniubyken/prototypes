@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UI交互原型 — 特批方案上传项目凭证优化</title>
+<style>
+/* ===== gree-ui-kit 规范参数 ===== */
+:root {
+  --bg: #F2F2F2;
+  --primary: #3e51ef;
+  --primary-hover: #2a35c9;
+  --accent: #8B60F0;
+  --func-blue: #006CFF;
+  --func-success: #00BF8A;
+  --func-error: #DE1A1A;
+  --func-warn: #FFB51F;
+  --text-main: #333;
+  --text-sub: #666;
+  --text-aux: #999;
+  --border: #D7D7DB;
+  --input-fill: #F7F7F7;
+  --placeholder: #AAAAAA;
+  --topbar-bg: #1a56a8;
+  --sidebar-bg: #fff;
+  --card-bg: #fff;
+  --radius: 2px;
+  --font: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei UI',sans-serif;
+  /* NEW标记色系 */
+  --new-badge: #D32F2F;
+  --new-bg-light: #FFEBEE;
+  --new-bg-cell: #FFF8F8;
+  --new-text: #C62828;
+  --new-text-dark: #B71C1C;
+  --new-border: #D32F2F;
+  /* Drawer */
+  --drawer-bg: #B71C1C;
+  --drawer-text: #fff;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:var(--bg); font-size:13px; color:var(--text-main); line-height:1.5; }
+/* app layout */
+.app { display:flex; flex-direction:column; height:100vh; }
+/* top nav */
+.top-nav { height:48px; background:var(--topbar-bg); display:flex; align-items:center; padding:0 20px; color:#fff; font-size:14px; }
+.top-nav .logo { font-weight:700; font-size:16px; margin-right:30px; }
+.top-nav .user { margin-left:auto; display:flex; align-items:center; gap:8px; font-size:12px; }
+/* breadcrumb */
+.breadcrumb { height:40px; background:var(--card-bg); display:flex; align-items:center; padding:0 16px; border-bottom:1px solid #E5E5E5; font-size:13px; color:var(--text-sub); }
+.breadcrumb span { margin-right:6px; }
+.breadcrumb .sep { color:#ccc; }
+.breadcrumb .current { color:var(--text-main); font-weight:600; }
+/* main body */
+.main-body { display:flex; flex:1; overflow:hidden; }
+.sidebar { width:176px; background:var(--sidebar-bg); border-right:1px solid #E5E5E5; overflow-y:auto; }
+.sidebar .menu-group { padding:8px 0; }
+.sidebar .menu-title { padding:8px 12px; font-size:12px; color:var(--text-aux); font-weight:600; }
+.sidebar .menu-item { padding:8px 12px 8px 24px; font-size:13px; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px; border-radius:var(--radius); }
+.sidebar .menu-item:hover { background:#f0f4ff; color:var(--primary); }
+.sidebar .menu-item.active { background:#f0f4ff; color:var(--primary); font-weight:600; }
+.sidebar .menu-item .dot { width:4px; height:4px; background:var(--primary); border-radius:50%; }
+.content { flex:1; overflow-y:auto; padding:16px; }
+/* tabs */
+.tab-bar { display:flex; align-items:center; background:var(--card-bg); border-bottom:2px solid #E5E5E5; padding:0 12px; }
+.tab-bar .tab { padding:8px 16px; font-size:14px; color:var(--text-sub); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; }
+.tab-bar .tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
+.tab-bar .tab:hover { color:var(--primary); }
+/* card */
+.card { background:var(--card-bg); border-radius:var(--radius); padding:16px; margin-bottom:12px; }
+.card-title { font-size:14px; font-weight:600; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; }
+/* filter */
+.filter-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px 20px; margin-bottom:8px; }
+.fi { display:flex; align-items:center; font-size:13px; }
+.fi label { min-width:60px; max-width:80px; color:var(--text-sub); text-align:right; }
+.fi input,.fi select { height:28px; border:1px solid var(--border); background:var(--input-fill); border-radius:var(--radius); padding:0 8px; font-size:13px; color:var(--text-main); flex:1; }
+.fi input::placeholder { color:var(--placeholder); }
+.fi select { appearance:none; }
+.fi-range { display:flex; align-items:center; gap:4px; flex:1; }
+.fi-range input { flex:1; }
+.fi-range span { color:var(--text-aux); }
+/* NEW标记 */
+.fi-new label { color:var(--new-text); font-weight:600; }
+.fi-new .new-badge { background:var(--new-badge); color:#fff; font-size:10px; padding:1px 4px; border-radius:2px; margin-left:4px; }
+.fi-new input,.fi-new select { border-color:var(--new-border); border-width:2px; background:var(--new-bg-cell); }
+/* buttons */
+.btn { height:32px; border-radius:var(--radius); border:1px solid var(--border); background:var(--card-bg); font-size:13px; cursor:pointer; padding:0 16px; display:inline-flex; align-items:center; gap:4px; }
+.btn-primary { background:var(--primary); color:#fff; border-color:var(--primary); font-weight:700; }
+.btn-primary:hover { background:var(--primary-hover); }
+.btn-new { background:var(--new-badge); color:#fff; border-color:var(--new-badge); }
+.btn-new:hover { background:#C62828; }
+.btn-edit { background:var(--primary); color:#fff; border:2px solid var(--new-badge); font-weight:700; }
+.btn-edit:hover { background:var(--primary-hover); }
+.btn-sm { height:28px; padding:0 12px; font-size:12px; }
+.btn-group { display:flex; gap:8px; }
+/* table */
+.table-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+thead th { background:#f5f5f5; height:32px; text-align:left; padding:6px 10px; font-weight:600; color:var(--text-main); border-bottom:1px solid #E5E5E5; white-space:nowrap; }
+tbody td { height:28px; padding:6px 10px; border-bottom:1px solid #F0F0F0; color:var(--text-main); white-space:nowrap; }
+tbody tr:hover { background:#f0f4ff; }
+/* NEW列 */
+.th-new { background:var(--new-bg-light); color:var(--new-text); border-left:2px solid var(--new-border); border-right:2px solid var(--new-border); }
+.td-new { background:var(--new-bg-cell); color:var(--new-text-dark); font-weight:600; border-left:2px solid var(--new-border); border-right:2px solid var(--new-border); }
+/* 操作列 */
+.op-link { color:var(--func-blue); cursor:pointer; margin-right:8px; font-size:13px; }
+.op-link:hover { text-decoration:underline; }
+.op-new { color:var(--new-badge); font-weight:600; cursor:pointer; margin-right:8px; }
+.op-new:hover { text-decoration:underline; }
+/* 分页 */
+.page-bar { display:flex; align-items:center; justify-content:space-between; padding:8px 0; font-size:12px; color:var(--text-sub); }
+.page-bar .page-btns { display:flex; align-items:center; gap:4px; }
+.page-bar .page-btn { width:28px; height:28px; border:1px solid var(--border); border-radius:var(--radius); display:flex; align-items:center; justify-content:center; cursor:pointer; background:var(--card-bg); }
+.page-bar .page-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+/* 页签区域 */
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+/* 场景切换面板 */
+.view-panel { display:none; }
+.view-panel.active { display:block; }
+/* 项目凭证区域 */
+.credential-section { background:var(--card-bg); border-radius:var(--radius); padding:16px; margin-bottom:12px; border:1px solid #E5E5E5; }
+.credential-section .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.credential-section .section-title { font-size:16px; font-weight:700; color:var(--text-main); }
+.field-group { margin-bottom:12px; }
+.field-group .field-label { font-size:13px; color:var(--text-sub); margin-bottom:4px; }
+.field-group textarea { width:100%; height:60px; border:1px solid var(--border); border-radius:var(--radius); padding:8px; font-size:13px; background:var(--input-fill); resize:vertical; }
+.field-group textarea::placeholder { color:var(--placeholder); }
+.field-group .char-count { font-size:12px; color:var(--text-aux); text-align:right; margin-top:2px; }
+.upload-area { border:1px dashed var(--border); border-radius:var(--radius); padding:12px; text-align:center; color:var(--text-aux); font-size:12px; background:var(--input-fill); cursor:pointer; }
+.upload-area:hover { border-color:var(--primary); color:var(--primary); }
+.upload-hint { font-size:11px; color:var(--text-aux); margin-top:6px; line-height:1.6; }
+.new-badge-sm { background:var(--new-badge); color:#fff; font-size:10px; padding:1px 4px; border-radius:2px; margin-left:4px; }
+/* 弹窗 */
+.modal-mask { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:1000; display:none; align-items:center; justify-content:center; }
+.modal-mask.show { display:flex; }
+.modal { width:700px; max-height:90vh; background:var(--card-bg); border-radius:var(--radius); overflow-y:auto; }
+.modal-header { height:42px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; border-bottom:1px solid #E5E5E5; font-size:16px; font-weight:700; }
+.modal-header .close { cursor:pointer; color:var(--text-aux); font-size:18px; }
+.modal-body { padding:16px; }
+.modal-footer { height:52px; display:flex; align-items:center; justify-content:flex-end; padding:0 16px; border-top:1px solid #E5E5E5; gap:8px; }
+/* 修改记录表格 */
+.history-table th { background:#f5f5f5; height:32px; text-align:center; padding:6px 10px; }
+.history-table td { height:28px; text-align:center; padding:6px 10px; }
+.history-table .file-link { color:var(--func-blue); cursor:pointer; }
+/* ===== PRD注释Drawer（白底右侧滑出，参考跨区审批原型样式） ===== */
+.prd-drawer-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.3); z-index:500; opacity:0; visibility:hidden; transition:opacity .3s, visibility .3s; }
+.prd-drawer-overlay.open { opacity:1; visibility:visible; }
+.prd-drawer { position:fixed; top:0; right:-680px; width:680px; height:100%; background:#fff; z-index:501; transition:right .3s ease; box-shadow:-4px 0 16px rgba(0,0,0,.15); display:flex; flex-direction:column; }
+.prd-drawer.open { right:0; }
+.prd-drawer-header { display:flex; align-items:center; justify-content:space-between; height:42px; padding:0 16px; background:#fafbfc; border-bottom:1px solid #DCDAE2; flex-shrink:0; }
+.prd-drawer-header-title { font-size:14px; font-weight:700; color:#333; }
+.prd-drawer-close { width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:18px; color:#999; border:none; background:none; }
+.prd-drawer-close:hover { color:#333; }
+.prd-drawer-body { flex:1; overflow-y:auto; padding:16px; }
+.prd-drawer-body::-webkit-scrollbar { width:6px; }
+.prd-drawer-body::-webkit-scrollbar-thumb { background:#ccc; border-radius:3px; }
+.anno-section { margin-bottom:16px; }
+.anno-section:last-child { margin-bottom:0; }
+.anno-section-title { font-size:14px; font-weight:700; color:#C62828; margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+.anno-section-title::before { content:""; display:inline-block; width:4px; height:16px; background:#D32F2F; border-radius:2px; }
+.anno-row { display:flex; align-items:flex-start; gap:10px; padding:7px 0; border-bottom:1px solid rgba(211,47,47,.1); font-size:12.5px; line-height:1.65; }
+.anno-row:last-child { border-bottom:none; }
+.tag-n { background:#D32F2F; color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:2px; white-space:nowrap; flex-shrink:0; }
+.tag-l { background:#E8EAF6; color:#1A237E; font-size:10px; font-weight:700; padding:2px 8px; border-radius:2px; white-space:nowrap; flex-shrink:0; }
+.anno-txt { color:#444; }
+.anno-table { width:100%; border-collapse:collapse; font-size:12px; margin:8px 0; }
+.anno-table th { background:#f5f5f5; color:#333; padding:4px 8px; text-align:left; font-weight:600; border-bottom:1px solid #E5E5E5; }
+.anno-table td { padding:4px 8px; border-bottom:1px solid #F0F0F0; color:#444; vertical-align:top; }
+.anno-table th:first-child { width:70px; }
+.anno-table th:nth-child(2) { width:50px; }
+.anno-table td:nth-child(3) { line-height:1.6; }
+.anno-table td:nth-child(4) { color:#999; font-style:italic; }
+.anno-table-3col th:first-child { width:80px; }
+.anno-table-3col th:nth-child(2) { width:40px; }
+.anno-section-desc { font-size:12px; color:#666; margin:0 0 8px 0; line-height:1.5; padding-left:4px; }
+.prd-btn { padding:5px 14px; font-size:12px; color:#FFEBEE; cursor:pointer; border-radius:2px; transition:all .15s; font-weight:600; background:#D32F2F; border:1px solid #D32F2F; }
+.prd-btn:hover { background:#C62828; color:#fff; }
+/* footer note */
+.footer-note { font-size:12px; color:var(--text-aux); text-align:center; padding:8px; }
+</style>
+</head>
+<body>
+
+<!-- ★ PRD注释Drawer — 白底右侧滑出，内容按场景动态展示 ★ -->
+<div class="prd-drawer-overlay" id="prdOverlay" onclick="closePrdDrawer()"></div>
+<div class="prd-drawer" id="prdDrawer">
+  <div class="prd-drawer-header">
+    <span class="prd-drawer-header-title" id="prdDrawerTitle">PRD注释 — 列表页</span>
+    <div class="prd-drawer-close" onclick="closePrdDrawer()">✕</div>
+  </div>
+  <div class="prd-drawer-body" id="prdDrawerBody">
+    <!-- 动态内容由JS渲染 -->
+  </div>
+</div>
+
+<!-- ===== 场景切换导航 ===== -->
+<div style="height:36px;background:#333;display:flex;align-items:center;padding:0 16px;gap:8px;position:sticky;top:0;z-index:100;">
+  <span style="color:#fff;font-size:12px;font-weight:700;">原型场景：</span>
+  <button class="btn-sm" style="background:var(--primary);color:#fff;border-color:var(--primary);" onclick="switchView('list')" id="btnList">① 列表页</button>
+  <button class="btn-sm" style="background:var(--card-bg);color:var(--text-main);border-color:var(--border);" onclick="switchView('view')" id="btnView">② 查看页-项目凭证tab</button>
+  <button class="prd-btn" onclick="openPrdDrawer()" style="margin-left:auto;">PRD注释</button>
+</div>
+
+<div class="app">
+  <!-- top nav -->
+  <div class="top-nav">
+    <div class="logo">格力网批</div>
+    <span style="font-size:12px;color:#aaa;">工程管理</span>
+    <div class="user">
+      <span>greeadmin（总部管理端）</span>
+      <span style="background:#fff3;color:#fff;padding:2px 6px;border-radius:2px;font-size:11px;">在线</span>
+    </div>
+  </div>
+
+  <div class="main-body">
+    <!-- sidebar -->
+    <div class="sidebar">
+      <div class="menu-group">
+        <div class="menu-title">工程管理</div>
+        <div class="menu-item"><span class="dot"></span>工程审批</div>
+        <div class="menu-item"><span class="dot"></span>工程单列表</div>
+        <div class="menu-item"><span class="dot"></span>工程阶梯价</div>
+      </div>
+      <div class="menu-group">
+        <div class="menu-title">销司销售方案</div>
+        <div class="menu-item active"><span class="dot"></span>销司工程特批方案</div>
+        <div class="menu-item"><span class="dot"></span>工程特批方案审核</div>
+      </div>
+    </div>
+
+    <!-- content -->
+    <div class="content" id="mainContent">
+
+      <!-- ========== ① 列表页 ========== -->
+      <div class="view-panel active" id="panelList">
+        <div class="breadcrumb">
+          <span>工程管理</span><span class="sep">/</span>
+          <span>销司销售方案</span><span class="sep">/</span>
+          <span class="current">工程特批销售方案</span>
+        </div>
+
+        <div class="card">
+          <!-- 筛选栏 — QA 11项，4列Grid -->
+          <div class="filter-row">
+            <div class="fi"><label>方案名称：</label><input placeholder="请输入"></div>
+            <div class="fi"><label>创建人：</label><input placeholder="请输入"></div>
+            <div class="fi"><label>方案编号：</label><input placeholder="请输入"></div>
+            <div class="fi"><label>关联工程单：</label><input placeholder="请输入"></div>
+          </div>
+          <div class="filter-row">
+            <div class="fi"><label>状态：</label><select><option>请选择</option><option>草稿</option><option>进行中</option><option>已结束</option><option>已终止</option></select></div>
+            <div class="fi"><label>选择时间：</label><div class="fi-range"><input type="date"><span>~</span><input type="date"></div></div>
+            <div class="fi"><label>所属部门：</label><input placeholder="请输入"></div>
+            <div class="fi"><label>SKU编码：</label><input placeholder="请输入"></div>
+          </div>
+          <div class="filter-row">
+            <div class="fi"><label>价格审批编号：</label><input placeholder="请输入"></div>
+            <div class="fi"><label>特批方案类型：</label><select><option>请选择</option><option>配提</option><option>非配提</option></select></div>
+            <div class="fi"><label>收差状态：</label><select><option>请选择</option><option>待销司确认收差</option><option>收差已驳回</option></select></div>
+            <div style="display:flex;justify-content:flex-end;gap:8px;">
+              <button class="btn">重 置</button>
+              <button class="btn btn-primary">查 询</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 新建按钮行 -->
+        <div class="card" style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+          <div class="btn-group">
+            <button class="btn btn-primary">新 建</button>
+          </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th style="width:140px;">操作</th>
+                  <th>特批方案类型</th>
+                  <th>所属部门</th>
+                  <th>方案编号</th>
+                  <th>方案名称</th>
+                  <th>关联工程单</th>
+                  <th>开始时间</th>
+                  <th>结束时间</th>
+                  <th>收差状态</th>
+                  <th>状态</th>
+                  <th>创建人</th>
+                  <th>创建时间</th>
+                </tr>
+              </thead>
+              <tbody id="listTableBody">
+              </tbody>
+            </table>
+          </div>
+          <div class="page-bar">
+            <div>共 5 条</div>
+            <div class="page-btns">
+              <div class="page-btn">1</div>
+              <div class="page-btn active">1</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== ② 查看页项目凭证tab ========== -->
+      <div class="view-panel" id="panelView">
+        <div class="breadcrumb">
+          <span>工程管理</span><span class="sep">/</span>
+          <span>销司销售方案</span><span class="sep">/</span>
+          <span>工程特批销售方案</span><span class="sep">/</span>
+          <span class="current">特批方案查看</span>
+        </div>
+
+        <!-- 方案标题 -->
+        <div class="card" style="padding:12px 16px;font-size:14px;font-weight:600;">
+          查看-工程特批方案 GCTP5120260511002(测试工程特批销售方案B)
+        </div>
+
+        <!-- tab栏 -->
+        <div class="tab-bar">
+          <div class="tab">奖励政策</div>
+          <div class="tab">销售方案</div>
+          <div class="tab">关联工程单</div>
+          <div class="tab">关联价格</div>
+          <div class="tab">调整记录</div>
+          <div class="tab active" style="color:var(--primary);">项目凭证</div>
+        </div>
+
+        <!-- 项目凭证内容 -->
+        <div class="credential-section" style="margin-top:12px;">
+          <div class="section-header">
+            <div style="display:flex;align-items:center;">
+              <span class="section-title">项目凭证</span>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-sm" onclick="showHistoryModal('credential')">修改记录</button>
+              <button class="btn btn-edit btn-sm" onclick="showEditModal('credential')">编辑</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">备注：</div>
+            <textarea placeholder="请输入" disabled style="height:40px;background:#eee;">希望小学C项目</textarea>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">附件：</div>
+            <div class="upload-area" style="background:#eee;">
+              📎 验收报告.pdf &nbsp; 审批截图.jpg &nbsp;（2个附件）
+            </div>
+          </div>
+        </div>
+
+        <!-- 内部备注（去掉"仅总部可见"文案） -->
+        <div class="credential-section" style="border-top:2px dashed #E5E5E5;">
+          <div class="section-header">
+            <span class="section-title">内部备注</span>
+            <div class="btn-group">
+              <button class="btn btn-sm" onclick="showHistoryModal('inner')">修改记录</button>
+              <button class="btn btn-edit btn-sm" onclick="showEditModal('inner')">编辑</button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">备注：</div>
+            <textarea placeholder="请输入" disabled style="height:40px;background:#eee;">已确认，建议通过</textarea>
+          </div>
+
+          <div class="field-group">
+            <div class="field-label">附件：</div>
+            <div class="upload-area" style="background:#eee;">暂无附件</div>
+          </div>
+        </div>
+
+        <!-- 返回按钮 -->
+        <div style="padding:8px 0;display:flex;justify-content:flex-end;">
+          <button class="btn">返 回</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ===== 弹窗1：上传/编辑弹窗（只展示对应区域的备注+附件） ===== -->
+<div class="modal-mask" id="editModal">
+  <div class="modal" style="width:600px;">
+    <div class="modal-header">
+      <span id="editModalTitle">上传项目凭证</span>
+      <span class="close" onclick="closeEditModal()">✕</span>
+    </div>
+    <div class="modal-body">
+      <!-- 项目凭证区域 -->
+      <div id="editCredentialArea">
+        <div class="field-group">
+          <div class="field-label">备注：</div>
+          <textarea placeholder="请输入备注内容，支持标点符号、阿拉伯数字、英文字母、中文、空格" id="editRemark" oninput="updateCharCount('editRemark','editRemarkCount')">希望小学C项目</textarea>
+          <div class="char-count" id="editRemarkCount">8 / 1000</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">附件：</div>
+          <div class="upload-area">
+            📎 验收报告.pdf &nbsp; 审批截图.jpg &nbsp;（2个附件） &nbsp;点击上传新附件
+          </div>
+          <div class="upload-hint">
+            支持扩展名：.pdf、.jpg、.jpeg、.png、.doc、.docx、.xls、.xlsx、.zip、.rar<br>
+            每文件大小不超过20M，上传数量不超过20
+          </div>
+        </div>
+      </div>
+
+      <!-- 内部备注区域 -->
+      <div id="editInnerArea">
+        <div class="field-group">
+          <div class="field-label">备注：</div>
+          <textarea placeholder="请输入内部备注内容" id="editInnerRemark" oninput="updateCharCount('editInnerRemark','editInnerRemarkCount')">已确认，建议通过</textarea>
+          <div class="char-count" id="editInnerRemarkCount">8 / 1000</div>
+        </div>
+        <div class="field-group">
+          <div class="field-label">附件：</div>
+          <div class="upload-area">
+            📎 点击上传内部备注附件
+          </div>
+          <div class="upload-hint">
+            支持扩展名：.pdf、.jpg、.jpeg、.png、.doc、.docx、.xls、.xlsx、.zip、.rar<br>
+            每文件大小不超过20M，上传数量不超过20
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeEditModal()">返 回</button>
+      <button class="btn btn-primary" onclick="closeEditModal();alert('提交成功')">提 交</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 弹窗2：修改记录弹窗 ===== -->
+<div class="modal-mask" id="historyModal">
+  <div class="modal" style="width:880px;">
+    <div class="modal-header">
+      <span id="historyModalTitle">项目凭证 — 修改记录</span>
+      <span class="close" onclick="closeHistoryModal()">✕</span>
+    </div>
+    <div class="modal-body">
+      <!-- 项目凭证修改记录 -->
+      <div id="historyCredentialTable">
+        <div class="card-title" style="font-size:14px;">项目凭证修改记录</div>
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th style="width:50px;">序号</th>
+                <th style="width:80px;">修改类型</th>
+                <th style="width:80px;">事件</th>
+                <th>调整前</th>
+                <th>调整后</th>
+                <th style="width:120px;">文件</th>
+                <th style="width:80px;">操作人</th>
+                <th style="width:160px;">操作时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>新增</td>
+                <td>备注</td>
+                <td>-</td>
+                <td>希望小学C项目</td>
+                <td>-</td>
+                <td>李**</td>
+                <td>2016-09-26 08:50:08</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>新增</td>
+                <td>附件</td>
+                <td>-</td>
+                <td>-</td>
+                <td><span class="file-link">验收报告.pdf</span></td>
+                <td>李**</td>
+                <td>2016-09-25 08:50:08</td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>删除</td>
+                <td>附件</td>
+                <td>-</td>
+                <td>-</td>
+                <td><span class="file-link">aaa.jpg</span></td>
+                <td>李**</td>
+                <td>2016-09-24 08:50:08</td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>删除</td>
+                <td>附件</td>
+                <td>-</td>
+                <td>-</td>
+                <td><span class="file-link">aaa.png</span></td>
+                <td>李**</td>
+                <td>2016-09-23 08:50:08</td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>修改</td>
+                <td>备注</td>
+                <td>广东省珠海市香洲区吉大水湾头111号天宝大厦536</td>
+                <td>广东省珠海市香洲区吉大水湾头111号天宝大厦534</td>
+                <td>-</td>
+                <td>李**</td>
+                <td>2016-09-22 08:50:08</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 内部备注修改记录 -->
+      <div id="historyInnerTable" style="margin-top:16px;">
+        <div class="card-title" style="font-size:14px;">内部备注修改记录</div>
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th style="width:50px;">序号</th>
+                <th style="width:80px;">修改类型</th>
+                <th style="width:80px;">事件</th>
+                <th>调整前</th>
+                <th>调整后</th>
+                <th style="width:120px;">文件</th>
+                <th style="width:80px;">操作人</th>
+                <th style="width:160px;">操作时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>新增</td>
+                <td>备注</td>
+                <td>-</td>
+                <td>已确认，建议通过</td>
+                <td>-</td>
+                <td>greeadmin</td>
+                <td>2026-05-19 11:20:00</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>修改</td>
+                <td>备注</td>
+                <td>已确认，建议通过</td>
+                <td>已确认，建议通过，总部审核完毕</td>
+                <td>-</td>
+                <td>greeadmin</td>
+                <td>2026-05-19 12:00:00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeHistoryModal()">关 闭</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== 列表页数据 =====
+const listData = [
+  { id:1, type:'非配提', dept:'龙哈哈销售公司', code:'GCTP5120260514002', name:'测试lwq特批方案0514A', related:'GC51202605140022', start:'2026-05-14 16:30', end:'2026-05-14 18:14', diffStatus:'待销司确认收差', status:'已终止', creator:'企微测试-李文清', createTime:'2026-05-14 16:25', ops:['查看','复制'] },
+  { id:2, type:'非配提', dept:'龙哈哈销售公司', code:'GCTP5120260514001', name:'测试工程销售方案', related:'GC51202605140002', start:'2026-05-14 10:13', end:'2026-05-14 11:27', diffStatus:'待销司确认收差', status:'已终止', creator:'龙哈哈总部员工', createTime:'2026-05-14 10:12', ops:['查看','复制'] },
+  { id:3, type:'非配提', dept:'龙哈哈销售公司', code:'GCTP5120260513001', name:'测试工程销售方案收差D', related:'GC51202605130013', start:'2026-05-13 15:35', end:'2026-05-13 15:33', diffStatus:'收差已驳回', status:'已结束', creator:'龙哈哈总部员工', createTime:'2026-05-13 15:35', ops:['查看','复制','重新提交收差'] },
+  { id:4, type:'配提', dept:'龙哈哈销售公司', code:'GCTP5120260512001', name:'测试特批方案配提0512B', related:'GC512026051200012', start:'2026-05-12 09:00', end:'2026-05-12 17:00', diffStatus:'—', status:'进行中', creator:'龙哈哈总部员工', createTime:'2026-05-12 08:55', ops:['查看','编辑'] },
+  { id:5, type:'配提', dept:'龙哈哈销售公司', code:'GCTP5120260511002', name:'测试工程特批销售方案B', related:'GC51202605110022', start:'2026-05-11 09:00', end:'2026-05-11 18:00', diffStatus:'—', status:'已结束', creator:'greeadmin', createTime:'2026-05-11 08:50', ops:['查看','复制'] }
+];
+
+// 渲染列表表格
+function renderListTable() {
+  const tbody = document.getElementById('listTableBody');
+  tbody.innerHTML = '';
+  listData.forEach(row => {
+    let opsHtml = row.ops.map(op => `<span class="op-link">${op}</span>`).join('');
+    // 已结束/已终止 → 显示"上传项目凭证"按钮（NEW标记）
+    if (row.status === '已结束' || row.status === '已终止') {
+      opsHtml += `<span class="op-new" onclick="showEditModal('credential')"><span class="new-badge-sm">NEW</span> 上传项目凭证</span>`;
+    }
+    const tr = `<tr>
+      <td>${row.id}</td>
+      <td>${opsHtml}</td>
+      <td>${row.type}</td>
+      <td>${row.dept}</td>
+      <td>${row.code}</td>
+      <td>${row.name}</td>
+      <td>${row.related}</td>
+      <td>${row.start}</td>
+      <td>${row.end}</td>
+      <td>${row.diffStatus}</td>
+      <td>${row.status}</td>
+      <td>${row.creator}</td>
+      <td>${row.createTime}</td>
+    </tr>`;
+    tbody.innerHTML += tr;
+  });
+}
+
+// ===== 场景切换 =====
+function switchView(view) {
+  currentView = view;
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('[id^="btn"]').forEach(b => {
+    b.style.background = 'var(--card-bg)';
+    b.style.color = 'var(--text-main)';
+    b.style.borderColor = 'var(--border)';
+  });
+  const panelMap = { 'list': 'panelList', 'view': 'panelView' };
+  const btnMap = { 'list': 'btnList', 'view': 'btnView' };
+  document.getElementById(panelMap[view]).classList.add('active');
+  const btn = document.getElementById(btnMap[view]);
+  btn.style.background = 'var(--primary)';
+  btn.style.color = '#fff';
+  btn.style.borderColor = 'var(--primary)';
+  // 如果Drawer已打开，动态更新内容
+  if (document.getElementById('prdDrawer').classList.contains('open')) {
+    renderPrdDrawerContent(view);
+  }
+}
+
+// ===== PRD Drawer（白底右侧滑出，内容按场景切换） =====
+var prdDrawerData = {
+  list: {
+    title: 'PRD注释 — 列表页',
+    sections: [
+      { title: '上传项目凭证', desc:'同属于一份数据，若已有数据则回显展示即可', columns:['属性名称','控件类型','特殊交互说明','数据获取'], rows: [
+        ['按钮','按钮','1. 操作列新增"上传项目凭证"按钮，需授权角色才可见<br>2. 点击弹出编辑弹窗，显示【保存】【取消】<br>3. 保存：以提交即入库，并产生修改记录<br>4. 取消：恢复原样','按钮权限'],
+        ['备注','输入框','1. 非必填，限制输入1000字符',''],
+        ['附件','上传','1. 支持扩展名：pdf、jpg、jpeg、png、doc、docx、xls、xlsx、zip、rar<br>2. 每文件≤20M，上传数量≤20<br>3. 数量超20后添加按钮隐藏<br>4. 大小超限提示：文件超过大小限制，请重新上传<br>5. 格式不符提示：选择文件要求格式，请重新上传<br>6. 上传后可删除<br>7. 图片类可点击预览（前端通用预览样式）','']
+      ]}
+    ]
+  },
+  view: {
+    title: 'PRD注释 — 查看页（项目凭证tab）',
+    sections: [
+      { title: '项目凭证', desc:'同属于一份数据，若已有数据则回显展示即可', columns:['属性名称','控件类型','特殊交互说明','数据获取'], rows: [
+        ['卡片展示','按钮','1. 有【项目凭证】页签即展示卡片<br>2. 项目凭证【编辑】&【修改记录】按钮，同一个按钮权限即可<br>3. 点击【编辑】，显示【保存】【取消】<br>4. 保存：以提交即入库，并产生修改记录<br>5. 取消：恢复原样<br>6. 查看-方案的状态下，编辑按钮隐藏','按钮权限'],
+        ['备注','输入框','1. 非必填，限制输入1000字符',''],
+        ['附件','上传','1. 支持扩展名：pdf、jpg、jpeg、png、doc、docx、xls、xlsx、zip、rar<br>2. 每文件≤20M，上传数量≤20<br>3. 数量超20后添加按钮隐藏<br>4. 大小超限提示：文件超过大小限制，请重新上传<br>5. 格式不符提示：选择文件要求格式，请重新上传<br>6. 上传后可删除<br>7. 图片类可点击预览（前端通用预览样式）','']
+      ]},
+      { title: '内部备注', desc:'同属于一份数据，若已有数据则回显展示即可', columns:['属性名称','控件类型','特殊交互说明','数据获取'], rows: [
+        ['卡片展示','按钮','1. 内部备注【编辑】&【修改记录】按钮权限即可展示此卡片<br>2. 【编辑】&【修改记录】按钮，同一个按钮权限即可<br>3. 点击【编辑】，显示【保存】【取消】<br>4. 保存：以提交即入库，并产生修改记录<br>5. 取消：恢复原样<br>6. 查看-方案的状态下，编辑按钮隐藏<br>7. 此区域仅总部账号可见，销司端完全不渲染','按钮权限'],
+        ['备注','输入框','1. 非必填，限制输入1000字符',''],
+        ['附件','上传','1. 支持扩展名：pdf、jpg、jpeg、png、doc、docx、xls、xlsx、zip、rar<br>2. 每文件≤20M，上传数量≤20<br>3. 数量超20后添加按钮隐藏<br>4. 大小超限提示：文件超过大小限制，请重新上传<br>5. 格式不符提示：选择文件要求格式，请重新上传<br>6. 上传后可删除<br>7. 图片类可点击预览（前端通用预览样式）','']
+      ]},
+      { title: '修改记录弹窗', columns:['属性名称','控件类型','特殊交互说明'], rows: [
+        ['前言','','1. 点击，显示弹窗<br>2. 场景：<br>① 可对项目凭证任何信息进行修改，已入库保存操作，则保留操作记录'],
+        ['序号','',''],
+        ['修改类型','文本','1. 包括：<br>① 【删除】，记录：<br>→ 备注<br>→ 附件（图片、文件信息）<br>② 【修改】，记录：<br>→ 备注<br>→ 附件（图片、文件信息）'],
+        ['事件','文本','1. 包括：<br>→ 备注<br>→ 附件（图片、文件信息）'],
+        ['调整前','','1. 对【修改类型-修改】类型的【事件】原记录写入<br>2. 其他修改类型，则展示"—"'],
+        ['调整后','','1. 对【修改类型-新增】类型的【事件】新记录写入<br>2. 对【修改类型-修改】类型的【事件】新记录写入<br>3. 其他修改类型，则展示"—"'],
+        ['文件','附件','1. 仅限对图片展示文件链接，否则展示"—"<br>2. 允许点击下载即可'],
+        ['操作人','','1. 记录操作人"姓名"'],
+        ['操作时间','','1. 以提交时间为准']
+      ]}
+    ]
+  }
+};
+
+var currentView = 'list';
+
+function openPrdDrawer() {
+  renderPrdDrawerContent(currentView);
+  document.getElementById('prdDrawer').classList.add('open');
+  document.getElementById('prdOverlay').classList.add('open');
+}
+
+function closePrdDrawer() {
+  document.getElementById('prdDrawer').classList.remove('open');
+  document.getElementById('prdOverlay').classList.remove('open');
+}
+
+function renderPrdDrawerContent(view) {
+  var data = prdDrawerData[view];
+  document.getElementById('prdDrawerTitle').textContent = data.title;
+  var html = '';
+  data.sections.forEach(function(sec) {
+    html += '<div class="anno-section"><div class="anno-section-title">' + sec.title + '</div>';
+    if (sec.desc) {
+      html += '<div class="anno-section-desc">' + sec.desc + '</div>';
+    }
+    if (sec.columns) {
+      // 表格模式渲染
+      var tableClass = sec.columns.length === 3 ? 'anno-table anno-table-3col' : 'anno-table';
+      html += '<table class="' + tableClass + '"><thead><tr>';
+      sec.columns.forEach(function(col) {
+        html += '<th>' + col + '</th>';
+      });
+      html += '</tr></thead><tbody>';
+      sec.rows.forEach(function(row) {
+        html += '<tr>';
+        row.forEach(function(cell, i) {
+          if (i === row.length - 1 && !cell) {
+            html += '<td>—</td>';
+          } else {
+            html += '<td>' + cell + '</td>';
+          }
+        });
+      });
+      html += '</tbody></table>';
+    } else {
+      // 原有标签模式渲染
+      sec.rows.forEach(function(row) {
+        html += '<div class="anno-row"><span class="tag-n">' + row.tag + '</span><span class="anno-txt">' + row.text + '</span></div>';
+      });
+    }
+    html += '</div>';
+  });
+  document.getElementById('prdDrawerBody').innerHTML = html;
+}
+
+// ===== 编辑弹窗 =====
+function showEditModal(type) {
+  const title = document.getElementById('editModalTitle');
+  // 列表页点击"上传项目凭证"→只弹项目凭证
+  // 查看页点击"编辑"→只弹对应区域（项目凭证或内部备注）
+  if (type === 'credential') {
+    title.textContent = '上传项目凭证';
+    document.getElementById('editCredentialArea').style.display = 'block';
+    document.getElementById('editInnerArea').style.display = 'none';
+  } else {
+    title.textContent = '编辑内部备注';
+    document.getElementById('editCredentialArea').style.display = 'none';
+    document.getElementById('editInnerArea').style.display = 'block';
+  }
+
+  document.getElementById('editModal').classList.add('show');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+}
+
+// ===== 修改记录弹窗 =====
+function showHistoryModal(type) {
+  const title = document.getElementById('historyModalTitle');
+  if (type === 'credential') {
+    title.textContent = '项目凭证 — 修改记录';
+    document.getElementById('historyCredentialTable').style.display = 'block';
+    document.getElementById('historyInnerTable').style.display = 'none';
+  } else {
+    title.textContent = '内部备注 — 修改记录';
+    document.getElementById('historyCredentialTable').style.display = 'none';
+    document.getElementById('historyInnerTable').style.display = 'block';
+  }
+  document.getElementById('historyModal').classList.add('show');
+}
+
+function closeHistoryModal() {
+  document.getElementById('historyModal').classList.remove('show');
+}
+
+// ===== 字数统计 =====
+function updateCharCount(inputId, countId) {
+  const input = document.getElementById(inputId);
+  const count = document.getElementById(countId);
+  if (input && count) {
+    const len = input.value.length;
+    if (len > 1000) {
+      input.value = input.value.substring(0, 1000);
+      count.textContent = '1000 / 1000';
+      count.style.color = 'var(--func-error)';
+    } else {
+      count.textContent = len + ' / 1000';
+      count.style.color = 'var(--text-aux)';
+    }
+  }
+}
+
+// ===== 初始化 =====
+renderListTable();
+</script>
+
+</body>
+</html>

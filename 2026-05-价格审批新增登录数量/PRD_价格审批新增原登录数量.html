@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRD - 价格审批新增原登录数量</title>
+<style>
+:root{--bg:#1a1a2e;--card:#16213e;--text:#e0e0e0;--muted:#a0a0a0;--accent:#8B60F0;--new:#D32F2F;--border:#2a2a4a;--th-bg:#0f3460;--td-bg:#16213e;--td-alt:#1a1a3e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei UI',sans-serif;max-width:960px;margin:0 auto;padding:24px;line-height:1.8}
+h1{color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:12px;font-size:22px;margin-bottom:16px}
+h2{color:#e94560;font-size:18px;margin-top:28px;border-bottom:1px solid var(--border);padding-bottom:8px}
+h3{color:var(--accent);font-size:15px;margin-top:20px}
+p{margin:8px 0}
+.note{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin:12px 0;color:var(--muted);font-size:13px}
+.highlight{background:var(--card);border-left:3px solid var(--new);padding:12px 16px;margin:12px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th{background:var(--th-bg);color:#fff;padding:8px 10px;text-align:left;font-weight:600;font-size:12px}
+td{background:var(--td-bg);padding:6px 10px;border-bottom:1px solid var(--border)}
+tr:nth-child(even) td{background:var(--td-alt)}
+.new-text{color:var(--new);font-weight:bold}
+strong{color:#fff}
+ol,ul{padding-left:20px;margin:8px 0}
+li{margin-bottom:4px}
+hr{border:none;border-top:1px solid var(--border);margin:20px 0}
+.t-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-right:4px}
+.t-front{background:#3e51ef;color:#fff}
+.t-back{background:#00BF8A;color:#1a1a2e}
+.t-test{background:#533483;color:#fff}
+</style>
+</head>
+<body>
+
+<h1>PRD — 价格审批新增"原登录数量"字段</h1>
+
+<h2>一、背景与目标</h2>
+<p>价格审批页缺少登录审批时的申请数量展示，审批人员无法直观比对当前申请数量是否被修改。新增"原登录数量"字段，一眼看出数量差异，降低审核风险。</p>
+
+<h2>二、改动细节</h2>
+<p><strong>改动位置</strong>：工程管理 → 工程审批 → 价格审批 → 工程单详情页 → 商品信息表格</p>
+<p><strong>适用页面</strong>：一次价格审批（非跨区/省内跨区/省外跨区）详情页 + <span class="new-text">二次批价详情页</span>，均需新增该列</p>
+<p><strong>改动内容</strong>：在"*申请数量"列后面新增一列 <span class="new-text">原登录数量</span></p>
+
+<h3>改动前 vs 改动后</h3>
+<table>
+<tr><th>列序</th><th>改动前列名</th><th>改动后列名</th><th>备注</th></tr>
+<tr><td>1</td><td>序号</td><td>序号</td><td></td></tr>
+<tr><td>2</td><td>操作</td><td>操作</td><td></td></tr>
+<tr><td>3</td><td>商品名称</td><td>商品名称</td><td></td></tr>
+<tr><td>4</td><td>型号</td><td>型号</td><td></td></tr>
+<tr><td>5</td><td>SKU编码</td><td>SKU编码</td><td></td></tr>
+<tr><td>6</td><td>*申请数量</td><td>*申请数量</td><td></td></tr>
+<tr><td>-</td><td>-</td><td><span class="new-text">原登录数量</span></td><td><span class="new-text">新增</span></td></tr>
+<tr><td>7</td><td>*申请价格</td><td>*申请价格</td><td></td></tr>
+<tr><td>8</td><td>最新批复价格</td><td>最新批复价格</td><td></td></tr>
+<tr><td>9</td><td>*批复价格</td><td>*批复价格</td><td></td></tr>
+<tr><td>10</td><td>权限区间</td><td>权限区间</td><td></td></tr>
+</table>
+<div class="note">一次价格审批与二次批价的商品信息表格结构相同，改动一致。</div>
+
+<h3>新增字段数据规范</h3>
+<table>
+<tr><th>字段名</th><th>数据类型</th><th>是否必填</th><th>默认值</th><th>可编辑</th><th>来源</th></tr>
+<tr><td><span class="new-text">原登录数量</span></td><td>整数</td><td>必显</td><td>--</td><td>❌ 只读</td><td>取已"通过"的登录审批单中的申请数量</td></tr>
+</table>
+<div class="note">价格审批在登录审批之后，申请数量为必填项，所以原登录数量必然有值。无已通过登录审批单时显示"--"。</div>
+
+<h3>适用范围</h3>
+<table>
+<tr><th>端</th><th>适用</th></tr>
+<tr><td>PC管理端</td><td>✅</td></tr>
+<tr><td>H5（企微）</td><td>✅</td></tr>
+<tr><td>安卓</td><td>✅</td></tr>
+<tr><td>iOS</td><td>✅</td></tr>
+</table>
+
+<h3>列表页不受影响</h3>
+<p>列表页表格列不变。</p>
+
+<h3>交互要点</h3>
+<ol>
+<li>原登录数量≠申请数量时，<span class="new-text">原申请数量列文字变红色加粗</span>，快速识别数量被修改</li>
+<li>原登录数量紧跟申请数量后面，便于左右比对</li>
+<li>顶部"总套数"仍按申请数量计算</li>
+</ol>
+
+<h2>三、建议验收点</h2>
+<ol>
+<li>PC/H5/安卓/iOS四端一次价格审批详情页商品信息表格均显示"原登录数量"列</li>
+<li>PC/H5/安卓/iOS四端<span class="new-text">二次批价详情页</span>商品信息表格均显示"原登录数量"列</li>
+<li>"原登录数量"列位于申请数量后面</li>
+<li>取值=已通过的登录审批单的申请数量，只读不可编辑</li>
+<li>无已通过登录审批单时显示"--"</li>
+<li>原登录数量≠申请数量时，原申请数量列文字变红色加粗</li>
+<li>原登录数量=申请数量时，原申请数量列正常颜色</li>
+<li>列表页不受影响</li>
+<li>顶部"总套数"统计不变</li>
+<li>变色提示文案建议：原申请数量列hover时显示tooltip"该商品申请数量与原登录数量不一致"</li>
+</ol>
+
+<hr>
+
+<h2>四、建议任务拆解</h2>
+<p>共11项任务：</p>
+<table>
+<tr><th>#</th><th>任务名</th><th>类型</th></tr>
+<tr><td>T1</td><td>PC一次价格审批详情页新增原登录数量列</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T2</td><td>PC<span class="new-text">二次批价</span>详情页新增原登录数量列</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T3</td><td>H5企微一次价格审批详情页新增原登录数量列</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T4</td><td>H5企微<span class="new-text">二次批价</span>详情页新增原登录数量列</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T5</td><td>安卓一次价格审批详情页新增原登录数量字段</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T6</td><td>安卓<span class="new-text">二次批价</span>详情页新增原登录数量字段</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T7</td><td>iOS一次价格审批详情页新增原登录数量字段</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T8</td><td>iOS<span class="new-text">二次批价</span>详情页新增原登录数量字段</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T9</td><td>价格审批详情接口新增loginQuantity返回字段</td><td><span class="t-badge t-back">后端</span></td></tr>
+<tr><td>T10</td><td>数量不一致变色提示（四端），建议PC=hover tooltip，H5/安卓/iOS=点击弹出提示</td><td><span class="t-badge t-front">前端</span></td></tr>
+<tr><td>T11</td><td>四端联调+验收</td><td><span class="t-badge t-test">测试</span></td></tr>
+</table>
+
+</body>
+</html>

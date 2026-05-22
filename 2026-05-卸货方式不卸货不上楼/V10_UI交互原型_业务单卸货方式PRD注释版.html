@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V5 UI交互原型 — 业务单卸货方式新增"不卸货不上楼"选项</title>
+<style>
+/* === 全局基础 === */
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei UI', '思源黑体CN', Arial, 'Noto Sans', sans-serif;
+  font-size: 13px;
+  color: rgba(0,0,0,0.85);
+  background: #F2F2F2;
+  height: 100%;
+  overflow-x: hidden;
+}
+:root {
+  --change-red: #D32F2F;
+  --change-red-light: #FFEBEE;
+  --change-red-border: #E57373;
+  --new-badge-bg: #D32F2F;
+  --new-badge-text: #fff;
+  --gree-primary: #3e51ef;
+  --gree-primary-light: #f0f4ff;
+  --gree-select: #8B60F0;
+  --gree-select-light: #E6DBFF;
+  --gree-success: #00BF8A;
+  --gree-warning: #FFB51F;
+  --gree-error: #DE1A1A;
+  --gree-bg: #F2F2F2;
+  --gree-border: #D7D7DB;
+  --gree-placeholder: #AAAAAA;
+  --gree-fill: #F7F7F7;
+}
+
+/* === 顶部场景切换导航 === */
+.top-switch-nav {
+  background: #fff;
+  border-bottom: 1px solid #E9E9E9;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.top-switch-nav .switch-label { font-size: 12px; color: rgba(0,0,0,0.45); font-weight: 500; }
+.scene-btn { padding: 6px 16px; font-size: 13px; border: 1px solid #D7D7DB; background: #F7F7F7; color: rgba(0,0,0,0.65); cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+.scene-btn:hover { border-color: var(--gree-primary); color: var(--gree-primary); }
+.scene-btn.active { background: var(--gree-primary); color: #fff; border-color: var(--gree-primary); }
+.scene-btn .badge-dealer { background: #3e51ef; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 2px; margin-left: 6px; }
+.scene-btn .badge-admin { background: #D32F2F; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 2px; margin-left: 6px; }
+.scene-btn.active .badge-dealer { background: rgba(255,255,255,0.3); }
+.scene-btn.active .badge-admin { background: rgba(255,255,255,0.3); }
+
+/* === NEW标记 === */
+.field-label-wrapper { display: flex; align-items: center; gap: 2px; min-width: 120px; max-width: 140px; flex-shrink: 0; position: relative; height: 28px; }
+.field-label { font-size: 13px; color: rgba(0,0,0,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; }
+.field-required { color: var(--gree-error); margin-right: 2px; }
+.new-tag { position: absolute; top: -2px; right: -32px; background: var(--new-badge-bg); color: var(--new-badge-text); font-size: 9px; padding: 1px 4px; border-radius: 2px; font-weight: 700; white-space: nowrap; z-index: 2; line-height: 1.4; }
+
+/* === 改动区域标记 === */
+.change-zone { background: var(--change-red-light); border: 1px dashed var(--change-red-border); border-radius: 2px; position: relative; }
+.change-zone-label { position: absolute; top: -1px; right: -1px; background: var(--change-red); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 0 2px 0 2px; font-weight: 600; }
+.warn-zone { background: #FFF8E1; border: 1px dashed #FFB51F; border-radius: 2px; position: relative; }
+.warn-zone-label { position: absolute; top: -1px; right: -1px; background: var(--gree-warning); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 0 2px 0 2px; font-weight: 600; }
+
+/* === T型布局 === */
+.app-layout { display: flex; flex-direction: column; height: 100vh; }
+.top-bar { height: 48px; background: var(--gree-primary); display: flex; align-items: center; padding: 0 20px; color: #fff; font-size: 14px; font-weight: 500; flex-shrink: 0; }
+.top-bar .logo-area { display: flex; align-items: center; gap: 8px; }
+.top-bar .logo-icon { width: 32px; height: 32px; background: #fff; border-radius: 2px; display: flex; align-items: center; justify-content: center; color: var(--gree-primary); font-weight: 700; font-size: 12px; }
+.top-bar .logo-text { font-size: 16px; font-weight: 700; }
+.top-bar .top-tabs { display: flex; gap: 0; margin-left: 16px; }
+.top-bar .top-tab-item { padding: 0 12px; height: 48px; line-height: 48px; color: rgba(255,255,255,0.7); font-size: 13px; cursor: pointer; }
+.top-bar .top-tab-item.active { color: #fff; border-bottom: 2px solid #fff; font-weight: 600; }
+.top-bar .user-info { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255,255,255,0.8); }
+.top-bar .user-avatar { width: 24px; height: 24px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+.breadcrumb { height: 40px; background: #fff; border-bottom: 1px solid #E9E9E9; display: flex; align-items: center; padding: 0 16px; font-size: 12px; color: rgba(0,0,0,0.45); }
+.breadcrumb a { color: var(--gree-primary); text-decoration: none; }
+.breadcrumb .sep { margin: 0 4px; color: rgba(0,0,0,0.25); }
+.breadcrumb .current { color: rgba(0,0,0,0.85); font-weight: 500; }
+.tab-bar { height: 36px; background: #fff; border-bottom: 1px solid #E9E9E9; display: flex; align-items: center; padding: 0 16px; gap: 0; overflow-x: auto; }
+.tab-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: rgba(0,0,0,0.65); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; height: 36px; line-height: 36px; padding: 0 10px; }
+.tab-item.home { padding: 0 20px; }
+.tab-item.active { color: var(--gree-primary); border-bottom: 2px solid var(--gree-primary); font-weight: 600; }
+.main-body { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 176px; background: #fff; border-right: 1px solid #E9E9E9; overflow-y: auto; flex-shrink: 0; padding-top: 4px; }
+.sidebar .nav-group-title { font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.85); padding: 8px 16px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.sidebar .nav-group-title .expand-icon { font-size: 12px; color: rgba(0,0,0,0.35); }
+.sidebar .nav-item { display: flex; align-items: center; padding: 0 16px 0 32px; height: 40px; font-size: 13px; color: rgba(0,0,0,0.65); cursor: pointer; }
+.sidebar .nav-item:hover { color: var(--gree-primary); background: var(--gree-primary-light); }
+.sidebar .nav-item.active { color: var(--gree-primary); font-weight: 600; background: var(--gree-primary-light); }
+.content-area { flex: 1; overflow-y: auto; padding: 16px; background: #F2F2F2; }
+
+/* === 关联信息提示栏 === */
+.link-info-bar { background: #fffbe6; border: 1px solid #ffe58f; border-radius: 2px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: rgba(0,0,0,0.65); line-height: 1.8; }
+.link-info-bar .link-label { color: rgba(0,0,0,0.85); font-weight: 500; }
+.link-info-bar .link-btn { display: inline-block; color: var(--gree-primary); cursor: pointer; text-decoration: underline; font-size: 13px; margin-left: 4px; }
+.link-info-bar .link-tip { color: rgba(0,0,0,0.45); font-size: 12px; }
+.link-row { background: #FFF8E1; border-radius: 2px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; font-size: 13px; gap: 8px; border: 1px solid #FFE082; }
+.link-row .link-type { color: rgba(0,0,0,0.85); font-weight: 500; }
+.link-row .link-value { color: var(--gree-primary); }
+.link-row .link-action { margin-left: auto; display: flex; gap: 8px; }
+.link-row .link-action-btn { font-size: 12px; color: var(--gree-primary); cursor: pointer; padding: 4px 8px; border: 1px solid var(--gree-primary); border-radius: 2px; background: transparent; }
+.link-row .link-action-btn:hover { background: var(--gree-primary-light); }
+
+/* === 卡片 === */
+.card { background: #fff; border-radius: 2px; padding: 16px; margin-bottom: 12px; border: 1px solid transparent; }
+.card-title { font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.85); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.card-title .title-dot { width: 4px; height: 14px; background: var(--gree-primary); border-radius: 2px; }
+
+/* === 表单 === */
+.form-row { display: flex; width: 100%; gap: 16px; margin-bottom: 16px; }
+.form-field { display: flex; align-items: flex-start; gap: 4px; flex: 1; min-width: 0; }
+.form-field.half { max-width: calc(50% - 8px); }
+.form-field.full { max-width: 100%; }
+.form-input { height: 28px; border: 1px solid var(--gree-border); border-radius: 2px; padding: 0 8px; font-size: 12px; background: var(--gree-fill); color: rgba(0,0,0,0.85); flex: 1; min-width: 0; }
+.form-input:focus { outline: none; border-color: var(--gree-primary); }
+.form-input::placeholder { color: var(--gree-placeholder); }
+.form-input.filled { background: #fff; }
+.form-select { height: 28px; border: 1px solid var(--gree-border); border-radius: 2px; padding: 0 8px; font-size: 12px; background: var(--gree-fill); color: rgba(0,0,0,0.85); min-width: 80px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%23AAAAAA' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px; }
+.address-row { display: flex; gap: 4px; align-items: center; flex: 1; }
+.address-row .form-select { min-width: 90px; flex: 1; }
+.address-row .form-input { flex: 2; }
+.smart-address-box { display: flex; gap: 8px; align-items: center; width: 100%; }
+.smart-address-input { flex: 1; height: 28px; border: 1px solid var(--gree-border); border-radius: 2px; padding: 0 8px; font-size: 12px; background: var(--gree-fill); }
+.smart-address-btn { height: 28px; padding: 0 12px; font-size: 12px; border: 1px solid var(--gree-primary); background: var(--gree-primary-light); color: var(--gree-primary); border-radius: 2px; cursor: pointer; }
+.smart-address-btn:hover { background: var(--gree-primary); color: #fff; }
+.smart-address-clear { height: 28px; padding: 0 12px; font-size: 12px; border: 1px solid #D7D7DB; background: #F7F7F7; color: rgba(0,0,0,0.65); border-radius: 2px; cursor: pointer; }
+
+/* === 单选框组 === */
+.radio-group { display: flex; align-items: center; gap: 16px; height: 28px; }
+.radio-item { display: flex; align-items: center; gap: 4px; font-size: 13px; color: rgba(0,0,0,0.85); cursor: pointer; }
+.radio-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid var(--gree-placeholder); display: flex; align-items: center; justify-content: center; }
+.radio-dot.checked { border-color: var(--gree-select); }
+.radio-dot.checked::after { content:''; width:8px; height:8px; border-radius:50%; background: var(--gree-select); }
+.radio-dot.new-option { border-color: var(--change-red); }
+.radio-dot.new-option.checked::after { background: var(--change-red); }
+
+/* 联动提示 */
+.linkage-tip-trigger { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; background: rgba(0,0,0,0.06); border-radius: 50%; color: rgba(0,0,0,0.45); font-size: 11px; cursor: help; margin-left: 4px; position: relative; font-weight: 600; font-style: italic; }
+.linkage-tip-trigger:hover .linkage-tip-content { display: block; }
+.linkage-tip-content { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); color: #fff; font-size: 12px; padding: 8px 12px; border-radius: 4px; width: 280px; z-index: 10; line-height: 1.6; white-space: normal; }
+.linkage-tip-content::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: rgba(0,0,0,0.85); }
+
+/* 基本信息grid */
+.basic-info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.contact-switch { display: flex; align-items: center; gap: 8px; }
+.contact-type-radio { display: flex; gap: 12px; }
+
+/* 商品表格 */
+.product-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+.product-table th { background: #F7F7F7; height: 32px; text-align: left; padding: 0 8px; font-weight: 500; color: rgba(0,0,0,0.65); border-bottom: 1px solid #E9E9E9; font-size: 12px; }
+.product-table td { height: 28px; padding: 0 8px; border-bottom: 1px solid #E9E9E9; color: rgba(0,0,0,0.85); }
+.product-table .product-img { width: 120px; height: 120px; background: #f5f5f5; border-radius: 2px; display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.25); font-size: 10px; }
+.add-product-btn { margin-top: 12px; height: 28px; padding: 0 16px; border: 1px solid var(--gree-primary); background: var(--gree-primary-light); color: var(--gree-primary); border-radius: 2px; cursor: pointer; font-size: 12px; }
+.add-product-btn:hover { background: var(--gree-primary); color: #fff; }
+
+/* 底部操作栏 */
+.bottom-bar { background: #fff; border-top: 1px solid #E9E9E9; padding: 12px 16px; display: flex; justify-content: flex-end; gap: 16px; position: sticky; bottom: 0; }
+.btn-primary { height: 32px; padding: 0 16px; min-width: 64px; background: var(--gree-primary); color: #fff; border: none; border-radius: 2px; cursor: pointer; font-size: 13px; font-weight: 500; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { height: 32px; padding: 0 16px; min-width: 64px; background: #fff; color: rgba(0,0,0,0.65); border: 1px solid #D7D7DB; border-radius: 2px; cursor: pointer; font-size: 13px; }
+.upload-box { width: 80px; height: 80px; background: #F6F6FA; border: 1px dashed #D7D7DB; border-radius: 2px; display: flex; align-items: center; justify-content: center; color: rgba(0,0,0,0.25); font-size: 10px; cursor: pointer; }
+.upload-box:hover { border-color: var(--gree-primary); background: var(--gree-primary-light); }
+
+/* 批量表格 */
+.batch-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.batch-table th { background: #F7F7F7; height: 32px; text-align: center; padding: 0 6px; font-weight: 500; color: rgba(0,0,0,0.65); border: 1px solid #E9E9E9; }
+.batch-table td { height: 28px; padding: 0 6px; border: 1px solid #E9E9E9; text-align: center; color: rgba(0,0,0,0.85); }
+.batch-table th.col-change { background: var(--change-red-light); border-color: var(--change-red-border); color: var(--change-red); }
+.batch-table td.col-change { background: #FFF8F8; }
+.batch-tip-box { background: #FFF8E1; border: 1px solid #FFB51F; border-radius: 2px; padding: 12px 16px; margin-bottom: 12px; font-size: 12px; color: rgba(0,0,0,0.65); line-height: 1.8; }
+.batch-tip-box strong { color: var(--gree-warning); }
+
+/* 对比页 */
+.compare-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.compare-side { background: #fff; border-radius: 2px; padding: 16px; }
+.compare-old-tag { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.45); font-size: 10px; padding: 2px 8px; border-radius: 2px; }
+.compare-new-tag { background: var(--change-red); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 2px; font-weight: 600; }
+.template-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.template-table th { background: #F7F7F7; height: 28px; padding: 0 6px; font-weight: 500; color: rgba(0,0,0,0.65); border-bottom: 1px solid #E9E9E9; border-right: 1px solid #E9E9E9; white-space: nowrap; text-align: left; }
+.template-table td { height: 24px; padding: 0 6px; border-bottom: 1px solid #F2F2F2; border-right: 1px solid #F2F2F2; color: rgba(0,0,0,0.45); }
+
+/* 导入页 */
+.entry-path { background: #fff; border-radius: 2px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 4px; font-size: 12px; color: rgba(0,0,0,0.65); }
+.entry-path .path-step { color: var(--gree-primary); font-weight: 500; }
+.entry-path .path-arrow { color: rgba(0,0,0,0.25); }
+
+/* === 弹窗样式 === */
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: center; justify-content: center; }
+.modal-box { background: #fff; border-radius: 2px; width: 640px; max-height: 80vh; overflow-y: auto; position: relative; }
+.modal-header { height: 42px; border-bottom: 1px solid #DCDAE2; display: flex; align-items: center; padding: 0 16px; font-size: 14px; font-weight: 600; color: rgba(0,0,0,0.85); }
+.modal-header .modal-close { margin-left: auto; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: rgba(0,0,0,0.45); border-radius: 50%; }
+.modal-header .modal-close:hover { background: rgba(0,0,0,0.06); }
+.modal-body { padding: 16px; }
+.modal-footer { height: 52px; border-top: 1px solid #DCDAE2; display: flex; align-items: center; justify-content: flex-end; padding: 0 16px; gap: 8px; }
+
+/* 列表页筛选栏 */
+.filter-bar { background: #fff; border-radius: 2px; padding: 16px; margin-bottom: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px; align-items: end; }
+.filter-bar .filter-item { display: flex; align-items: flex-start; gap: 4px; }
+.filter-bar .filter-label { min-width: 60px; max-width: 60px; font-size: 13px; color: rgba(0,0,0,0.85); line-height: 28px; text-align: right; }
+.filter-bar .filter-btn-row { display: flex; align-items: center; gap: 8px; }
+
+/* 列表页表格 */
+.list-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.list-table th { background: #F7F7F7; height: 32px; text-align: center; padding: 0 8px; font-weight: 500; color: rgba(0,0,0,0.65); border-bottom: 1px solid #E9E9E9; font-size: 12px; }
+.list-table td { height: 28px; padding: 0 8px; border-bottom: 1px solid #E9E9E9; text-align: center; color: rgba(0,0,0,0.85); }
+.list-table .link-text { color: var(--gree-primary); cursor: pointer; }
+
+/* 操作按钮行 */
+.action-bar { background: #fff; border-radius: 2px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+
+/* ===== PRD注释Drawer（从右边滑出） ===== */
+.prd-drawer-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.3); z-index: 500; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
+.prd-drawer-overlay.open { opacity: 1; visibility: visible; }
+.prd-drawer { position: fixed; top: 0; right: -340px; width: 340px; height: 100%; background: #fff; z-index: 501; transition: right .3s ease; box-shadow: -4px 0 16px rgba(0,0,0,.15); display: flex; flex-direction: column; }
+.prd-drawer.open { right: 0; }
+.prd-drawer-header { display: flex; align-items: center; justify-content: space-between; height: 42px; padding: 0 16px; background: #fafbfc; border-bottom: 1px solid #DCDAE2; flex-shrink: 0; }
+.prd-drawer-header-title { font-size: 14px; font-weight: 700; color: #333; }
+.prd-drawer-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #999; border: none; background: none; }
+.prd-drawer-close:hover { color: #333; }
+.prd-drawer-body { flex: 1; overflow-y: auto; padding: 16px; }
+.prd-drawer-body::-webkit-scrollbar { width: 6px; }
+.prd-drawer-body::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+.anno-section { margin-bottom: 16px; }
+.anno-section:last-child { margin-bottom: 0; }
+.anno-section-title { font-size: 14px; font-weight: 700; color: #C62828; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.anno-section-title::before { content: ""; display: inline-block; width: 4px; height: 16px; background: #D32F2F; border-radius: 2px; }
+.anno-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(211,47,47,.1); font-size: 12.5px; line-height: 1.65; }
+.anno-row:last-child { border-bottom: none; }
+.tag-n { background: #D32F2F; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+.tag-id { background: #BA7517; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+.tag-c { background: #3e51ef; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+.anno-txt { color: #444; }
+.prd-btn { padding:5px 14px; font-size:12px; color:#FFEBEE; cursor:pointer; border-radius:2px; transition:all .15s; font-weight:600; background:#D32F2F; border:1px solid #D32F2F; margin-left:auto; }
+.prd-btn:hover { background:#C62828; color:#fff; }
+</style>
+</head>
+<body>
+
+<!-- 场景切换导航 -->
+<div class="top-switch-nav">
+  <span class="switch-label">切换场景：</span>
+  <button class="scene-btn active" onclick="switchScene('dealer-zx')">经销商-直销<span class="badge-dealer">经销商</span></button>
+  <button class="scene-btn" onclick="switchScene('dealer-qd')">经销商-渠道<span class="badge-dealer">经销商</span></button>
+  <button class="scene-btn" onclick="switchScene('dealer-bei')">经销商-备货<span class="badge-dealer">经销商</span></button>
+  <button class="scene-btn" onclick="switchScene('admin-zx')">管理端-直销<span class="badge-admin">管理端</span></button>
+  <button class="scene-btn" onclick="switchScene('admin-qd')">管理端-渠道<span class="badge-admin">管理端</span></button>
+  <button class="scene-btn" onclick="switchScene('admin-bei')">管理端-备货<span class="badge-admin">管理端</span></button>
+  <button class="scene-btn" onclick="switchScene('batch')">批量导入<span class="badge-admin">管理端</span></button>
+  <button class="prd-btn" onclick="openPrdDrawer()">PRD注释</button>
+</div>
+
+<div id="scene-container"></div>
+
+<!-- ★ PRD注释Drawer — 从右边滑出，可滚动 ★ -->
+<div class="prd-drawer-overlay" id="prdOverlay" onclick="closePrdDrawer()"></div>
+<div class="prd-drawer" id="prdDrawer">
+  <div class="prd-drawer-header">
+    <span class="prd-drawer-header-title" id="prdDrawerTitle">PRD注释</span>
+    <div class="prd-drawer-close" onclick="closePrdDrawer()">✕</div>
+  </div>
+  <div class="prd-drawer-body" id="prdDrawerBody">
+    <!-- 动态内容由JS渲染 -->
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   V4 原型：JS模板驱动 + 数据对象
+   7场景 + 1对比页，共用3套模板函数
+   修复：经销商端=PC布局(非H5)+关联工程单/大盘+字段顺序还原
+   ============================================================ */
+
+/* --- Axure注释迁移记录 ---
+   直销工程客户 Axure元素ID：
+     配送方式标签: u92088, 配送(选中): u92079/u92081, 自提: u92082/u92083
+     卸货方式标签: u92107, 卸货上楼(选中): u92098-u92100/u92100, 仅卸货不上楼: u92103-u92105/u92105
+   渠道工程客户 Axure元素ID：
+     配送方式标签: u93400, 配送(选中): u93393, 卸货方式标签: u93419
+     卸货上楼(选中): u93412, 仅卸货不上楼: u93417
+   渠道工程备货 Axure元素ID：
+     配送方式标签: u94783, 配送(选中): u94776, 卸货方式标签: u94802
+     卸货上楼(选中): u94795, 仅卸货不上楼: u94800
+   代客登录 Axure元素ID（原无配送/卸货）：
+     u16511~u16577: QA无"项目名称"！真实字段：使用单位(仅渠道客户有)、使用方负责人、联系方式、安装地址、采购单位
+     ⚠️ Axure有"项目名称"，但QA没有——以QA为准；使用单位=只有渠道工程客户有（用户确认）
+   批量申请 Axure元素ID：
+     配送方式列: u36329(模板1)/u36738(模板2), 卸货方式列: u36330(模板1)/u36467(校验表)
+   --- Axure注释结束 --- */
+
+// === 场景数据 ===
+const scenes = {
+  'dealer-zx': { label:'经销商端-直销工程客户', type:'dealer', subType:'zx', typeName:'直销工程客户', hasUseUnit:false, hasSidebar:false, breadCrumb:['大客户','新建工程单'], headerLabel:'经销商端 · 直销工程客户' },
+  'dealer-qd': { label:'经销商端-渠道工程客户', type:'dealer', subType:'qd', typeName:'渠道工程客户', hasUseUnit:true, hasSidebar:false, breadCrumb:['大客户','新建工程单'], headerLabel:'经销商端 · 渠道工程客户' },
+  'dealer-bei': { label:'经销商端-渠道工程备货', type:'dealer', subType:'bei', typeName:'渠道工程备货', hasUseUnit:false, hasSidebar:false, breadCrumb:['大客户','新建工程单'], headerLabel:'经销商端 · 渠道工程备货' },
+  'admin-zx': { label:'管理端-直销工程客户(代客)', type:'admin', subType:'zx', typeName:'直销工程客户', hasUseUnit:false, hasSidebar:true, breadCrumb:['工程机','工程单列表','新建代客申请'], headerLabel:null },
+  'admin-qd': { label:'管理端-渠道工程客户(代客)', type:'admin', subType:'qd', typeName:'渠道工程客户', hasUseUnit:true, hasSidebar:true, breadCrumb:['工程机','工程单列表','新建代客申请'], headerLabel:null },
+  'admin-bei': { label:'管理端-渠道工程备货(代客)', type:'admin', subType:'bei', typeName:'渠道工程备货', hasUseUnit:false, hasSidebar:true, breadCrumb:['工程机','工程单列表','新建代客申请'], headerLabel:null },
+  'batch': { label:'管理端-批量申请业务单', type:'batch', hasSidebar:true, breadCrumb:['工程机','业务单列表','批量处理','导入生成大客户业务单'] },
+  'compare': { label:'改动前后对比', type:'compare' }
+};
+
+let currentScene = 'dealer-zx';
+let deliveryValue = '配送';
+let unloadValue = '卸货上楼';
+
+function switchScene(id) {
+  currentScene = id;
+  deliveryValue = '配送';
+  unloadValue = '卸货上楼';
+  document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.scene-btn[onclick="switchScene('${id}')"]`).classList.add('active');
+  renderScene(id);
+}
+function toggleDelivery(v) { deliveryValue = v; renderScene(currentScene); }
+function toggleUnload(v) { unloadValue = v; renderScene(currentScene); }
+
+function renderScene(id) {
+  const d = scenes[id], c = document.getElementById('scene-container');
+  if (d.type==='dealer') c.innerHTML = renderDealer(d);
+  else if (d.type==='admin') c.innerHTML = renderAdmin(d);
+  else if (d.type==='batch') c.innerHTML = renderBatch(d);
+  else if (d.type==='compare') c.innerHTML = renderCompare();
+}
+
+// === 卸货方式radio生成器 ===
+function unloadRadioHTML() {
+  const opts = [{v:'卸货上楼',l:'卸货上楼',n:false},{v:'仅卸货不上楼',l:'仅卸货不上楼',n:false},{v:'不卸货不上楼',l:'不卸货不上楼',n:true}];
+  let h = '<div class="radio-group">';
+  opts.forEach(o => {
+    const ck = unloadValue===o.v?'checked':'', nc = o.n?' new-option':'', nw = o.n?'<span class="new-tag" style="position:static;margin-left:4px;">NEW</span>':'';
+    const st = o.n?'style="color:var(--change-red);font-weight:600;"':'';
+    h += `<div class="radio-item" onclick="toggleUnload('${o.v}')"><div class="radio-dot${nc} ${ck}"></div><span ${st}>${o.l}</span>${nw}</div>`;
+  });
+  return h+'</div>';
+}
+function deliveryRadioHTML() {
+  return `<div class="radio-group"><div class="radio-item" onclick="toggleDelivery('配送')"><div class="radio-dot ${deliveryValue==='配送'?'checked':''}"></div><span>配送</span></div><div class="radio-item" onclick="toggleDelivery('自提')"><div class="radio-dot ${deliveryValue==='自提'?'checked':''}"></div><span>自提</span></div></div>`;
+}
+
+// === 经销商端模板（PC布局，无侧导航） ===
+function renderDealer(d) {
+  const showUnload = deliveryValue==='配送';
+  // 联系方式行：渠道客户=联系方式+使用单位并排；直销/备货=联系方式占满一行（无空白区域）
+  const contactRow = d.hasUseUnit
+    ? `<div class="form-row">
+        <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">联系方式</span></div>
+          <div class="contact-switch" style="flex:1;"><div class="contact-type-radio"><div class="radio-item"><div class="radio-dot checked"></div><span>联系手机</span></div><div class="radio-item"><div class="radio-dot"></div><span>固定电话</span></div></div><input class="form-input" placeholder="请输入联系方式" style="flex:1;min-width:160px;"></div>
+        </div>
+        <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">使用单位</span></div><input class="form-input" placeholder="请输入使用单位" style="flex:1;"></div>
+      </div>`
+    : `<div class="form-row">
+        <div class="form-field"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">联系方式</span></div>
+          <div class="contact-switch" style="flex:1;"><div class="contact-type-radio"><div class="radio-item"><div class="radio-dot checked"></div><span>联系手机</span></div><div class="radio-item"><div class="radio-dot"></div><span>固定电话</span></div></div><input class="form-input" placeholder="请输入联系方式" style="flex:1;min-width:160px;"></div>
+        </div>
+      </div>`;
+
+  return `
+  <!-- 场景：${d.label} | 端：PC经销商端 | 类型：${d.typeName} | 无侧导航(Axure确认) -->
+  <div class="app-layout">
+    <div class="top-bar" style="background:#3e51ef;">
+      <div class="logo-area"><div class="logo-icon">格力</div><span class="logo-text">云网批</span></div>
+      <span style="margin-left:auto;font-size:12px;color:rgba(255,255,255,0.7);">${d.headerLabel}</span>
+    </div>
+    <div class="breadcrumb"><a href="#">${d.breadCrumb[0]}</a><span class="sep">/</span><span class="current">${d.breadCrumb[1]}</span></div>
+    <div class="content-area" style="margin-left:0;">
+
+      <!-- 1. 关联信息提示栏（Axure确认：选填） -->
+      <div class="link-info-bar">
+        <div class="link-label">选填：</div>
+        1、可<span class="link-btn">关联工程单项目库</span> 选择工程单 &nbsp;&nbsp;&nbsp; 2、可<span class="link-btn">关联大盘项目</span> 选择大盘项目
+        <div class="link-tip" style="margin-top:4px;">关联后数据将反写至商品信息、使用方信息、附件信息</div>
+      </div>
+      <!-- 关联工程单展示行（关联后显示） -->
+      <div class="link-row"><span class="link-type">关联工程单项目库</span><span class="link-value">GD2023080001 (凉之沁项目) 2023-08-01</span><div class="link-action"><span class="link-action-btn">更换工程单</span><span class="link-action-btn">放弃关联</span></div></div>
+      <!-- 关联大盘展示行（关联后显示） -->
+      <div class="link-row"><span class="link-type">关联大盘项目</span><span class="link-value">DP20230801 (华南大盘项目) 2023-08-01 ~ 2024-08-01</span><div class="link-action"><span class="link-action-btn">更换大盘项目</span><span class="link-action-btn">放弃关联</span></div></div>
+
+      <!-- 2. 商品信息卡片 -->
+      <div class="card"><div class="card-title"><span class="title-dot"></span>商品信息 <button class="add-product-btn">+ 添加商品</button></div>
+        <table class="product-table"><thead><tr><th style="width:40px;">序号</th><th style="width:160px;">商品图片</th><th>商品名称</th><th>型号</th><th>SKU编码</th><th style="width:100px;">*申请数量</th><th style="width:120px;">*提货价格（含运）</th><th style="width:60px;">操作</th></tr></thead>
+        <tbody><tr><td>1</td><td><div class="product-img">图片</div></td><td>凉之沁3级35挂机</td><td>KFR-35GW</td><td>SKU20230801</td><td><input class="form-input filled" value="10" style="width:80px;height:24px;"></td><td><input class="form-input filled" value="3555" style="width:100px;height:24px;"></td><td style="color:var(--gree-error);cursor:pointer;">删除</td></tr></tbody></table>
+      </div>
+
+      <!-- 3. 使用方信息（Axure真实排列：采购单位→负责人→联系方式→配送方式→卸货方式→安装地址→智能地址） -->
+      <div class="card"><div class="card-title"><span class="title-dot"></span>使用方信息</div>
+        <!-- 第1行：*采购单位 | *使用方负责人 -->
+        <div class="form-row">
+          <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">采购单位</span></div><input class="form-input" placeholder="请选择采购单位" style="flex:1;"></div>
+          <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">使用方负责人</span></div><input class="form-input" placeholder="请输入负责人姓名" style="flex:1;"></div>
+        </div>
+        ${contactRow}
+        <!-- ▼ 配送方式+卸货方式 ▼ -->
+        <div class="form-row">
+          <div class="form-field half">
+            <div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">配送方式</span></div>
+            <div style="flex:1;">${deliveryRadioHTML()}</div>
+          </div>
+          ${showUnload ? `<div class="form-field half change-zone" style="padding:8px;border-radius:2px;">
+            <div class="change-zone-label">新增选项</div>
+            <div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">卸货方式</span><span class="new-tag">NEW</span></div>
+            <div style="flex:1;">${unloadRadioHTML()}</div>
+          </div>` : ''}
+        </div>
+        <!-- ▲ 配送方式+卸货方式结束 ▲ -->
+        <!-- 第4行：*安装地址 -->
+        <div class="form-row"><div class="form-field full"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">安装地址</span></div><div class="address-row"><select class="form-select"><option>选择省份</option></select><select class="form-select"><option>选择城市</option></select><select class="form-select"><option>选择区域</option></select><select class="form-select"><option>选择街道</option></select><input class="form-input" placeholder="请输入详情地址" style="flex:2;"></div></div></div>
+        <!-- 第5行：*智能地址填写 -->
+        <div class="form-row"><div class="form-field full"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">智能地址填写</span></div><div class="smart-address-box"><input class="smart-address-input" placeholder="粘贴完整地址，自动识别省/市/区/街道+详情"><button class="smart-address-btn">识别</button><button class="smart-address-clear">清除</button></div></div></div>
+        </div>
+
+      <!-- 4. 其他信息 -->
+      <div class="card"><div class="card-title"><span class="title-dot"></span>其他信息</div>
+        <div class="form-row"><div class="form-field"><div class="field-label-wrapper"><span class="field-label">工程备注</span></div><textarea class="form-input" placeholder="请输入备注信息" style="flex:1;height:60px;resize:vertical;padding:8px;"></textarea></div></div>
+        <div class="form-row"><div class="form-field"><div class="field-label-wrapper"><span class="field-label">附件</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;"><div class="upload-box">上传</div><span style="font-size:12px;color:rgba(0,0,0,0.45);line-height:80px;">最多10个，每个不超过10M</span></div></div></div>
+      </div>
+
+      <div class="bottom-bar"><button class="btn-secondary">取消</button><button class="btn-primary">提交</button></div>
+    </div>
+  </div>`;
+}
+
+// === 管理端模板（PC布局，有侧导航+基本信息section） ===
+function renderAdmin(d) {
+  const showUnload = deliveryValue==='配送';
+  // 联系方式行：渠道客户=联系方式+使用单位并排；直销/备货=联系方式占满一行
+  const contactRow = d.hasUseUnit
+    ? `<div class="form-row">
+        <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">联系方式</span></div>
+          <div class="contact-switch" style="flex:1;"><div class="contact-type-radio"><div class="radio-item"><div class="radio-dot checked"></div><span>联系手机</span></div><div class="radio-item"><div class="radio-dot"></div><span>固定电话</span></div></div><input class="form-input" placeholder="请输入联系方式" style="flex:1;min-width:160px;"></div>
+        </div>
+        <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">使用单位</span></div><input class="form-input" placeholder="请输入使用单位" style="flex:1;"></div>
+      </div>`
+    : `<div class="form-row">
+        <div class="form-field"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">联系方式</span></div>
+          <div class="contact-switch" style="flex:1;"><div class="contact-type-radio"><div class="radio-item"><div class="radio-dot checked"></div><span>联系手机</span></div><div class="radio-item"><div class="radio-dot"></div><span>固定电话</span></div></div><input class="form-input" placeholder="请输入联系方式" style="flex:1;min-width:160px;"></div>
+        </div>
+      </div>`;
+
+  return `
+  <!-- 场景：${d.label} | 端：PC管理端 | 类型：${d.typeName} -->
+  <div class="app-layout">
+    <div class="top-bar" style="background:#3e51ef;">
+      <div class="logo-area"><div class="logo-icon">格力</div><span class="logo-text">云网批</span></div>
+      <div class="top-tabs"><span class="top-tab-item">工程单列表</span><span class="top-tab-item">入库单</span><span class="top-tab-item">上架单</span></div>
+      <div class="user-info"><div class="user-avatar">黎</div><span>黎科兵</span><span>体验设计处</span></div>
+    </div>
+    <div class="breadcrumb"><a href="#">${d.breadCrumb[0]}</a><span class="sep">/</span><a href="#">${d.breadCrumb[1]}</a><span class="sep">/</span><span class="current">${d.breadCrumb[2]}</span></div>
+    <div class="tab-bar"><div class="tab-item home" style="font-size:14px;">🏠</div><div class="tab-item">工程单列表</div><div class="tab-item active">新建代客申请</div></div>
+    <div class="main-body">
+      <div class="sidebar">
+        <div class="nav-group-title">大客户管理 <span class="expand-icon">▼</span></div>
+        <div class="nav-item">大客户审批</div><div class="nav-item">业务单审批</div><div class="nav-item">项目推送审批</div><div class="nav-item">工程单审批</div>
+        <div class="nav-item active">业务单列表</div><div class="nav-item">工程单列表</div><div class="nav-item">工程单项目库</div>
+        <div class="nav-group-title">收差列表 <span class="expand-icon">▶</span></div>
+        <div class="nav-group-title">上架单 <span class="expand-icon">▶</span></div><div class="nav-group-title">入库单 <span class="expand-icon">▶</span></div>
+        <div class="nav-group-title">参数配置 <span class="expand-icon">▶</span></div><div class="nav-group-title">批价设置 <span class="expand-icon">▶</span></div>
+      </div>
+      <div class="content-area">
+
+        <!-- 1. 基本信息（管理端独有6字段） -->
+        <!-- Axure注释：代客登录6字段 u16511~u16577 -->
+        <div class="card"><div class="card-title"><span class="title-dot"></span>基本信息</div>
+          <div class="basic-info-grid">
+            <div class="form-field"><div class="field-label-wrapper"><span class="field-label">工程单号</span></div><input class="form-input filled" value="GDY44030820230801" style="flex:1;background:#eee;cursor:not-allowed;" readonly></div>
+            <div class="form-field"><div class="field-label-wrapper"><span class="field-label">客户经理</span></div><input class="form-input filled" value="张三（选择大客户后加载）" style="flex:1;background:#eee;" readonly></div>
+            <div class="form-field"><div class="field-label-wrapper"><span class="field-label">操作人</span></div><input class="form-input filled" value="黎科兵" style="flex:1;background:#eee;" readonly></div>
+            <div class="form-field"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">大客户名称</span></div><input class="form-input" placeholder="点击选择大客户" style="flex:1;color:var(--gree-primary);cursor:pointer;"></div>
+            <div class="form-field"><div class="field-label-wrapper"><span class="field-label">大客户负责人</span></div><input class="form-input filled" value="李四（选择后加载）" style="flex:1;background:#eee;" readonly></div>
+            <div class="form-field"><div class="field-label-wrapper"><span class="field-label">大客户电话</span></div><input class="form-input filled" value="86-184****8888（选择后加载）" style="flex:1;background:#eee;" readonly></div>
+          </div>
+        </div>
+
+        <!-- 2. 商品信息 -->
+        <div class="card"><div class="card-title"><span class="title-dot"></span>商品信息 <button class="add-product-btn">+ 添加商品</button></div>
+          <table class="product-table"><thead><tr><th style="width:40px;">序号</th><th style="width:160px;">商品图片</th><th>商品名称</th><th>型号</th><th>SKU编码</th><th style="width:100px;">*申请数量</th><th style="width:120px;">*含运价</th><th style="width:120px;">*不含运价</th><th style="width:60px;">操作</th></tr></thead>
+          <tbody><tr><td>1</td><td><div class="product-img">图片</div></td><td>凉之沁3级35挂机</td><td>KFR-35GW</td><td>SKU20230801</td><td><input class="form-input filled" value="10" style="width:80px;height:24px;"></td><td><input class="form-input filled" value="3555" style="width:100px;height:24px;"></td><td><input class="form-input filled" value="3200" style="width:100px;height:24px;"></td><td style="color:var(--gree-error);cursor:pointer;">删除</td></tr></tbody></table>
+        </div>
+
+        <!-- 3. 使用方信息（管理端排列与经销商端一致：采购单位→使用方负责人→联系方式→配送方式→卸货方式→安装地址→采购单位）
+             ⚠️ QA无"项目名称"；使用单位=只有渠道工程客户有（用户确认），直销和备货没有 -->
+        <div class="card"><div class="card-title"><span class="title-dot"></span>使用方信息</div>
+          <!-- 第1行：*采购单位 | *使用方负责人 -->
+          <div class="form-row">
+            <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">采购单位</span></div><input class="form-input" placeholder="请选择采购单位" style="flex:1;"></div>
+            <div class="form-field half"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">使用方负责人</span></div><input class="form-input" placeholder="请输入负责人姓名" style="flex:1;"></div>
+          </div>
+          ${contactRow}
+          <!-- ▼ 配送方式+卸货方式 ▼ -->
+          <div class="form-row">
+            <div class="form-field half">
+              <div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">配送方式</span></div>
+              <div style="flex:1;">${deliveryRadioHTML()}</div>
+            </div>
+            ${showUnload ? `<div class="form-field half change-zone" style="padding:8px;border-radius:2px;">
+              <div class="change-zone-label">新增选项</div>
+              <div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">卸货方式</span><span class="new-tag">NEW</span></div>
+              <div style="flex:1;">${unloadRadioHTML()}</div>
+            </div>` : ''}
+          </div>
+          <!-- ▲ 配送方式+卸货方式结束 ▲ -->
+          <!-- 第N行：*安装地址（与经销商端排列一致，无智能地址） -->
+          <div class="form-row"><div class="form-field full"><div class="field-label-wrapper"><span class="field-required">*</span><span class="field-label">安装地址</span></div><div class="address-row"><select class="form-select"><option>选择省份</option></select><select class="form-select"><option>选择城市</option></select><select class="form-select"><option>选择区域</option></select><select class="form-select"><option>选择街道</option></select><input class="form-input" placeholder="请输入详情地址" style="flex:2;"></div></div></div>
+        </div>
+
+        <!-- 4. 其他信息 -->
+        <div class="card"><div class="card-title"><span class="title-dot"></span>其他信息</div>
+          <div class="form-row"><div class="form-field"><div class="field-label-wrapper"><span class="field-label">工程备注</span></div><textarea class="form-input" placeholder="请输入备注信息" style="flex:1;height:60px;resize:vertical;padding:8px;"></textarea></div></div>
+          <div class="form-row"><div class="form-field"><div class="field-label-wrapper"><span class="field-label">附件</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;"><div class="upload-box">上传</div><span style="font-size:12px;color:rgba(0,0,0,0.45);line-height:80px;">最多10个，每个不超过10M</span></div></div></div>
+        </div>
+
+        <div class="bottom-bar"><button class="btn-secondary">取消</button><button class="btn-primary">提交</button></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// === 批量导入模板（交互式：列表页→弹窗1→弹窗2） ===
+function renderBatch(d) {
+  return `
+  <!-- 场景：${d.label} | 交互式批量导入流程 -->
+  <div class="app-layout">
+    <div class="top-bar" style="background:#3e51ef;">
+      <div class="logo-area"><div class="logo-icon">格力</div><span class="logo-text">云网批</span></div>
+      <div class="top-tabs"><span class="top-tab-item active">工程单列表</span><span class="top-tab-item">入库单</span><span class="top-tab-item">上架单</span></div>
+      <div class="user-info"><div class="user-avatar">黎</div><span>黎科兵</span><span>体验设计处</span></div>
+    </div>
+    <div class="breadcrumb"><a href="#">${d.breadCrumb[0]}</a><span class="sep">/</span><a href="#">${d.breadCrumb[1]}</a><span class="sep">/</span><span class="current">业务单列表</span></div>
+    <div class="tab-bar"><div class="tab-item home" style="font-size:14px;">🏠</div><div class="tab-item active">业务单列表</div></div>
+    <div class="main-body">
+      <div class="sidebar">
+        <div class="nav-group-title">大客户管理 <span class="expand-icon">▼</span></div>
+        <div class="nav-item">大客户审批</div><div class="nav-item">业务单审批</div><div class="nav-item">项目推送审批</div><div class="nav-item">工程单审批</div>
+        <div class="nav-item active">业务单列表</div><div class="nav-item">工程单列表</div><div class="nav-item">工程单项目库</div>
+        <div class="nav-group-title">收差列表 <span class="expand-icon">▶</span></div>
+        <div class="nav-group-title">上架单 <span class="expand-icon">▶</span></div><div class="nav-group-title">入库单 <span class="expand-icon">▶</span></div>
+        <div class="nav-group-title">参数配置 <span class="expand-icon">▶</span></div><div class="nav-group-title">批价设置 <span class="expand-icon">▶</span></div>
+      </div>
+      <div class="content-area" id="batchContent">
+        <!-- ⚠️ QA还原：批量导入页面只有操作按钮+列表，无搜索条件筛选栏！ -->
+        <!-- 1. 操作按钮行（QA还原：直接放列表上方） -->
+        <div class="action-bar">
+          <button class="btn-primary change-zone" style="height:28px;font-size:12px;border:2px dashed var(--change-red);border-radius:2px;position:relative;padding:0 16px;" onclick="openModal1()">导入生成大客户业务单<span class="change-zone-label" style="top:-1px;right:-1px;">需求入口</span></button>
+          <button class="btn-secondary" style="height:28px;font-size:12px;">导出</button>
+          <button class="btn-secondary" style="height:28px;font-size:12px;">批量删除</button>
+          <span style="margin-left:auto;font-size:12px;color:rgba(0,0,0,0.45);">已选 0 条</span>
+        </div>
+
+        <!-- 导入模板字段说明已移至PRD注释Drawer -->
+
+        <!-- 3. 导入列表（QA还原：操作、导入编码、创建时间、更新时间、创建人） -->
+        <div class="card">
+          <table class="list-table">
+            <thead><tr>
+              <th style="width:36px;"><input type="checkbox" style="width:14px;height:14px;"></th>
+              <th>操作</th><th>导入编码</th><th>创建时间</th><th>更新时间</th><th>创建人</th>
+            </tr></thead>
+            <tbody>
+              <tr><td><input type="checkbox" style="width:14px;height:14px;"></td><td class="link-text">查看</td><td>IMP20230801001</td><td>2023-08-01 14:30</td><td>2023-08-01 14:30</td><td>黎科兵</td></tr>
+              <tr><td><input type="checkbox" style="width:14px;height:14px;"></td><td class="link-text">查看</td><td>IMP20230801002</td><td>2023-08-01 15:00</td><td>2023-08-02 09:30</td><td>黎科兵</td></tr>
+              <tr><td><input type="checkbox" style="width:14px;height:14px;"></td><td class="link-text">查看</td><td>IMP20230801003</td><td>2023-08-02 10:00</td><td>2023-08-02 10:00</td><td>张三</td></tr>
+            </tbody>
+          </table>
+          <!-- 分页器 -->
+          <div style="display:flex;align-items:center;justify-content:flex-end;padding:12px 0;gap:8px;font-size:12px;color:rgba(0,0,0,0.65);">
+            <span>共 4 条</span>
+            <select class="form-select" style="width:60px;height:28px;"><option>10</option><option>20</option><option>50</option></select>
+            <span style="border:1px solid #D7D7DB;border-radius:2px;padding:4px 8px;cursor:pointer;">上一页</span>
+            <span style="background:var(--gree-primary);color:#fff;border-radius:2px;padding:4px 8px;">1</span>
+            <span style="border:1px solid #D7D7DB;border-radius:2px;padding:4px 8px;cursor:pointer;">下一页</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 弹窗1：导入生成大客户业务单 -->
+  <div class="modal-overlay" id="modal1" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-header">导入生成大客户业务单 <span class="modal-close" onclick="closeModal1()">✕</span></div>
+      <div class="modal-body">
+        <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:12px;">批量导入：* 为必填项</div>
+        <div style="color:var(--gree-primary);font-size:12px;cursor:pointer;margin-bottom:16px;display:inline-block;">下载模板</div>
+        <div class="upload-area" style="background:#fff;border:1px dashed #D7D7DB;border-radius:2px;padding:24px;text-align:center;margin-bottom:16px;min-height:80px;">
+          <div style="font-size:24px;color:rgba(0,0,0,0.25);margin-bottom:8px;">📁</div>
+          <div style="font-size:13px;color:rgba(0,0,0,0.65);"><span style="font-weight:500;">*导入业务单信息：</span>选择文件（xls/XLSX格式）</div>
+          <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-top:4px;">每个文件不能超过100条记录</div>
+          <div style="margin-top:12px;"><button class="btn-primary" style="height:28px;font-size:12px;" onclick="openModal2()">上传文件</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 弹窗2：导入生成工程（上传结果+校验规则） -->
+  <div class="modal-overlay" id="modal2" style="display:none;">
+    <div class="modal-box" style="width:880px;">
+      <div class="modal-header">导入生成工程 <span class="modal-close" onclick="closeModal2()">✕</span></div>
+      <div class="modal-body">
+        <!-- 验证结果统计 -->
+        <div style="display:flex;gap:24px;margin-bottom:16px;">
+          <span style="font-size:13px;color:rgba(0,0,0,0.65);">总共 <span style="font-weight:600;color:rgba(0,0,0,0.85);">2</span> 条纪录</span>
+          <span style="font-size:13px;color:rgba(0,0,0,0.65);">成功上传 <span style="font-weight:600;color:var(--gree-success);">2</span> 条</span>
+          <span style="font-size:13px;color:rgba(0,0,0,0.65);">导入失败 <span style="font-weight:600;color:var(--gree-error);">0</span> 条</span>
+        </div>
+        <!-- 模板表头预览（17列，红色=需求改动列） -->
+        <div style="overflow-x:auto;margin-bottom:16px;">
+          <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px;">模板表头预览（17列，红色=需求改动列）</div>
+          <table class="template-table"><thead><tr>
+            <th>序号</th><th>*自编号</th><th>*业务单类型</th><th>*SKU编码</th><th>*申请数量</th><th>使用单位</th><th>*采购单位</th><th>*使用方负责人</th><th>*联系方式类型</th><th>*联系方式</th>
+            <th>*配送方式</th>
+            <th class="change-zone" style="padding:2px 4px;border-radius:0;">卸货方式<span class="new-tag" style="position:static;margin-left:4px;">NEW</span></th>
+            <th>*安装地址（省）</th><th>*安装地址（市）</th><th>*安装地址（区）</th><th>*安装地址（街道）</th><th>*安装地址详情</th><th>工程备注</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>1</td><td>BIZ001</td><td>直销工程客户</td><td>SKU20230801</td><td>10</td><td style="color:rgba(0,0,0,0.45);">-</td><td>珠海格力</td><td>张三</td><td>联系手机</td><td>13800138000</td><td style="background:var(--change-red-light);">配送</td><td style="background:var(--change-red-light);">卸货上楼</td><td>广东省</td><td>珠海市</td><td>香洲区</td><td>前山街道</td><td>格力电器1号门</td><td>备注信息</td></tr>
+            <tr><td>2</td><td>BIZ002</td><td>渠道工程客户</td><td>SKU20230802</td><td>5</td><td>华南分销</td><td>珠海格力</td><td>李四</td><td>固定电话</td><td>0756-8888888</td><td style="background:var(--change-red-light);">配送</td><td style="background:var(--change-red-light);color:var(--change-red);font-weight:500;">不卸货不上楼<span class="new-tag" style="position:static;margin-left:2px;">NEW</span></td><td>广东省</td><td>珠海市</td><td>香洲区</td><td>前山街道</td><td>格力电器2号门</td><td></td></tr>
+          </tbody></table>
+        </div>
+        <!-- 校验规则说明（17条，用户提供的原始规则） -->
+        <div style="margin-bottom:8px;">
+          <div style="font-size:12px;color:rgba(0,0,0,0.45);margin-bottom:4px;">导入核验规则（17条，红色=需求改动相关）</div>
+          <table class="template-table" style="font-size:12px;"><thead><tr>
+            <th style="width:36px;">序号</th><th>字段</th><th>导入格式</th><th>校验判断</th><th>导入失败错误提示</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>1</td><td>自编号</td><td>最多32个字符</td><td>必填项</td><td>缺少自编号，导入失败</td></tr>
+            <tr><td>2</td><td>业务单类型</td><td>单选项：直销工程客户、渠道工程客户、渠道工程备货</td><td>必填项</td><td>缺少业务单类型，导入失败</td></tr>
+            <tr><td>3</td><td>SKU编码</td><td>最多32个字符</td><td>必填项</td><td>大客户销售方案缺少商品，导入失败</td></tr>
+            <tr><td>4</td><td>申请数量</td><td>仅限数字，1~9999999</td><td>必填项</td><td>缺少申请数量，导入失败</td></tr>
+            <tr><td>5</td><td>使用单位</td><td>上限30字符</td><td>条件必填（渠道工程客户时）</td><td>业务单类型为渠道工程客户缺少使用单位，导入失败</td></tr>
+            <tr><td>6</td><td>采购单位</td><td>上限30字符</td><td>必填项</td><td>缺少采购单位，导入失败</td></tr>
+            <tr><td>7</td><td>使用方负责人</td><td>上限30字符</td><td>必填项</td><td>缺少使用方负责人，导入失败</td></tr>
+            <tr><td>8</td><td>联系方式类型</td><td>单选项：联系手机、固定电话</td><td>必填项</td><td>缺少联系方式类型，导入失败</td></tr>
+            <tr><td>9</td><td>联系方式</td><td>联系手机：11位数字，1开头<br>固定电话：7-12位数字或"-"</td><td>必填项</td><td>缺少联系方式，导入失败 / 格式有误</td></tr>
+            <tr><td>10</td><td>配送方式</td><td>单选项：配送、自提</td><td>必填项</td><td>缺少配送方式，导入失败</td></tr>
+            <tr style="background:var(--change-red-light);"><td>11</td><td style="color:var(--change-red);font-weight:500;">卸货方式<span class="new-tag" style="position:static;">NEW</span></td><td style="color:var(--change-red);">单选项：卸货上楼、仅卸货不上楼、<b style="color:var(--change-red);">不卸货不上楼</b></td><td>条件必填（配送时必填）</td><td>配送方式为配送时缺少卸货方式，导入失败；自提时非必填，填写也不写入数据</td></tr>
+            <tr><td>12</td><td>安装地址（省）</td><td>限制中台地址</td><td>必填项</td><td>缺少/格式有误</td></tr>
+            <tr><td>13</td><td>安装地址（市）</td><td>限制中台地址</td><td>必填项</td><td>缺少/格式有误</td></tr>
+            <tr><td>14</td><td>安装地址（区）</td><td>限制中台地址</td><td>必填项</td><td>缺少/格式有误</td></tr>
+            <tr><td>15</td><td>安装地址（街道）</td><td>限制中台地址</td><td>必填项</td><td>缺少/格式有误</td></tr>
+            <tr><td>16</td><td>安装地址详情</td><td>上限50字符</td><td>必填项</td><td>缺少/格式有误</td></tr>
+            <tr><td>17</td><td>工程备注</td><td>500字符</td><td>非必填项</td><td>格式有误</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal2()">取消</button>
+        <button class="btn-primary" onclick="closeModal2();closeModal1();">确认导入</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// 弹窗交互函数
+function openModal1() { document.getElementById('modal1').style.display = 'flex'; }
+function closeModal1() { document.getElementById('modal1').style.display = 'none'; }
+function openModal2() { document.getElementById('modal2').style.display = 'flex'; }
+function closeModal2() { document.getElementById('modal2').style.display = 'none'; }
+
+// === 对比页 ===
+function renderCompare() {
+  return `
+  <div style="padding:16px;background:#F2F2F2;">
+    <h2 style="font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:8px;"><span style="width:4px;height:16px;background:var(--gree-primary);border-radius:2px;display:inline-block;"></span>卸货方式 — 改动前后对比</h2>
+    <div class="compare-layout">
+      <div class="compare-side"><h3><span class="compare-old-tag">改动前</span> 卸货方式选项（原有）</h3>
+        <div style="padding:16px;background:#f5f5f5;border-radius:2px;">
+          <div class="radio-group"><div class="radio-item"><div class="radio-dot checked"></div><span>卸货上楼</span></div><div class="radio-item"><div class="radio-dot"></div><span>仅卸货不上楼</span></div></div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:rgba(0,0,0,0.65);line-height:1.8;"><strong>原有规则：</strong><br>• 配送方式=「配送」→ 卸货方式必填且显示<br>• 配送方式=「自提」→ 卸货方式隐藏<br>• 批量导入：卸货上楼、仅卸货不上楼（条件必填）</div>
+      </div>
+      <div class="compare-side" style="border:1px dashed var(--change-red-border);background:var(--change-red-light);">
+        <h3><span class="compare-new-tag">改动后</span> 卸货方式选项（新增"不卸货不上楼"）</h3>
+        <div style="padding:16px;background:#fff;border-radius:2px;">
+          <div class="radio-group"><div class="radio-item"><div class="radio-dot checked"></div><span>卸货上楼</span></div><div class="radio-item"><div class="radio-dot"></div><span>仅卸货不上楼</span></div><div class="radio-item" style="color:var(--change-red);font-weight:600;"><div class="radio-dot new-option"></div><span style="color:var(--change-red);">不卸货不上楼</span><span class="new-tag" style="position:static;margin-left:4px;">NEW</span></div></div>
+        </div>
+        <div style="margin-top:12px;font-size:12px;color:rgba(0,0,0,0.65);line-height:1.8;"><strong>改动要点：</strong><br>• <span style="color:var(--change-red);font-weight:600;">新增选项"不卸货不上楼"</span>——卸货方式从2选项变为3选项<br>• 经销商端3类型PC页面：直销/渠道/备货，卸货方式均新增第3选项<br>• 管理端代客3类型PC页面：卸货方式均新增第3选项<br>• 批量导入：交互式弹窗流程（列表页→弹窗1→弹窗2），卸货方式枚举值更新为3选项<br>• 联动规则不变：配送=自提→卸货隐藏；配送=配送→卸货必填</div>
+        <div style="margin-top:16px;padding:12px;background:#FFF8E1;border:1px solid #FFB51F;border-radius:2px;font-size:12px;line-height:1.8;"><strong style="color:var(--gree-warning);">⚠️ Axure注释迁移：</strong><br>Axure元素ID已全部迁移至HTML注释中（Axure文件将丢弃）<br>直销：卸货u92107/u92100/u92105<br>渠道：卸货u93419/u93412/u93417<br>备货：卸货u94802/u94795/u94800<br>代客：u16511~u16577<br>批量：u36329/u36738/u36330/u36467</div>
+      </div>
+    </div>
+
+    <!-- 7场景一览 -->
+    <div class="card" style="margin-top:16px;"><div class="card-title"><span class="title-dot"></span>7场景覆盖一览</div>
+      <table class="batch-table"><thead><tr><th>#</th><th>场景</th><th>端</th><th>类型</th><th>配送方式</th><th>卸货方式</th><th>改动标记</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>经销商-直销</td><td>PC</td><td>直销工程客户</td><td>原有</td><td style="color:var(--change-red);font-weight:600;">+不卸货不上楼</td><td class="col-change">3选项</td></tr>
+        <tr><td>2</td><td>经销商-渠道</td><td>PC</td><td>渠道工程客户</td><td>原有</td><td style="color:var(--change-red);font-weight:600;">+不卸货不上楼</td><td class="col-change">3选项</td></tr>
+        <tr><td>3</td><td>经销商-备货</td><td>PC</td><td>渠道工程备货</td><td>原有</td><td style="color:var(--change-red);font-weight:600;">+不卸货不上楼</td><td class="col-change">3选项</td></tr>
+        <tr><td>4</td><td>管理端-直销</td><td>PC</td><td>直销工程客户</td><td>原有</td><td style="color:var(--change-red);font-weight:600;">+不卸货不上楼</td><td class="col-change">3选项</td></tr>
+        <tr><td>5</td><td>管理端-渠道</td><td>PC</td><td>渠道工程客户</td><td>原有</td><td style="color:var(--change-red);font-weight:600;">+不卸货不上楼</td><td class="col-change">3选项</td></tr>
+        <tr><td>6</td><td>管理端-备货</td><td>PC</td><td>渠道工程备货</td><td>原有</td><td style="color:var(--change-red);font-weight:600;">+不卸货不上楼</td><td class="col-change">3选项</td></tr>
+        <tr><td>7</td><td>批量导入</td><td>PC</td><td>导入模板</td><td>原有</td><td style="color:var(--change-red);font-weight:600;">+不卸货不上楼</td><td class="col-change">枚举值更新</td></tr>
+      </tbody></table>
+    </div>
+
+    <!-- 字段排列差异 -->
+    <div class="card" style="margin-top:16px;"><div class="card-title"><span class="title-dot"></span>使用方信息字段排列（两端一致，QA还原）</div>
+      <table class="batch-table"><thead><tr><th style="width:60px;">序号</th><th style="width:200px;">经销商端（PC）</th><th style="width:200px;">管理端（代客申请）</th><th>差异说明</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>*采购单位</td><td>*采购单位</td><td>✅ 排列一致</td></tr>
+        <tr><td>2</td><td>*使用方负责人</td><td>*使用方负责人</td><td>✅ 排列一致</td></tr>
+        <tr><td>3</td><td>*联系方式</td><td>*联系方式</td><td>✅ 排列一致</td></tr>
+        <tr><td>4</td><td>*使用单位（仅渠道客户有）</td><td>*使用单位（仅渠道客户有）</td><td>✅ 两端一致</td></tr>
+        <tr><td>5</td><td>*配送方式</td><td>*配送方式</td><td>✅ 排列一致</td></tr>
+        <tr><td>6</td><td>*卸货方式<span class="new-tag" style="position:static;">NEW</span></td><td>*卸货方式<span class="new-tag" style="position:static;">NEW</span></td><td>新增选项"不卸货不上楼"</td></tr>
+        <tr><td>7</td><td>*安装地址</td><td>*安装地址</td><td>✅ 排列一致</td></tr>
+        <tr><td>8</td><td>*智能地址填写</td><td>-</td><td style="color:var(--gree-error);">经销商端独有"智能地址"</td></tr>
+        <tr><td>-</td><td>-</td><td>基本信息section</td><td style="color:var(--gree-error);">管理端独有6字段section</td></tr>
+        <tr><td>-</td><td>关联工程单+关联大盘</td><td>-</td><td style="color:var(--gree-error);">经销商端独有头部关联区域</td></tr>
+      </tbody></table>
+      <div style="margin-top:8px;font-size:12px;color:var(--gree-error);">⚠️ 使用单位=只有渠道工程客户有，直销工程客户和渠道工程备货均无（用户确认）</div>
+    </div>
+  </div>`;
+}
+
+// === PRD注释数据（7场景+批量导入，按场景动态渲染） ===
+const prdAnnotations = {
+  'dealer-zx': {
+    title: 'PRD注释 — 经销商端·直销工程客户',
+    sections: [
+      { title: '使用方信息：卸货方式新增选项',
+        items: [
+          { tag: 'NEW 选项', text: '卸货方式新增<b>「不卸货不上楼」</b>选项，原有2选项→3选项。改动仅新增1个radio选项，不影响其他字段排列和交互。' },
+          { tag: '联动规则', text: '配送方式=配送 → 卸货方式必填且显示（3选项）；配送方式=自提 → 卸货方式隐藏。规则不变。' },
+          { tag: '必填校验', text: '配送时卸货方式为必填项，3选项任选1个。自提时不显示、不校验。' }
+        ]
+      },
+      { title: '使用方信息字段排列（QA还原）',
+        items: [
+          { tag: '排列', text: '采购单位 → 使用方负责人 → 联系方式(自适应占满一行) → <b>配送方式</b> → <b>卸货方式</b> → 安装地址 → 智能地址填写。直销无使用单位字段。' },
+          { tag: '智能地址', text: '经销商端独有"智能地址填写"字段（粘贴完整地址自动识别），管理端无此字段。' }
+        ]
+      },
+      { title: '需求编号',
+        items: [
+          { tag: '编号', text: '<b>DKHF260507002</b> | 大客户业务单卸货方式新增"不卸货不上楼"选项' }
+        ]
+      }
+    ]
+  },
+  'dealer-qd': {
+    title: 'PRD注释 — 经销商端·渠道工程客户',
+    sections: [
+      { title: '使用方信息：卸货方式新增选项',
+        items: [
+          { tag: 'NEW 选项', text: '卸货方式新增<b>「不卸货不上楼」</b>选项，原有2选项→3选项。' },
+          { tag: '联动规则', text: '配送方式=配送 → 卸货方式必填且显示（3选项）；配送方式=自提 → 卸货方式隐藏。' },
+          { tag: '使用单位', text: '<b>渠道工程客户独有</b>「使用单位」必填字段，位于联系方式下方。直销和备货均无此字段。' }
+        ]
+      },
+      { title: '使用方信息字段排列（QA还原）',
+        items: [
+          { tag: '排列', text: '采购单位 → 使用方负责人 → 联系方式<b style="color:#C62828;">+使用单位(同一行并排)</b> → 配送方式 → 卸货方式 → 安装地址 → 智能地址填写。' }
+        ]
+      },
+      { title: '需求编号',
+        items: [
+          { tag: '编号', text: '<b>DKHF260507002</b>' }
+        ]
+      }
+    ]
+  },
+  'dealer-bei': {
+    title: 'PRD注释 — 经销商端·渠道工程备货',
+    sections: [
+      { title: '使用方信息：卸货方式新增选项',
+        items: [
+          { tag: 'NEW 选项', text: '卸货方式新增<b>「不卸货不上楼」</b>选项，3选项与直销/渠道一致。' },
+          { tag: '联动规则', text: '配送方式=配送 → 卸货方式必填；配送方式=自提 → 卸货方式隐藏。' },
+          { tag: '无使用单位', text: '渠道工程备货<b>无</b>「使用单位」字段，与渠道工程客户不同。' }
+        ]
+      },
+      { title: '使用方信息字段排列',
+        items: [
+          { tag: '排列', text: '采购单位 → 使用方负责人 → 联系方式(自适应占满一行) → 配送方式 → 卸货方式 → 安装地址 → 智能地址填写。备货无使用单位。' }
+        ]
+      },
+      { title: '需求编号',
+        items: [
+          { tag: '编号', text: '<b>DKHF260507002</b>' }
+        ]
+      }
+    ]
+  },
+  'admin-zx': {
+    title: 'PRD注释 — 管理端·直销工程客户（代客申请）',
+    sections: [
+      { title: '使用方信息：卸货方式新增选项',
+        items: [
+          { tag: 'NEW 选项', text: '卸货方式新增<b>「不卸货不上楼」</b>选项，与经销商端3选项一致。' },
+          { tag: '联动规则', text: '配送=配送 → 卸货必填显示；配送=自提 → 卸货隐藏。管理端与经销商端联动规则一致。' },
+          { tag: '无使用单位', text: '直销工程客户<b>无</b>「使用单位」字段。' },
+          { tag: '无智能地址', text: '管理端<b>无</b>"智能地址填写"字段，安装地址仅用省市区街道+详情拆分填写。' }
+        ]
+      },
+      { title: '管理端独有：基本信息section',
+        items: [
+          { tag: '独有', text: '管理端代客申请页顶部有<b>基本信息</b>section（6字段：工程单号/客户经理/操作人/大客户名称/大客户负责人/大客户电话），经销商端无此section。' }
+        ]
+      },
+      { title: '需求编号',
+        items: [
+          { tag: '编号', text: '<b>DKHF260507002</b>' }
+        ]
+      }
+    ]
+  },
+  'admin-qd': {
+    title: 'PRD注释 — 管理端·渠道工程客户（代客申请）',
+    sections: [
+      { title: '使用方信息：卸货方式+使用单位',
+        items: [
+          { tag: 'NEW 选项', text: '卸货方式新增<b>「不卸货不上楼」</b>选项。' },
+          { tag: '使用单位', text: '<b>渠道工程客户独有</b>「使用单位」必填字段，直销和备货无。' },
+          { tag: '联动规则', text: '配送=配送 → 卸货必填显示；配送=自提 → 卸货隐藏。' }
+        ]
+      },
+      { title: '管理端独有',
+        items: [
+          { tag: '独有', text: '基本信息section（6字段）+ 侧导航 + 无智能地址。经销商端有智能地址+关联工程单/大盘，无基本信息section。' }
+        ]
+      },
+      { title: '需求编号',
+        items: [
+          { tag: '编号', text: '<b>DKHF260507002</b>' }
+        ]
+      }
+    ]
+  },
+  'admin-bei': {
+    title: 'PRD注释 — 管理端·渠道工程备货（代客申请）',
+    sections: [
+      { title: '使用方信息：卸货方式',
+        items: [
+          { tag: 'NEW 选项', text: '卸货方式新增<b>「不卸货不上楼」</b>选项。备货<b>无</b>使用单位字段。' },
+          { tag: '联动规则', text: '配送=配送 → 卸货必填显示；配送=自提 → 卸货隐藏。' }
+        ]
+      },
+      { title: '需求编号',
+        items: [
+          { tag: '编号', text: '<b>DKHF260507002</b>' }
+        ]
+      }
+    ]
+  },
+  'batch': {
+    title: 'PRD注释 — 管理端·批量导入业务单',
+    sections: [
+      { title: '批量导入入口标注',
+        items: [
+          { tag: '红框入口', text: '<b>"导入生成大客户业务单"</b>按钮红框标注，引导用户找到需求改动入口。点击后弹出导入弹窗1→弹窗2。' }
+        ]
+      },
+      { title: '导入模板字段说明（17列）',
+        items: [
+          { tag: '必填', text: '*自编号（≤32字符）、*业务单类型（直销工程客户/渠道工程客户/渠道工程备货）、*SKU编码（≤32字符）、*申请数量（1~9999999）、*采购单位（≤30字符）、*使用方负责人（≤30字符）、*联系方式类型（联系手机/固定电话）、*联系方式（手机11位1开头/固话7-12位数字或"-"）、*配送方式（配送/自提）、<b style="color:#C62828;">*卸货方式（卸货上楼/仅卸货不上楼/<em style="color:#D32F2F;">不卸货不上楼</em>，配送时必填）</b>、*安装地址（省/市/区/街道，限制中台地址）、*安装地址详情（≤50字符）' },
+          { tag: '条件必填', text: '<b>*使用单位</b>（≤30字符）：仅<b>渠道工程客户</b>必填。直销和备货时非必填，填写也不写入数据。' },
+          { tag: '非必填', text: '工程备注（≤500字符）' },
+          { tag: 'NEW', text: '<b style="color:#C62828;">卸货方式新增"不卸货不上楼"</b>枚举值。配送方式=配送时必填3选项任选1；配送方式=自提时非必填（填写也不写入数据）。' }
+        ]
+      },
+      { title: '导入校验规则（17条）',
+        items: [
+          { tag: '校验', text: '自编号→必填/≤32字符 | 业务单类型→必填/3选项 | SKU编码→必填 | 申请数量→必填/1~9999999 | 使用单位→渠道客户必填 | 采购单位→必填/≤30字符 | 使用方负责人→必填/≤30字符 | 联系方式类型→必填/2选项 | 联系方式→必填/格式校验 | 配送方式→必填/2选项 | <b style="color:#C62828;">卸货方式→配送时必填/3选项</b> | 安装地址省市区街道→必填/中台地址 | 安装地址详情→必填/≤50字符 | 工程备注→非必填/≤500字符' }
+        ]
+      },
+      { title: '需求编号',
+        items: [
+          { tag: '编号', text: '<b>DKHF260507002</b>' }
+        ]
+      }
+    ]
+  }
+};
+
+// === PRD注释Drawer交互 ===
+function openPrdDrawer() {
+  const overlay = document.getElementById('prdOverlay');
+  const drawer = document.getElementById('prdDrawer');
+  const body = document.getElementById('prdDrawerBody');
+  const title = document.getElementById('prdDrawerTitle');
+  const annoData = prdAnnotations[currentScene] || prdAnnotations['dealer-zx'];
+  title.textContent = annoData.title;
+  let html = '';
+  annoData.sections.forEach(sec => {
+    html += '<div class="anno-section">';
+    html += '<div class="anno-section-title">' + sec.title + '</div>';
+    sec.items.forEach(item => {
+      const tagClass = item.tag.includes('编号') ? 'tag-id' : (item.tag.includes('校验') ? 'tag-c' : 'tag-n');
+      html += '<div class="anno-row"><span class="' + tagClass + '">' + item.tag + '</span><span class="anno-txt">' + item.text + '</span></div>';
+    });
+    html += '</div>';
+  });
+  body.innerHTML = html;
+  overlay.classList.add('open');
+  drawer.classList.add('open');
+}
+function closePrdDrawer() {
+  document.getElementById('prdOverlay').classList.remove('open');
+  document.getElementById('prdDrawer').classList.remove('open');
+}
+
+renderScene('dealer-zx');
+</script>
+</body>
+</html>
