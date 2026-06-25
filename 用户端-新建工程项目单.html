@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户端-新建工程项目单</title>
+<style>
+/* 商用工程 · 共享样式 */
+
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --danger:#D32F2F; --success:#2E7D32; --warning:#ED6C02; --info:#0288D1;
+  --bg:#fff; --bg-card:#fff; --bg-header:#F7F8FA; --bg-hover:#f0f2f5;
+  --border:#e8eaed; --border-light:#f0f0f0;
+  --text:#1f2329; --text-secondary:#646a73; --text-aux:#8f959e;
+  --font-body:14px; --font-card-title:14px; --font-aux:12px; --font-small:13px;
+  --radius:4px; --radius-card:6px;
+  --gap:4px; --gap8:8px; --gap12:12px; --gap16:16px; --gap24:24px;
+  --row-h:36px; --header-h:40px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:var(--font-body);color:var(--text);background:#f0f2f5;line-height:1.6;}
+
+/* 三栏布局 */
+.app-layout{display:flex;min-height:100vh;}
+
+/* === 中间内容区 === */
+.main-content{flex:1;min-width:0;background:var(--bg-hover);display:flex;flex-direction:column;overflow:hidden;}
+.main-scroll{flex:1;overflow-y:auto;}
+.page-inner{padding:16px 24px 32px;}
+
+/* 面包屑 */
+.breadcrumb{padding:8px 24px;font-size:var(--font-aux);color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border);}
+.breadcrumb span.sep{margin:0 6px;color:var(--border);}
+
+/* 页面标题区 */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.page-title{font-size:18px;font-weight:600;color:var(--text);}
+.page-title-sub{font-size:12px;color:var(--text-aux);margin-top:2px;}
+
+/* Card卡片 */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);margin-bottom:12px;overflow:hidden;transition:box-shadow .2s;}
+.card:hover{box-shadow:0 1px 6px rgba(0,0,0,.06);}
+.card-header{padding:10px 16px;font-size:var(--font-card-title);font-weight:600;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;background:var(--bg-header);cursor:pointer;}
+.card-header .card-title-wrap{display:flex;align-items:center;gap:6px;}
+.card-header .badge-tag{font-size:11px;padding:2px 8px;border-radius:10px;margin-left:4px;}
+.card-prd-link{cursor:pointer;transition:color .15s;}
+.card-prd-link:hover{color:var(--primary);}
+.badge-purple{background:rgba(59,89,152,.1);color:var(--primary);}
+.badge-green{background:rgba(46,125,50,.08);color:#2E7D32;}
+.badge-red{background:rgba(211,47,47,.08);color:var(--danger);}
+.card-body{padding:12px 16px;}
+.card-body .field-row{display:flex;gap:8px;padding:4px 0;align-items:baseline;}
+.field-label{color:var(--text-secondary);min-width:110px;font-size:13px;flex-shrink:0;}
+.field-value{color:var(--text);font-size:13px;}
+
+/* 信息grid */
+.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 24px;}
+.info-item{font-size:13px;}
+.info-label{color:var(--text-aux);font-size:12px;margin-bottom:2px;}
+.info-value{color:var(--text);font-weight:500;}
+
+/* 筛选行 */
+.filter-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 12px;padding:8px 0;}
+.filter-item{display:flex;flex-direction:column;gap:2px;}
+.filter-item label{font-size:12px;color:var(--text-secondary);}
+.filter-item input,.filter-item select{border:1px solid var(--border);border-radius:var(--radius);padding:4px 8px;font-size:12px;height:30px;outline:none;width:100%;}
+.filter-item input:focus{border-color:var(--primary);}
+
+/* Table表格 */
+.table-wrap{overflow-x:auto;}
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{background:var(--bg-header);height:var(--row-h);padding:6px 10px;text-align:left;font-weight:600;font-size:12px;color:var(--text-secondary);border-bottom:1px solid var(--border);white-space:nowrap;}
+.data-table td{height:var(--row-h);padding:5px 10px;border-bottom:1px solid var(--border-light);font-size:13px;vertical-align:middle;}
+.data-table tr:hover td{background:rgba(59,89,152,.03);}
+.col-new{color:var(--danger);font-weight:600;}
+.link-tag{background:rgba(59,89,152,.08);color:var(--primary);padding:2px 8px;border-radius:3px;font-size:12px;cursor:pointer;white-space:nowrap;}
+.link-tag:hover{background:rgba(59,89,152,.18);}
+.link-tag.danger{color:var(--danger);}
+
+/* Buttons */
+.btn{padding:5px 16px;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;background:var(--bg);color:var(--text);transition:.15s;}
+.btn:hover{border-color:var(--primary);color:var(--primary);}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn-primary:hover{opacity:.88;}
+.btn-success{background:var(--success);color:#fff;border-color:var(--success);}
+.btn-success:hover{opacity:.88;}
+.btn-danger{background:var(--danger);color:#fff;border-color:var(--danger);}
+.btn-danger:hover{opacity:.88;}
+.btn-ghost{background:transparent;border-color:var(--border);color:var(--text-secondary);}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary);}
+.btn-disabled{background:#f5f5f5;color:#bbb;border-color:#e0e0e0;cursor:not-allowed;}
+.btn-group{display:flex;gap:6px;}
+.action-bar{display:flex;gap:10px;flex-wrap:wrap;padding:12px 0;background:var(--bg);}
+
+
+/* Tab切换栏 */
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:0;background:var(--bg);}
+.tab-item{padding:10px 24px;font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;}
+.tab-item:hover{color:var(--primary);}
+.tab-item.active{color:var(--primary);border-bottom-color:var(--primary);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+
+
+
+
+/* === 终态覆盖层 === */
+.void-overlay{position:relative;}
+.void-overlay::before{content:'已作废';position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,235,233,.7);display:flex;align-items:center;justify-content:center;font-size:28px;color:#C62828;font-weight:700;transform:rotate(-15deg);z-index:5;letter-spacing:8px;pointer-events:none;}
+.expired-overlay{position:relative;}
+.expired-overlay::before{content:'已失效';position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(236,239,241,.7);display:flex;align-items:center;justify-content:center;font-size:28px;color:#546E7A;font-weight:700;transform:rotate(-15deg);z-index:5;letter-spacing:8px;pointer-events:none;}
+
+/* 演示提示 */
+.demo-hint{padding:8px 12px;background:#FFF8E1;border:1px solid #FFE082;border-radius:4px;font-size:12px;color:#F57F17;margin-bottom:16px;display:flex;align-items:center;gap:6px;}
+
+/* 分页 */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:8px 0;font-size:12px;color:var(--text-secondary);}
+.pagination .pg-btn{padding:4px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);cursor:pointer;font-size:12px;color:var(--text-secondary);}
+.pagination .pg-btn:hover{border-color:var(--primary);color:var(--primary);}
+.pagination .pg-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+/* 辅助色 */
+/* === 规格行 === */
+.prd-spec-row {
+  display: flex;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.prd-spec-label {
+  color: var(--text-aux);
+  min-width: 80px;
+  flex-shrink: 0;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.prd-spec-value {
+  color: var(--text);
+  flex: 1;
+}
+.prd-spec-value .highlight { color: var(--primary); font-weight: 600; }
+
+
+
+
+
+/* 状态操作提示 */
+.prd-status-actions{font-size:10px;color:var(--text-aux);margin-left:auto;white-space:nowrap;}
+
+
+
+/* 辅助色 */
+.text-muted{color:var(--text-aux) !important;}
+.text-danger{color:var(--danger) !important;}
+.text-success{color:var(--success) !important;}
+.text-strike{text-decoration:line-through;color:var(--text-aux);}
+
+/* 商用工程专用样式 */
+
+/* ====== 页面头（表单型） ====== */
+
+/* ====== 场景切换器 ====== */
+.scene-switcher{display:flex;gap:0;background:#f5f6fa;border:1px solid #e0e3ea;border-radius:6px;overflow:hidden;padding:3px;width:fit-content;}
+.scene-btn{padding:6px 18px;font-size:13px;color:#646a73;cursor:pointer;border-radius:4px;transition:.15s;font-weight:500;white-space:nowrap;border:none;background:transparent;}
+.scene-btn:hover{color:#3b5998;background:rgba(59,89,152,.06);}
+.scene-btn.active{background:#fff;color:#3b5998;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.10);}
+
+/* ====== 场景提示卡 ====== */
+.scene-notice{display:none;border-radius:6px;padding:10px 14px;font-size:13px;margin-bottom:0;}
+.scene-notice.visible{display:flex;align-items:flex-start;gap:10px;}
+.scene-notice.reject{background:#FFF0F0;border:1px solid #ffc8c8;}
+.scene-notice.copy{background:#FFF8E1;border:1px solid #ffe082;}
+.scene-notice .notice-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.scene-notice .notice-content{flex:1;}
+.scene-notice .notice-title{font-weight:700;margin-bottom:6px;font-size:13px;}
+.scene-notice .notice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 16px;}
+.scene-notice .notice-item{font-size:12px;color:#646a73;}
+.scene-notice .notice-item span{color:#1f2329;font-weight:500;}
+
+/* ====== 页面头（表单型） ====== */
+.form-page-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 12px;background:#fff;border-bottom:1px solid #e8eaed;position:sticky;top:0;z-index:50;}
+.form-page-title{font-size:17px;font-weight:700;color:#1f2329;}
+.form-header-right{display:flex;align-items:center;gap:16px;font-size:12px;color:#8f959e;}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:#646a73;cursor:pointer;padding:5px 10px;border-radius:4px;border:1px solid #e8eaed;background:#fff;transition:.15s;margin-right:8px;}
+.back-btn:hover{color:#3b5998;border-color:#3b5998;}
+.back-btn svg{width:14px;height:14px;}
+
+/* ====== 表单卡片 ====== */
+.form-card{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:12px;overflow:hidden;}
+.form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.form-card-header:hover{background:#f0f2f5;}
+.form-card-title{display:flex;align-items:center;gap:8px;}
+.form-card-title .fct-accent{width:4px;height:16px;background:#3b5998;border-radius:2px;flex-shrink:0;}
+.form-card-title .fct-text{font-size:14px;font-weight:700;color:#1f2329;}
+.form-card-title .fct-sub{font-size:12px;color:#8f959e;font-weight:400;}
+.form-card-body{padding:16px;}
+
+/* ====== 表单网格 ====== */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;}
+.form-grid.col2{grid-template-columns:repeat(2,1fr);}
+.form-grid.col4{grid-template-columns:repeat(4,1fr);}
+.form-item{display:flex;flex-direction:column;gap:4px;}
+.form-item.span2{grid-column:span 2;}
+.form-item.span3{grid-column:span 3;}
+.form-item.span4{grid-column:span 4;}
+.form-label{font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+.form-label .req{color:#d32f2f;font-size:12px;}
+.form-label .label-tip{color:#8f959e;font-size:11px;font-weight:400;}
+.form-ctrl{height:32px;border:1px solid #e0e3ea;border-radius:4px;padding:0 10px;font-size:13px;color:#1f2329;outline:none;transition:.15s;background:#fff;width:100%;}
+.form-ctrl:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+.form-ctrl:disabled,.form-ctrl[readonly]{background:#f5f6fa;color:#8f959e;cursor:not-allowed;}
+.form-ctrl.readonly-plain{border-color:transparent;background:transparent;padding-left:0;color:#1f2329;cursor:default;}
+select.form-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238f959e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;}
+textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
+.form-hint{font-size:11px;color:#8f959e;line-height:1.4;margin-top:1px;}
+.form-hint.error{color:#d32f2f;}
+.form-readonly-tag{font-size:11px;background:#f0f2f5;color:#8f959e;padding:1px 6px;border-radius:3px;margin-left:4px;}
+
+/* 联系方式单选 */
+.contact-switch{display:flex;gap:0;margin-bottom:6px;}
+.contact-switch-btn{padding:5px 14px;font-size:12px;border:1px solid #e0e3ea;cursor:pointer;background:#fff;color:#646a73;transition:.15s;}
+.contact-switch-btn:first-child{border-radius:4px 0 0 4px;}
+.contact-switch-btn:last-child{border-radius:0 4px 4px 0;border-left:none;}
+.contact-switch-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+
+/* 地址选择 */
+.addr-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.addr-row .form-ctrl{height:32px;}
+
+/* ====== 业务线横向单选（参考上传图片的方式） ====== */
+.biz-type-selector {
+  display: flex;
+  gap: 0;
+  background: #f5f6fa;
+  border: 1px solid #e0e3ea;
+  border-radius: 6px;
+  overflow: hidden;
+  padding: 3px;
+  width: fit-content;
+}
+.biz-type-option {
+  padding: 5px 18px;
+  font-size: 13px;
+  color: #646a73;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: .15s;
+  font-weight: 500;
+  white-space: nowrap;
+  border: none;
+  background: transparent;
+  line-height: 1.5;
+}
+.biz-type-option:hover { color: #3b5998; background: rgba(59,89,152,.06); }
+.biz-type-option.active { background: #fff; color: #3b5998; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.10); }
+
+/* 跨区说明tag */
+.cross-region-tag{font-size:12px;padding:4px 10px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
+.cross-region-tag.intra{background:#E8F5E9;color:#2E7D32;}
+.cross-region-tag.inter{background:#FFF3E0;color:#E65100;}
+.cross-region-tag.none{background:#f0f2f5;color:#646a73;}
+
+/* ====== 设备清单表格 ====== */
+.equip-table-wrap{overflow-x:auto;max-height:320px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;}
+.equip-table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
+.equip-table thead{position:sticky;top:0;z-index:10;}
+.equip-table th{background:#f7f8fa;height:36px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
+.equip-table td{height:38px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.equip-table tr:hover td{background:rgba(59,89,152,.02);}
+.equip-table .td-input{border:1px solid #d0d3da;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:#fff;outline:none;transition:.15s;}
+.equip-table .td-input:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);background:#fff;}
+.equip-table .td-input:hover{border-color:#b0b5c0;}
+.equip-table .td-num{text-align:right;}
+.equip-table .td-op{white-space:nowrap;text-align:center;}
+.equip-table .td-op a{color:#d32f2f;font-size:12px;cursor:pointer;}
+.equip-table .td-op a:hover{text-decoration:underline;}
+.equip-table-foot{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#fafbfc;border-top:1px solid #f0f0f0;}
+.equip-table-foot .et-actions{display:flex;gap:8px;}
+.equip-table-foot .et-summary{font-size:12px;color:#646a73;}
+.equip-table-foot .et-summary span{color:#3b5998;font-weight:700;}
+.equip-limit-tip{font-size:12px;color:#8f959e;display:flex;align-items:center;gap:4px;}
+.equip-limit-tip.warn{color:#E65100;}
+
+/* 设备清单卡片头扩展 */
+.equip-card-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#f7f8fa;border-bottom:1px solid #f0f0f0;}
+.equip-card-hd-left{display:flex;align-items:center;gap:8px;}
+.equip-card-hd-right{display:flex;align-items:center;gap:8px;}
+.btn-sm{padding:4px 12px;font-size:12px;border-radius:3px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
+.btn-sm:hover{border-color:#3b5998;color:#3b5998;background:#f0f2f5;}
+.equip-summary-item{font-size:12px;color:#646a73;}
+.equip-summary-item span{color:#1f2329;font-weight:700;}
+
+/* ====== 底部固定操作栏 ====== */
+.form-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
+.form-footer-left{font-size:12px;color:#8f959e;}
+.form-footer-right{display:flex;gap:10px;align-items:center;}
+.btn-submit{padding:8px 32px;font-size:14px;font-weight:700;background:#3b5998;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-submit:hover{background:#2e477a;box-shadow:0 2px 8px rgba(59,89,152,.3);}
+.btn-cancel{padding:8px 20px;font-size:14px;background:#fff;color:#646a73;border:1px solid #e0e3ea;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-cancel:hover{border-color:#3b5998;color:#3b5998;}
+
+/* 表单页滚动容器 */
+.form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
+.form-page-inner{padding:16px 24px 0 24px;}
+
+/* ====== 附件区 ====== */
+.attach-zone{border:1.5px dashed #c5cae9;border-radius:5px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:#fafbfc;}
+.attach-zone:hover{border-color:#3b5998;background:#f0f4ff;}
+.attach-zone-text{font-size:13px;color:#8f959e;}
+.attach-zone-text span{color:#3b5998;text-decoration:underline;}
+.attach-list{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.attach-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#646a73;}
+.attach-item svg{flex-shrink:0;}
+.attach-item .at-name{flex:1;color:#3b5998;cursor:pointer;}
+.attach-item .at-del{color:#d32f2f;cursor:pointer;margin-left:4px;}
+
+/* ====== 只读标签 ====== */
+.field-readonly{font-size:13px;color:#1f2329;display:flex;align-items:center;gap:6px;}
+.field-readonly .ro-badge{font-size:11px;background:#f0f2f5;color:#8f959e;padding:1px 5px;border-radius:3px;}
+
+/* ====== 工商校验按钮 ====== */
+.business-check-btn{height:32px;padding:0 14px;font-size:12px;font-weight:600;color:#fff;background:#3b5998;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s;}
+.business-check-btn:hover{background:#2e477a;}
+.business-check-btn:active{background:#1f3460;}
+
+/* ====== 弹窗（Modal） ====== */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
+.modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:560px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-content.modal-lg{width:780px;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.modal-title{font-size:15px;font-weight:700;color:#1f2329;}
+.modal-close{font-size:22px;color:#8f959e;cursor:pointer;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;}
+.modal-close:hover{color:#1f2329;background:#f5f6fa;}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid #e8eaed;flex-shrink:0;}
+
+/* 筛选区 */
+.filter-row{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.filter-item{display:flex;flex-direction:column;gap:4px;}
+.filter-label{font-size:11px;color:#646a73;}
+.filter-input{width:160px;height:32px;}
+.filter-actions{display:flex;gap:6px;padding-bottom:1px;}
+
+/* 商品选择表格 */
+.product-table-wrap{overflow-x:auto;max-height:280px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;margin-bottom:10px;}
+.product-select-table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px;}
+.product-select-table thead{position:sticky;top:0;z-index:10;}
+.product-select-table th{background:#f7f8fa;height:34px;padding:0 8px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
+.product-select-table td{height:42px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.product-select-table tr:hover td{background:rgba(59,89,152,.02);}
+.prod-thumb{width:48px;height:48px;background:#f5f6fa;border-radius:4px;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#c5cae9;font-size:10px;}
+
+/* 分页 */
+.pagination-bar{display:flex;align-items:center;justify-content:space-between;background:#fafbfc;padding:8px 12px;border:1px solid #e8eaed;border-radius:4px;margin-top:0;}
+.page-info{font-size:12px;color:#8f959e;}
+.page-controls{display:flex;gap:4px;align-items:center;}
+.page-btn{padding:4px 10px;font-size:12px;color:#646a73;background:#fff;border:1px solid #e0e3ea;border-radius:3px;cursor:pointer;transition:.1s;user-select:none;}
+.page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
+.page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+.page-btn.disabled{color:#c5cae9;cursor:default;}
+
+/* 导入控件 */
+.import-notice{background:#f5f6fa;border-radius:5px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#646a73;}
+.import-notice-item{padding:3px 0;}
+.import-file-zone{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.import-file-name{font-size:13px;color:#8f959e;}
+.import-result{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:12px 14px;margin-bottom:10px;}
+.import-result-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px;}
+.import-result-label{color:#646a73;font-size:12px;white-space:nowrap;min-width:64px;}
+.progress-bar{width:200px;height:8px;background:#e8eaed;border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:#3b5998;border-radius:4px;transition:width .3s;}
+.progress-text{font-size:12px;color:#3b5998;}
+.import-summary{font-size:13px;color:#1f2329;background:#fff;border:1px solid #e0e3ea;border-radius:4px;padding:8px 12px;margin-top:8px;}
+
+/* 导入失败表 */
+.import-fail-table-wrap{overflow-x:auto;border:1px solid #ffc8c8;border-radius:4px;padding:0;}
+.import-fail-table{width:100%;border-collapse:collapse;font-size:13px;}
+.import-fail-table th{background:#FFF0F0;height:34px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#d32f2f;border-bottom:2px solid #ffc8c8;white-space:nowrap;}
+.import-fail-table td{height:36px;padding:4px 10px;border-bottom:1px solid #ffe0e0;font-size:13px;vertical-align:middle;}
+
+/* ====== 非标标签（独立列） ====== */
+.nonstd-badge{color:#E65100;font-weight:700;font-size:11px;background:#FFF3E0;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;}
+
+/* ====== btn 按钮扩展 ====== */
+.btn-sm{padding:5px 14px;font-size:12px;}
+
+html,body{height:100%;margin:0;overflow:hidden;}
+.page-root{display:flex;flex-direction:column;height:100%;background:#f0f2f5;overflow:hidden;}
+.form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
+.form-page-inner{padding:12px 24px 0;}
+.addr-row{gap:6px;}
+.addr-row .form-ctrl{height:28px;font-size:12px;}
+.addr-detail-compact{height:28px!important;}
+.addr-hint-compact{margin-top:1px;}
+</style>
+</head>
+<body>
+<div class="page-root" id="pageRoot">
+
+<!-- ========================================================================
+     区块1：页面头部
+     样式推荐决议 → H01-1 基础页头（直接复用）
+     字段映射 → 字段1 → H01-1
+     ======================================================================== -->
+<div class="form-page-header">
+  <div style="display:flex;align-items:center;gap:0;">
+    <div class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      返回
+    </div>
+    <span class="form-page-title" id="pageMainTitle">新建项目单</span>
+  </div>
+  <div class="form-header-right">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;color:#8f959e;">模拟场景：</span>
+      <div class="scene-switcher">
+        <button class="scene-btn active" onclick="switchScene('new')">新建项目单</button>
+        <button class="scene-btn" onclick="switchScene('reject')">驳回重提</button>
+        <button class="scene-btn" onclick="switchScene('copy')">复制新建</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="form-page-scroll">
+<div class="form-page-inner">
+
+<!-- ========================================================================
+     区块2：场景提示区
+     样式推荐决议 → No Match → Create New（NM-1 场景状态指示栏）
+     原因：非简单alert，含结构化驳回信息+复制来源信息，X05系列语义不符
+     ======================================================================== -->
+<div id="sceneNoticeWrap" style="margin-bottom:12px;">
+  <div class="scene-notice reject" id="noticeReject">
+    <div class="notice-icon">⚠️</div>
+    <div class="notice-content">
+      <div class="notice-title" style="color:#c62828;">驳回重提 · 请修改后重新提交</div>
+      <div class="notice-grid">
+        <div class="notice-item">驳回原因：<span>价格超出申请权限范围，请联系区域经理确认后重新填写</span></div>
+        <div class="notice-item">驳回人：<span>李明辉（区域审批）</span></div>
+        <div class="notice-item">驳回时间：<span>2026-06-19 14:32</span></div>
+        <div class="notice-item">剩余有效期：<span style="color:#c62828;">还剩 6 天</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="scene-notice copy" id="noticeCopy">
+    <div class="notice-icon">📋</div>
+    <div class="notice-content">
+      <div class="notice-title" style="color:#f57f17;">来源说明 · 已关闭项目单复制</div>
+      <div class="notice-grid">
+        <div class="notice-item">来源项目单号：<span>GC2026041500123</span></div>
+        <div class="notice-item">关闭类型：<span>主动关闭</span></div>
+        <div class="notice-item">关闭时间：<span>2026-05-10 09:15</span></div>
+        <div class="notice-item" style="color:#f57f17;">提交后将生成全新项目单号</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========================================================================
+     区块3：业务线独立卡片
+     样式推荐决议 → F03-1（改#FFFBE6底色）+ S01-2 横向单选（近似复用）
+     字段映射 → 字段2→F03-1，字段3→S01-2
+     ======================================================================== -->
+<div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
+  <div class="form-card-body" style="padding:12px 16px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
+      <div class="biz-type-selector" id="headerBizSelector">
+        <div class="biz-type-option active" onclick="selectBizType(this,'')">请选择</div>
+        <div class="biz-type-option" onclick="selectBizType(this,'central')">中央空调</div>
+        <div class="biz-type-option" onclick="selectBizType(this,'coldchain')">冷链</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================
+     区块4：设备清单卡片
+     样式推荐决议 → F03-3 成员管理表格区（近似复用）
+     ======================================================================== -->
+<div class="form-card" id="cardEquip">
+  <div class="equip-card-hd">
+    <div class="equip-card-hd-left">
+      <div class="fct-accent"></div>
+      <span style="font-size:14px;font-weight:700;color:#1f2329;">设备清单</span>
+      <span style="font-size:12px;color:#8f959e;" id="equipCountLabel">已添加 4 / 99</span>
+      <span class="equip-limit-tip" id="equipLimitTip" style="margin-left:8px;"></span>
+    </div>
+    <div class="equip-card-hd-right">
+      <button class="btn btn-sm" onclick="showAddStdModal()">+ 添加标准商品</button>
+      <button class="btn btn-sm" onclick="addNonStdRow()">+ 添加非标商品</button>
+      <button class="btn btn-sm" onclick="showImportModal()">批量导入</button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;">
+    <div class="equip-table-wrap">
+      <table class="equip-table">
+        <thead>
+          <tr>
+            <th style="width:44px;text-align:center;">序号</th>
+            <th style="width:36px;">&nbsp;</th>
+            <th style="min-width:80px;">品类</th>
+            <th style="min-width:160px;">商品名称</th>
+            <th style="min-width:110px;">SKU编码</th>
+            <th style="min-width:100px;">型号</th>
+            <th style="min-width:80px;">申请数量</th>
+            <th style="min-width:100px;">申请价格</th>
+            <th style="min-width:80px;">申请点位</th>
+            <th style="min-width:120px;">商品行备注</th>
+            <th style="width:64px;text-align:center;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="equipTbody">
+          <!-- 标准商品行1：品类/商品名称/SKU编码/型号→只读文本 -->
+          <tr data-nonstd="false">
+            <td style="text-align:center;color:#8f959e;">1</td>
+            <td></td>
+            <td style="color:#1f2329;">船用空调</td>
+            <td style="color:#1f2329;">格力 GMV-H140WL/A1 多联式空调</td>
+            <td style="color:#1f2329;">SKU-CEN-140A1</td>
+            <td style="color:#1f2329;">GMV-H140WL/A1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="18500" min="0" step="0.01" data-webprice="18500" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+          <!-- 标准商品行2 -->
+          <tr data-nonstd="false">
+            <td style="text-align:center;color:#8f959e;">2</td>
+            <td></td>
+            <td style="color:#1f2329;">多联机</td>
+            <td style="color:#1f2329;">格力 GMV-H280WL/A1 多联机组</td>
+            <td style="color:#1f2329;">SKU-MLJ-280A1</td>
+            <td style="color:#1f2329;">GMV-H280WL/A1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="12" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="22000" min="0" step="0.01" data-webprice="22000" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+          <!-- 标准商品行3 -->
+          <tr data-nonstd="false">
+            <td style="text-align:center;color:#8f959e;">3</td>
+            <td></td>
+            <td style="color:#1f2329;">新风</td>
+            <td style="color:#1f2329;">格力 FGR3.5Pd/C1N 新风机</td>
+            <td style="color:#1f2329;">SKU-XF-35C1N</td>
+            <td style="color:#1f2329;">FGR3.5Pd/C1N</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="15" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="3800" min="0" step="0.01" data-webprice="3800" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+          <!-- 非标商品行4：品类下拉可编辑/商品名称只读"定制机"/SKU编码只读"--"/型号可编辑 -->
+          <tr data-nonstd="true">
+            <td style="text-align:center;color:#8f959e;">4</td>
+            <td style="text-align:center;"><span class="nonstd-badge">非</span></td>
+            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option selected>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>
+            <td style="color:#1f2329;">定制机</td>
+            <td style="color:#8f959e;">--</td>
+            <td><input class="td-input" style="width:90px;" value="-"></td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="6800" min="0" step="0.01" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" value="酒店大堂专用"></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- NM-6: 汇总统计行（按钮已移至卡片头部） -->
+    <div class="equip-table-foot">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="equip-summary-item">总套数：<span id="equipTotalQty">43</span> 套&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="equipTotalAmt">¥ 198,500.00</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================
+     区块5：使用方信息卡片
+     样式推荐决议 → F03-1 分组表单区（近似复用）
+     ======================================================================== -->
+<div class="form-card" id="cardUser">
+  <div class="form-card-header">
+    <div class="form-card-title">
+      <div class="fct-accent"></div>
+      <span class="fct-text">使用方信息</span>
+    </div>
+  </div>
+  <div class="form-card-body" id="cardUserBody">
+    <div class="form-grid">
+      <!-- 项目名称 → I01-1（1栏宽度） -->
+      <div class="form-item">
+        <label class="form-label">项目名称 <span class="req">*</span></label>
+        <input type="text" class="form-ctrl" placeholder="请输入项目名称，最多100个字符" maxlength="100" value="珠海某酒店中央空调采购项目">
+      </div>
+      <!-- 客户类型 → S02-1（近似复用：下拉表现） -->
+      <div class="form-item">
+        <label class="form-label">客户类型 <span class="req">*</span></label>
+        <select class="form-ctrl">
+          <option>请选择</option>
+          <option selected>客户</option>
+          <option>供应商</option>
+          <option>设计院</option>
+          <option>工程商</option>
+          <option>其他</option>
+        </select>
+      </div>
+      <!-- 客户名称 → NM-2（No Match：输入框+内嵌工商校验按钮） -->
+      <div class="form-item">
+        <label class="form-label">客户名称 <span class="req">*</span></label>
+        <div style="display:flex;gap:6px;">
+          <input type="text" class="form-ctrl" placeholder="请输入客户名称" value="珠海华邑酒店有限公司" style="flex:1;">
+          <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+        </div>
+      </div>
+      <!-- 采购单位 → NM-2（同上） -->
+      <div class="form-item">
+        <label class="form-label">采购单位 <span class="req">*</span></label>
+        <div style="display:flex;gap:6px;">
+          <input type="text" class="form-ctrl" placeholder="请输入采购单位" value="珠海华邑酒店有限公司" style="flex:1;">
+          <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+        </div>
+      </div>
+      <!-- 行业大类 → S02-1（直接复用） -->
+      <div class="form-item">
+        <label class="form-label">行业大类 <span class="req">*</span></label>
+        <select class="form-ctrl">
+          <option>请选择</option>
+          <option selected>酒店/宾馆</option>
+          <option>房地产</option><option>医院</option><option>学校</option><option>政府/公共机构</option><option>商超/零售</option><option>工业厂房</option><option>其他</option>
+        </select>
+      </div>
+      <!-- 使用方负责人 → I01-1（直接复用） -->
+      <div class="form-item">
+        <label class="form-label">使用方负责人 <span class="req">*</span></label>
+        <input type="text" class="form-ctrl" placeholder="请输入负责人姓名" value="张建华">
+      </div>
+      <!-- 联系方式 → NM-3（No Match：切换器+手机/固话输入） -->
+      <div class="form-item">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <label class="form-label" style="margin-bottom:0;">联系方式 <span class="req">*</span><span class="label-tip">（二选一必填）</span></label>
+          <div class="contact-switch" id="contactSwitch" style="margin-bottom:0;">
+            <div class="contact-switch-btn active" onclick="switchContact('mobile')">联系手机</div>
+            <div class="contact-switch-btn" onclick="switchContact('tel')">固定电话</div>
+          </div>
+        </div>
+        <div id="contactMobileWrap" style="display:flex;flex-direction:column;gap:2px;">
+          <input type="text" class="form-ctrl" id="inputMobile" placeholder="请输入，11位数字，1开头" maxlength="11" value="13812345678">
+          <div class="form-hint">11位数字，须以1开头</div>
+        </div>
+        <div id="contactTelWrap" style="display:none;flex-direction:column;gap:2px;">
+          <input type="text" class="form-ctrl" id="inputTel" placeholder="如：07561234567" maxlength="20">
+          <div class="form-hint">7-12位数字或"-"，不可含空格</div>
+        </div>
+      </div>
+      <!-- 项目预计设备金额 → I02-1（近似复用） -->
+      <div class="form-item">
+        <label class="form-label">项目预计设备金额（万元）<span class="req">*</span></label>
+        <input type="number" class="form-ctrl" placeholder="请输入，保留2位小数" value="198.5">
+      </div>
+      <!-- 空调面积 → I02-1（近似复用） -->
+      <div class="form-item" id="d3AreaWrap">
+        <label class="form-label">空调面积（㎡）<span class="req">*</span></label>
+        <input type="number" class="form-ctrl" placeholder="请输入" value="3200">
+      </div>
+      <!-- 容积（冷链时显示） → I02-1（近似复用） -->
+      <div class="form-item" id="d3VolumeWrap" style="display:none;">
+        <label class="form-label">容积（m³）<span class="req">*</span></label>
+        <input type="number" class="form-ctrl" placeholder="请输入" value="12800">
+        <div class="form-hint">当业务线类型=冷链时必填</div>
+      </div>
+      <!-- 项目地址 → S05-1+S05-2+I01-1（近似复用：四级地址+详细地址，span2） -->
+      <div class="form-item span2">
+        <label class="form-label">项目地址 <span class="req">*</span></label>
+        <div class="addr-row" style="gap:6px;margin-bottom:4px;">
+          <select class="form-ctrl" style="height:28px;font-size:12px;"><option>广东省</option><option>北京市</option><option>上海市</option></select>
+          <select class="form-ctrl" style="height:28px;font-size:12px;"><option>珠海市</option><option>广州市</option><option>深圳市</option></select>
+          <select class="form-ctrl" style="height:28px;font-size:12px;"><option>香洲区</option><option>斗门区</option><option>金湾区</option></select>
+          <select class="form-ctrl" style="height:28px;font-size:12px;"><option>香洲街道</option><option>拱北街道</option><option>吉大街道</option></select>
+        </div>
+        <input type="text" class="form-ctrl" id="addrDetail" style="height:28px;" placeholder="详细地址，最多50字符" maxlength="50" value="迎宾北路1888号华邑酒店">
+        <div style="font-size:11px;color:#8f959e;margin-top:1px;">不允许纯空格/制表符/换行符</div>
+      </div>
+      <!-- 跨区类型 → F01-2（直接复用：只读展示） -->
+      <div class="form-item">
+        <label class="form-label">跨区类型</label>
+        <div class="field-readonly" id="crossRegionDisplay">
+          <span class="cross-region-tag intra">省内跨区</span>
+        </div>
+        <div class="form-hint">由项目地址失焦后系统自动判断</div>
+      </div>
+      <!-- 项目状态 → S01-1（直接复用） -->
+      <div class="form-item">
+        <label class="form-label">项目状态 <span class="req">*</span></label>
+        <select class="form-ctrl">
+          <option>请选择</option>
+          <option selected>已中标</option><option>已流标</option><option>已丢单</option><option>已签单</option>
+        </select>
+      </div>
+      <!-- 执行单位 → I01-8+S02-1（近似复用） -->
+      <div class="form-item">
+        <label class="form-label">执行单位 <span class="req">*</span></label>
+        <select class="form-ctrl">
+          <option selected>珠海某安装工程队（当前经销商）</option>
+          <option>某分销商A</option><option>某分销商B</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================
+     区块6：基本信息卡片
+     样式推荐决议 → F03-2 分组表单区（近似复用）+ F01-2+I01-8（近似复用）
+     ======================================================================== -->
+<div class="form-card" id="cardBase">
+  <div class="form-card-header">
+    <div class="form-card-title">
+      <div class="fct-accent"></div>
+      <span class="fct-text">基本信息</span>
+    </div>
+  </div>
+  <div class="form-card-body" id="cardBaseBody">
+    <div class="form-grid">
+      <div class="form-item" style="display:none;">
+        <label class="form-label">业务线 <span class="req">*</span></label>
+        <select class="form-ctrl" id="d3BizType" onchange="d3SyncHiddenBizType()">
+          <option value="" selected>请选择</option>
+          <option value="central">中央空调</option>
+          <option value="coldchain">冷链</option>
+        </select>
+      </div>
+      <!-- 项目类型 → F01-2（直接复用：只读） -->
+      <div class="form-item">
+        <label class="form-label">项目类型 <span class="req">*</span></label>
+        <div class="field-readonly">单体项目</div>
+      </div>
+      <!-- 项目单号 → F01-2（直接复用：只读） -->
+      <div class="form-item" id="formItemOrderNo">
+        <label class="form-label" id="labelOrderNo">项目单号</label>
+        <div class="field-readonly" id="displayOrderNo">
+          <span id="orderNoText" style="color:#8f959e;">提交后自动生成</span>
+        </div>
+        <div class="form-hint" id="hintOrderNo">新建提交后系统自动分配单号</div>
+      </div>
+      <!-- 经销商名称 → I01-8（直接复用：只读） -->
+      <div class="form-item">
+        <label class="form-label">经销商名称</label>
+        <div class="field-readonly">珠海某家电经销商有限公司</div>
+      </div>
+      <!-- 经销商电话 → I01-8（直接复用：只读） -->
+      <div class="form-item">
+        <label class="form-label">经销商电话</label>
+        <div class="field-readonly">0756-8881234</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================================
+     区块7：其他信息卡片
+     样式推荐决议 → I01-5 + U01-1 组合（近似复用）
+     ======================================================================== -->
+<div class="form-card" id="cardOther">
+  <div class="form-card-header">
+    <div class="form-card-title">
+      <div class="fct-accent"></div>
+      <span class="fct-text">其他信息</span>
+    </div>
+  </div>
+  <div class="form-card-body" id="cardOtherBody">
+    <div class="form-grid">
+      <!-- 备注 → I01-5（近似复用：多行文本域） -->
+      <div class="form-item span3">
+        <label class="form-label">备注</label>
+        <textarea class="form-ctrl" style="height:80px;" placeholder="选填，最多500字符，不允许纯空格/制表符/换行符" maxlength="500">本项目为五星级酒店翻新，施工需避开营业时段，建议夜间10点后施工。</textarea>
+      </div>
+      <!-- 附件上传 → U01-1（近似复用：拖拽上传区） -->
+      <div class="form-item span3">
+        <label class="form-label">附件上传</label>
+        <div class="attach-zone" onclick="alert('演示：点击上传文件')">
+          <div class="attach-zone-text">点击或拖拽文件到此处上传&nbsp;<span>（支持 PNG / JPG / PDF / Word / Excel，单个不超过10MB，最多10个）</span></div>
+        </div>
+        <div class="attach-list">
+          <div class="attach-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="#3b5998" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h4" stroke="#3b5998" stroke-width="1" stroke-linecap="round"/></svg>
+            <span class="at-name">项目现场照片_20260615.jpg</span>
+            <span style="color:#8f959e;font-size:11px;">1.2MB</span>
+            <span class="at-del" onclick="this.parentElement.remove()">×</span>
+          </div>
+          <div class="attach-item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="#3b5998" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h4" stroke="#3b5998" stroke-width="1" stroke-linecap="round"/></svg>
+            <span class="at-name">设计图纸_初稿.pdf</span>
+            <span style="color:#8f959e;font-size:11px;">3.8MB</span>
+            <span class="at-del" onclick="this.parentElement.remove()">×</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="height:68px;"></div>
+</div></div>
+
+<!-- ========================================================================
+     区块8：底部固定操作栏
+     样式推荐决议 → B01-1 双按钮工具栏（近似复用：改为单按钮）
+     ======================================================================== -->
+<div class="form-footer">
+  <div class="form-footer-left" id="footerTip">新建提交后进入审批中</div>
+  <div class="form-footer-right">
+    <button class="btn-submit" id="btnSubmit" onclick="alert('演示：提交审批')">提交审批</button>
+  </div>
+</div>
+
+</div><!-- /page-root -->
+
+<script>
+/* D3 页面脚本 */
+
+var currentScene = 'new';
+
+function switchScene(scene) {
+  currentScene = scene;
+  document.querySelectorAll('.scene-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  var noticeReject = document.getElementById('noticeReject');
+  var noticeCopy   = document.getElementById('noticeCopy');
+  noticeReject.classList.remove('visible');
+  noticeCopy.classList.remove('visible');
+
+  var title     = document.getElementById('pageMainTitle');
+  var footerTip = document.getElementById('footerTip');
+  var btnSubmit = document.getElementById('btnSubmit');
+  var labelOrderNo = document.getElementById('labelOrderNo');
+  var orderNoText  = document.getElementById('orderNoText');
+  var hintOrderNo  = document.getElementById('hintOrderNo');
+
+  if(scene === 'new') {
+    title.textContent = '新建项目单';
+    footerTip.textContent = '新建提交后进入审批中';
+    btnSubmit.textContent = '提交审批';
+    labelOrderNo.innerHTML = '项目单号';
+    orderNoText.textContent = '提交后自动生成';
+    orderNoText.style.color = '#8f959e';
+    hintOrderNo.textContent = '新建提交后系统自动分配单号';
+  } else if(scene === 'reject') {
+    title.textContent = '驳回重提 — 项目单 GC2026041500088';
+    noticeReject.classList.add('visible');
+    footerTip.textContent = '驳回重提保留原单号 GC2026041500088';
+    btnSubmit.textContent = '重新提交';
+    labelOrderNo.innerHTML = '原单号 <span style="font-size:11px;color:#8f959e;font-weight:400;">（保留）</span>';
+    orderNoText.textContent = 'GC2026041500088';
+    orderNoText.style.color = '#1f2329';
+    hintOrderNo.textContent = '驳回重提保留原始单号';
+  } else if(scene === 'copy') {
+    title.textContent = '复制新建项目单';
+    noticeCopy.classList.add('visible');
+    footerTip.textContent = '复制新建提交后生成新单号';
+    btnSubmit.textContent = '提交审批';
+    labelOrderNo.innerHTML = '来源单号 <span style="font-size:11px;color:#8f959e;font-weight:400;">（仅参考）</span>';
+    orderNoText.textContent = 'GC2026041500123';
+    orderNoText.style.color = '#8f959e';
+    hintOrderNo.textContent = '复制来自已关闭项目单，提交后生成全新单号';
+  }
+}
+
+function switchContact(type) {
+  document.querySelectorAll('.contact-switch-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('contactMobileWrap').style.display = type==='mobile' ? 'flex' : 'none';
+  document.getElementById('contactTelWrap').style.display    = type==='tel'    ? 'flex' : 'none';
+}
+
+var currentBizType = '';
+function selectBizType(el, val) {
+  document.querySelectorAll('#headerBizSelector .biz-type-option').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentBizType = val;
+  document.getElementById('d3BizType').value = val;
+  d3ToggleBizType();
+}
+function d3ToggleBizType() {
+  var isCold = currentBizType === 'coldchain';
+  document.getElementById('d3AreaWrap').style.display = isCold ? 'none' : '';
+  document.getElementById('d3VolumeWrap').style.display = isCold ? '' : 'none';
+}
+function d3SyncHiddenBizType() {
+  var val = document.getElementById('d3BizType').value;
+  document.querySelectorAll('#headerBizSelector .biz-type-option').forEach(function(el) {
+    el.classList.toggle('active', el.textContent.trim() === (val === 'central' ? '中央空调' : val === 'coldchain' ? '冷链' : '请选择'));
+  });
+  currentBizType = val;
+  d3ToggleBizType();
+}
+
+
+var equipCount = 4;
+function delRow(el) {
+  var tr = el.closest('tr');
+  if(tr) { tr.remove(); equipCount = Math.max(0, equipCount-1); updateEquipCount(); recalcSummary(); }
+}
+
+// 计算申请价格：申请价格 = 网批售价 × (100 - 申请点位) / 100
+function calcPriceFromPoint(pointInput) {
+  var row = pointInput.closest('tr');
+  var priceInput = row.querySelector('.equip-price');
+  var webPrice = parseFloat(priceInput.dataset.webprice);
+  if(!webPrice || webPrice <= 0) return; // 非标无网批售价，不自动算
+  var point = parseFloat(pointInput.value);
+  if(isNaN(point)) point = 0;
+  var newPrice = webPrice * (100 - point) / 100;
+  priceInput.value = newPrice.toFixed(2);
+}
+
+// 总套数/总申请金额自动刷新
+function recalcSummary() {
+  var rows = document.querySelectorAll('#equipTbody tr');
+  var totalQty = 0;
+  var totalAmt = 0;
+  rows.forEach(function(row) {
+    var qtyEl = row.querySelector('.equip-qty');
+    var priceEl = row.querySelector('.equip-price');
+    if(qtyEl && priceEl) {
+      var qty = parseInt(qtyEl.value) || 0;
+      var price = parseFloat(priceEl.value) || 0;
+      totalQty += qty;
+      totalAmt += qty * price;
+    }
+  });
+  // 格式化金额
+  var amtStr = '¥ ' + totalAmt.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('equipTotalQty').textContent = totalQty;
+  document.getElementById('equipTotalAmt').textContent = amtStr;
+}
+
+function addNonStdRow() {
+  if(equipCount >= 99) { alert('已达最大99条限制'); return; }
+  equipCount++;
+  var tbody = document.getElementById('equipTbody');
+  var tr = document.createElement('tr');
+  tr.setAttribute('data-nonstd','true');
+  tr.innerHTML = '<td style="text-align:center;color:#8f959e;">'+equipCount+'</td>'
+    +'<td style="text-align:center;"><span class="nonstd-badge">非</span></td>'
+    +'<td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>'
+    +'<td style="color:#1f2329;">定制机</td>'
+    +'<td style="color:#8f959e;">--</td>'
+    +'<td><input class="td-input" style="width:90px;" value="-"></td>'
+    +'<td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="1" min="1" max="9999999" onchange="recalcSummary()"></td>'
+    +'<td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="0" min="0" step="0.01" onchange="recalcSummary()"></td>'
+    +'<td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" placeholder="0" min="0" max="100" step="0.01" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>'
+    +'<td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>'
+    +'<td class="td-op"><a onclick="delRow(this)">删除</a></td>';
+  tbody.appendChild(tr);
+  updateEquipCount();
+  recalcSummary();
+}
+function updateEquipCount() {
+  document.getElementById('equipCountLabel').textContent = '已添加 '+equipCount+' / 99';
+  var tip = document.getElementById('equipLimitTip');
+  if(equipCount >= 99) {
+    tip.textContent = '⚠ 已达上限'; tip.classList.add('warn');
+  } else {
+    tip.textContent = ''; tip.classList.remove('warn');
+  }
+}
+
+function showAddStdModal() { document.getElementById('addStdModal').style.display = 'flex'; }
+function closeAddStdModal() { document.getElementById('addStdModal').style.display = 'none'; }
+function toggleAllChecks(master) {
+  document.querySelectorAll('#addStdTbody .row-chk').forEach(function(cb) { cb.checked = master.checked; });
+}
+function confirmAddStd() {
+  var checked = document.querySelectorAll('#addStdTbody .row-chk:checked');
+  if(checked.length === 0) { alert('请至少选择一条商品'); return; }
+  alert('演示：添加 '+checked.length+' 条标准商品');
+  closeAddStdModal();
+}
+function showImportModal() { document.getElementById('importModal').style.display = 'flex'; }
+function closeImportModal() { document.getElementById('importModal').style.display = 'none'; }
+function onFileSelected(input) {
+  if(input.files && input.files.length > 0) {
+    document.getElementById('importFileName').textContent = input.files[0].name;
+  }
+}
+function mockUpload() {
+  var fn = document.getElementById('importFileName').textContent;
+  if(fn === '未选择文件') { alert('请先选择文件'); return; }
+  document.getElementById('importResultArea').style.display = 'block';
+  document.getElementById('importFailWrap').style.display = 'block';
+}
+function confirmImport() {
+  alert('演示：确认导入成功记录');
+  closeImportModal();
+}
+
+
+</script>
+
+<!-- ===== 添加标准商品弹窗 ===== -->
+<div class="modal-overlay" id="addStdModal" style="display:none;" onclick="if(event.target===this)closeAddStdModal()">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">添加商品</span>
+      <span class="modal-close" onclick="closeAddStdModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="filter-row">
+        <div class="filter-item">
+          <label class="filter-label">商品名称</label>
+          <input type="text" class="form-ctrl filter-input" placeholder="模糊搜索" maxlength="100">
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">SKU编码</label>
+          <input type="text" class="form-ctrl filter-input" placeholder="模糊搜索" maxlength="100">
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">产品型号</label>
+          <input type="text" class="form-ctrl filter-input" placeholder="模糊搜索" maxlength="100">
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-sm">重置</button>
+        </div>
+      </div>
+      <div class="product-table-wrap">
+        <table class="product-select-table">
+          <thead>
+            <tr>
+              <th style="width:40px;text-align:center;"><input type="checkbox" onchange="toggleAllChecks(this)"></th>
+              <th style="width:64px;text-align:center;">商品图片</th>
+              <th>商品名称</th>
+              <th style="width:120px;">SKU编码</th>
+              <th style="width:90px;">产品类型</th>
+              <th style="width:100px;">产品型号</th>
+              <th style="width:90px;">产品系列</th>
+              <th style="width:100px;text-align:right;">网批售价</th>
+            </tr>
+          </thead>
+          <tbody id="addStdTbody">
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 GMV-H140WL/A1 多联式空调</td>
+              <td>SKU-CEN-140A1</td>
+              <td>中央空调</td>
+              <td>GMV-H140WL/A1</td>
+              <td>GMV系列</td>
+              <td style="text-align:right;">¥ 18,500.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 GMV-H280WL/A1 多联机组</td>
+              <td>SKU-MLJ-280A1</td>
+              <td>多联机</td>
+              <td>GMV-H280WL/A1</td>
+              <td>GMV系列</td>
+              <td style="text-align:right;">¥ 22,000.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 FGR3.5Pd/C1N 新风机</td>
+              <td>SKU-XF-35C1N</td>
+              <td>新风</td>
+              <td>FGR3.5Pd/C1N</td>
+              <td>FGR系列</td>
+              <td style="text-align:right;">¥ 3,800.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 KFRd-72LW/NhAa1BG 立式空调</td>
+              <td>SKU-LZ-72NA1B</td>
+              <td>中央空调</td>
+              <td>KFRd-72LW/NhAa1BG</td>
+              <td>NhAa系列</td>
+              <td style="text-align:right;">¥ 6,800.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 GMV-H224WL/A1 多联机组</td>
+              <td>SKU-MLJ-224A1</td>
+              <td>多联机</td>
+              <td>GMV-H224WL/A1</td>
+              <td>GMV系列</td>
+              <td style="text-align:right;">¥ 19,800.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="page-info">共 5 条</div>
+        <div class="page-controls">
+          <span class="page-btn disabled">上一页</span>
+          <span class="page-btn active">1</span>
+          <span class="page-btn disabled">下一页</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeAddStdModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmAddStd()">添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 批量导入弹窗 ===== -->
+<div class="modal-overlay" id="importModal" style="display:none;" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">批量添加商品</span>
+      <span class="modal-close" onclick="closeImportModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="import-notice">
+        <div class="import-notice-item">① 单次最多导入 <b>500</b> 条商品记录</div>
+        <div class="import-notice-item">② 导入将<b>覆盖</b>当前已添加的旧数据</div>
+        <div class="import-notice-item">③ <a href="#" style="color:#3b5998;text-decoration:underline;" onclick="alert('演示：下载模板')">下载批量导入模板</a></div>
+      </div>
+      <div class="import-file-zone">
+        <button class="btn" onclick="document.getElementById('importFileInput').click()">选择文件</button>
+        <button class="btn" onclick="mockUpload()">上传文件</button>
+        <input type="file" id="importFileInput" style="display:none;" accept=".xlsx,.xls" onchange="onFileSelected(this)">
+        <span class="import-file-name" id="importFileName">未选择文件</span>
+      </div>
+      <div class="import-result" id="importResultArea" style="display:none;">
+        <div class="import-result-row">
+          <span class="import-result-label">文件名：</span>
+          <span>批量导入模板.xlsx</span>
+        </div>
+        <div class="import-result-row">
+          <span class="import-result-label">上传进度：</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+          <span class="progress-text">100%</span>
+        </div>
+        <div class="import-result-row">
+          <span class="import-result-label">上传时间：</span>
+          <span>2026-06-20 15:00:00</span>
+        </div>
+        <div class="import-result-row">
+          <span class="import-result-label">上传人：</span>
+          <span>当前经销商账号</span>
+        </div>
+        <div class="import-result-row">
+          <a href="#" style="color:#d32f2f;font-size:12px;" onclick="alert('演示：下载失败记录')">下载失败记录</a>
+        </div>
+        <div class="import-summary">总共 500 条记录，成功上传 300 条，导入失败 200 条；是否确认导入成功记录？</div>
+      </div>
+      <div class="import-fail-table-wrap" id="importFailWrap" style="display:none;margin-top:12px;">
+        <div style="font-size:13px;font-weight:700;color:#d32f2f;margin-bottom:8px;">导入失败记录</div>
+        <table class="import-fail-table">
+          <thead>
+            <tr>
+              <th style="width:50px;">序号</th>
+              <th>SKU编码</th>
+              <th style="width:100px;">申请数量</th>
+              <th>错误原因</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:center;">1</td>
+              <td>SP1123913001</td>
+              <td style="text-align:center;">11</td>
+              <td style="color:#d32f2f;">sku编码xxx不存在</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;">2</td>
+              <td>SP1123913002</td>
+              <td style="text-align:center;">5</td>
+              <td style="color:#d32f2f;">sku编码xxx不存在</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;">3</td>
+              <td>SP1123913003</td>
+              <td style="text-align:center;">-1</td>
+              <td style="color:#d32f2f;">请填写1~9999999范围内</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeImportModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmImport()">确认导入</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
