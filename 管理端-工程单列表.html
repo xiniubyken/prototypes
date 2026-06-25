@@ -33,7 +33,7 @@ a:hover{text-decoration:underline;}
 .sidebar .nav-item.active{background:rgba(59,89,152,.06);color:var(--primary);border-left-color:var(--primary);font-weight:600;}
 .sidebar .nav-item .dot{width:5px;height:5px;border-radius:50%;background:var(--border);flex-shrink:0;}
 
-.main-wrap{margin-left:var(--sidebar-w);margin-top:var(--header-h);min-height:calc(100vh - var(--header-h));background:var(--bg-hover);padding:0;}
+.main-wrap{min-height:100vh;background:var(--bg-hover);padding:0;}
 .content-inner{padding:16px 20px 32px;}
 
 .breadcrumb{padding:10px 20px;font-size:var(--font-aux);color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border-light);}
@@ -176,39 +176,8 @@ a:hover{text-decoration:underline;}
 </head>
 <body>
 
-<!-- 顶部系统栏 -->
-<div class="sys-header">
-  <div class="brand">
-    <div class="logo-box">G</div>
-    <span>GREE 云网批</span>
-  </div>
-  <div class="user-info">
-    <div class="avatar">管</div>
-    <span>管理员 / 体验设计处</span>
-  </div>
-</div>
-
-<!-- 左侧菜单 -->
-<div class="sidebar">
-  <div class="nav-group">
-    <div class="nav-group-title">工程管理</div>
-    <div class="nav-item active"><span class="dot"></span>工程单列表</div>
-    <div class="nav-item"><span class="dot"></span>工程审核</div>
-    <div class="nav-item"><span class="dot"></span>额度审批</div>
-    <div class="nav-item"><span class="dot"></span>工程报备</div>
-  </div>
-  <div class="nav-group">
-    <div class="nav-group-title">工程变更</div>
-    <div class="nav-item"><span class="dot"></span>工程变更</div>
-    <div class="nav-item"><span class="dot"></span>批量改价</div>
-  </div>
-</div>
-
 <!-- 主内容区 -->
 <div class="main-wrap">
-  <div class="breadcrumb">
-    工程管理<span class="sep">/</span><span class="current">工程单列表</span>
-  </div>
 
   <div class="content-inner">
 
