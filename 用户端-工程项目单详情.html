@@ -4,20 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>用户端-工程项目单详情</title>
-<style>:root{--primary:#3b5998;--danger:#D32F2F;--success:#2E7D32;--warning:#ED6C02;
+<style>:root{
+  /* Brand */
+  --primary:#3b5998;--danger:#D32F2F;--success:#2E7D32;--warning:#ED6C02;--info:#1565C0;
+  /* Neutral */
   --bg:#fff;--bg-card:#fff;--bg-header:#F7F8FA;--border:#e8eaed;--border-light:#f0f0f0;
-  --text:#1f2329;--text-secondary:#646a73;--text-aux:#8f959e;--radius:4px;--row-h:36px}
+  --text:#1f2329;--text-secondary:#646a73;--text-aux:#8f959e;
+  /* Geometry */
+  --radius:4px;--row-h:36px;
+  /* 字号体系: 最小→辅文→正文→主体→较大→大号 */
+  --fs-xs:11px;--fs-sm:12px;--fs-base:13px;--fs-body:14px;--fs-lg:18px;--fs-2xl:22px;
+  /* 间距体系 */
+  --space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:24px;
+  /* 状态色 */
+  --st-sp-bg:#E3F2FD;--st-sp-fg:#1565C0;
+  --st-ok-bg:#E8F5E9;--st-ok-fg:#2E7D32;
+  --st-rj-bg:#FFF3E0;--st-rj-fg:#E65100;
+  --st-cc-bg:#ECEFF1;--st-cc-fg:#546E7A
+}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--text);background:#f5f6f7;line-height:1.6;display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.demo-switcher{background:#fff;border-bottom:1px solid var(--border);padding:4px 24px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.demo-switcher{background:#fff;border-bottom:1px solid var(--border);padding:8px 24px;display:flex;align-items:center;gap:var(--space-sm);flex-wrap:wrap}
 .ds-label{font-size:12px;color:var(--text-aux);font-weight:500}
 select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);border-radius:4px;font-size:12px;color:var(--text);outline:none;background:#fff}
 .sub-wrap{display:none;align-items:center;gap:4px;font-size:12px;color:var(--text-aux)}
-.ds-hint{font-size:11px;color:var(--text-aux);margin-left:8px}
-.breadcrumb{padding:4px 24px;font-size:12px;color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border-light)}
+.ds-hint{font-size:var(--fs-sm);color:var(--text-aux);margin-left:8px}
+.breadcrumb{padding:8px 24px;font-size:var(--fs-sm);color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border-light)}
 
 /* 头部栏 */
-.dh-bar{background:#fff;padding:6px 24px 0}
+.dh-bar{background:#fff;padding:10px 24px 0}
 .dh-r1{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .dh-l{display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1;min-width:0}
 .dh-back{display:inline-flex;align-items:center;gap:3px;font-size:12px;color:var(--primary);cursor:pointer;padding:2px 8px;border:1px solid #4a72c3;border-radius:4px;transition:.15s;white-space:nowrap}
@@ -26,50 +41,43 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .dh-tt{font-size:14px;font-weight:700;color:var(--text)}
 .dh-tc{font-size:13px;font-weight:600;color:var(--text)}
 .dh-tn{font-size:14px;font-weight:700;color:var(--text)}
-.dh-biz{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:500;background:#FFF8E1;color:#B45309;border:1px solid #FDE68A}
-.dh-ss{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;background:rgba(59,89,152,.07);color:var(--text-secondary)}
+.dh-biz{display:inline-block;padding:1px 8px;border-radius:3px;font-size:var(--fs-sm);font-weight:500;background:#FFF8E1;color:#B45309;border:1px solid #FDE68A}
+.dh-ss{display:inline-block;padding:1px 8px;border-radius:3px;font-size:var(--fs-sm);font-weight:600;background:rgba(59,89,152,.07);color:var(--text-secondary)}
 .dh-sg{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .dh-countdown{display:flex;align-items:baseline;gap:2px;padding:2px 0;white-space:nowrap}
-.dh-countdown .cd-lbl{font-size:10px;color:var(--text-aux);margin-right:2px}
-.dh-countdown .cd-d{font-size:16px;font-weight:800;line-height:1}
-.dh-countdown .cd-u{font-size:10px;color:var(--text-aux);font-weight:500}
+.dh-countdown .cd-lbl{font-size:var(--fs-sm);color:var(--text-aux);margin-right:2px}
+.dh-countdown .cd-d{font-size:var(--fs-lg);font-weight:800;line-height:1}
+.dh-countdown .cd-u{font-size:var(--fs-sm);color:var(--text-aux);font-weight:500}
 .dh-status-badge{display:flex;align-items:center;gap:3px}
-.dh-status-badge .st-lbl{font-size:10px;color:var(--text-aux)}
+.dh-status-badge .st-lbl{font-size:var(--fs-sm);color:var(--text-aux)}
 .dh-status-badge .dh-sb{padding:2px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap}
 
 /* 第二行：信息+倒计时 */
-.dh-r2{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:6px;padding-bottom:8px;border-bottom:1px solid var(--border-light)}
+.dh-r2{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-top:var(--space-sm);padding-bottom:var(--space-sm);border-bottom:1px solid var(--border-light)}
 .dh-info{display:flex;flex-wrap:wrap;gap:8px 20px}
 .dh-i{font-size:12px;display:flex;align-items:center;gap:3px}
 .dh-il{color:var(--text-aux)}
 .dh-iv{color:var(--text);font-weight:500}
 .cd-bar{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.cd-lbl{font-size:12px;color:var(--text-aux)}
-.cd-d{font-size:22px;font-weight:800;line-height:1}
-.cd-u{font-size:11px;color:var(--text-aux);font-weight:500}
+/* cd-d/cd-u 统一在 .dh-countdown 内定义，此处不重复 */
 
-/* 终态区 */
-.dh-term{margin-top:4px;padding:5px 12px;border-radius:4px;font-size:12px;display:none}
-.dh-term.cm{background:#ECFDF5;border:1px solid #A7F3D0;display:flex;flex-wrap:wrap;gap:6px 20px}
-.tl{color:var(--text-aux);font-weight:500}
-.tv{color:var(--text);font-weight:700}
 
-/* Tab */
-.tabs{display:flex;gap:0;background:#fff;padding:0 24px;border-bottom:1px solid var(--border)}
-.tab{padding:10px 20px;font-size:14px;font-weight:600;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
+/* Tab（固定在头部下方，不在滚动区内） */
+.tabs{display:flex;gap:0;background:#fff;padding:0 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
 .tab:hover{color:var(--primary)}
-.tab.on{color:var(--primary);border-bottom-color:var(--primary)}
+.tab.on{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
 
 /* 内容滚动 */
-.scroll{flex:1;overflow-y:auto}
-.pi{padding:16px 24px 40px}
+.scroll{flex:1;overflow-y:auto;scroll-behavior:auto}
+.pi{padding:30px var(--space-xl) 40px}
 .tp{display:none}
-.tp.on{display:block}
+.tp.on{display:block;min-height:100%}
 
 /* 卡片 */
 .card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;margin-bottom:12px;overflow:hidden}
-.ch{padding:10px 16px;font-size:14px;font-weight:600;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;background:var(--bg-header)}
-.cb{padding:12px 16px}
+.ch{padding:8px 16px;font-size:13px;font-weight:500;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;background:var(--bg-header)}
+.cb{padding:8px 16px}
 .cb0{padding:0}
 .tr-only{background:#fafafa!important}
 .tr-only:hover{box-shadow:none!important}
@@ -82,17 +90,37 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 /* 表格 */
 .tw{overflow-x:auto}
 .dt{width:100%;border-collapse:collapse;font-size:13px}
-.dt th{background:var(--bg-header);height:36px;padding:6px 10px;text-align:left;font-weight:600;font-size:12px;color:var(--text-secondary);border-bottom:1px solid var(--border);white-space:nowrap}
-.dt td{height:36px;padding:5px 10px;border-bottom:1px solid var(--border-light);font-size:13px;vertical-align:middle}
+.dt th{background:var(--bg-header);height:36px;padding:6px 10px;text-align:left;font-weight:600;font-size:var(--fs-sm);color:var(--text-secondary);border-bottom:1px solid var(--border);white-space:nowrap}
+.dt td{height:36px;padding:6px 10px;border-bottom:1px solid var(--border-light);font-size:var(--fs-base);vertical-align:middle}
 .dt tr:hover td{background:rgba(59,89,152,.03)}
-.cn{width:44px;text-align:right;color:var(--text-aux);font-size:12px;font-weight:500}
-.nst{display:inline-block;background:#FFF3E0;color:#E65100;padding:1px 6px;border-radius:3px;font-size:11px;font-weight:600}
-.nst-badge{background:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:11px;font-weight:600;display:inline-block}
-.img-cell{width:56px;text-align:center;font-size:10px;color:var(--text-aux)}
+.cn{width:44px;text-align:right;color:var(--text-aux);font-size:var(--fs-base);font-weight:500}
+.nst{display:inline-block;background:#FFF3E0;color:#E65100;padding:1px 6px;border-radius:3px;font-size:var(--fs-sm);font-weight:600}
+.nst-badge{background:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:var(--fs-sm);font-weight:600;display:inline-block}
+.img-cell{width:56px;text-align:center;font-size:var(--fs-sm);color:var(--text-aux)}
 .img-cell .img-placeholder{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--bg-header);border:1px solid var(--border-light);border-radius:4px;font-size:16px;color:var(--text-aux)}
 /* 有效期hover提示 */
-.ico-hint{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;font-size:10px;border-radius:50%;background:var(--primary);color:#fff;cursor:help;flex-shrink:0;font-style:normal;font-weight:700;line-height:1;vertical-align:middle;margin-left:3px;position:relative}
-.ico-hint:hover::after{content:attr(data-tip);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;padding:5px 8px;background:#333;color:#fff;font-size:11px;border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none}
+.ico-hint{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;font-size:var(--fs-sm);border-radius:50%;background:var(--primary);color:#fff;cursor:help;flex-shrink:0;font-style:normal;font-weight:700;line-height:1;vertical-align:middle;margin-left:3px;position:relative}
+.ico-hint:hover::after{content:attr(data-tip);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;padding:5px 8px;background:#333;color:#fff;font-size:var(--fs-sm);border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none}
+
+/* 审批进度表与关联提货单 */
+.link-btn{color:var(--primary);cursor:pointer;text-decoration:underline;font-size:var(--fs-base);white-space:nowrap;margin-right:6px}
+.link-btn:hover{opacity:.8}
+.st-badge{display:inline-block;padding:1px 8px;border-radius:3px;font-size:var(--fs-sm);font-weight:600}
+.st-badge.sp{background:var(--st-sp-bg);color:var(--st-sp-fg)}
+.st-badge.ok{background:var(--st-ok-bg);color:var(--st-ok-fg)}
+.st-badge.rj{background:var(--st-rj-bg);color:var(--st-rj-fg)}
+.st-badge.cc{background:var(--st-cc-bg);color:var(--st-cc-fg)}
+/* 批价单状态色 */
+.st-badge.dd{background:#E8F5E9;color:#2E7D32}  /* 待提货 */
+.st-badge.pt{background:#FFF8E1;color:#B45309}  /* 部分提货 */
+
+/* 弹窗 */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal-content{background:#fff;border-radius:8px;min-width:420px;max-width:560px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;font-size:15px;font-weight:600;border-bottom:1px solid var(--border-light)}
+.modal-close{font-size:var(--fs-body);color:var(--text-aux);cursor:pointer;padding:6px 10px;min-width:32px;text-align:center}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:16px 20px}
 
 /* 附件 */
 .ai{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px}
@@ -112,15 +140,18 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .nd.p{background:#f5f5f5;border-color:#ddd;color:#bbb}
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(59,89,152,.4)}70%{box-shadow:0 0 0 6px rgba(59,89,152,0)}100%{box-shadow:0 0 0 0 rgba(59,89,152,0)}}
 .ni{flex:1;min-width:0}
-.nn{font-size:13px;font-weight:600;color:var(--text)}
-.nt{font-size:11px;color:var(--text-aux);margin-top:1px}
+.nn{font-size:var(--fs-base);font-weight:600;color:var(--text)}
+.nt{font-size:var(--fs-sm);color:var(--text-aux);margin-top:1px}
 .nr{font-size:12px;margin-top:2px}
-.nrk{font-size:12px;color:var(--text-secondary);margin-top:2px;padding:4px 8px;background:#f5f5f5;border-radius:4px}
+.nrk{font-size:var(--fs-base);color:var(--text-secondary);margin-top:2px;padding:4px 8px;background:#f5f5f5;border-radius:4px}
 
 /* 底部操作栏 */
-.footer{flex-shrink:0;background:var(--bg);border-top:1px solid var(--border);padding:12px 24px}
-.ab{display:flex;gap:10px;align-items:center;justify-content:center}
-.btn{padding:7px 20px;font-size:13px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--bg);color:var(--text);transition:.15s}
+.footer{flex-shrink:0;position:sticky;bottom:0;z-index:10;background:var(--bg);border-top:1px solid var(--border);padding:12px 24px}
+.ft-inner{display:flex;align-items:center;gap:10px}
+.ft-center{flex:1;display:flex;gap:10px;justify-content:center}
+.ab{display:flex;gap:10px;align-items:center}
+.btn{padding:7px 20px;font-size:var(--fs-base);border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--bg);color:var(--text);transition:.15s}
+.btn:focus-visible,.dh-back:focus-visible,.link-btn:focus-visible,.modal-close:focus-visible,.tab:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 .btn:hover{border-color:var(--primary);color:var(--primary)}
 .bp{background:var(--primary);color:#fff;border-color:var(--primary)}
 .bp:hover{opacity:.88;color:#fff}
@@ -156,10 +187,9 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 <div class="dh-bar">
 <div class="dh-r1">
 <div class="dh-l">
-<span class="dh-back" onclick="da('返回列表')">← 返回</span>
 <div class="dh-tl">
 <span class="dh-tt">项目单</span>
-<span class="dh-tc">GC-ZH-202606250001</span>
+<span class="dh-tc">粤东GCDT202606250001</span>
 <span class="dh-tn" id="pn">某商业综合体空调项目</span>
 </div>
 <span class="dh-biz" id="hbz">中央空调</span>
@@ -171,21 +201,16 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 </div>
 </div>
 
-<!-- 已完结终态 -->
-<div class="dh-term cm" id="tcm" style="display:none">
-<span class="tl">完结时间：</span><span class="tv" id="cpt">2026-07-01 16:00</span>
-<span class="tl">说明：</span><span class="tv" id="cpn">业务完结·项目已完工</span>
-</div>
 </div>
 
-<!-- Tab导航 -->
+<!-- Tab导航（固定在头部下方，不在滚动区内） -->
 <div class="tabs">
 <div class="tab on" onclick="st(this,'t1')">工程单详情</div>
 <div class="tab" onclick="st(this,'t2')">审批进度</div>
-<div class="tab" onclick="st(this,'t3')">关联提货单</div>
+<div class="tab" onclick="st(this,'t3')">关联批价单</div>
 </div>
 
-<!-- 滚动内容 -->
+<!-- 滚动内容（纯内容区，无tab栏） -->
 <div class="scroll">
 
 <!-- Tab1: 工程单详情 -->
@@ -231,7 +256,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 <div class="ch"><span class="card-title">基本信息</span></div>
 <div class="cb">
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px 24px">
-<div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">项目单号</div><div id="pno">GC-ZH-202606250001</div></div>
+<div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">项目单号</div><div id="pno">粤东GCDT202606250001</div></div>
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">登录时间</div><div id="loginTime">2026-06-25 10:30</div></div>
 <div style="font-size:13px" id="loWrap"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">登录顺序</div><div><span id="loSeq">1</span> · <span id="loStatus">登录成功</span> <span style="font-size:12px;color:var(--primary);cursor:pointer;text-decoration:underline;margin-left:6px" onclick="da('查看登录顺序详情')">查看</span></div></div>
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">经销商名称</div><div id="dn">XX商贸有限公司</div></div>
@@ -246,15 +271,28 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 </div><!-- end t1 -->
 
 <!-- T2 审批进度 -->
-<div class="tp pi" id="t2"><div class="card"><div class="ch"><span class="card-title">审批进度</span></div><div class="cb"><div class="atl" id="atl"></div></div></div></div>
+<div class="tp pi" id="t2"><div class="card"><div class="ch"><span class="card-title">审批进度</span></div><div class="cb cb0"><div class="tw"><table class="dt" id="apt"><thead><tr><th class="cn">序号</th><th>审批类型</th><th>状态</th><th>更新时间</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="aptb"></tbody></table></div></div></div></div>
 
-<!-- T3 关联提货单 -->
-<div class="tp pi" id="t3"><div class="card"><div class="ch"><span class="card-title">关联提货单</span></div><div class="cb" id="ro"></div></div></div>
+<!-- T3 关联批价单 -->
+<div class="tp pi" id="t3"><div class="card"><div class="ch"><span class="card-title">关联批价单</span></div><div class="cb cb0"><div class="tw"><table class="dt" id="pjt"><thead><tr><th class="cn">序号</th><th>批价单号</th><th>批价单状态</th><th>操作</th></tr></thead><tbody id="pjtb"></tbody></table></div></div></div></div>
 
 </div><!-- end scroll -->
 
+<!-- 审批流程弹窗 -->
+<div class="modal-overlay" id="ml" style="display:none" onclick="if(event.target===this)closeModal()">
+<div class="modal-content">
+<div class="modal-header"><span>审批流程</span><span class="modal-close" onclick="closeModal()">✕</span></div>
+<div class="modal-body"><div class="atl" id="atl2"></div></div>
+</div>
+</div>
+
 <!-- 底部操作栏 -->
-<div class="footer" id="ft" style="display:block"><div class="ab" id="ab"></div></div>
+<div class="footer" id="ft" style="display:block">
+<div class="ft-inner">
+<span class="dh-back" onclick="da('返回列表')">← 返回</span>
+<div class="ft-center"><div class="ab" id="ab"></div></div>
+</div>
+</div>
 
 <script>
 
@@ -263,7 +301,9 @@ function st(e,id){
 document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
 e.classList.add('on');
 document.querySelectorAll('.tp').forEach(function(p){p.classList.remove('on')});
-document.getElementById(id).classList.add('on')
+document.getElementById(id).classList.add('on');
+/* 强制重排后重置滚动位置，确保当前tab从头开始 */
+var sc=document.querySelector('.scroll');void sc.offsetHeight;sc.scrollTop=0
 }
 
 /* 子状态配置 */
@@ -293,11 +333,15 @@ const C={
   {n:'经销商提交',t:'2026-06-25 10:30',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'待审批',r:'审批中',st:'c'},
   {n:'二级审批人·李总',t:'待审批',r:'待审批',st:'p'}
- ],rd:'empty'},
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'审批中',updated:'—',created:'2026-06-25 10:30:00',ops:['查看']}
+ ],pl:[]},
  '销司作废审批':{cr:{type:'省内跨区',code:'GZ-2026-001'},lo:null,op:null,co:'广州办事处',lt:null,v:null,q:null,ft:true,a:[],sd:'放弃登录',ap:[
   {n:'经销商提交',t:'2026-06-24 14:00',r:'已提交',st:'d'},
   {n:'销司作废审批中',t:'待审批',r:'审批中',st:'c'}
- ],rd:'empty'},
+ ],rd:'empty',al:[
+  {type:'作废审批',status:'审批中',updated:'—',created:'2026-06-24 14:00:00',ops:['查看']}
+ ],pl:[]},
  }
 },
 
@@ -308,7 +352,10 @@ const C={
  d:{cr:{type:'非跨区',code:null},lo:null,op:null,co:null,lt:'2026-06-24 16:00',v:{d:30,c:'#ED6C02'},q:null,ft:true,a:['重新提交'],sd:'放弃登录',ap:[
   {n:'经销商提交',t:'2026-06-24 14:30',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-24 16:00',r:'已驳回',st:'d',rk:'项目信息不完整，请补充使用方资质材料'}
- ],rd:'empty'}
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'驳回',updated:'2026-06-24 16:00:00',created:'2026-06-24 14:30:00',ops:['查看','重新提交']},
+  {type:'登录延期',status:'驳回',updated:'2026-06-23 15:00:00',created:'2026-06-23 10:00:00',ops:['查看','重新提交']}
+ ],pl:[]}
 },
 
 /* ====== 3.跟进中（无子状态）====== */
@@ -319,7 +366,13 @@ const C={
   {n:'经销商提交',t:'2026-06-24 14:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-24 18:30',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-25 10:00',r:'已通过',st:'d'}
- ],rd:'empty'}
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-25 10:00:00',created:'2026-06-24 14:00:00',ops:['查看']},
+  {type:'登录延期',status:'审批中',updated:'—',created:'2026-06-26 06:30:00',ops:['查看']}
+ ],pl:[
+  {id:'粤东GCDT202606250001-PJ01',status:'审批中',ops:['查看']},
+  {id:'粤东GCDT202606250001-PJ02',status:'已驳回',ops:['查看']}
+ ]}
 },
 
 /* ====== 4.已中标（无子状态）====== */
@@ -331,7 +384,13 @@ const C={
   {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-22 10:00',r:'已通过',st:'d'},
   {n:'管理端中标确认',t:'2026-06-25 08:00',r:'已中标',st:'d'}
- ],rd:'hasData'}
+ ],rd:'hasData',al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']},
+  {type:'登录延期',status:'通过',updated:'2026-06-23 14:00:00',created:'2026-06-23 09:00:00',ops:['查看']},
+  {type:'登录延期',status:'驳回',updated:'2026-06-25 09:30:00',created:'2026-06-25 08:00:00',ops:['查看','重新提交']}
+ ],pl:[
+  {id:'粤东GCDT202606250001-PJ01',status:'待提货',ops:['查看']}
+ ]}
 },
 
 /* ====== 5.已签单（无子状态）====== */
@@ -344,7 +403,14 @@ const C={
   {n:'二级审批人·李总',t:'2026-06-20 10:00',r:'已通过',st:'d'},
   {n:'管理端中标确认',t:'2026-06-22 08:00',r:'已中标',st:'d'},
   {n:'合同签订确认',t:'2026-06-25 09:00',r:'已签单',st:'d'}
- ],rd:'hasData'}
+ ],rd:'hasData',al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-20 10:00:00',created:'2026-06-18 09:00:00',ops:['查看']},
+  {type:'登录延期',status:'通过',updated:'2026-06-21 16:00:00',created:'2026-06-21 10:00:00',ops:['查看']},
+  {type:'登录延期',status:'通过',updated:'2026-06-23 11:00:00',created:'2026-06-23 08:00:00',ops:['查看']}
+ ],pl:[
+  {id:'粤东GCDT202606250001-PJ01',status:'部分提货',ops:['查看']},
+  {id:'粤东GCDT202606250001-PJ02',status:'已完结',ops:['查看']}
+ ]}
 },
 
 /* ====== 6.已流标（无子状态）====== */
@@ -356,7 +422,12 @@ const C={
   {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-22 10:00',r:'已通过',st:'d'},
   {n:'管理端流标',t:'2026-06-24 16:00',r:'已流标',st:'d'}
- ],rd:'empty'}
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']},
+  {type:'登录延期',status:'通过',updated:'2026-06-23 14:00:00',created:'2026-06-23 09:00:00',ops:['查看']}
+ ],pl:[
+  {id:'粤东GCDT202606250001-PJ01',status:'审批中',ops:['查看']}
+ ]}
 },
 
 /* ====== 7.已关闭（有子状态）====== */
@@ -368,21 +439,31 @@ const C={
   {n:'经销商提交',t:'2026-06-20 09:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-22 10:00',r:'已通过',st:'d'}
- ],rd:'empty'},
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']}
+  ,{type:'作废审批',status:'已取消',updated:'2026-06-25 10:30:00',created:'2026-06-25 10:30:00',ops:['查看']}
+ ],pl:[]},
  '登录有效期到期':{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,lt:null,v:null,q:null,tm:'cl',ci:{type:'登录有效期到期',reason:'超过90天未操作',time:'2026-06-25 00:00'},ft:false,a:[],sd:null,ap:[
   {n:'经销商提交',t:'2026-03-27 09:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-03-27 18:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-03-28 10:00',r:'已通过',st:'d'}
- ],rd:'empty'},
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'通过',updated:'2026-03-28 10:00:00',created:'2026-03-27 09:00:00',ops:['查看']}
+ ],pl:[]},
  '已驳回有效期到期':{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,lt:null,v:null,q:null,tm:'cl',ci:{type:'已驳回有效期到期',reason:'被驳回后超期未重新提交',time:'2026-06-20 00:00'},ft:false,a:[],sd:null,ap:[
   {n:'经销商提交',t:'2026-04-01 09:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-04-02 14:00',r:'已驳回',st:'d',rk:'信息不完整'}
- ],rd:'empty'},
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'驳回',updated:'2026-04-02 14:00:00',created:'2026-04-01 09:00:00',ops:['查看']}
+ ],pl:[]},
  '销司作废':{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,lt:null,v:null,q:null,tm:'cl',ci:{type:'销司作废',reason:'销司发起作废审批已通过',time:'2026-06-23 16:00'},ft:false,a:[],sd:null,ap:[
   {n:'经销商提交',t:'2026-06-20 09:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
   {n:'销司作废审批',t:'2026-06-23 16:00',r:'已作废',st:'d'}
- ],rd:'empty'}
+ ],rd:'empty',al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-21 14:00:00',created:'2026-06-20 09:00:00',ops:['查看']},
+  {type:'作废审批',status:'已取消',updated:'2026-06-23 16:00:00',created:'2026-06-23 16:00:00',ops:['查看']}
+ ],pl:[]}
  }
 },
 
@@ -394,7 +475,13 @@ const C={
   {n:'经销商提交',t:'2026-06-10 09:00',r:'已提交',st:'d'},
   {n:'审批通过',t:'2026-06-11 10:00',r:'已通过',st:'d'},
   {n:'管理端完结确认',t:'2026-07-01 16:00',r:'已完结',st:'d'}
- ],rd:'hasData'}
+ ],rd:'hasData',al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-11 10:00:00',created:'2026-06-10 09:00:00',ops:['查看']},
+  {type:'登录延期',status:'通过',updated:'2026-06-12 15:00:00',created:'2026-06-12 09:00:00',ops:['查看']},
+  {type:'登录延期',status:'通过',updated:'2026-06-18 14:00:00',created:'2026-06-18 08:00:00',ops:['查看']}
+ ],pl:[
+  {id:'粤东GCDT202606250001-PJ01',status:'已完结',ops:['查看']}
+ ]}
 }
 };
 
@@ -420,6 +507,10 @@ function sc(v){
  render();
 }
 
+/* 审批流程弹窗 */
+function showFlow(){document.getElementById('ml').style.display='flex'}
+function closeModal(){document.getElementById('ml').style.display='none'}
+
 /* 核心渲染引擎 */
 function render(){
  var cfg=C[curM];
@@ -439,7 +530,7 @@ function render(){
  var ssb=document.getElementById('ssb');
  if(SUBS[curM] && curS){
   ssb.style.display='';
-  ssb.textContent='('+curS+')';
+  ssb.textContent=curS;
  }else{
   ssb.style.display='none';
  }
@@ -498,7 +589,7 @@ function render(){
   document.getElementById('cdd').style.color=d.v.c||'#2E7D32';
   /* 有效期ico hover展示具体年月日区间 */
   if(d.lt && d.v.d){
-   var ltDate=new Date(d.lt.replace(/\s/g,'T').replace(/-/g,'/'));
+   var ltDate=new Date(d.lt.replace(/\s/g,'T'));
    if(!isNaN(ltDate.getTime())){
     var expDate=new Date(ltDate.getTime()+d.v.d*86400000);
     var ys=ltDate.getFullYear(),ym=String(ltDate.getMonth()+1).padStart(2,'0'),yd=String(ltDate.getDate()).padStart(2,'0');
@@ -509,16 +600,6 @@ function render(){
   }
  }
 
-
- /* ---- 终态区（仅已完结） ---- */
- var tcmEl=document.getElementById('tcm');
- tcmEl.style.display='none';
-
- if(d.tm==='cm'){
-  tcmEl.style.display='';
-  document.getElementById('cpt').textContent=d.ci.time;
-  document.getElementById('cpn').textContent=d.ci.note;
- }
 
  /* ---- 灰底只读（已关闭/已完结）---- */
  var cards=document.querySelectorAll('#t1 .card');
@@ -550,28 +631,44 @@ function render(){
   ab.innerHTML=h;
  }
 
- /* ---- 审批进度时间线 ---- */
- var atl=document.getElementById('atl');
- atl.innerHTML=(d.ap||[]).map(function(n){
+ /* ---- 审批进度表(Table) ---- */
+ var aptb=document.getElementById('aptb');
+ var alist=(d.al||[]);
+ if(alist.length){
+  aptb.innerHTML=alist.map(function(r,i){
+   var sc=r.status==='审批中'?'sp':r.status==='通过'?'ok':r.status==='驳回'?'rj':r.status==='已取消'?'cc':'';
+   var ops=r.ops.map(function(o){
+    if(o==='查看') return '<span class="link-btn" onclick="da(\'审批单据详情\')">查看</span>';
+    if(o==='重新提交') return '<span class="link-btn" onclick="da(\'跳转驳回重提\')">重新提交</span>';
+    return '';
+   }).join('');
+   return '<tr><td class="cn">'+(i+1)+'</td><td>'+r.type+'</td><td><span class="st-badge '+sc+'">'+r.status+'</span></td><td>'+r.updated+'</td><td>'+r.created+'</td><td>'+ops+' <span class="link-btn" onclick="showFlow()">审批流程</span></td></tr>';
+  }).join('');
+ }else{
+  aptb.innerHTML='<tr><td colspan="6" class="es">暂无审批记录</td></tr>';
+ }
+
+ /* ---- 关联批价单表 ---- */
+ var pjtb=document.getElementById('pjtb');
+ var plist=(d.pl||[]);
+ if(plist.length){
+  pjtb.innerHTML=plist.map(function(r,i){
+   var sc=r.status==='审批中'?'sp':r.status==='已驳回'?'rj':r.status==='待提货'?'dd':r.status==='部分提货'?'pt':r.status==='已完结'?'ok':'cc';
+   return '<tr><td class="cn">'+(i+1)+'</td><td style="color:#3b5998;cursor:pointer;text-decoration:underline" onclick="da(\'批价单详情\')">'+r.id+'</td><td><span class="st-badge '+sc+'">'+r.status+'</span></td><td><span class="link-btn" onclick="da(\'批价单详情\')">查看</span></td></tr>';
+  }).join('');
+ }else{
+  pjtb.innerHTML='<tr><td colspan="4" class="es">暂无关联批价单</td></tr>';
+ }
+
+ /* ---- 审批流程弹窗时间线（同步渲染）---- */
+ var atl2=document.getElementById('atl2');
+ atl2.innerHTML=(d.ap||[]).map(function(n){
   var cls=n.st==='d'?'d':n.st==='c'?'c':'p';
   var icon=n.st==='d'?'\u2713':n.st==='c'?'\u25CF':'\u25CB';
   var rc=n.st==='d'&&n.r.indexOf('驳回')>=0?'style="color:#D32F2F;font-weight:600;"':n.st==='d'?'style="color:#2E7D32;font-weight:600;"':'style="color:#8f959e;"';
   var rk=n.rk?'<div class="nrk">'+n.rk+'</div>':'';
   return '<div class="an"><div class="nd '+cls+'">'+icon+'</div><div class="ni"><div class="nn">'+n.n+'</div><div class="nt">'+n.t+'</div><div class="nr" '+rc+'>'+n.r+'</div>'+rk+'</div></div>';
  }).join('');
-
- /* ---- 关联提货单 ---- */
- var ro=document.getElementById('ro');
- if((d.rd||'')==='hasData'){
-  ro.innerHTML='<div class="tw"><table class="dt"><thead><tr>'+
-   '<th>商品信息</th><th style="width:120px">批复价</th><th style="width:100px">购买数量</th><th style="width:100px">发货数量</th><th style="width:160px">批价单号</th>'+
-   '</tr></thead><tbody>'+
-   '<tr><td>GMV5多联机 10HP<br><span style="font-size:11px;color:#8f959e">SKU-GMV5-10HP / GMV-450WM/A</span></td><td>&yen;42,000/台</td><td>5</td><td>3</td><td><span style="color:#3b5998;cursor:pointer;text-decoration:underline" onclick="da(\'批价单详情\')">PJ-2026-0001</span></td></tr>'+
-   '<tr><td>风管机 FGR7.5<br><span style="font-size:11px;color:#8f959e">SKU-FGR-75 / FGR-75/A</span></td><td>&yen;8,500/台</td><td>15</td><td>5</td><td><span style="color:#3b5998;cursor:pointer;text-decoration:underline" onclick="da(\'批价单详情\')">PJ-2026-0002</span></td></tr>'+
-   '</tbody></table></div>';
- }else{
-  ro.innerHTML='<div class="es">暂无关联提货单</div>';
- }
 }
 
 /* 初始化 */
