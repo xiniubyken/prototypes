@@ -46,15 +46,6 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .dh-countdown .cd-u{font-size:var(--fs-sm);color:var(--text-aux);font-weight:500}
 .ico-hint{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;font-size:var(--sm);border-radius:50%;background:var(--primary);color:#fff;cursor:help;flex-shrink:0;font-style:normal;font-weight:700;line-height:1;vertical-align:middle;margin-left:3px;position:relative}
 .ico-hint:hover::after{content:attr(data-tip);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;padding:5px 8px;background:#333;color:#fff;font-size:var(--fs-sm);border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none}
-.dh-copy-btn{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--primary);cursor:pointer;padding:4px 10px;border:1px solid var(--primary);border-radius:4px;transition:.15s;white-space:nowrap;background:transparent}
-.dh-copy-btn:hover{background:rgba(59,89,152,.06)}
-.more-wrap{position:relative;display:inline-block}
-.more-btn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;cursor:pointer;font-size:16px;color:var(--text-secondary);transition:.15s;background:transparent;border:none}
-.more-btn:hover{background:rgba(0,0,0,.05);color:var(--text)}
-.more-menu{position:absolute;top:100%;right:0;margin-top:4px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:4px 0;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:100;display:none}
-.more-menu.on{display:block}
-.more-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:13px;color:var(--text);cursor:pointer;transition:.12s;line-height:1.3}
-.more-item:hover{background:var(--bg-hover)}
 .dh-status-badge{display:flex;align-items:center;gap:3px}
 .dh-status-badge .st-lbl{font-size:var(--fs-sm);color:var(--text-aux)}
 .dh-status-badge .dh-sb{padding:2px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap}
@@ -324,7 +315,6 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <div class="dh-sg">
 <div class="dh-countdown" id="cdb" style="display:none"><span class="cd-lbl" id="cdLbl">登录有效</span><span class="cd-d" id="cdd" style="color:#2E7D32">29</span><span class="cd-u">天</span><i class="ico-hint" id="vh" data-tip="" style="display:none">?</i></div>
 <div class="dh-status-badge"><span class="st-lbl">工程状态</span><span class="dh-sb" id="sb">审批中</span></div>
-<div class="more-wrap"><button class="more-btn" id="moreBtn" onclick="toggleMore(event)">⋮<div class="more-menu" id="moreMenu"><div class="more-item" onclick="da('复制新建项目单')"><span style="margin-right:6px">📋</span>复制新建</div></div></button></div>
 </div>
 </div>
 </div>
@@ -534,6 +524,22 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 </div>
 </div>
 
+<!-- ===== 6. 完结确认弹窗（二次确认） ===== -->
+<div class="modal-overlay" id="completeModal" onclick="if(event.target===this)hideCompleteConfirm()">
+<div class="md-box" style="max-width:440px">
+<div class="md-hd"><span class="md-tit">完结确认</span><button class="md-x" onclick="hideCompleteConfirm()">✕</button></div>
+<div class="md-bd">
+<div style="text-align:center;font-size:36px;margin-bottom:10px">✅</div>
+<p style="font-size:14px;font-weight:600;color:var(--text);text-align:center;margin-bottom:8px">确认完结该项目？</p>
+<p style="font-size:13px;color:var(--text-secondary);text-align:center;line-height:1.6">完结后，该项目将标记为已完结，<br>不可再进行任何操作。</p>
+</div>
+<div class="md-ft">
+<button class="btn-sm btn-gy" onclick="hideCompleteConfirm()">取消</button>
+<button class="btn-sm btn-bl" onclick="doCompleteConfirm()">确认完结</button>
+</div>
+</div>
+</div>
+
 <!-- 登录顺序·查看详情弹窗 -->
 <div class="lod-modal" id="lodModal" onclick="if(event.target===this)hideLoginOrderDetail()">
 <div class="lod-box">
@@ -703,7 +709,7 @@ const C={
 },
 '已驳回':{
  b:'#FFF3E0/#E65100',
- d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:null,co:null,ft:true,a:['作废'],ap:[
+ d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},lt:'2026-06-24 16:00',v:{d:30,c:'#E65100'},op:null,co:null,ft:true,a:['作废'],ap:[
   {n:'经销商提交',t:'2026-06-24 14:30',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-24 16:00',r:'已驳回',st:'d',rk:'项目信息不完整，请补充使用方资质材料'}
  ],al:[
@@ -712,7 +718,7 @@ const C={
 },
 '跟进中':{
  b:'#E8F5E9/#2E7D32',
- d:{cr:{type:'省内跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',ft:true,a:['签单确认','中标确认','流标','作废'],ap:[
+ d:{cr:{type:'省内跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',ft:true,a:['签单确认','中标确认','流标','完结确认','作废'],ap:[
   {n:'经销商提交',t:'2026-06-24 14:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-24 18:30',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-25 10:00',r:'已通过',st:'d'}
@@ -751,7 +757,7 @@ const C={
 },
 '已流标':{
  b:'#FFF3E0/#E65100',
- d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,ft:true,a:['签单确认','中标确认','作废'],ap:[
+ d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,ft:true,a:['签单确认','中标确认','完结确认','作废'],ap:[
   {n:'经销商提交',t:'2026-06-20 09:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-22 10:00',r:'已通过',st:'d'},
@@ -920,6 +926,11 @@ function showVoid(){document.getElementById('voidModal').classList.add('mo-show'
 function hideVoid(){document.getElementById('voidModal').classList.remove('mo-show')}
 function doVoid(){hideVoid();da('发起作废审批→新建-作废审批页')}
 
+/* ---- 6. 完结确认弹窗（二次确认） ---- */
+function showCompleteConfirm(){document.getElementById('completeModal').classList.add('mo-show')}
+function hideCompleteConfirm(){document.getElementById('completeModal').classList.remove('mo-show')}
+function doCompleteConfirm(){hideCompleteConfirm();da('完结确认 → 已完结')}
+
 /* ===== 登录顺序·查看详情弹窗 ===== */
 function showLoginOrderDetail(){document.getElementById('lodModal').style.display='flex'}
 function hideLoginOrderDetail(){document.getElementById('lodModal').style.display='none'}
@@ -1021,19 +1032,6 @@ function clearErr(/*...ids*/){
  }
 }
 
-/* 更多操作下拉 */
-function toggleMore(e){
-e.stopPropagation();
-var m=document.getElementById('moreMenu');
-m.classList.toggle('on');
-}
-document.addEventListener('click',function(e){
-var mw=document.querySelector('.more-wrap');
-if(mw && !mw.contains(e.target)){
- document.getElementById('moreMenu').classList.remove('on');
-}
-});
-
 /* 核心渲染引擎 */
 function render(){
 var cfg=C[curM];
@@ -1109,7 +1107,7 @@ if(!d.ft){ft.style.display='none'}else{
   if(a==='签单确认') h+='<button class="btn bg" onclick="showSign()">'+a+'</button>';
   else if(a==='中标确认') h+='<button class="btn bg" onclick="showBid1()">'+a+'</button>';
   else if(a==='流标') h+='<button class="btn br" onclick="showFail()">'+a+'</button>';
-  else if(a==='完结确认') h+='<button class="btn bg" onclick="da(\'完结确认 → 已完结\')">'+a+'</button>';
+  else if(a==='完结确认') h+='<button class="btn bg" onclick="showCompleteConfirm()">'+a+'</button>';
   else if(a==='作废') h+='<button class="btn bd" onclick="showVoid()">'+a+'</button>';
   else h+='<button class="btn bp" onclick="da(\''+a+'\')">'+a+'</button>';
  });
