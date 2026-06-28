@@ -89,9 +89,9 @@ a:hover{text-decoration:underline;}
 /* ====== 表格区 ====== */
 .table-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden;margin-bottom:12px;margin-top:0;}
 .table-scroll{overflow-x:auto;}
-.data-table{width:100%;border-collapse:collapse;min-width:2400px;}
-.data-table th{background:var(--bg-header);font-size:12px;font-weight:600;color:var(--text-secondary);padding:8px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
-.data-table td{font-size:12px;color:var(--text);padding:8px 10px;border-bottom:1px solid var(--border-light);white-space:nowrap;vertical-align:middle;}
+.data-table{width:100%;border-collapse:collapse;min-width:1400px;}
+.data-table th{background:var(--bg-header);font-size:12px;font-weight:600;color:var(--text-secondary);padding:5px 7px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
+.data-table td{font-size:12px;color:var(--text);padding:5px 7px;border-bottom:1px solid var(--border-light);white-space:nowrap;vertical-align:middle;}
 .data-table tr:hover td{background:rgba(59,89,152,.03);}
 .data-table .op-cell a{margin-right:8px;font-size:12px;}
 .data-table .op-cell a:last-child{margin-right:0;}
@@ -402,189 +402,189 @@ var columnDefs = {
   /* ========== 登录审批类 ========== */
   local: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
-    {key:'purUnit',    label:'采购单位',     w:'140'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
+    {key:'purUnit',    label:'采购单位',     w:'110'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   inProvince: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
-    {key:'purUnit',    label:'采购单位',     w:'140'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
+    {key:'purUnit',    label:'采购单位',     w:'110'},
     {key:'crossOffice',label:'被跨区办事处',  w:'120'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   outProvince: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
-    {key:'purUnit',    label:'采购单位',     w:'140'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
+    {key:'purUnit',    label:'采购单位',     w:'110'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   extend: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'remainDays', label:'剩余时间',     w:'80', warnField:true},
-    {key:'reason',     label:'原因描述',     w:'220'},
+    {key:'reason',     label:'原因描述',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
 
   /* ========== 价格审批类 ========== */
   pLocal: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'purUnit',    label:'采购单价',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   pInProvince: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'purUnit',    label:'采购单价',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   pOutProvince: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'purUnit',    label:'采购单价',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   rePrice: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'purUnit',    label:'采购单价',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   deliveryExt: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'remainDays', label:'剩余时间',     w:'80', warnField:true},
-    {key:'reason',     label:'原因描述',     w:'220'},
+    {key:'reason',     label:'原因描述',     w:'170'},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
 
   /* ========== 工程提货类 ========== */
   deliNormal: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'purUnit',    label:'采购单价',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   deliPartial: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'purUnit',    label:'采购单价',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'220'},
+    {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
 
   /* ========== 工程资料类 ========== */
   matSubmit: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'matType',    label:'资料类型',     w:'110'},
     {key:'matStatus',  label:'提交状态',     w:'90'},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
   matReview: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'matType',    label:'资料类型',     w:'110'},
     {key:'matStatus',  label:'审核状态',     w:'90'},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ],
 
   /* ========== 其他-作废 ========== */
   voidApply: [
     {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'150'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'160'},
-    {key:'reason',     label:'原因描述',     w:'280'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
+    {key:'reason',     label:'原因描述',     w:'200'},
     {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'140', sort:true},
-    {key:'ops',        label:'操作',         w:'160'}
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
   ]
 };
 
