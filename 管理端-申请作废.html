@@ -99,6 +99,7 @@ textarea.form-ctrl{height:100px;resize:vertical;padding:8px 10px;line-height:1.6
 .modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:420px;overflow:hidden;}
 .modal-body{padding:28px 24px 16px;text-align:center;}
 .modal-body .modal-icon{font-size:40px;margin-bottom:12px;display:block;}
+.modal-icon-warn{width:44px;height:44px;border-radius:50%;background:#FFF3E0;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#ED6C02;font-weight:700;line-height:1;margin-bottom:16px;}
 .modal-body .modal-msg{font-size:15px;color:var(--text);font-weight:600;margin-bottom:4px;}
 .modal-body .modal-sub{font-size:13px;color:var(--text-aux);margin-bottom:20px;}
 .modal-footer{display:flex;align-items:center;justify-content:center;gap:12px;padding:0 24px 24px;}
@@ -202,13 +203,12 @@ html,body{height:100%;margin:0;overflow:hidden;}
 <div class="modal-overlay" id="submitModal" onclick="if(event.target===this)closeModal('submitModal')">
   <div class="modal-content">
     <div class="modal-body">
-      <span class="modal-icon">🚫</span>
-      <div class="modal-msg">确定提交作废申请吗？</div>
-      <div class="modal-sub">作废后工程单将进入审批流程，审批通过后不可恢复</div>
+      <div class="modal-icon-warn">!</div>
+      <div class="modal-msg" style="margin-bottom:24px;">确定 提交作废申请吗？</div>
     </div>
     <div class="modal-footer">
-      <button class="btn-cancel-modal" onclick="closeModal('submitModal')">取 消</button>
-      <button class="btn-confirm" onclick="confirmSubmit()">确认作废</button>
+      <button class="btn-cancel-modal" onclick="closeModal('submitModal')">取消</button>
+      <button class="btn-confirm" style="background:var(--primary);" onmouseover="this.style.background='#2d4377'" onmouseout="this.style.background='var(--primary)'" onclick="confirmSubmit()">确认</button>
     </div>
   </div>
 </div>
@@ -217,13 +217,12 @@ html,body{height:100%;margin:0;overflow:hidden;}
 <div class="modal-overlay" id="cancelModal" onclick="if(event.target===this)closeModal('cancelModal')">
   <div class="modal-content">
     <div class="modal-body">
-      <span class="modal-icon">⚠️</span>
-      <div class="modal-msg">确认放弃本次申请？</div>
-      <div class="modal-sub">已填写的信息将不会被保存</div>
+      <div class="modal-icon-warn">!</div>
+      <div class="modal-msg" style="margin-bottom:24px;">确定 放弃本次申请吗？</div>
     </div>
     <div class="modal-footer">
-      <button class="btn-cancel-modal" onclick="closeModal('cancelModal')">继续填写</button>
-      <button class="btn-confirm" style="background:var(--danger);" onclick="cancelApply()">确认放弃</button>
+      <button class="btn-cancel-modal" onclick="closeModal('cancelModal')">取消</button>
+      <button class="btn-confirm" style="background:var(--primary);" onmouseover="this.style.background='#2d4377'" onmouseout="this.style.background='var(--primary)'" onclick="cancelApply()">确认</button>
     </div>
   </div>
 </div>
