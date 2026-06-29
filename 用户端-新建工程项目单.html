@@ -270,8 +270,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .equip-table th{background:#f7f8fa;height:36px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
 .equip-table td{height:38px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
 .equip-table tr:hover td{background:rgba(59,89,152,.02);}
-.equip-table .td-input{border:1px solid transparent;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:transparent;outline:none;transition:.15s;}
-.equip-table .td-input:focus,.equip-table .td-input:hover{border-color:#c5cae9;background:#fff;}
+.equip-table .td-input{border:1px solid #d0d3da;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:#fff;outline:none;transition:.15s;}
+.equip-table .td-input:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);background:#fff;}
+.equip-table .td-input:hover{border-color:#b0b5c0;}
 .equip-table .td-num{text-align:right;}
 .equip-table .td-op{white-space:nowrap;text-align:center;}
 .equip-table .td-op a{color:#d32f2f;font-size:12px;cursor:pointer;}
@@ -286,7 +287,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 /* 设备清单卡片头扩展 */
 .equip-card-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#f7f8fa;border-bottom:1px solid #f0f0f0;}
 .equip-card-hd-left{display:flex;align-items:center;gap:8px;}
-.equip-card-hd-right{display:flex;align-items:center;gap:16px;}
+.equip-card-hd-right{display:flex;align-items:center;gap:8px;}
+.btn-sm{padding:4px 12px;font-size:12px;border-radius:3px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
+.btn-sm:hover{border-color:#3b5998;color:#3b5998;background:#f0f2f5;}
 .equip-summary-item{font-size:12px;color:#646a73;}
 .equip-summary-item span{color:#1f2329;font-weight:700;}
 
@@ -489,8 +492,9 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <span class="equip-limit-tip" id="equipLimitTip" style="margin-left:8px;"></span>
     </div>
     <div class="equip-card-hd-right">
-      <div class="equip-summary-item">总套数：<span id="equipTotalQty">43</span> 套</div>
-      <div class="equip-summary-item">总申请金额：<span id="equipTotalAmt">¥ 198,500.00</span></div>
+      <button class="btn btn-sm" onclick="showAddStdModal()">+ 添加标准商品</button>
+      <button class="btn btn-sm" onclick="addNonStdRow()">+ 添加非标商品</button>
+      <button class="btn btn-sm" onclick="showImportModal()">批量导入</button>
     </div>
   </div>
   <div style="padding:12px 16px;">
@@ -504,79 +508,77 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <th style="min-width:160px;">商品名称</th>
             <th style="min-width:110px;">SKU编码</th>
             <th style="min-width:100px;">型号</th>
-            <th style="min-width:80px;text-align:right;">申请数量</th>
-            <th style="min-width:100px;text-align:right;">申请价格</th>
-            <th style="min-width:80px;text-align:right;">申请点位</th>
+            <th style="min-width:80px;">申请数量</th>
+            <th style="min-width:100px;">申请价格</th>
+            <th style="min-width:80px;">申请点位</th>
             <th style="min-width:120px;">商品行备注</th>
             <th style="width:64px;text-align:center;">操作</th>
           </tr>
         </thead>
         <tbody id="equipTbody">
-          <tr>
+          <!-- 标准商品行1：品类/商品名称/SKU编码/型号→只读文本 -->
+          <tr data-nonstd="false">
             <td style="text-align:center;color:#8f959e;">1</td>
             <td></td>
-            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option></select></td>
-            <td><input class="td-input" style="width:150px;" value="格力 GMV-H140WL/A1 多联式空调"></td>
-            <td><input class="td-input" style="width:100px;" value="SKU-CEN-140A1"></td>
-            <td><input class="td-input" style="width:90px;" value="GMV-H140WL/A1"></td>
-            <td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" value="8"></td>
-            <td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" value="18500"></td>
-            <td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" value="88" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td style="color:#1f2329;">船用空调</td>
+            <td style="color:#1f2329;">格力 GMV-H140WL/A1 多联式空调</td>
+            <td style="color:#1f2329;">SKU-CEN-140A1</td>
+            <td style="color:#1f2329;">GMV-H140WL/A1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="18500" min="0" step="0.01" data-webprice="18500" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
             <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
             <td class="td-op"><a onclick="delRow(this)">删除</a></td>
           </tr>
-          <tr>
+          <!-- 标准商品行2 -->
+          <tr data-nonstd="false">
             <td style="text-align:center;color:#8f959e;">2</td>
             <td></td>
-            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option selected>多联机</option><option>中央空调</option><option>新风</option></select></td>
-            <td><input class="td-input" style="width:150px;" value="格力 GMV-H280WL/A1 多联机组"></td>
-            <td><input class="td-input" style="width:100px;" value="SKU-MLJ-280A1"></td>
-            <td><input class="td-input" style="width:90px;" value="GMV-H280WL/A1"></td>
-            <td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" value="12"></td>
-            <td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" value="22000"></td>
-            <td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" value="86" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td style="color:#1f2329;">多联机</td>
+            <td style="color:#1f2329;">格力 GMV-H280WL/A1 多联机组</td>
+            <td style="color:#1f2329;">SKU-MLJ-280A1</td>
+            <td style="color:#1f2329;">GMV-H280WL/A1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="12" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="22000" min="0" step="0.01" data-webprice="22000" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
             <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
             <td class="td-op"><a onclick="delRow(this)">删除</a></td>
           </tr>
-          <tr>
+          <!-- 标准商品行3 -->
+          <tr data-nonstd="false">
             <td style="text-align:center;color:#8f959e;">3</td>
             <td></td>
-            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option selected>新风</option></select></td>
-            <td><input class="td-input" style="width:150px;" value="格力 FGR3.5Pd/C1N 新风机"></td>
-            <td><input class="td-input" style="width:100px;" value="SKU-XF-35C1N"></td>
-            <td><input class="td-input" style="width:90px;" value="FGR3.5Pd/C1N"></td>
-            <td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" value="15"></td>
-            <td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" value="3800"></td>
-            <td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" value="90" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td style="color:#1f2329;">新风</td>
+            <td style="color:#1f2329;">格力 FGR3.5Pd/C1N 新风机</td>
+            <td style="color:#1f2329;">SKU-XF-35C1N</td>
+            <td style="color:#1f2329;">FGR3.5Pd/C1N</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="15" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="3800" min="0" step="0.01" data-webprice="3800" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
             <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
             <td class="td-op"><a onclick="delRow(this)">删除</a></td>
           </tr>
-          <!-- 非标商品行：展示【非】独立列 -->
-          <tr>
+          <!-- 非标商品行4：品类下拉可编辑/商品名称只读"定制机"/SKU编码只读"--"/型号可编辑 -->
+          <tr data-nonstd="true">
             <td style="text-align:center;color:#8f959e;">4</td>
             <td style="text-align:center;"><span class="nonstd-badge">非</span></td>
-            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option selected>多联机</option><option>中央空调</option><option>新风</option></select></td>
-            <td><input class="td-input" style="width:150px;" value="非标定制 格力多联机组配件包"></td>
-            <td><input class="td-input" style="width:100px;" value="NB-CUSTOM-MLJ-001"></td>
-            <td><input class="td-input" style="width:90px;" value="非标定制"></td>
-            <td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" value="8"></td>
-            <td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" value="6800"></td>
-            <td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" value="92" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option selected>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>
+            <td style="color:#1f2329;">定制机</td>
+            <td style="color:#8f959e;">--</td>
+            <td><input class="td-input" style="width:90px;" value="-"></td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="6800" min="0" step="0.01" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
             <td><input class="td-input" style="width:110px;" value="酒店大堂专用"></td>
             <td class="td-op"><a onclick="delRow(this)">删除</a></td>
           </tr>
         </tbody>
       </table>
     </div>
-    <!-- NM-7: 3按钮水平操作栏 / NM-6: 汇总统计行 -->
+    <!-- NM-6: 汇总统计行（按钮已移至卡片头部） -->
     <div class="equip-table-foot">
-      <div class="et-actions">
-        <button class="btn" id="btnAddStd" onclick="showAddStdModal()">+ 添加标准商品</button>
-        <button class="btn" id="btnAddNonStd" onclick="addNonStdRow()">+ 添加非标商品</button>
-        <button class="btn" id="btnImport" onclick="showImportModal()">批量导入</button>
-      </div>
       <div style="display:flex;align-items:center;gap:16px;">
-        <div class="equip-summary-item">总套数：<span id="footTotalQty">43</span> 套&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="footTotalAmt">¥ 198,500.00</span></div>
+        <div class="equip-summary-item">总套数：<span id="equipTotalQty">43</span> 套&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="equipTotalAmt">¥ 198,500.00</span></div>
       </div>
     </div>
   </div>
@@ -595,8 +597,8 @@ html,body{height:100%;margin:0;overflow:hidden;}
   </div>
   <div class="form-card-body" id="cardUserBody">
     <div class="form-grid">
-      <!-- 项目名称 → I01-1（直接复用） -->
-      <div class="form-item span1">
+      <!-- 项目名称 → I01-1（1栏宽度） -->
+      <div class="form-item">
         <label class="form-label">项目名称 <span class="req">*</span></label>
         <input type="text" class="form-ctrl" placeholder="请输入项目名称，最多100个字符" maxlength="100" value="珠海某酒店中央空调采购项目">
       </div>
@@ -653,9 +655,11 @@ html,body{height:100%;margin:0;overflow:hidden;}
         </div>
         <div id="contactMobileWrap" style="display:flex;flex-direction:column;gap:2px;">
           <input type="text" class="form-ctrl" id="inputMobile" placeholder="请输入，11位数字，1开头" maxlength="11" value="13812345678">
+          <div class="form-hint">11位数字，须以1开头</div>
         </div>
         <div id="contactTelWrap" style="display:none;flex-direction:column;gap:2px;">
           <input type="text" class="form-ctrl" id="inputTel" placeholder="如：07561234567" maxlength="20">
+          <div class="form-hint">7-12位数字或"-"，不可含空格</div>
         </div>
       </div>
       <!-- 项目预计设备金额 → I02-1（近似复用） -->
@@ -684,12 +688,13 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <select class="form-ctrl" style="height:28px;font-size:12px;"><option>香洲街道</option><option>拱北街道</option><option>吉大街道</option></select>
         </div>
         <input type="text" class="form-ctrl" id="addrDetail" style="height:28px;" placeholder="详细地址，最多50字符" maxlength="50" value="迎宾北路1888号华邑酒店">
+        <div style="font-size:11px;color:#8f959e;margin-top:1px;">不允许纯空格/制表符/换行符</div>
       </div>
-      <!-- 跨区类型 → F01-2（只读） -->
+      <!-- 跨区类型 → F01-2（直接复用：只读展示） -->
       <div class="form-item">
         <label class="form-label">跨区类型</label>
         <div class="field-readonly" id="crossRegionDisplay">
-          <span class="cross-region-tag inter">省外跨区</span>
+          <span class="cross-region-tag intra">省内跨区</span>
         </div>
         <div class="form-hint">由项目地址失焦后系统自动判断</div>
       </div>
@@ -904,8 +909,42 @@ function d3SyncHiddenBizType() {
 var equipCount = 4;
 function delRow(el) {
   var tr = el.closest('tr');
-  if(tr) { tr.remove(); equipCount = Math.max(0, equipCount-1); updateEquipCount(); }
+  if(tr) { tr.remove(); equipCount = Math.max(0, equipCount-1); updateEquipCount(); recalcSummary(); }
 }
+
+// 计算申请价格：申请价格 = 网批售价 × (100 - 申请点位) / 100
+function calcPriceFromPoint(pointInput) {
+  var row = pointInput.closest('tr');
+  var priceInput = row.querySelector('.equip-price');
+  var webPrice = parseFloat(priceInput.dataset.webprice);
+  if(!webPrice || webPrice <= 0) return; // 非标无网批售价，不自动算
+  var point = parseFloat(pointInput.value);
+  if(isNaN(point)) point = 0;
+  var newPrice = webPrice * (100 - point) / 100;
+  priceInput.value = newPrice.toFixed(2);
+}
+
+// 总套数/总申请金额自动刷新
+function recalcSummary() {
+  var rows = document.querySelectorAll('#equipTbody tr');
+  var totalQty = 0;
+  var totalAmt = 0;
+  rows.forEach(function(row) {
+    var qtyEl = row.querySelector('.equip-qty');
+    var priceEl = row.querySelector('.equip-price');
+    if(qtyEl && priceEl) {
+      var qty = parseInt(qtyEl.value) || 0;
+      var price = parseFloat(priceEl.value) || 0;
+      totalQty += qty;
+      totalAmt += qty * price;
+    }
+  });
+  // 格式化金额
+  var amtStr = '¥ ' + totalAmt.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('equipTotalQty').textContent = totalQty;
+  document.getElementById('equipTotalAmt').textContent = amtStr;
+}
+
 function addNonStdRow() {
   if(equipCount >= 99) { alert('已达最大99条限制'); return; }
   equipCount++;
@@ -914,17 +953,18 @@ function addNonStdRow() {
   tr.setAttribute('data-nonstd','true');
   tr.innerHTML = '<td style="text-align:center;color:#8f959e;">'+equipCount+'</td>'
     +'<td style="text-align:center;"><span class="nonstd-badge">非</span></td>'
-    +'<td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option></select></td>'
-    +'<td><input class="td-input" style="width:150px;" placeholder="输入商品名称"></td>'
-    +'<td><input class="td-input" style="width:100px;" placeholder="SKU编码"></td>'
-    +'<td><input class="td-input" style="width:90px;" placeholder="型号"></td>'
-    +'<td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" placeholder="0"></td>'
-    +'<td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" placeholder="0"></td>'
-    +'<td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" placeholder="0" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>'
+    +'<td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>'
+    +'<td style="color:#1f2329;">定制机</td>'
+    +'<td style="color:#8f959e;">--</td>'
+    +'<td><input class="td-input" style="width:90px;" value="-"></td>'
+    +'<td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="1" min="1" max="9999999" onchange="recalcSummary()"></td>'
+    +'<td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="0" min="0" step="0.01" onchange="recalcSummary()"></td>'
+    +'<td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" placeholder="0" min="0" max="100" step="0.01" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>'
     +'<td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>'
     +'<td class="td-op"><a onclick="delRow(this)">删除</a></td>';
   tbody.appendChild(tr);
   updateEquipCount();
+  recalcSummary();
 }
 function updateEquipCount() {
   document.getElementById('equipCountLabel').textContent = '已添加 '+equipCount+' / 99';
