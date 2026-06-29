@@ -233,7 +233,7 @@ a:hover{text-decoration:underline;}
         </div>
         <div class="search-item ">
           <span class="label">在任类型</span>
-          <select><option>全部</option><option>非跨区</option><option>省内跨区</option><option>省外跨区</option></select>
+          <select><option>全部</option><option>非跨区</option><option>省外跨区</option></select>
         </div>
         <div class="search-item ">
           <span class="label">销售公司</span>
@@ -369,13 +369,13 @@ a:hover{text-decoration:underline;}
 var secondaryTabConfig = {
   login: [
     {key:'local',     label:'非跨区登录', badge:'99+'},
-    {key:'inProvince',label:'省内跨区登录', badge:'99+'},
+    // {key:'inProvince',label:'省内跨区登录', badge:'99+'},  // 已移除
     {key:'outProvince',label:'省外跨区登录', badge:'99+'},
     {key:'extend',    label:'登录延期',     badge:'99+'}
   ],
   price: [
     {key:'pLocal',     label:'非跨区批价', badge:'99+'},
-    {key:'pInProvince',label:'省内跨区批价', badge:'99+'},
+    // {key:'pInProvince',label:'省内跨区批价', badge:'99+'},  // 已移除
     {key:'pOutProvince',label:'省外跨区批价', badge:'99+'},
     {key:'rePrice',    label:'二次批价',    badge:'99+'},
     {key:'deliveryExt', label:'提货延期',    badge:'99+'}
