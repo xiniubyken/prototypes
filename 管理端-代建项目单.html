@@ -471,8 +471,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .equip-table th{background:#f7f8fa;height:36px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
 .equip-table td{height:38px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
 .equip-table tr:hover td{background:rgba(59,89,152,.02);}
-.equip-table .td-input{border:1px solid transparent;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:transparent;outline:none;transition:.15s;}
-.equip-table .td-input:focus,.equip-table .td-input:hover{border-color:#c5cae9;background:#fff;}
+.equip-table .td-input{border:1px solid #d0d3da;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:#fff;outline:none;transition:.15s;}
+.equip-table .td-input:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);background:#fff;}
+.equip-table .td-input:hover{border-color:#b0b5c0;}
 .equip-table .td-num{text-align:right;}
 .equip-table .td-op{white-space:nowrap;text-align:center;}
 .equip-table .td-op a{color:#d32f2f;font-size:12px;cursor:pointer;}
@@ -487,7 +488,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 /* 设备清单卡片头扩展 */
 .equip-card-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#f7f8fa;border-bottom:1px solid #f0f0f0;}
 .equip-card-hd-left{display:flex;align-items:center;gap:8px;}
-.equip-card-hd-right{display:flex;align-items:center;gap:16px;}
+.equip-card-hd-right{display:flex;align-items:center;gap:8px;}
+.btn-sm{padding:4px 12px;font-size:12px;border-radius:3px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
+.btn-sm:hover{border-color:#3b5998;color:#3b5998;background:#f0f2f5;}
 .equip-summary-item{font-size:12px;color:#646a73;}
 .equip-summary-item span{color:#1f2329;font-weight:700;}
 
@@ -497,13 +500,20 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .dealer-select-hd .fct-accent{width:4px;height:16px;background:#3b5998;border-radius:2px;flex-shrink:0;}
 .dealer-select-body{padding:16px;}
 .dealer-tip{font-size:12px;color:#8f959e;background:#f5f6fa;border-radius:4px;padding:8px 12px;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
-.dealer-selected-card{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:4px;}
-.dealer-selected-info{display:flex;flex-direction:column;gap:2px;}
-.dealer-selected-name{font-size:14px;font-weight:700;color:#1f2329;}
-.dealer-selected-meta{font-size:12px;color:#646a73;}
-.dealer-change-btn{font-size:12px;color:#3b5998;cursor:pointer;border:1px solid #c5cae9;padding:4px 10px;border-radius:4px;background:#fff;transition:.15s;}
+/* 经销商空态 */
+.dealer-empty-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:12px;}
+.dealer-empty-zone .btn-select-dealer{padding:10px 36px;font-size:14px;font-weight:700;background:#3b5998;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.dealer-empty-zone .btn-select-dealer:hover{background:#2e477a;box-shadow:0 2px 8px rgba(59,89,152,.3);}
+.dealer-empty-hint{font-size:12px;color:#8f959e;text-align:center;}
+/* 经销商已选态 */
+.dealer-selected-card{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.dealer-selected-info{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+.dealer-selected-name{font-size:15px;font-weight:700;color:#1f2329;}
+.dealer-selected-meta{font-size:12px;color:#646a73;display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.dealer-meta-item{display:inline-flex;align-items:center;gap:0;}
+.dealer-meta-sep{color:#d0d3da;margin:0 8px;font-size:11px;}
+.dealer-change-btn{font-size:12px;color:#3b5998;cursor:pointer;border:1px solid #c5cae9;padding:6px 14px;border-radius:4px;background:#fff;transition:.15s;white-space:nowrap;flex-shrink:0;margin-left:16px;}
 .dealer-change-btn:hover{background:#e8edf8;}
-.dealer-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 24px;}
 
 /* ====== 底部固定操作栏 ====== */
 .form-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
@@ -640,36 +650,28 @@ html,body{height:100%;margin:0;overflow:hidden;}
     <span style="font-size:14px;font-weight:700;color:#1f2329;">选择经销商</span>
   </div>
   <div class="dealer-select-body">
-    <div class="dealer-tip">
-      <span>先选经销商，再填写表单；提交后直接进入<b>跟进中</b>，无审批流程</span>
+
+    <!-- 默认态：未选择经销商 -->
+    <div id="dealerEmptyZone" class="dealer-empty-zone">
+      <button class="btn-select-dealer" onclick="openDealerModal()">选择经销商</button>
+      <div class="dealer-empty-hint">点击"选择经销商"打开弹窗，从经销商列表中检索并确认</div>
     </div>
 
-    <!-- 已选经销商回填卡 -->
-    <div id="dealerSelectedCard" class="dealer-selected-card">
+    <!-- 已选态：已选经销商（默认隐藏） -->
+    <div id="dealerSelectedCard" class="dealer-selected-card" style="display:none;">
       <div class="dealer-selected-info">
-        <div class="dealer-selected-name">珠海华鸿电器销售有限公司</div>
-        <div class="dealer-selected-meta">经销商编码：GC-ZH-20180045 &nbsp;|&nbsp; 经销商电话：0756-8887766 &nbsp;|&nbsp; 所属区域：广东-珠海</div>
+        <div class="dealer-selected-name" id="dealerDispName">--</div>
+        <div class="dealer-selected-meta">
+          <span class="dealer-meta-item" id="dealerDispAccount">经销商账号：--</span>
+          <span class="dealer-meta-sep">|</span>
+          <span class="dealer-meta-item" id="dealerDispPhone">经销商电话：--</span>
+          <span class="dealer-meta-sep">|</span>
+          <span class="dealer-meta-item" id="dealerDispArea">销售区域：--</span>
+        </div>
       </div>
-      <button class="dealer-change-btn" onclick="toggleDealerSelect()">更换经销商</button>
+      <button class="dealer-change-btn" onclick="openDealerModal()">更换经销商</button>
     </div>
 
-    <!-- 未选经销商（默认隐藏） -->
-    <div id="dealerEmptyCard" style="display:none;">
-      <div class="dealer-fields">
-        <div class="form-item span2">
-          <label class="form-label">经销商名称 <span class="req">*</span></label>
-          <div style="display:flex;gap:8px;">
-            <input type="text" class="form-ctrl" id="dealerNameInput" placeholder="输入关键字搜索" style="flex:1;">
-            <button class="btn btn-primary" onclick="mockSelectDealer()">选择经销商</button>
-          </div>
-          <div class="form-hint">点击"选择经销商"打开弹窗，从经销商列表中检索并确认</div>
-        </div>
-        <div class="form-item">
-          <label class="form-label">经销商电话</label>
-          <input type="text" class="form-ctrl" id="dealerTelInput" placeholder="选择经销商后自动填入" readonly>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -697,8 +699,9 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <span class="equip-limit-tip" id="m5EquipLimitTip" style="margin-left:8px;"></span>
     </div>
     <div class="equip-card-hd-right">
-      <div class="equip-summary-item">总套数：<span id="m5EquipTotalQty">28</span> 套</div>
-      <div class="equip-summary-item">总申请金额：<span id="m5EquipTotalAmt">¥ 156,400.00</span></div>
+      <button class="btn btn-sm" onclick="m5ShowAddStdModal()">+ 添加标准商品</button>
+      <button class="btn btn-sm" onclick="m5AddNonStdRow()">+ 添加非标商品</button>
+      <button class="btn btn-sm" onclick="m5ShowImportModal()">批量导入</button>
     </div>
   </div>
   <div style="padding:12px 16px;">
@@ -713,50 +716,50 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <th style="min-width:160px;">商品名称</th>
             <th style="min-width:110px;">SKU编码</th>
             <th style="min-width:100px;">型号</th>
-            <th style="min-width:80px;text-align:right;">申请数量</th>
-            <th style="min-width:100px;text-align:right;">申请价格</th>
-            <th style="min-width:80px;text-align:right;">申请点位</th>
+            <th style="min-width:80px;">申请数量</th>
+            <th style="min-width:100px;">申请价格</th>
+            <th style="min-width:80px;">申请点位</th>
             <th style="min-width:120px;">商品行备注</th>
             <th style="width:64px;text-align:center;">操作</th>
           </tr>
         </thead>
         <tbody id="m5EquipTbody">
-          <tr>
+          <tr data-nonstd="false">
             <td style="text-align:center;color:#8f959e;">1</td>
             <td></td>
-            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option selected>多联机</option><option>中央空调</option><option>新风</option></select></td>
-            <td><input class="td-input" style="width:150px;" value="格力 GMV-H224WL/A1 多联机组"></td>
-            <td><input class="td-input" style="width:100px;" value="SKU-MLJ-224A1"></td>
-            <td><input class="td-input" style="width:90px;" value="GMV-H224WL/A1"></td>
-            <td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" value="10"></td>
-            <td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" value="19800"></td>
-            <td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" value="87" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td style="color:#1f2329;">多联机</td>
+            <td style="color:#1f2329;">格力 GMV-H224WL/A1 多联机组</td>
+            <td style="color:#1f2329;">SKU-MLJ-224A1</td>
+            <td style="color:#1f2329;">GMV-H224WL/A1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="10" min="1" max="9999999" onchange="m5RecalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="19800" min="0" step="0.01" data-webprice="19800" onchange="m5RecalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="87" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
             <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
             <td class="td-op"><a onclick="m5DelRow(this)">删除</a></td>
           </tr>
-          <tr>
+          <tr data-nonstd="false">
             <td style="text-align:center;color:#8f959e;">2</td>
             <td></td>
-            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option selected>中央空调</option><option>多联机</option><option>新风</option></select></td>
-            <td><input class="td-input" style="width:150px;" value="格力 KFRd-120LW/NhGb1B 柜机"></td>
-            <td><input class="td-input" style="width:100px;" value="SKU-GJ-120GB"></td>
-            <td><input class="td-input" style="width:90px;" value="KFRd-120LW/NhGb1B"></td>
-            <td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" value="8"></td>
-            <td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" value="7600"></td>
-            <td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" value="91" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td style="color:#1f2329;">中央空调</td>
+            <td style="color:#1f2329;">格力 KFRd-120LW/NhGb1B 柜机</td>
+            <td style="color:#1f2329;">SKU-GJ-120GB</td>
+            <td style="color:#1f2329;">KFRd-120LW/NhGb1B</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="m5RecalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="7600" min="0" step="0.01" data-webprice="7600" onchange="m5RecalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="91" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
             <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
             <td class="td-op"><a onclick="m5DelRow(this)">删除</a></td>
           </tr>
-          <tr>
+          <tr data-nonstd="false">
             <td style="text-align:center;color:#8f959e;">3</td>
             <td></td>
-            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option selected>新风</option></select></td>
-            <td><input class="td-input" style="width:150px;" value="格力 FGR5Pd/NhBa1 吊顶式新风"></td>
-            <td><input class="td-input" style="width:100px;" value="SKU-XF-5NBA1"></td>
-            <td><input class="td-input" style="width:90px;" value="FGR5Pd/NhBa1"></td>
-            <td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" value="10"></td>
-            <td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" value="4200"></td>
-            <td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" value="89" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td style="color:#1f2329;">新风</td>
+            <td style="color:#1f2329;">格力 FGR5Pd/NhBa1 吊顶式新风</td>
+            <td style="color:#1f2329;">SKU-XF-5NBA1</td>
+            <td style="color:#1f2329;">FGR5Pd/NhBa1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="10" min="1" max="9999999" onchange="m5RecalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="4200" min="0" step="0.01" data-webprice="4200" onchange="m5RecalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="89" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
             <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
             <td class="td-op"><a onclick="m5DelRow(this)">删除</a></td>
           </tr>
@@ -764,13 +767,8 @@ html,body{height:100%;margin:0;overflow:hidden;}
       </table>
     </div>
     <div class="equip-table-foot">
-      <div class="et-actions">
-        <button class="btn" id="m5BtnAddStd" onclick="m5ShowAddStdModal()">+ 添加标准商品</button>
-        <button class="btn" id="m5BtnAddNonStd" onclick="m5AddNonStdRow()">+ 添加非标商品</button>
-        <button class="btn" id="m5BtnImport" onclick="m5ShowImportModal()">批量导入</button>
-      </div>
       <div style="display:flex;align-items:center;gap:16px;">
-        <div class="equip-summary-item">总套数：<span id="m5FootTotalQty">28</span> 套&nbsp;|&nbsp;总申请金额：<span id="m5FootTotalAmt">¥ 156,400.00</span></div>
+        <div class="equip-summary-item">总套数：<span id="m5EquipTotalQty">28</span> 套&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="m5EquipTotalAmt">¥ 156,400.00</span></div>
       </div>
     </div>
   </div>
@@ -787,7 +785,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
   <div class="form-card-body" id="m5CardUserBody">
     <div class="form-grid">
       <!-- 项目名称 → I01-1 -->
-      <div class="form-item span1">
+      <div class="form-item">
         <label class="form-label">项目名称 <span class="req">*</span></label>
         <input type="text" class="form-ctrl" placeholder="请输入项目名称，最多100个字符" maxlength="100" value="广州某写字楼多联机系统改造项目">
       </div>
@@ -850,9 +848,11 @@ html,body{height:100%;margin:0;overflow:hidden;}
         </div>
         <div id="m5ContactMobileWrap" style="display:flex;flex-direction:column;gap:2px;">
           <input type="text" class="form-ctrl" id="m5InputMobile" placeholder="请输入，11位数字，1开头" maxlength="11" value="13987654321">
+          <div class="form-hint">11位数字，须以1开头</div>
         </div>
         <div id="m5ContactTelWrap" style="display:none;flex-direction:column;gap:2px;">
           <input type="text" class="form-ctrl" id="m5InputTel" placeholder="如：07561234567" maxlength="20">
+          <div class="form-hint">7-12位数字或"-"，不可含空格</div>
         </div>
       </div>
       <!-- 项目预计设备金额 → I02-1 -->
@@ -871,7 +871,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <input type="number" class="form-ctrl" placeholder="请输入" value="9800">
         <div class="form-hint">当业务线类型=冷链时必填</div>
       </div>
-      <!-- 项目地址 → S05-1+S05-2+I01-1（紧凑28px行高） -->
+      <!-- 项目地址 → S05-1+S05-2+I01-1（紧凑28px行高，span2） -->
       <div class="form-item span2">
         <label class="form-label">项目地址 <span class="req">*</span></label>
         <div class="addr-row" style="gap:6px;margin-bottom:4px;">
@@ -881,6 +881,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <select class="form-ctrl" style="height:28px;font-size:12px;"><option selected>天河北街道</option><option>石牌街道</option></select>
         </div>
         <input type="text" class="form-ctrl addr-detail-compact" style="height:28px;" placeholder="详细地址，最多50字符" maxlength="50" value="天河北路385号某科技大厦18楼">
+        <div class="addr-hint-compact" style="font-size:11px;color:#8f959e;margin-top:1px;">不允许纯空格/制表符/换行符</div>
       </div>
       <!-- 跨区类型 → F01-2（只读） -->
       <div class="form-item">
@@ -948,12 +949,12 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <!-- 经销商名称 → I01-8（只读，由选择区带入） -->
       <div class="form-item">
         <label class="form-label">经销商名称</label>
-        <div class="field-readonly">珠海华鸿电器销售有限公司</div>
+        <div class="field-readonly" id="m5BaseDealerName"><span style="color:#8f959e;font-size:13px;">未选择</span></div>
       </div>
       <!-- 经销商电话 → I01-8（只读，由选择区带入） -->
       <div class="form-item">
         <label class="form-label">经销商电话</label>
-        <div class="field-readonly">0756-8887766</div>
+        <div class="field-readonly" id="m5BaseDealerPhone"><span style="color:#8f959e;font-size:13px;">未选择</span></div>
       </div>
     </div>
   </div>
@@ -1005,6 +1006,88 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div>
 
 </div><!-- /page-root -->
+
+<!-- ===== 添加经销商弹窗 ===== -->
+<div class="modal-overlay" id="dealerModal" style="display:none;" onclick="if(event.target===this)closeDealerModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">添加经销商</span>
+      <span class="modal-close" onclick="closeDealerModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:14px;">
+        <div class="form-item" style="flex:1;margin-bottom:0;">
+          <label class="form-label">经销商名称/账号</label>
+          <input type="text" class="form-ctrl" id="dealerSearchInput" placeholder="输入关键字搜索" maxlength="100">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="searchDealer()" style="margin-bottom:1px;">查询</button>
+        <button class="btn btn-sm" onclick="resetDealerSearch()" style="margin-bottom:1px;">重置</button>
+      </div>
+      <div class="product-table-wrap" style="max-height:300px;">
+        <table class="product-select-table" style="min-width:500px;">
+          <thead>
+            <tr>
+              <th style="width:40px;text-align:center;">选择</th>
+              <th>经销商名称</th>
+              <th style="width:130px;">经销商账号</th>
+              <th style="width:130px;">经销商电话</th>
+              <th style="width:120px;">销售区域</th>
+            </tr>
+          </thead>
+          <tbody id="dealerListTbody">
+            <tr data-did="1" onclick="selectDealerRow(this)">
+              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="1"></td>
+              <td>珠海华鸿电器销售有限公司</td>
+              <td>GC-ZH-20180045</td>
+              <td>13812345678</td>
+              <td>广东-珠海</td>
+            </tr>
+            <tr data-did="2" onclick="selectDealerRow(this)">
+              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="2"></td>
+              <td>广州天河制冷设备有限公司</td>
+              <td>GC-GZ-20190012</td>
+              <td>13987654321</td>
+              <td>广东-广州</td>
+            </tr>
+            <tr data-did="3" onclick="selectDealerRow(this)">
+              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="3"></td>
+              <td>深圳前海智能空调工程有限公司</td>
+              <td>GC-SZ-20200033</td>
+              <td>0755-86001234</td>
+              <td>广东-深圳、广东-东莞</td>
+            </tr>
+            <tr data-did="4" onclick="selectDealerRow(this)">
+              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="4"></td>
+              <td>佛山南海格力专卖店</td>
+              <td>GC-FS-20180067</td>
+              <td>0757-86223388</td>
+              <td>广东-佛山</td>
+            </tr>
+            <tr data-did="5" onclick="selectDealerRow(this)">
+              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="5"></td>
+              <td>中山小榄格力专营店</td>
+              <td>GC-ZS-20210019</td>
+              <td>13760667890</td>
+              <td>广东-中山</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="page-info">共 5 条</div>
+        <div class="page-controls">
+          <span class="page-btn disabled">上一页</span>
+          <span class="page-btn active">1</span>
+          <span class="page-btn disabled">下一页</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeDealerModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmDealer()">确定</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== 添加标准商品弹窗 ===== -->
 <div class="modal-overlay" id="m5AddStdModal" style="display:none;" onclick="if(event.target===this)m5CloseAddStdModal()">
@@ -1174,20 +1257,62 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div>
 
 <script>
-/* M5 页面脚本 */
+/* M5 v3 页面脚本 */
 
 /* ------ 经销商选择区 ------ */
-var dealerSelected = true;
-function toggleDealerSelect() {
-  dealerSelected = !dealerSelected;
-  document.getElementById('dealerSelectedCard').style.display = dealerSelected ? '' : 'none';
-  document.getElementById('dealerEmptyCard').style.display    = dealerSelected ? 'none' : '';
+var currentDealerRow = null;  // 弹窗中当前选中的行
+var selectedDealerData = null; // 确认后的经销商数据
+
+function openDealerModal() {
+  currentDealerRow = null;
+  // 清除弹窗中的选中状态
+  document.querySelectorAll('#dealerListTbody input[name="dealerRadio"]').forEach(function(r){ r.checked = false; });
+  document.querySelectorAll('#dealerListTbody tr').forEach(function(tr){ tr.style.background = ''; });
+  document.getElementById('dealerModal').style.display = 'flex';
 }
-function mockSelectDealer() {
-  alert('演示：弹出经销商选择弹窗');
-  dealerSelected = true;
-  document.getElementById('dealerSelectedCard').style.display = '';
-  document.getElementById('dealerEmptyCard').style.display    = 'none';
+function closeDealerModal() {
+  document.getElementById('dealerModal').style.display = 'none';
+}
+function selectDealerRow(tr) {
+  // 高亮选中行
+  document.querySelectorAll('#dealerListTbody tr').forEach(function(r){ r.style.background = ''; });
+  tr.style.background = 'rgba(59,89,152,.06)';
+  var radio = tr.querySelector('input[name="dealerRadio"]');
+  if(radio) radio.checked = true;
+  currentDealerRow = tr;
+}
+function searchDealer() {
+  var keyword = document.getElementById('dealerSearchInput').value.trim().toLowerCase();
+  document.querySelectorAll('#dealerListTbody tr').forEach(function(tr) {
+    var text = tr.textContent.toLowerCase();
+    tr.style.display = (!keyword || text.indexOf(keyword) >= 0) ? '' : 'none';
+  });
+}
+function resetDealerSearch() {
+  document.getElementById('dealerSearchInput').value = '';
+  document.querySelectorAll('#dealerListTbody tr').forEach(function(tr){ tr.style.display = ''; });
+}
+function confirmDealer() {
+  if(!currentDealerRow) { alert('请选择一个经销商'); return; }
+  var cells = currentDealerRow.querySelectorAll('td');
+  selectedDealerData = {
+    name:   cells[1].textContent.trim(),
+    account:cells[2].textContent.trim(),
+    phone:  cells[3].textContent.trim(),
+    area:   cells[4].textContent.trim()
+  };
+  // 回填已选态
+  document.getElementById('dealerDispName').textContent   = selectedDealerData.name;
+  document.getElementById('dealerDispAccount').textContent = '经销商账号：' + selectedDealerData.account;
+  document.getElementById('dealerDispPhone').textContent   = '经销商电话：' + selectedDealerData.phone;
+  document.getElementById('dealerDispArea').textContent    = '销售区域：' + selectedDealerData.area;
+  // 切换显示
+  document.getElementById('dealerEmptyZone').style.display     = 'none';
+  document.getElementById('dealerSelectedCard').style.display  = '';
+  // 回填基本信息卡片
+  document.getElementById('m5BaseDealerName').innerHTML  = '<span style="color:#1f2329;">' + selectedDealerData.name + '</span>';
+  document.getElementById('m5BaseDealerPhone').innerHTML = '<span style="color:#1f2329;">' + selectedDealerData.phone + '</span>';
+  closeDealerModal();
 }
 
 /* ------ 联系方式切换器 ------ */
@@ -1225,7 +1350,40 @@ function m5SyncHiddenBizType() {
 var m5EquipCount = 3;
 function m5DelRow(el) {
   var tr = el.closest('tr');
-  if(tr) { tr.remove(); m5EquipCount = Math.max(0, m5EquipCount-1); m5UpdateEquipCount(); }
+  if(tr) { tr.remove(); m5EquipCount = Math.max(0, m5EquipCount-1); m5UpdateEquipCount(); m5RecalcSummary(); }
+}
+// 点位→价格联动（仅标准行有webprice）
+function m5CalcPriceFromPoint(pointInput) {
+  var row = pointInput.closest('tr');
+  var priceInput = row.querySelector('.equip-price');
+  if(!priceInput || !priceInput.dataset.webprice) return;
+  var webPrice = parseFloat(priceInput.dataset.webprice);
+  if(!webPrice || webPrice <= 0) return;
+  var point = parseFloat(pointInput.value);
+  if(isNaN(point)) point = 0;
+  var newPrice = webPrice * (100 - point) / 100;
+  priceInput.value = newPrice.toFixed(2);
+}
+// 总套数/总申请金额自动刷新
+function m5RecalcSummary() {
+  var rows = document.querySelectorAll('#m5EquipTbody tr');
+  var totalQty = 0;
+  var totalAmt = 0;
+  rows.forEach(function(row) {
+    var qtyEl = row.querySelector('.equip-qty');
+    var priceEl = row.querySelector('.equip-price');
+    if(qtyEl && priceEl) {
+      var qty = parseInt(qtyEl.value) || 0;
+      var price = parseFloat(priceEl.value) || 0;
+      totalQty += qty;
+      totalAmt += qty * price;
+    }
+  });
+  var amtStr = '¥ ' + totalAmt.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  var el1 = document.getElementById('m5EquipTotalQty');
+  var el2 = document.getElementById('m5EquipTotalAmt');
+  if(el1) el1.textContent = totalQty;
+  if(el2) el2.textContent = amtStr;
 }
 function m5AddNonStdRow() {
   if(m5EquipCount >= 99) { alert('已达最大99条限制'); return; }
@@ -1235,13 +1393,13 @@ function m5AddNonStdRow() {
   tr.setAttribute('data-nonstd','true');
   tr.innerHTML = '<td style="text-align:center;color:#8f959e;">'+m5EquipCount+'</td>'
     +'<td style="text-align:center;"><span class="nonstd-badge">非</span></td>'
-    +'<td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option></select></td>'
-    +'<td><input class="td-input" style="width:150px;" placeholder="输入商品名称"></td>'
-    +'<td><input class="td-input" style="width:100px;" placeholder="SKU编码"></td>'
-    +'<td><input class="td-input" style="width:90px;" placeholder="型号"></td>'
-    +'<td><input class="td-input td-num" style="width:70px;text-align:right;" type="number" placeholder="0"></td>'
-    +'<td><input class="td-input td-num" style="width:90px;text-align:right;" type="number" placeholder="0"></td>'
-    +'<td style="text-align:right;"><div style="display:flex;align-items:center;gap:2px;justify-content:flex-end;"><input class="td-input td-num" style="width:50px;text-align:right;" type="number" placeholder="0" min="0" max="100" step="0.1"><span style="font-size:11px;color:#646a73;">%</span></div></td>'
+    +'<td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>'
+    +'<td style="color:#1f2329;">定制机</td>'
+    +'<td style="color:#8f959e;">--</td>'
+    +'<td><input class="td-input" style="width:90px;" value="-"></td>'
+    +'<td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="1" min="1" max="9999999" onchange="m5RecalcSummary()"></td>'
+    +'<td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="0" min="0" step="0.01" onchange="m5RecalcSummary()"></td>'
+    +'<td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" placeholder="0" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>'
     +'<td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>'
     +'<td class="td-op"><a onclick="m5DelRow(this)">删除</a></td>';
   tbody.appendChild(tr);
