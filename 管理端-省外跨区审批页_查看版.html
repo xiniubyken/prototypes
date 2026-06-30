@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>非跨区审批页（查看版）</title>
+<title>省外跨区审批页</title>
 
 <style>
 /* 商用工程 · 共享样式 */
@@ -307,7 +307,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .modal-attach-item:hover{text-decoration:underline;}
 
 /* ====== 底部操作栏 ====== */
-.approval-footer{display:none !important;position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
+.approval-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:14px 24px;display:none;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
 .approval-footer-left{font-size:12px;color:#8f959e;}
 .approval-footer-right{display:flex;gap:12px;align-items:center;}
 .btn-approve{padding:8px 28px;font-size:14px;font-weight:700;background:#2E7D32;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
@@ -502,7 +502,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">查看-非跨区登录</span>
+    <span class="form-page-title">查看-省外跨区登录</span>
     <span class="proj-no-display" id="headerProjNo">粤东GCDT202506250001 (希望小学A项目)</span>
   </div>
   <div class="form-header-right">
@@ -514,17 +514,15 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 <div class="form-page-inner">
 
 
-
 <!-- ========== 卡片1：设备清单（从用户端-新建工程项目单.html完整复制） ========== -->
 <div class="form-card" id="cardEquipList">
   <div class="equip-card-hd">
     <div class="equip-card-hd-left">
       <div class="fct-accent"></div>
       <span style="font-size:14px;font-weight:700;color:#1f2329;">设备清单</span>
-      <span class="equip-limit-tip" id="equipLimitTip" style="margin-left:8px;"></span>
     </div>
   </div>
-    <div style="padding:12px 16px;">
+  <div style="padding:12px 16px;">
     <div class="equip-table-wrap">
       <table class="equip-table">
         <thead>
@@ -687,7 +685,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <!-- 跨区类型（只读标签） -->
       <div class="form-item">
         <label class="form-label">跨区类型</label>
-        <div class="field-readonly"><span class="cross-region-tag none">非跨区</span></div>
+        <div class="field-readonly"><span class="cross-region-tag none">省外跨区</span></div>
       </div>
 
       <!-- 项目状态 -->
@@ -1149,6 +1147,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <span class="lo-num">1</span>
           <span class="lo-txt">登录成功</span>
         </span>
+      </div>
+      <!-- 跨区编号（必填） -->
+      <div class="approve-form-group">
+        <label class="approve-form-label"><span style="color:#d32f2f;">*</span>请填写跨区编号：</label>
+        <input type="text" class="form-ctrl" id="approveCrossRegionNo" placeholder="请输入跨区编号">
+        <div style="font-size:12px;color:#d32f2f;margin-top:4px;">请选择被跨区办事处</div>
       </div>
       <!-- 备注 -->
       <div class="approve-form-group">
@@ -1673,13 +1677,13 @@ function closeExportModal(){document.getElementById('exportModal').classList.rem
           </tr>
         </thead>
         <tbody id="qvTableBody">
-          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606250001</td><td>XX商贸有限公司</td><td>珠海华邑酒店</td><td>华邑酒店管理公司</td><td>120</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省珠海市香洲区迎宾北路1888号</td><td>13800138000</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260625001</a></td><td>2026-06-25 10:30:00</td><td><span class="st-sp">审批中</span></td></tr>
-          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606240088</td><td>格力电器（深圳）</td><td>深圳湾体育中心</td><td>深圳市体育局</td><td>500</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省深圳市南山区滨海大道3001号</td><td>13900139001</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260624003</a></td><td>2026-06-24 16:45:20</td><td><span class="st-ok">跟进中</span></td></tr>
+          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606250001</td><td>XX商贸有限公司</td><td>珠海华邑酒店</td><td>华邑酒店管理公司</td><td>120</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省珠海市香洲区迎宾北路1888号</td><td>13800138000</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260625001</a></td><td>2026-06-25 10:30:00</td><td><span class="st-sp">审批中</span></td></tr>
+          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606240088</td><td>格力电器（深圳）</td><td>深圳湾体育中心</td><td>深圳市体育局</td><td>500</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省深圳市南山区滨海大道3001号</td><td>13900139001</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260624003</a></td><td>2026-06-24 16:45:20</td><td><span class="st-ok">跟进中</span></td></tr>
           <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606230056</td><td>广州制冷设备</td><td>白云国际机场T2航站楼</td><td>广东省机场集团</td><td>2000</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省广州市白云区机场大道南</td><td>13700237002</td><td>—</td><td>2026-06-23 09:15:33</td><td><span class="st-ok">跟进中</span></td></tr>
-          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606220044</td><td>东莞机电工程</td><td>松山湖华为研发中心</td><td>华为技术有限公司</td><td>800</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省东莞市松山湖科技产业园区</td><td>13600236003</td><td>—</td><td>2026-06-22 11:28:45</td><td><span class="st-sp">审批中</span></td></tr>
-          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606210033</td><td>佛山暖通空调</td><td>佛山新城文化中心</td><td>佛山市文化广电旅游体育局</td><td>350</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省佛山市顺德区新城核心区</td><td>13500235004</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260621002</a></td><td>2026-06-21 14:55:18</td><td><span class="st-rej">已驳回</span></td></tr>
-          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606200022</td><td>江门制冷商贸</td><td>五邑大学图书馆</td><td>五邑大学</td><td>90</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省江门市蓬江区建设大道25号</td><td>13400234005</td><td>—</td><td>2026-06-20 08:40:07</td><td><span class="st-ok">跟进中</span></td></tr>
-          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606190011</td><td>中山空调工程</td><td>火炬开发区医院</td><td>中山火炬开发区管理委员会</td><td>180</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省中山市火炬开发区康乐大道</td><td>13300233006</td><td>—</td><td>2026-06-19 17:22:50</td><td><span class="st-done">已完结</span></td></tr>
+          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606220044</td><td>东莞机电工程</td><td>松山湖华为研发中心</td><td>华为技术有限公司</td><td>800</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省东莞市松山湖科技产业园区</td><td>13600236003</td><td>—</td><td>2026-06-22 11:28:45</td><td><span class="st-sp">审批中</span></td></tr>
+          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606210033</td><td>佛山暖通空调</td><td>佛山新城文化中心</td><td>佛山市文化广电旅游体育局</td><td>350</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省佛山市顺德区新城核心区</td><td>13500235004</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260621002</a></td><td>2026-06-21 14:55:18</td><td><span class="st-rej">已驳回</span></td></tr>
+          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606200022</td><td>江门制冷商贸</td><td>五邑大学图书馆</td><td>五邑大学</td><td>90</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省江门市蓬江区建设大道25号</td><td>13400234005</td><td>—</td><td>2026-06-20 08:40:07</td><td><span class="st-ok">跟进中</span></td></tr>
+          <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606190011</td><td>中山空调工程</td><td>火炬开发区医院</td><td>中山火炬开发区管理委员会</td><td>180</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省中山市火炬开发区康乐大道</td><td>13300233006</td><td>—</td><td>2026-06-19 17:22:50</td><td><span class="st-done">已完结</span></td></tr>
           <tr><td><a class="qv-link" onclick="da('新页签打开工程单详情')">查看</a></td><td>粤东GCDT202606180007</td><td>惠州机电设备</td><td>惠州学院体育馆</td><td>惠州学院</td><td>260</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省惠州市惠城区河南岸街道演达大道</td><td>13200232007</td><td>—</td><td>2026-06-18 13:10:29</td><td><span class="st-gray">已关闭</span></td></tr>
         </tbody>
       </table>
@@ -1751,13 +1755,13 @@ function closeExportModal(){document.getElementById('exportModal').classList.rem
           </tr>
         </thead>
         <tbody id="srTableBody">
-          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606250001</td><td>XX商贸有限公司</td><td>珠海华邑酒店</td><td>华邑酒店管理公司</td><td>120</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省珠海市香洲区迎宾北路1888号</td><td>13800138000</td><td>—</td><td>2026-06-25 10:30:00</td><td><span class="st-sp">审批中</span></td></tr>
-          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606240088</td><td>格力电器（深圳）</td><td>深圳湾体育中心</td><td>深圳市体育局</td><td>500</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省深圳市南山区滨海大道3001号</td><td>13900139001</td><td>—</td><td>2026-06-24 16:45:20</td><td><span class="st-ok">跟进中</span></td></tr>
+          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606250001</td><td>XX商贸有限公司</td><td>珠海华邑酒店</td><td>华邑酒店管理公司</td><td>120</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省珠海市香洲区迎宾北路1888号</td><td>13800138000</td><td>—</td><td>2026-06-25 10:30:00</td><td><span class="st-sp">审批中</span></td></tr>
+          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606240088</td><td>格力电器（深圳）</td><td>深圳湾体育中心</td><td>深圳市体育局</td><td>500</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省深圳市南山区滨海大道3001号</td><td>13900139001</td><td>—</td><td>2026-06-24 16:45:20</td><td><span class="st-ok">跟进中</span></td></tr>
           <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606230056</td><td>广州制冷设备</td><td>白云国际机场T2航站楼</td><td>广东省机场集团</td><td>2000</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省广州市白云区机场大道南</td><td>13700237002</td><td>—</td><td>2026-06-23 09:15:33</td><td><span class="st-ok">跟进中</span></td></tr>
-          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606220044</td><td>东莞机电工程</td><td>松山湖华为研发中心</td><td>华为技术有限公司</td><td>800</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省东莞市松山湖科技产业园区</td><td>13600236003</td><td>—</td><td>2026-06-22 11:28:45</td><td><span class="st-sp">审批中</span></td></tr>
-          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606210033</td><td>佛山暖通空调</td><td>佛山新城文化中心</td><td>佛山市文化广电旅游体育局</td><td>350</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省佛山市顺德区新城核心区</td><td>13500235004</td><td>—</td><td>2026-06-21 14:55:18</td><td><span class="st-rej">已驳回</span></td></tr>
-          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606200022</td><td>江门制冷商贸</td><td>五邑大学图书馆</td><td>五邑大学</td><td>90</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省江门市蓬江区建设大道25号</td><td>13400234005</td><td>—</td><td>2026-06-20 08:40:07</td><td><span class="st-ok">跟进中</span></td></tr>
-          <tr><td><input type="checkbox" class="sr-cb sr-row-cb" checked disabled title="已有绑定关联或购买数量>0"></td><td>粤东GCDT202606190011</td><td>中山空调工程</td><td>火炬开发区医院</td><td>中山火炬开发区管理委员会</td><td>180</td><td>非跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;color:#999;text-decoration:line-through;">广东省中山市火炬开发区康乐大道</td><td style="color:#999;">13300233006</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260619001</a></td><td>2026-06-19 17:22:50</td><td><span class="st-done">已完结</span></td></tr>
+          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606220044</td><td>东莞机电工程</td><td>松山湖华为研发中心</td><td>华为技术有限公司</td><td>800</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省东莞市松山湖科技产业园区</td><td>13600236003</td><td>—</td><td>2026-06-22 11:28:45</td><td><span class="st-sp">审批中</span></td></tr>
+          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606210033</td><td>佛山暖通空调</td><td>佛山新城文化中心</td><td>佛山市文化广电旅游体育局</td><td>350</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省佛山市顺德区新城核心区</td><td>13500235004</td><td>—</td><td>2026-06-21 14:55:18</td><td><span class="st-rej">已驳回</span></td></tr>
+          <tr><td><input type="checkbox" class="sr-cb sr-row-cb"></td><td>粤东GCDT202606200022</td><td>江门制冷商贸</td><td>五邑大学图书馆</td><td>五邑大学</td><td>90</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;">广东省江门市蓬江区建设大道25号</td><td>13400234005</td><td>—</td><td>2026-06-20 08:40:07</td><td><span class="st-ok">跟进中</span></td></tr>
+          <tr><td><input type="checkbox" class="sr-cb sr-row-cb" checked disabled title="已有绑定关联或购买数量>0"></td><td>粤东GCDT202606190011</td><td>中山空调工程</td><td>火炬开发区医院</td><td>中山火炬开发区管理委员会</td><td>180</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;color:#999;text-decoration:line-through;">广东省中山市火炬开发区康乐大道</td><td style="color:#999;">13300233006</td><td><a class="qv-link" onclick="da('查看关联项目单')">GL20260619001</a></td><td>2026-06-19 17:22:50</td><td><span class="st-done">已完结</span></td></tr>
           <tr><td><input type="checkbox" class="sr-cb sr-row-cb" disabled title="购买数量>0"></td><td>粤东GCDT202606180007</td><td>惠州机电设备</td><td>惠州学院体育馆</td><td>惠州学院</td><td>260</td><td>省外跨区</td><td style="max-width:160px;white-space:normal;line-height:1.4;color:#999;text-decoration:line-through;">广东省惠州市惠城区河南岸街道演达大道</td><td style="color:#999;">13200232007</td><td>—</td><td>2026-06-18 13:10:29</td><td><span class="st-gray">已关闭</span></td></tr>
         </tbody>
       </table>

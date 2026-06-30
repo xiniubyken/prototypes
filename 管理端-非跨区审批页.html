@@ -207,13 +207,22 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .toggle-switch input:checked + .toggle-slider:before{transform:translateX(22px);}
 .toggle-label-on{color:#3370ff;font-weight:600;font-size:12px;}
 .record-table-wrap{overflow-x:auto;padding:20px 16px 16px;}
-.record-table{width:100%;border-collapse:collapse;font-size:12px;min-width:800px;}
+.record-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;}
 .record-table th{background:#fafbfc;height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:1px solid #e8eaed;white-space:nowrap;}
 .record-table td{height:42px;padding:6px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;color:#1f2329;vertical-align:middle;}
 .record-table tr:last-child td{border-bottom:none;}
 .record-table tr:hover td{background:rgba(59,89,152,.02);}
-.record-table.compact{table-layout:fixed;}
-.record-table.compact th,.record-table.compact td{overflow:hidden;text-overflow:ellipsis;}
+/* 关状态：隐藏内部备注(6)和内部附件(7)，保持网格对齐 */
+.record-table.compact th:nth-child(6),
+.record-table.compact td:nth-child(6),
+.record-table.compact th:nth-child(7),
+.record-table.compact td:nth-child(7){
+  width:0!important;min-width:0!important;max-width:0!important;
+  padding:0!important;border-left:0!important;border-right:0!important;
+  overflow:hidden;white-space:nowrap;font-size:0;
+}
+/* 数据列强制左对齐（覆盖 td-center） */
+.record-table .td-center{text-align:left;}
 
 /* 审批状态标签 */
 .status-pass{color:#2E7D32;font-weight:500;}
@@ -854,16 +863,22 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
   <div class="record-table-wrap">
     <table class="record-table">
+      <colgroup>
+        <col span="5"><!-- 序号/审批人/审批状态/审批意见/附件 -->
+        <col class="col-hide" data-col="internal-note"><!-- 内部备注 -->
+        <col class="col-hide" data-col="internal-attach"><!-- 内部附件 -->
+        <col><!-- 审批时间 -->
+      </colgroup>
       <thead>
         <tr>
-          <th style="width:48px;text-align:center;">序号</th>
-          <th style="width:76px;">审批人</th>
-          <th style="width:80px;text-align:center;">审批状态</th>
-          <th style="min-width:160px;">审批意见</th>
-          <th style="width:56px;text-align:center;">附件</th>
-          <th style="min-width:140px;">内部备注</th>
-          <th style="width:72px;text-align:center;">内部附件</th>
-          <th style="width:152px;">审批时间</th>
+          <th>序号</th>
+          <th>审批人</th>
+          <th>审批状态</th>
+          <th>审批意见</th>
+          <th>附件</th>
+          <th>内部备注</th>
+          <th>内部附件</th>
+          <th>审批时间</th>
         </tr>
       </thead>
       <tbody>
@@ -1504,20 +1519,8 @@ function confirmImport() {
 function toggleRecordColumns(showAll){
   const tbl = document.querySelector('.record-table');
   if(!tbl) return;
-  // 列索引：0=序号 1=审批人 2=审批状态 3=审批意见 4=附件 5=内部备注 6=内部附件 7=审批时间
-  const hideCols = [5, 6]; // 只隐藏内部备注、内部附件（附件保留）
-  const ths = tbl.querySelectorAll('thead th');
-  const trs = tbl.querySelectorAll('tbody tr');
-  const label = document.querySelector('.toggle-label-on');
-  hideCols.forEach(idx => {
-    if(ths[idx]) ths[idx].style.display = showAll ? '' : 'none';
-    trs.forEach(tr => {
-      const td = tr.cells[idx];
-      if(td) td.style.display = showAll ? '' : 'none';
-    });
-  });
-  // 关闭时加 compact 使剩余列 table-layout:fixed 整齐排列
   tbl.classList.toggle('compact', !showAll);
+  const label = document.querySelector('.toggle-label-on');
   if(label) label.textContent = showAll ? '开' : '关';
 }
 
