@@ -189,6 +189,12 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .st-badge.dd{background:#E8F5E9;color:#2E7D32}  /* 待提货 */
 .st-badge.pt{background:#FFF8E1;color:#B45309}  /* 部分提货 */
 
+/* 跨区类型小标签 */
+.cross-region-tag{font-size:12px;padding:4px 10px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
+.cross-region-tag.intra{background:#E8F5E9;color:#2E7D32;}
+.cross-region-tag.inter{background:#FFF3E0;color:#E65100;}
+.cross-region-tag.none{background:#f0f2f5;color:#646a73;}
+
 /* 弹窗 */
 .modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center}
 .modal-content{background:#fff;border-radius:8px;min-width:420px;max-width:560px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.15)}
@@ -236,6 +242,30 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 
 /* 放弃登录确认弹窗 */
 .abd-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center}
+
+/* ====== 审批流程弹窗（照搬工程作废页）====== */
+.af-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;}
+.af-modal{background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.18);width:820px;max-width:92vw;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;}
+.af-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.af-title{font-size:15px;font-weight:700;color:#1f2329;}
+.af-close{font-size:22px;color:#bbb;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;}
+.af-close:hover{color:#666;background:#f5f5f5;}
+.af-tabs{display:flex;padding:0 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;gap:0;}
+.af-tab{padding:12px 20px;font-size:14px;font-weight:500;color:#666;cursor:pointer;position:relative;border:none;background:none;margin-bottom:-1px;transition:.15s;}
+.af-tab.active{color:#3370ff;font-weight:600;}
+.af-tab.active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2.5px;background:#3370ff;border-radius:3px 3px 0 0;}
+.af-tab:hover:not(.active){color:#3370ff;}
+.af-body{flex:1;overflow:auto;padding:20px 24px;}
+.af-flow-wrap{overflow-x:auto;padding:10px 0;}
+.af-flow-svg{min-width:700px;height:420px;display:block;}
+.af-node-type{font-size:13px;font-weight:600;color:#333;margin-bottom:12px;}
+.af-node-table{width:100%;border-collapse:collapse;border:1px solid #e0e0e0;font-size:13px;}
+.af-node-table th{background:#fafafa;padding:10px 14px;text-align:left;font-weight:600;color:#333;border-bottom:1px solid #e0e0e0;white-space:nowrap;}
+.af-node-table td{padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#555;line-height:1.5;vertical-align:top;}
+.af-node-table tr:last-child td{border-bottom:none;}
+.af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
+.btn-quick-view{padding:8px 20px;font-size:13px;font-weight:600;background:#fff;color:#3370ff;border:1.5px solid #3370ff;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-quick-view:hover{background:#eef2ff;box-shadow:0 2px 8px rgba(51,112,255,.2);}
 .abd-box{background:#fff;border-radius:8px;min-width:400px;max-width:480px;padding:32px 28px 24px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.15)}
 .abd-icon{width:44px;height:44px;border-radius:50%;background:#FFF3E0;display:inline-flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px;color:#ED6C02}
 .abd-msg{font-size:15px;color:var(--text);line-height:1.7}
@@ -335,7 +365,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">项目预计设备金额</div><div>¥500万元</div></div>
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">空调面积/容积</div><div>8,000 m²</div></div>
 <div style="font-size:13px;grid-column:span 2"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">项目地址</div><div>广东省珠海市香洲区XX路88号XX大厦12层</div></div>
-<div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">跨区类型</div><div id="crType">非跨区</div></div>
+<div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">跨区类型</div><div><span class="cross-region-tag" id="crType">非跨区</span></div></div>
 <div style="font-size:13px" id="crCodeWrap"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">跨区编号</div><div id="crCode">GZ-2026-001</div></div>
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">执行单位</div><div>XX工程服务有限公司</div></div>
 </div></div></div>
@@ -364,11 +394,99 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 
 </div><!-- end scroll -->
 
-<!-- 审批流程弹窗 -->
-<div class="modal-overlay" id="ml" style="display:none" onclick="if(event.target===this)closeModal()">
-<div class="modal-content">
-<div class="modal-header"><span>审批流程</span><span class="modal-close" onclick="closeModal()">✕</span></div>
-<div class="modal-body"><div class="atl" id="atl2"></div></div>
+<!-- 审批流程弹窗（照搬工程作废-完整版双Tab） -->
+<div class="af-overlay" id="afOverlay" style="display:none;">
+<div class="af-modal">
+  <div class="af-header">
+    <span class="af-title">审批流程</span>
+    <span class="af-close" onclick="closeApprovalFlowModal()">&times;</span>
+  </div>
+  <div class="af-tabs">
+    <button class="af-tab active" data-tab="flow" onclick="switchAfTab('flow',this)">审批流程</button>
+    <button class="af-tab" data-tab="node" onclick="switchAfTab('node',this)">当前节点</button>
+  </div>
+  <div class="af-body">
+    <!-- 审批流程Tab -->
+    <div id="afFlowPanel" class="af-flow-wrap">
+      <svg class="af-flow-svg" viewBox="0 0 720 400">
+        <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f0f0f0" stroke-width=".5"/></pattern></defs>
+        <rect width="100%" height="100%" fill="#fff"/>
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+        <defs>
+          <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#999"/></marker>
+          <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#4CAF50"/></marker>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3370ff"/></marker>
+        </defs>
+        <path d="M90 130 L130 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M170 110 L170 60 L280 60 L280 80" stroke="#4CAF50" stroke-width="2" fill="none" marker-end="url(#arrowGreen)"/>
+        <text x="200" y="52" font-size="11" fill="#4CAF50" font-weight="600">省内跨区</text>
+        <path d="M340 100 L380 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M420 100 L480 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M540 100 L595 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M190 130 L240 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/><text x="195" y="148" font-size="11" fill="#666">省外跨区</text>
+        <path d="M300 130 L350 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M390 130 L450 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M510 130 L565 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M150 150 L150 270 L280 270 L280 290" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/><text x="158" y="260" font-size="11" fill="#666">省外跨区</text>
+        <path d="M340 310 L390 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M430 310 L490 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M550 310 L595 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M400 78 L400 45 L50 45 L50 120 L55 125" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <path d="M370 148 L370 180 L30 180 L30 135 L53 132" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <path d="M410 330 L410 365 L15 365 L15 138 L53 133" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <circle cx="70" cy="130" r="16" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        <path d="M62 130 L68 136 L78 124" stroke="#4CAF50" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="92" y="112" width="56" height="36" rx="4" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1.8"/>
+        <circle cx="104" cy="122" r="7" fill="#FFE0B2"/><text x="101" y="126" font-size="9" fill="#E65100">👤</text>
+        <text x="102" y="142" font-size="10" fill="#333" text-anchor="middle">经销商提交</text>
+        <polygon points="170,108 192,130 170,152 148,130" fill="#fff" stroke="#D32F2F" stroke-width="1.8"/>
+        <text x="170" y="134" font-size="14" fill="#D32F2F" text-anchor="middle">×</text>
+        <rect x="276" y="82" width="64" height="38" rx="4" fill="#FFF3E0" stroke="#E65100" stroke-width="2"/>
+        <circle cx="290" cy="94" r="7" fill="#FFE0B2"/><text x="287" y="98" font-size="9" fill="#E65100">👤</text>
+        <text x="308" y="106" font-size="10" fill="#333" text-anchor="middle">办事处内勤</text>
+        <polygon points="400,78 420,100 400,122 380,100" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="400" y="105" font-size="14" fill="#333" text-anchor="middle">×</text>
+        <rect x="482" y="81" width="58" height="38" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="496" cy="93" r="7" fill="#E3F2FD"/><text x="493" y="97" font-size="9" fill="#1976D2">👤</text>
+        <text x="511" y="106" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="612" cy="100" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+        <rect x="246" y="111" width="54" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="258" cy="121" r="7" fill="#FFE0B2"/><text x="255" y="125" font-size="9" fill="#E65100">👤</text>
+        <text x="273" y="134" font-size="10" fill="#666" text-anchor="middle">办事处内勤</text>
+        <polygon points="370,110 390,130 370,150 350,130" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="370" y="134" font-size="13" fill="#333" text-anchor="middle">×</text>
+        <rect x="454" y="111" width="56" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="466" cy="121" r="7" fill="#E3F2FD"/><text x="463" y="125" font-size="9" fill="#1976D2">👤</text>
+        <text x="482" y="134" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="582" cy="130" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+        <rect x="282" y="292" width="54" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="294" cy="302" r="7" fill="#FFE0B2"/><text x="291" y="306" font-size="9" fill="#E65100">👤</text>
+        <text x="309" y="315" font-size="10" fill="#666" text-anchor="middle">办事处内勤</text>
+        <polygon points="410,292 430,310 410,328 390,310" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="410" y="315" font-size="13" fill="#333" text-anchor="middle">×</text>
+        <rect x="494" y="292" width="56" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="506" cy="302" r="7" fill="#E3F2FD"/><text x="503" y="306" font-size="9" fill="#1976D2">👤</text>
+        <text x="522" y="315" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="612" cy="310" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <!-- 当前节点Tab -->
+    <div id="afNodePanel" style="display:none;">
+      <div class="af-node-type">节点类型：岗位</div>
+      <table class="af-node-table">
+        <thead><tr><th>岗位编号</th><th>岗位名称</th><th>员工</th></tr></thead>
+        <tbody>
+          <tr><td>XXX</td><td>部门名称二</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>部门名称三</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>...</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>部门名称xxx</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="af-footer-btn">
+    <button class="btn-quick-view" onclick="closeApprovalFlowModal()" style="color:#666;border-color:#c0c4cc;">关闭</button>
+  </div>
 </div>
 </div>
 
@@ -602,9 +720,24 @@ function sc(v){
  render();
 }
 
-/* 审批流程弹窗 */
-function showFlow(){document.getElementById('ml').style.display='flex'}
-function closeModal(){document.getElementById('ml').style.display='none'}
+/* 审批流程弹窗（完整版） */
+function openApprovalFlowModal(){
+  var o=document.getElementById('afOverlay');
+  o.style.display='flex';
+  switchAfTab('flow',document.querySelector('.af-tab[data-tab="flow"]'));
+}
+function closeApprovalFlowModal(){
+  document.getElementById('afOverlay').style.display='none';
+}
+function switchAfTab(tabName,btnEl){
+  document.querySelectorAll('.af-tab').forEach(function(t){t.classList.remove('active');});
+  if(btnEl) btnEl.classList.add('active');
+  document.getElementById('afFlowPanel').style.display=tabName==='flow'?'block':'none';
+  document.getElementById('afNodePanel').style.display=tabName==='node'?'block':'none';
+}
+/* 旧弹窗兼容 */
+function showFlow(){openApprovalFlowModal()}
+function closeModal(){closeApprovalFlowModal()}
 
 /* 放弃登录确认弹窗 */
 function showAbd(){document.getElementById('abdModal').style.display='flex'}
@@ -653,7 +786,12 @@ function render(){
  var cr=d.cr||{};
  if(cr.code){document.getElementById('crCode').textContent=cr.code}
  /* 使用方信息跨区类型字段 */
- document.getElementById('crType').textContent=cr.type||'非跨区';
+ var ct=document.getElementById('crType');
+ ct.textContent=cr.type||'非跨区';
+ ct.className='cross-region-tag';
+ if(cr.type==='省内跨区')ct.classList.add('intra');
+ else if(cr.type==='省外跨区')ct.classList.add('inter');
+ else ct.classList.add('none');
 
  /* ---- 登录顺序 ---- */
  var loEl=document.getElementById('loWrap');
@@ -735,7 +873,7 @@ function render(){
     if(o==='重新提交') return '<span class="link-btn" onclick="da(\'跳转驳回重提\')">重新提交</span>';
     return '';
    }).join('');
-   return '<tr><td class="cn">'+(i+1)+'</td><td>'+r.type+'</td><td><span class="st-badge '+sc+'">'+r.status+'</span></td><td>'+r.updated+'</td><td>'+r.created+'</td><td>'+ops+' <span class="link-btn" onclick="showFlow()">审批流程</span></td></tr>';
+   return '<tr><td class="cn">'+(i+1)+'</td><td>'+r.type+'</td><td><span class="st-badge '+sc+'">'+r.status+'</span></td><td>'+r.updated+'</td><td>'+r.created+'</td><td>'+ops+' <span class="link-btn" onclick="openApprovalFlowModal()">审批流程</span></td></tr>';
   }).join('');
  }else{
   aptb.innerHTML='<tr><td colspan="6" class="es">暂无审批记录</td></tr>';
@@ -754,15 +892,6 @@ function render(){
  }
 
  /* ---- 审批流程弹窗时间线（同步渲染）---- */
- var atl2=document.getElementById('atl2');
- atl2.innerHTML=(d.ap||[]).map(function(n){
-  var cls=n.st==='d'?'d':n.st==='c'?'c':'p';
-  var icon=n.st==='d'?'\u2713':n.st==='c'?'\u25CF':'\u25CB';
-  var rc=n.st==='d'&&n.r.indexOf('驳回')>=0?'style="color:#D32F2F;font-weight:600;"':n.st==='d'?'style="color:#2E7D32;font-weight:600;"':'style="color:#8f959e;"';
-  var rk=n.rk?'<div class="nrk">'+n.rk+'</div>':'';
-  return '<div class="an"><div class="nd '+cls+'">'+icon+'</div><div class="ni"><div class="nn">'+n.n+'</div><div class="nt">'+n.t+'</div><div class="nr" '+rc+'>'+n.r+'</div>'+rk+'</div></div>';
- }).join('');
-}
 
 /* 初始化 */
 mc('审批中');
