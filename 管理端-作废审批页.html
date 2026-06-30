@@ -51,7 +51,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
 .form-card-header:hover{background:#f0f2f5;}
 .form-card-title{display:flex;align-items:center;gap:8px;}
-.form-card-title .fct-accent{width:4px;height:16px;background:C62828;border-radius:2px;flex-shrink:0;}
+.form-card-title .fct-accent{width:4px;height:16px;background:#C62828;border-radius:2px;flex-shrink:0;}
 .form-card-title .fct-text{font-size:14px;font-weight:700;color:#1f2329;}
 .form-card-title .fct-sub{font-size:12px;color:#8f959e;font-weight:400;}
 .form-card-body{padding:16px;}
@@ -59,11 +59,39 @@ html,body{height:100%;margin:0;overflow:hidden;}
 /* ====== 只读字段 ====== */
 .field-readonly{font-size:13px;color:#1f2329;display:flex;align-items:center;gap:6px;}
 
-/* ====== 审批记录表格 ====== */
+/* ====== 审批记录（参考非跨区审批页） ====== */
+.approval-record-header{padding:12px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;}
+.approval-record-header .arh-left{display:flex;align-items:center;gap:8px;}
+.approval-record-header .fct-accent{width:4px;height:16px;background:#3b5998;border-radius:2px;}
+.arh-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#646a73;user-select:none;}
+.toggle-switch{position:relative;width:44px;height:22px;display:inline-block;vertical-align:middle;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#c0c4cc;border-radius:11px;transition:.25s;}
+.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.25s;}
+.toggle-switch input:checked + .toggle-slider{background-color:#3370ff;}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(22px);}
+.toggle-label-on{color:#3370ff;font-weight:600;font-size:12px;}
+.record-table-wrap{overflow-x:auto;padding:20px 16px 16px;}
 .record-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;}
 .record-table th{background:#fafbfc;height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:1px solid #e8eaed;white-space:nowrap;}
 .record-table td{height:42px;padding:6px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;color:#1f2329;vertical-align:middle;}
+.record-table tr:last-child td{border-bottom:none;}
+.record-table tr:hover td{background:rgba(59,89,152,.02);}
 .record-table .td-center{text-align:left;}
+.record-table.compact th:nth-child(6),
+.record-table.compact td:nth-child(6),
+.record-table.compact th:nth-child(7),
+.record-table.compact td:nth-child(7){
+  width:0!important;min-width:0!important;max-width:0!important;
+  padding:0!important;border-left:0!important;border-right:0!important;
+  overflow:hidden;white-space:nowrap;font-size:0;
+}
+.status-pass{color:#2E7D32;font-weight:500;}
+.status-reject{color:#D32F2F;font-weight:500;}
+.opinion-truncate{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default;display:inline-block;}
+.view-link{color:#3b5998;cursor:pointer;font-size:12px;}
+.view-link:hover{text-decoration:underline;}
+.no-attach{color:#c5cae9;}
 
 /* 审批状态标签 */
 .st-sp{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#e6f0ff;color:#3370ff;border:1px solid #b4d2ff;}
@@ -77,17 +105,18 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
 .modal-overlay.show{display:flex;}
 .modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:520px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-content.modal-lg{width:780px;}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
 .modal-title{font-size:15px;font-weight:700;color:#1f2329;}
 .modal-close{font-size:22px;color:#8f959e;cursor:pointer;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;}
 .modal-close:hover{color:#1f2329;background:#f5f6fa;}
 .modal-body{padding:20px;overflow-y:auto;flex:1;}
-.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid #f0f0f0;flex-shrink:0;}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid #e8eaed;flex-shrink:0;}
 
-.btn{padding:6px 20px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
+.btn{padding:6px 16px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
 .btn:hover{border-color:#3b5998;color:#3b5998;}
-.btn-primary{background:#3370ff;color:#fff;border-color:#3370ff;}
-.btn-primary:hover{background:#2660cc;color:#fff;}
+.btn-primary{background:#3b5998;color:#fff;border-color:#3b5998;}
+.btn-primary:hover{background:#2e477a;color:#fff;}
 .btn-danger{background:#D32F2F;color:#fff;border-color:#D32F2F;}
 .btn-danger:hover{background:#B71C1C;color:#fff;}
 
@@ -101,6 +130,19 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .approve-textarea{width:100%;height:80px;padding:8px 10px;border:1px solid #e0e3ea;border-radius:4px;font-size:13px;color:#1f2329;outline:none;resize:vertical;line-height:1.5;transition:.15s;background:#fff;box-sizing:border-box;}
 .approve-textarea:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
 .approve-textarea::placeholder{color:#c5cae9;}
+.approve-upload-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 16px;font-size:13px;border:1px solid #d0d3da;border-radius:4px;cursor:pointer;background:#fff;color:#1f2329;transition:.15s;}
+.approve-upload-btn:hover{border-color:#3b5998;color:#3b5998;}
+.approve-file-list{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.approve-file-item{display:flex;align-items:center;gap:8px;padding:5px 10px;background:#f7f8fa;border-radius:4px;font-size:12px;}
+.approve-file-item .af-name{color:#3b5998;cursor:pointer;flex:1;}
+.approve-file-item .af-name:hover{text-decoration:underline;}
+.approve-file-item .af-del{color:#D32F2F;cursor:pointer;font-size:14px;opacity:.7;}
+.approve-file-item .af-del:hover{opacity:1;}
+.approve-upload-hint{font-size:11px;color:#8f959e;margin-top:4px;line-height:1.5;}
+.approve-nonpublic{background:#f5f6fa;border-radius:6px;padding:14px 16px;margin-top:4px;}
+.approve-nonpublic-title{font-size:12px;color:#1f2329;font-weight:600;margin-bottom:12px;}
+.approve-nonpublic-title::before{content:'*';color:#1f2329;margin-right:2px;}
+.approve-footer-tip{font-size:11px;color:#8f959e;}
 
 /* ====== 底部固定操作栏 ====== */
 .approval-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);flex-shrink:0;}
@@ -184,47 +226,59 @@ html,body{height:100%;margin:0;overflow:hidden;}
 
   <!-- ===== 审批记录卡片 ===== -->
   <div class="form-card">
-    <div class="form-card-header">
-      <div class="form-card-title">
-        <div class="fct-accent" style="background:var(--info);"></div>
-        <span class="fct-text">审批记录</span>
+    <div class="approval-record-header">
+      <div class="arh-left">
+        <div class="fct-accent"></div>
+        <span>审批记录</span>
+      </div>
+      <div class="arh-toggle">
+        <span>展示所有信息：</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="toggleShowAll" checked onchange="toggleRecordColumns(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label-on">开</span>
       </div>
     </div>
-    <div class="form-card-body">
+    <div class="record-table-wrap">
       <table class="record-table">
         <colgroup>
-          <col style="width:44px;">
-          <col style="width:auto;">
-          <col style="width:auto;">
-          <col style="width:auto;">
-          <col style="width:auto;">
-          <col style="width:auto;">
+          <col span="5">
+          <col class="col-hide" data-col="internal-note">
+          <col class="col-hide" data-col="internal-attach">
+          <col>
         </colgroup>
         <thead>
           <tr>
-            <th style="text-align:center;">序号</th>
+            <th>序号</th>
             <th>审批人</th>
             <th>审批状态</th>
             <th>审批意见</th>
             <th>附件</th>
+            <th>内部备注</th>
+            <th>内部附件</th>
             <th>审批时间</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td style="text-align:center;color:#8f959e;">1</td>
+            <td class="td-center td-muted" style="text-align:center;color:#8f959e;">1</td>
             <td>张三（商用工程部）</td>
-            <td><span class="st-ok">通过</span></td>
-            <td>资料齐全，同意发起作废流程。</td>
-            <td><span class="no-attach-tag">—</span></td>
+            <td class="td-center"><span class="st-ok">通过</span></td>
+            <td><span class="opinion-truncate" title="资料齐全，同意发起作废流程。">资料齐全，同意发起作废流程。</span></td>
+            <td class="td-center"><span class="no-attach">—</span></td>
+            <td><span class="opinion-truncate" title="请跟进客户签署解除协议">请跟进客户签署解除协议</span></td>
+            <td class="td-center"><span class="no-attach">—</span></td>
             <td>2026-06-26 10:30</td>
           </tr>
           <tr>
-            <td style="text-align:center;color:#8f959e;">2</td>
-            <td style="font-weight:600;">李四（粤东大区）</td>
-            <td><span class="st-ok">通过</span></td>
-            <td>同意作废，客户已确认。</td>
-            <td><span class="no-attach-tag">—</span></td>
+            <td style="text-align:center;color:#8f959e;" class="td-center td-muted">2</td>
+            <td>李四（粤东大区）</td>
+            <td class="td-center"><span class="st-ok">通过</span></td>
+            <td><span class="opinion-truncate" title="同意作废，客户已确认。">同意作废，客户已确认。</span></td>
+            <td class="td-center"><span class="no-attach">—</span></td>
+            <td><span class="opinion-truncate" title="材料完整，可归档">材料完整，可归档</span></td>
+            <td class="td-center"><span class="view-link" onclick="showAttachModal('李四','inner')">查看</span></td>
             <td>2026-06-28 15:22</td>
           </tr>
         </tbody>
@@ -241,17 +295,17 @@ html,body{height:100%;margin:0;overflow:hidden;}
   <div class="approval-footer-left">
   </div>
   <div class="approval-footer-right">
-    <button class="btn-reject" onclick="showRejectModal()">驳回</button>
-    <button class="btn-approve" onclick="showPassModal()">通过</button>
+    <button class="btn-reject" onclick="doReject()">驳回</button>
+    <button class="btn-approve" onclick="doApprove()">通过</button>
   </div>
 </div>
 
-<!-- ===== 通过弹窗 ===== -->
-<div class="modal-overlay" id="passModal" onclick="if(event.target===this)closeModal('passModal')">
-  <div class="modal-content">
+<!-- ===== 审批-通过 弹窗 ===== -->
+<div class="modal-overlay" id="approveModal" onclick="if(event.target===this)closeApproveModal()">
+  <div class="modal-content" style="width:580px;">
     <div class="modal-header">
-      <span class="modal-title">审批-通过</span>
-      <div class="modal-close" onclick="closeModal('passModal')">&times;</div>
+      <span class="modal-title">审批-作废审批通过</span>
+      <div class="modal-close" onclick="closeApproveModal()">&times;</div>
     </div>
     <div class="modal-body">
       <div class="approve-warn-bar">
@@ -259,22 +313,51 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <span>确定通过此审批吗？请填写审批意见</span>
       </div>
       <div class="approve-form-group">
-        <textarea class="approve-textarea" id="passRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+        <label class="approve-form-label">备注</label>
+        <textarea class="approve-textarea" id="approveRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+      </div>
+      <div class="approve-form-group">
+        <label class="approve-form-label">附件：</label>
+        <button class="approve-upload-btn" onclick="document.getElementById('approveFileInput').click()">⬆ 上传</button>
+        <input type="file" id="approveFileInput" style="display:none;" onchange="addApproveFile(this,'approveFileList')">
+        <div class="approve-file-list" id="approveFileList">
+          <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+        </div>
+        <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+      </div>
+      <div class="approve-nonpublic">
+        <div class="approve-nonpublic-title">非公开信息（仅管理端权限展示）</div>
+        <div class="approve-form-group" style="margin-bottom:14px;">
+          <label class="approve-form-label">内部备注：</label>
+          <textarea class="approve-textarea" id="approveInnerRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+        </div>
+        <div class="approve-form-group" style="margin-bottom:0;">
+          <label class="approve-form-label">内部附件：</label>
+          <button class="approve-upload-btn" onclick="document.getElementById('approveInnerFileInput').click()">⬆ 上传</button>
+          <input type="file" id="approveInnerFileInput" style="display:none;" onchange="addApproveFile(this,'approveInnerFileList')">
+          <div class="approve-file-list" id="approveInnerFileList">
+            <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+            <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          </div>
+          <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal('passModal')">取消</button>
-      <button class="btn btn-primary" onclick="confirmPass()">确定</button>
+      <span class="approve-footer-tip">*取消或关闭弹窗，不会删除备注信息</span>
+      <button class="btn" onclick="closeApproveModal()" style="margin-left:auto;">取消</button>
+      <button class="btn btn-primary" onclick="confirmApprove()">确定</button>
     </div>
   </div>
 </div>
 
-<!-- ===== 驳回弹窗 ===== -->
-<div class="modal-overlay" id="rejectModal" onclick="if(event.target===this)closeModal('rejectModal')">
-  <div class="modal-content">
+<!-- ===== 审批-驳回 弹窗 ===== -->
+<div class="modal-overlay" id="rejectModal" onclick="if(event.target===this)closeRejectModal()">
+  <div class="modal-content" style="width:580px;">
     <div class="modal-header">
       <span class="modal-title">审批-驳回</span>
-      <div class="modal-close" onclick="closeModal('rejectModal')">&times;</div>
+      <div class="modal-close" onclick="closeRejectModal()">&times;</div>
     </div>
     <div class="modal-body">
       <div class="approve-warn-bar">
@@ -282,12 +365,41 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <span>确定驳回此审批吗？请填写审批意见</span>
       </div>
       <div class="approve-form-group">
+        <label class="approve-form-label">备注</label>
         <textarea class="approve-textarea" id="rejectRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+      </div>
+      <div class="approve-form-group">
+        <label class="approve-form-label">附件：</label>
+        <button class="approve-upload-btn" onclick="document.getElementById('rejectFileInput').click()">⬆ 上传</button>
+        <input type="file" id="rejectFileInput" style="display:none;" onchange="addApproveFile(this,'rejectFileList')">
+        <div class="approve-file-list" id="rejectFileList">
+          <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+        </div>
+        <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+      </div>
+      <div class="approve-nonpublic">
+        <div class="approve-nonpublic-title">非公开信息（仅管理端权限展示）</div>
+        <div class="approve-form-group" style="margin-bottom:14px;">
+          <label class="approve-form-label">内部备注：</label>
+          <textarea class="approve-textarea" id="rejectInnerRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+        </div>
+        <div class="approve-form-group" style="margin-bottom:0;">
+          <label class="approve-form-label">内部附件：</label>
+          <button class="approve-upload-btn" onclick="document.getElementById('rejectInnerFileInput').click()">⬆ 上传</button>
+          <input type="file" id="rejectInnerFileInput" style="display:none;" onchange="addApproveFile(this,'rejectInnerFileList')">
+          <div class="approve-file-list" id="rejectInnerFileList">
+            <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+            <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          </div>
+          <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal('rejectModal')">取消</button>
-      <button class="btn btn-danger" onclick="confirmReject()">确定</button>
+      <span class="approve-footer-tip">*取消或关闭弹窗，不会删除备注信息</span>
+      <button class="btn" onclick="closeRejectModal()" style="margin-left:auto;">取消</button>
+      <button class="btn btn-primary" style="background:#D32F2F;border-color:#D32F2F;" onclick="confirmReject()">确定</button>
     </div>
   </div>
 </div>
@@ -298,27 +410,58 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div><!-- /page-root -->
 
 <script>
-/* ===== 弹窗控制 ===== */
-function showModal(id) {
-  document.getElementById(id).classList.add('show');
-}
-function closeModal(id) {
-  document.getElementById(id).classList.remove('show');
+/* ===== 审批记录：展示所有信息开关 ===== */
+function toggleRecordColumns(showAll){
+  const tbl = document.querySelector('.record-table');
+  if(!tbl) return;
+  tbl.classList.toggle('compact', !showAll);
+  const label = document.querySelector('.toggle-label-on');
+  if(label) label.textContent = showAll ? '开' : '关';
 }
 
-function showPassModal() {
-  showModal('passModal');
+/* ===== 审批操作（弹窗模式） ===== */
+function doApprove(){
+  document.getElementById('approveModal').classList.add('show');
 }
-function confirmPass() {
-  closeModal('passModal');
+function closeApproveModal(){
+  document.getElementById('approveModal').classList.remove('show');
+}
+function confirmApprove(){
+  var remark = document.getElementById('approveRemark').value.trim();
   showToast('审批已通过，工程单已关闭', 'success');
+  closeApproveModal();
 }
-function showRejectModal() {
-  showModal('rejectModal');
+
+function doReject(){
+  document.getElementById('rejectModal').classList.add('show');
 }
-function confirmReject() {
-  closeModal('rejectModal');
+function closeRejectModal(){
+  document.getElementById('rejectModal').classList.remove('show');
+}
+function confirmReject(){
+  var remark = document.getElementById('rejectRemark').value.trim();
+  if(!remark){alert('驳回时必须填写备注');document.getElementById('rejectRemark').focus();return;}
   showToast('审批已驳回，申请已退回', 'error');
+  closeRejectModal();
+}
+
+/* 审批弹窗文件上传（模拟） */
+function addApproveFile(input,listId){
+  if(!input.files || !input.files.length) return;
+  var list = document.getElementById(listId);
+  for(var i=0;i<input.files.length;i++){
+    var f = input.files[i];
+    var div = document.createElement('div');
+    div.className = 'approve-file-item';
+    div.innerHTML = '<span class="af-name">'+f.name+'</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span>';
+    list.appendChild(div);
+  }
+  input.value = '';
+}
+
+/* ===== 审批意见弹窗 ===== */
+function showAttachModal(name,type){
+  showToast('预览：'+name+'的附件','success');
 }
 
 /* ===== Toast ===== */
