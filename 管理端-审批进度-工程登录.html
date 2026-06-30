@@ -456,6 +456,32 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .fr-hdr-user{min-width:60px}
 .fr-hdr-remark{flex:1}
 
+/* ========== 单据状态卡片 ========== */
+.doc-status-bar{padding:12px 24px;background:#f0f2f5;border-bottom:1px solid #e8eaed;}
+.doc-status-card{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:8px;border:1px solid #e0e0e0;}
+/* 审批中 */
+.doc-status-card.status-pending{background:#E3F2FD;border-color:#BBDEFB;}
+/* 通过 */
+.doc-status-card.status-passed{background:#E8F5E9;border-color:#C8E6C9;}
+/* 驳回 */
+.doc-status-card.status-rejected{background:#FFEBEE;border-color:#FFCDD2;}
+/* 已取消 */
+.doc-status-card.status-cancelled{background:#FFEBEE;border-color:#FFCDD2;}
+.doc-status-icon{flex-shrink:0;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
+.status-pending .doc-status-icon{background:#1976D2;}
+.status-passed .doc-status-icon{background:#388E3C;}
+.status-rejected .doc-status-icon{background:#D32F2F;}
+.status-cancelled .doc-status-icon{background:#D32F2F;}
+.doc-status-body{flex:1;min-width:0;}
+.doc-status-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.status-pending .doc-status-title{color:#1565C0;}
+.status-passed .doc-status-title{color:#2E7D32;}
+.status-rejected .doc-status-title{color:#C62828;}
+.status-cancelled .doc-status-title{color:#C62828;}
+.doc-status-note{font-size:12px;color:#666;line-height:1.5;margin-bottom:2px;word-break:break-all;}
+.doc-status-time{font-size:11px;color:#999;}
+.doc-status-close{flex-shrink:0;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:16px;cursor:pointer;line-height:1;}
+
 /* 表单页滚动容器 */
 .form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
 .form-page-inner{padding:12px 24px 0 24px;}
@@ -502,10 +528,24 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">查看-非跨区登录</span>
+    <span class="form-page-title">查看-工程登录</span>
     <span class="proj-no-display" id="headerProjNo">粤东GCDT202506250001 (希望小学A项目)</span>
   </div>
   <div class="form-header-right">
+  </div>
+</div>
+
+
+<!-- ========== 单据状态卡片 ========== -->
+<div class="doc-status-bar">
+  <div class="doc-status-card status-pending" id="docStatusCard">
+    <div class="doc-status-icon" id="docStatusIcon">①</div>
+    <div class="doc-status-body">
+      <div class="doc-status-title" id="docStatusTitle">工程资料 - 审批中</div>
+      <div class="doc-status-note" id="docStatusNote">工程组结算员 备注：-</div>
+      <div class="doc-status-time" id="docStatusTime">2026-06-30 14:00</div>
+    </div>
+    <div class="doc-status-close" id="docStatusClose" style="display:none;">×</div>
   </div>
 </div>
 
@@ -687,8 +727,13 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <!-- 跨区类型（只读标签） -->
       <div class="form-item">
         <label class="form-label">跨区类型</label>
-        <div class="field-readonly"><span class="cross-region-tag none">非跨区</span></div>
+        <div class="field-readonly"><span class="cross-region-tag inter">省外跨区</span></div>
       </div>
+
+      <!-- 跨区编码 -->
+      <div class="form-item">
+        <label class="form-label">跨区编码</label>
+        <div class="field-readonly">GLQ202606250001</div>
 
       <!-- 项目状态 -->
       <div class="form-item">
