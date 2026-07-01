@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>管理端-批价单代客申请</title>
+<style>
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --danger:#D32F2F; --success:#2E7D32; --warning:#ED6C02; --info:#0288D1;
+  --bg:#fff; --bg-card:#fff; --bg-header:#F7F8FA; --bg-hover:#f0f2f5;
+  --border:#e8eaed; --border-light:#f0f0f0;
+  --text:#1f2329; --text-secondary:#646a73; --text-aux:#8f959e;
+  --font-body:14px; --font-card-title:14px; --font-aux:12px;
+  --radius:4px; --radius-card:6px;
+  --gap:4px; --gap8:8px; --gap12:12px; --gap16:16px; --gap24:24px;
+  --row-h:36px; --header-h:40px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:var(--font-body);color:var(--text);background:#f0f2f5;line-height:1.6;}
+
+/* 页面根 */
+.page-root{display:flex;flex-direction:column;height:100vh;background:#f0f2f5;overflow:hidden;}
+.form-page-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 12px;background:#fff;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.form-page-title{font-size:17px;font-weight:700;color:#1f2329;}
+.form-header-right{display:flex;align-items:center;gap:16px;font-size:12px;color:#8f959e;}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:#646a73;cursor:pointer;padding:5px 10px;border-radius:4px;border:1px solid #e8eaed;background:#fff;transition:.15s;margin-right:8px;}
+.back-btn:hover{color:#3b5998;border-color:#3b5998;}
+
+/* 滚动区 */
+.form-page-scroll{flex:1;overflow-y:auto;}
+.form-page-inner{padding:12px 24px 0;}
+
+/* 卡片 */
+.form-card{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:12px;overflow:hidden;}
+.form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;}
+.form-card-title{display:flex;align-items:center;gap:8px;}
+.fct-accent{width:4px;height:16px;background:#3b5998;border-radius:2px;flex-shrink:0;}
+.fct-text{font-size:14px;font-weight:700;color:#1f2329;}
+.form-card-body{padding:12px 16px;}
+
+/* 选择项目区（缺省态） */
+.project-select-zone{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:12px;overflow:hidden;}
+.project-select-hd{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;gap:8px;}
+.project-select-body{padding:16px;}
+.project-empty-zone{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;gap:12px;}
+.project-empty-zone .btn-select-project{padding:10px 36px;font-size:14px;font-weight:700;background:#3b5998;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.project-empty-zone .btn-select-project:hover{background:#2e477a;box-shadow:0 2px 8px rgba(59,89,152,.3);}
+.project-empty-hint{font-size:12px;color:#8f959e;text-align:center;}
+/* 已选态 */
+.project-selected-card{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.project-selected-info{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+.project-selected-name{font-size:15px;font-weight:700;color:#1f2329;}
+.project-selected-meta{font-size:12px;color:#646a73;display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.project-meta-item{display:inline-flex;align-items:center;gap:0;}
+.project-meta-sep{color:#d0d3da;margin:0 8px;font-size:11px;}
+.project-change-btn{font-size:12px;color:#3b5998;cursor:pointer;border:1px solid #c5cae9;padding:6px 14px;border-radius:4px;background:#fff;transition:.15s;white-space:nowrap;flex-shrink:0;margin-left:16px;}
+.project-change-btn:hover{background:#e8edf8;}
+
+/* 信息grid */
+.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 24px;}
+.info-item{font-size:13px;}
+.info-label{color:var(--text-aux);font-size:12px;margin-bottom:2px;}
+.info-value{color:var(--text);font-weight:500;}
+
+/* 表单网格 */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;}
+.form-grid.col4{grid-template-columns:repeat(4,1fr);}
+.form-item{display:flex;flex-direction:column;gap:4px;}
+.form-item.span2{grid-column:span 2;}
+.form-item.span3{grid-column:span 3;}
+.form-label{font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+.form-label .req{color:#d32f2f;font-size:12px;}
+.form-ctrl{height:32px;border:1px solid #e0e3ea;border-radius:4px;padding:0 10px;font-size:13px;color:#1f2329;outline:none;transition:.15s;background:#fff;width:100%;}
+.form-ctrl:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+.form-ctrl:disabled,.form-ctrl[readonly]{background:#f5f6fa;color:#8f959e;cursor:not-allowed;}
+.form-ctrl.readonly-plain{border-color:transparent;background:transparent;padding-left:0;color:#1f2329;cursor:default;}
+select.form-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238f959e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;}
+textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
+.form-hint{font-size:11px;color:#8f959e;line-height:1.4;margin-top:1px;}
+
+/* 设备清单 */
+.equip-table-wrap{overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;}
+.equip-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px;}
+.equip-table thead{position:sticky;top:0;z-index:10;}
+.equip-table th{background:#f7f8fa;height:36px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
+.equip-table td{height:38px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.equip-table tr:hover td{background:rgba(59,89,152,.02);}
+.equip-table .td-input{border:1px solid #d0d3da;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:#fff;outline:none;transition:.15s;}
+.equip-table .td-input:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+.equip-table .td-num{text-align:right;}
+.equip-table .td-op{white-space:nowrap;text-align:center;}
+.equip-table .td-op a{color:#d32f2f;font-size:12px;cursor:pointer;}
+.equip-table .td-op a:hover{text-decoration:underline;}
+.equip-table .td-select{border:1px solid #d0d3da;border-radius:3px;padding:2px 4px;font-size:12px;height:28px;background:#fff;outline:none;}
+
+.equip-card-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#f7f8fa;border-bottom:1px solid #f0f0f0;}
+.equip-card-hd-left{display:flex;align-items:center;gap:8px;}
+.equip-card-hd-right{display:flex;align-items:center;gap:8px;}
+.equip-table-foot{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#fafbfc;border-top:1px solid #f0f0f0;}
+.equip-table-foot .et-summary{font-size:12px;color:#646a73;}
+.equip-table-foot .et-summary span{color:#3b5998;font-weight:700;}
+.equip-summary-item{font-size:12px;color:#646a73;}
+.equip-summary-item span{color:#1f2329;font-weight:700;}
+
+/* 按钮 */
+.btn{padding:5px 16px;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;background:var(--bg);color:var(--text);transition:.15s;}
+.btn:hover{border-color:var(--primary);color:var(--primary);}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn-primary:hover{opacity:.88;}
+.btn-success{background:var(--success);color:#fff;border-color:var(--success);}
+.btn-success:hover{opacity:.88;}
+.btn-sm{padding:4px 12px;font-size:12px;border-radius:3px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
+.btn-sm:hover{border-color:#3b5998;color:#3b5998;background:#f0f2f5;}
+.btn-group{display:flex;gap:6px;}
+
+/* 附件区 */
+.attach-zone{border:1.5px dashed #c5cae9;border-radius:5px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:#fafbfc;}
+.attach-zone:hover{border-color:#3b5998;background:#f0f4ff;}
+.attach-zone-text{font-size:13px;color:#8f959e;}
+.attach-zone-text span{color:#3b5998;text-decoration:underline;}
+.attach-list{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.attach-item{display:flex;align-items:center;gap:6px;padding:5px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#646a73;}
+.attach-item .at-name{flex:1;color:#3b5998;cursor:pointer;}
+.attach-item .at-del{color:#d32f2f;cursor:pointer;margin-left:4px;}
+
+/* 参考信息区 — 不可折叠 */
+.ref-card{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:12px;overflow:hidden;border-left:3px solid #3b5998;}
+.ref-card-header{padding:9px 16px;font-size:13px;font-weight:600;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;gap:8px;}
+.ref-card-body{padding:10px 16px;}
+
+/* 弹窗 */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;align-items:flex-start;justify-content:center;padding-top:5vh;}
+.modal-overlay.show{display:flex;}
+.modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:860px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.modal-title{font-size:15px;font-weight:700;color:#1f2329;}
+.modal-close{font-size:22px;color:#8f959e;cursor:pointer;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;}
+.modal-close:hover{color:#1f2329;background:#f5f6fa;}
+.modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid #e8eaed;flex-shrink:0;}
+
+/* 弹窗内筛选区 */
+.filter-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 12px;padding:0 0 12px 0;}
+.filter-item{display:flex;flex-direction:column;gap:3px;}
+.filter-item label{font-size:11px;color:#646a73;}
+.filter-item input,.filter-item select{height:30px;border:1px solid #e0e3ea;border-radius:3px;padding:0 8px;font-size:12px;outline:none;width:100%;}
+.filter-item input:focus,.filter-item select:focus{border-color:#3b5998;}
+.filter-actions{display:flex;align-items:flex-end;gap:6px;padding-bottom:1px;}
+
+/* 选择表格 */
+.product-table-wrap{overflow-x:auto;max-height:280px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;margin-bottom:10px;}
+.product-select-table{width:100%;border-collapse:collapse;font-size:13px;min-width:800px;}
+.product-select-table thead{position:sticky;top:0;z-index:10;}
+.product-select-table th{background:#f7f8fa;height:34px;padding:0 8px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
+.product-select-table td{height:42px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.product-select-table tr:hover td{background:rgba(59,89,152,.02);}
+.product-select-table tr.selected td{background:rgba(59,89,152,.06);}
+.product-select-table .sel-radio{width:16px;height:16px;cursor:pointer;}
+
+/* 分页 */
+.pagination-bar{display:flex;align-items:center;justify-content:space-between;background:#fafbfc;padding:8px 12px;border:1px solid #e8eaed;border-radius:4px;margin-top:0;}
+.page-info{font-size:12px;color:#8f959e;}
+.page-controls{display:flex;gap:4px;align-items:center;}
+.page-btn{padding:4px 10px;font-size:12px;color:#646a73;background:#fff;border:1px solid #e0e3ea;border-radius:3px;cursor:pointer;transition:.1s;user-select:none;}
+.page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
+.page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+.page-btn.disabled{color:#c5cae9;cursor:default;}
+
+/* 状态标签 */
+.status-badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:600;}
+.st-approve{background:#E3F2FD;color:#1565C0;}
+.st-reject{background:#FFEBEE;color:#C62828;}
+.st-part{background:#FFF3E0;color:#E65100;}
+.st-closed{background:#ECEFF1;color:#78909C;}
+
+/* 底部操作栏 */
+.form-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
+.form-footer-left{font-size:12px;color:#8f959e;}
+.form-footer-right{display:flex;gap:10px;align-items:center;}
+.btn-submit{padding:8px 32px;font-size:14px;font-weight:700;background:#3b5998;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-submit:hover{background:#2e477a;box-shadow:0 2px 8px rgba(59,89,152,.3);}
+.btn-cancel{padding:8px 20px;font-size:14px;background:#fff;color:#646a73;border:1px solid #e0e3ea;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-cancel:hover{border-color:#3b5998;color:#3b5998;}
+
+/* 辅助 */
+.text-aux{color:#8f959e!important;}
+.text-muted{color:#646a73!important;}
+.nonstd-badge{color:#E65100;font-weight:700;font-size:11px;background:#FFF3E0;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;}
+.pj-count{font-size:12px;color:#8f959e;}
+.pj-count span{color:#3b5998;font-weight:600;}
+.demo-hint{padding:8px 12px;background:#FFF8E1;border:1px solid #FFE082;border-radius:4px;font-size:12px;color:#F57F17;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+</style>
+</head>
+<body>
+
+<div class="page-root" id="pageRoot">
+
+<!-- 页面头 -->
+<div class="form-page-header">
+  <div style="display:flex;align-items:center;gap:0;">
+    <div class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      返回
+    </div>
+    <span class="form-page-title">批价单代客申请</span>
+  </div>
+  <div class="form-header-right">
+    <span style="font-size:12px;color:#8f959e;background:#f5f6fa;padding:4px 10px;border-radius:4px;">管理端 · 代客批价</span>
+    <span style="font-size:12px;color:#8f959e;">选择工程项目单后自动带入设备清单</span>
+  </div>
+</div>
+
+<div class="form-page-scroll">
+<div class="form-page-inner">
+
+  <!-- ==================== 一、选择工程项目单 ==================== -->
+  <div class="project-select-zone" id="projectSelectZone">
+    <div class="project-select-hd">
+      <div class="fct-accent"></div>
+      <span style="font-size:14px;font-weight:700;color:#1f2329;">选择工程项目单</span>
+      <span style="font-size:12px;color:#8f959e;margin-left:4px;" id="pjStatusHint">（已选项目信息将展示于页面底部参考区）</span>
+    </div>
+    <div class="project-select-body">
+
+      <!-- 缺省态：未选择项目单 -->
+      <div id="projectEmptyZone" class="project-empty-zone">
+        <button class="btn-select-project" onclick="openProjectModal()">选择工程项目单</button>
+        <div class="project-empty-hint">点击"选择工程项目单"打开弹窗，从工程项目列表中检索并选择</div>
+      </div>
+
+      <!-- 已选态：已选项目单（默认隐藏） -->
+      <div id="projectSelectedCard" class="project-selected-card" style="display:none;">
+        <div class="project-selected-info">
+          <div class="project-selected-name" id="pjDispName">--</div>
+          <div class="project-selected-meta">
+            <span class="project-meta-item" id="pjDispNo">项目单号：--</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item" id="pjDispDealer">经销商：--</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item" id="pjDispBiz">业务线：--</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item" id="pjDispStatus">状态：--</span>
+          </div>
+        </div>
+        <button class="project-change-btn" onclick="openProjectModal()">更换项目单</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 二、表单填写区（选完项目后显示） ==================== -->
+  <div id="formFillArea" style="display:none;">
+
+    <!-- 演示提示 -->
+    <div class="demo-hint">ⓘ 设备清单已从工程项目单自动带入，可修改数量/价格/点位后提交批价申请</div>
+
+    <!-- 2.1 设备清单 -->
+    <div class="form-card" id="cardEquip">
+      <div class="equip-card-hd">
+        <div class="equip-card-hd-left">
+          <div class="fct-accent"></div>
+          <span style="font-size:14px;font-weight:700;color:#1f2329;">设备清单</span>
+          <span style="font-size:12px;color:#8f959e;" id="pjEquipCountLabel">已添加 5 项</span>
+        </div>
+        <div class="equip-card-hd-right">
+          <button class="btn btn-sm" onclick="alert('演示：批量添加商品弹窗')">批量添加商品</button>
+          <button class="btn btn-sm" onclick="alert('演示：添加商品弹窗')">添加商品</button>
+          <button class="btn btn-sm" onclick="addNonStdRow()">添加非标商品</button>
+        </div>
+      </div>
+      <div style="padding:12px 16px;">
+        <div class="equip-table-wrap">
+          <table class="equip-table">
+            <thead>
+              <tr>
+                <th style="width:44px;text-align:center;">序号</th>
+                <th style="width:36px;">&nbsp;</th>
+                <th style="min-width:80px;">品类</th>
+                <th style="min-width:160px;">商品名称</th>
+                <th style="min-width:100px;">型号</th>
+                <th style="min-width:110px;">SKU编码</th>
+                <th style="min-width:70px;text-align:right;">申请数量</th>
+                <th style="min-width:100px;text-align:right;">申请价格</th>
+                <th style="min-width:70px;text-align:right;">点位%</th>
+                <th style="min-width:120px;">备注</th>
+                <th style="width:64px;text-align:center;">操作</th>
+              </tr>
+            </thead>
+            <tbody id="pjEquipTbody">
+              <!-- 自动带入的项目设备清单数据 -->
+            </tbody>
+          </table>
+        </div>
+        <div class="equip-table-foot">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="equip-summary-item">总数量：<span id="pjEquipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="pjEquipTotalAmt">¥ 0.00</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.2 附件 + 备注 -->
+    <div class="form-card" id="cardAttach">
+      <div class="form-card-header">
+        <div class="form-card-title">
+          <div class="fct-accent"></div>
+          <span class="fct-text">附件与备注</span>
+        </div>
+      </div>
+      <div class="form-card-body">
+        <div class="form-grid">
+          <!-- 备注 -->
+          <div class="form-item span3">
+            <label class="form-label">备注</label>
+            <textarea class="form-ctrl" style="height:80px;" placeholder="选填，最多500字符" maxlength="500">代客申请批价，由销司管理者协助经销商录入。</textarea>
+          </div>
+          <!-- 附件 -->
+          <div class="form-item span3">
+            <label class="form-label">附件上传</label>
+            <div class="attach-zone" onclick="alert('演示：点击上传文件')">
+              <div class="attach-zone-text">点击或拖拽文件到此处上传&nbsp;<span>（支持 PNG / JPG / PDF / Word / Excel，单个不超过10MB，最多10个）</span></div>
+            </div>
+            <div class="attach-list">
+              <div class="attach-item">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1" stroke="#3b5998" stroke-width="1.2"/><path d="M4 5h6M4 7.5h6M4 10h4" stroke="#3b5998" stroke-width="1" stroke-linecap="round"/></svg>
+                <span class="at-name">批价申请说明_附件.pdf</span>
+                <span style="color:#8f959e;font-size:11px;">2.3MB</span>
+                <span class="at-del" onclick="this.parentElement.remove()">×</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 三、关联项目参考区（不可折叠） ==================== -->
+    <div style="margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;margin-bottom:4px;">
+        <span style="font-size:13px;font-weight:600;color:#1f2329;">关联项目参考</span>
+        <span style="font-size:11px;color:#8f959e;">（以下信息来自所选工程项目单，仅供参考）</span>
+      </div>
+
+      <!-- 3.1 基本信息 -->
+      <div class="ref-card">
+        <div class="ref-card-header">
+          <div class="fct-accent"></div>
+          <span>基本信息</span>
+        </div>
+        <div class="ref-card-body">
+          <div class="info-grid">
+            <div class="info-item"><div class="info-label">项目单号</div><div class="info-value" id="refProjectNo">--</div></div>
+            <div class="info-item"><div class="info-label">经销商名称</div><div class="info-value" id="refDealerName">--</div></div>
+            <div class="info-item"><div class="info-label">经销商电话</div><div class="info-value" id="refDealerPhone">--</div></div>
+            <div class="info-item"><div class="info-label">业务线</div><div class="info-value" id="refBizType">--</div></div>
+            <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">--</div></div>
+            <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">--</div></div>
+            <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">--</div></div>
+            <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">--</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.2 使用方信息 -->
+      <div class="ref-card">
+        <div class="ref-card-header">
+          <div class="fct-accent"></div>
+          <span>使用方信息</span>
+        </div>
+        <div class="ref-card-body">
+          <div class="info-grid">
+            <div class="info-item"><div class="info-label">项目名称</div><div class="info-value" id="refProjectName">--</div></div>
+            <div class="info-item"><div class="info-label">客户类型</div><div class="info-value" id="refCustType">--</div></div>
+            <div class="info-item"><div class="info-label">客户名称</div><div class="info-value" id="refCustName">--</div></div>
+            <div class="info-item"><div class="info-label">采购单位</div><div class="info-value" id="refBuyer">--</div></div>
+            <div class="info-item"><div class="info-label">行业大类</div><div class="info-value" id="refIndustry">--</div></div>
+            <div class="info-item"><div class="info-label">使用方负责人</div><div class="info-value" id="refContact">--</div></div>
+            <div class="info-item"><div class="info-label">联系方式</div><div class="info-value" id="refPhone">--</div></div>
+            <div class="info-item"><div class="info-label">项目地址</div><div class="info-value" id="refAddress">--</div></div>
+            <div class="info-item"><div class="info-label">空调面积</div><div class="info-value" id="refArea">--</div></div>
+            <div class="info-item"><div class="info-label">预计设备金额</div><div class="info-value" id="refAmount">--</div></div>
+            <div class="info-item"><div class="info-label">跨区类型</div><div class="info-value" id="refCrossRegion">--</div></div>
+            <div class="info-item"><div class="info-label">执行单位</div><div class="info-value" id="refExecUnit">--</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.3 项目设备清单（参考） -->
+      <div class="ref-card">
+        <div class="ref-card-header">
+          <div class="fct-accent"></div>
+          <span>项目设备清单</span>
+          <span style="font-size:12px;color:#8f959e;">（查看来源项目的完整设备清单）</span>
+        </div>
+        <div class="ref-card-body" style="padding:8px 16px;">
+          <div class="equip-table-wrap" style="max-height:200px;">
+            <table class="equip-table" style="min-width:700px;">
+              <thead>
+                <tr>
+                  <th style="width:44px;text-align:center;">序号</th>
+                  <th style="width:36px;"></th>
+                  <th>品类</th>
+                  <th>商品名称</th>
+                  <th>型号</th>
+                  <th>数量</th>
+                  <th>申请价格</th>
+                </tr>
+              </thead>
+              <tbody id="refEquipTbody">
+                <!-- 由JS渲染 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:68px;"></div>
+  </div><!-- end formFillArea -->
+
+</div><!-- end form-page-inner -->
+</div><!-- end form-page-scroll -->
+
+<!-- 底部操作栏 -->
+<div class="form-footer">
+  <div class="form-footer-left" id="footerTip">请先选择工程项目单，系统自动带入设备清单</div>
+  <div class="form-footer-right">
+    <button class="btn-cancel" onclick="alert('演示：取消并返回列表')">取消</button>
+    <button class="btn-submit" id="btnSubmit" onclick="alert('演示：提交批价申请')" disabled style="opacity:.5;">提交批价申请</button>
+  </div>
+</div>
+
+</div><!-- /page-root -->
+
+
+<!-- ==================== 弹窗：选择工程项目单 ==================== -->
+<div class="modal-overlay" id="projectModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">选择工程项目单</span>
+      <span class="modal-close" onclick="closeProjectModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+
+      <!-- 搜索条件 -->
+      <div class="filter-grid">
+        <div class="filter-item">
+          <label>项目单号</label>
+          <input type="text" class="filter-input" placeholder="精确搜索">
+        </div>
+        <div class="filter-item">
+          <label>项目名称</label>
+          <input type="text" class="filter-input" placeholder="模糊搜索">
+        </div>
+        <div class="filter-item">
+          <label>经销商名称</label>
+          <input type="text" class="filter-input" placeholder="模糊搜索">
+        </div>
+        <div class="filter-item">
+          <label>业务线</label>
+          <select class="filter-input">
+            <option value="">全部</option>
+            <option>中央空调</option>
+            <option>冷链</option>
+            <option>多联机</option>
+            <option>新风</option>
+            <option>热水</option>
+            <option>精密空调</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>项目状态</label>
+          <select class="filter-input">
+            <option value="">全部活态</option>
+            <option>审批中</option>
+            <option>已驳回</option>
+            <option>跟进中</option>
+            <option>已中标</option>
+            <option>已签单</option>
+            <option>已流标</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label>销售公司</label>
+          <select class="filter-input">
+            <option value="">全部</option>
+            <option>格力销售公司-广州</option>
+            <option>格力销售公司-深圳</option>
+            <option>格力销售公司-珠海</option>
+            <option>格力销售公司-东莞</option>
+            <option>格力销售公司-佛山</option>
+          </select>
+        </div>
+        <div class="filter-actions" style="grid-column:span 1;display:flex;align-items:flex-end;gap:6px;">
+          <button class="btn btn-primary btn-sm" onclick="doProjectSearch()">查询</button>
+          <button class="btn btn-sm" onclick="resetProjectSearch()">重置</button>
+        </div>
+      </div>
+
+      <!-- 列表 -->
+      <div class="product-table-wrap">
+        <table class="product-select-table">
+          <thead>
+            <tr>
+              <th style="width:44px;text-align:center;">选择</th>
+              <th style="min-width:140px;">项目单号</th>
+              <th style="min-width:120px;">项目名称</th>
+              <th style="min-width:100px;">经销商名称</th>
+              <th style="width:70px;">业务线</th>
+              <th style="width:80px;">状态</th>
+              <th style="width:70px;text-align:center;">已申请批价数</th>
+              <th style="width:70px;text-align:center;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="projectListTbody">
+            <!-- JS渲染 -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="pagination-bar">
+        <div class="page-info" id="projectPageInfo">共 5 条</div>
+        <div class="page-controls">
+          <span class="page-btn disabled">上一页</span>
+          <span class="page-btn active">1</span>
+          <span class="page-btn disabled">下一页</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeProjectModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmProject()">确定</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ====================== 数据 ======================
+
+// 工程项目单列表数据（仅演示活态）
+var projectListData = [
+  { id:'粤东GCDT202606250001', name:'某商业综合体空调项目', dealer:'珠海华鸿电器销售有限公司', biz:'中央空调', status:'审批中', pjCount:1 },
+  { id:'粤东GCDT202606250002', name:'天河区写字楼多联机改造', dealer:'广州天河制冷设备有限公司', biz:'多联机', status:'跟进中', pjCount:0 },
+  { id:'粤东GCDT202606150003', name:'佛山某医院中央空调采购', dealer:'佛山南海格力专卖店', biz:'中央空调', status:'已中标', pjCount:2 },
+  { id:'粤东GCDT202606100004', name:'深圳前海办公楼新风系统', dealer:'深圳前海智能空调工程有限公司', biz:'新风', status:'已签单', pjCount:0 },
+  { id:'粤东GCDT202605280005', name:'中山某厂房冷链工程', dealer:'中山小榄格力专营店', biz:'冷链', status:'已流标', pjCount:0 }
+];
+
+// 选中后的完整项目数据（包含设备清单、使用方信息等）
+var selectedProjectData = {
+  id:'粤东GCDT202606250001',
+  name:'某商业综合体空调项目',
+  dealer:'珠海华鸿电器销售有限公司',
+  dealerPhone:'13812345678',
+  biz:'中央空调',
+  status:'审批中',
+  statusClass:'st-approve',
+  pjCount:1,
+  // 基本信息
+  projectNo:'粤东GCDT202606250001',
+  dealerName:'珠海华鸿电器销售有限公司',
+  dealerPhone:'13812345678',
+  bizType:'中央空调',
+  projectStatus:'审批中',
+  loginTime:'2026-06-25 10:30',
+  projectType:'单体项目',
+  bondType:'比例保证金-A（10%）',
+  // 使用方信息
+  projectName:'某商业综合体空调项目',
+  custType:'工程商',
+  custName:'XX建设工程有限公司',
+  buyer:'XX商业管理有限公司',
+  industry:'商业综合体',
+  contactPerson:'张经理',
+  contactPhone:'138****5678',
+  address:'广东省珠海市香洲区XX路88号XX大厦12层',
+  area:'8,000 m²',
+  equipAmount:'¥500万元',
+  crossRegion:'非跨区',
+  execUnit:'XX工程服务有限公司',
+  // 设备清单
+  equipList:[
+    { seq:1, isNonStd:false, cate:'多联机', name:'GMV5多联机 10HP', model:'GMV-450WM/A', sku:'SKU-GMV5-10HP', qty:5, price:42000, point:8.5, remark:'—' },
+    { seq:2, isNonStd:true,  cate:'定制设备', name:'定制机-非标控制柜', model:'非标-DZ-001', sku:'--', qty:1, price:38000, point:0, remark:'按图纸定制' },
+    { seq:3, isNonStd:false, cate:'中央空调', name:'格力 KFRd-120LW/NhGb1B 柜机', model:'KFRd-120LW/NhGb1B', sku:'SKU-GJ-120GB', qty:8, price:7600, point:9, remark:'' },
+    { seq:4, isNonStd:false, cate:'新风', name:'格力 FGR5Pd/NhBa1 吊顶式新风', model:'FGR5Pd/NhBa1', sku:'SKU-XF-5NBA1', qty:10, price:4200, point:11, remark:'' },
+    { seq:5, isNonStd:false, cate:'多联机', name:'格力 GMV-H224WL/A1 多联机组', model:'GMV-H224WL/A1', sku:'SKU-MLJ-224A1', qty:3, price:19800, point:13, remark:'' }
+  ]
+};
+
+var currentProjectRow = null;
+var isProjectSelected = false;
+
+// ====================== 弹窗操作 ======================
+
+function openProjectModal() {
+  currentProjectRow = null;
+  renderProjectList();
+  document.getElementById('projectModal').classList.add('show');
+}
+
+function closeProjectModal() {
+  document.getElementById('projectModal').classList.remove('show');
+}
+
+function selectProjectRow(tr) {
+  document.querySelectorAll('#projectListTbody tr').forEach(function(r){ r.classList.remove('selected'); });
+  tr.classList.add('selected');
+  var radio = tr.querySelector('input[type="radio"]');
+  if(radio) radio.checked = true;
+  currentProjectRow = tr;
+}
+
+function renderProjectList() {
+  var tbody = document.getElementById('projectListTbody');
+  tbody.innerHTML = '';
+  projectListData.forEach(function(p, i){
+    var statusClass = '';
+    if(p.status === '审批中') statusClass = 'st-approve';
+    else if(p.status === '跟进中') statusClass = '';
+    else if(p.status === '已中标') statusClass = 'st-approve';
+    else if(p.status === '已签单') statusClass = 'st-reject';
+    else if(p.status === '已流标') statusClass = 'st-part';
+
+    var tr = document.createElement('tr');
+    tr.setAttribute('data-idx', i);
+    tr.onclick = function(){ selectProjectRow(this); };
+    tr.innerHTML =
+      '<td style="text-align:center;"><input type="radio" name="pjRadio" class="sel-radio"></td>' +
+      '<td style="color:#3b5998;font-weight:600;cursor:pointer;" onclick="event.stopPropagation();selectProjectRow(this.parentElement)">' + p.id + '</td>' +
+      '<td>' + p.name + '</td>' +
+      '<td>' + p.dealer + '</td>' +
+      '<td>' + p.biz + '</td>' +
+      '<td><span class="status-badge ' + statusClass + '">' + p.status + '</span></td>' +
+      '<td style="text-align:center;"><span class="pj-count">' + (p.pjCount > 0 ? '<span>' + p.pjCount + '</span>' : '0') + '</span></td>' +
+      '<td style="text-align:center;"><a style="color:#3b5998;font-size:12px;cursor:pointer;" onclick="event.stopPropagation();selectProjectRow(this.parentElement.parentElement)">选择</a></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function doProjectSearch() {
+  // 演示：直接提示
+  alert('演示：按条件过滤工程项目列表');
+}
+
+function resetProjectSearch() {
+  document.querySelectorAll('#projectModal .filter-input').forEach(function(el){
+    el.value = '';
+  });
+  renderProjectList();
+}
+
+function confirmProject() {
+  if(!currentProjectRow) { alert('请选择一个工程项目单'); return; }
+  var idx = parseInt(currentProjectRow.dataset.idx);
+  var p = projectListData[idx];
+
+  // 填充已选态
+  document.getElementById('pjDispName').textContent = p.name || p.id;
+  document.getElementById('pjDispNo').textContent = '项目单号：' + p.id;
+  document.getElementById('pjDispDealer').textContent = '经销商：' + p.dealer;
+  document.getElementById('pjDispBiz').textContent = '业务线：' + p.biz;
+  document.getElementById('pjDispStatus').textContent = '状态：' + p.status;
+
+  // 切换显示
+  document.getElementById('projectEmptyZone').style.display = 'none';
+  document.getElementById('projectSelectedCard').style.display = '';
+
+  // 显示填写区
+  document.getElementById('formFillArea').style.display = 'block';
+
+  // 启用提交按钮
+  var btn = document.getElementById('btnSubmit');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  document.getElementById('footerTip').textContent = '已选项目单：' + p.id + '，请确认设备清单后提交';
+
+  // 填充参考区数据
+  fillRefData(p);
+  // 渲染设备清单
+  renderEquipList();
+
+  isProjectSelected = true;
+  closeProjectModal();
+}
+
+// ====================== 填充参考区 ======================
+
+function fillRefData(p) {
+  var d = selectedProjectData;
+  // 基本信息
+  document.getElementById('refProjectNo').textContent = d.projectNo;
+  document.getElementById('refDealerName').textContent = d.dealerName;
+  document.getElementById('refDealerPhone').textContent = d.dealerPhone;
+  document.getElementById('refBizType').textContent = d.bizType;
+  document.getElementById('refProjectStatus').textContent = d.projectStatus;
+  document.getElementById('refLoginTime').textContent = d.loginTime;
+  document.getElementById('refProjectType').textContent = d.projectType;
+  document.getElementById('refBondType').textContent = d.bondType;
+  // 使用方信息
+  document.getElementById('refProjectName').textContent = d.projectName;
+  document.getElementById('refCustType').textContent = d.custType;
+  document.getElementById('refCustName').textContent = d.custName;
+  document.getElementById('refBuyer').textContent = d.buyer;
+  document.getElementById('refIndustry').textContent = d.industry;
+  document.getElementById('refContact').textContent = d.contactPerson;
+  document.getElementById('refPhone').textContent = d.contactPhone;
+  document.getElementById('refAddress').textContent = d.address;
+  document.getElementById('refArea').textContent = d.area;
+  document.getElementById('refAmount').textContent = d.equipAmount;
+  document.getElementById('refCrossRegion').textContent = d.crossRegion;
+  document.getElementById('refExecUnit').textContent = d.execUnit;
+  // 参考区设备清单
+  var tbody = document.getElementById('refEquipTbody');
+  tbody.innerHTML = '';
+  d.equipList.forEach(function(eq){
+    var tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td style="text-align:center;color:#8f959e;width:44px;">' + eq.seq + '</td>' +
+      '<td style="width:36px;text-align:center;">' + (eq.isNonStd ? '<span class="nonstd-badge">非</span>' : '') + '</td>' +
+      '<td>' + eq.cate + '</td>' +
+      '<td>' + eq.name + '</td>' +
+      '<td>' + eq.model + '</td>' +
+      '<td>' + eq.qty + '</td>' +
+      '<td>¥' + eq.price.toLocaleString('zh-CN', {minimumFractionDigits:2}) + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ====================== 设备清单渲染（可编辑） ======================
+
+function renderEquipList() {
+  var tbody = document.getElementById('pjEquipTbody');
+  tbody.innerHTML = '';
+  selectedProjectData.equipList.forEach(function(eq, i){
+    var tr = document.createElement('tr');
+    tr.setAttribute('data-nonstd', eq.isNonStd ? 'true' : 'false');
+    tr.setAttribute('data-seq', eq.seq);
+    tr.innerHTML =
+      '<td style="text-align:center;color:#8f959e;">' + (i+1) + '</td>' +
+      '<td style="text-align:center;">' + (eq.isNonStd ? '<span class="nonstd-badge">非</span>' : '') + '</td>' +
+      '<td>' + eq.cate + '</td>' +
+      '<td style="color:#1f2329;">' + eq.name + '</td>' +
+      '<td style="color:#1f2329;">' + eq.model + '</td>' +
+      '<td style="color:#1f2329;">' + eq.sku + '</td>' +
+      '<td><input class="td-input td-num equip-qty" type="number" value="' + eq.qty + '" min="1" max="9999999" style="width:70px;" onchange="recalcSummary()"></td>' +
+      '<td><input class="td-input td-num equip-price" type="number" value="' + eq.price + '" min="0" step="0.01" style="width:90px;" data-webprice="' + eq.price + '" onchange="recalcSummary()"></td>' +
+      '<td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="' + eq.point + '" min="0" max="100" step="0.1" style="width:50px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
+      '<td><input class="td-input" style="width:110px;" placeholder="选填备注..." value="' + (eq.remark !== '—' ? eq.remark : '') + '"></td>' +
+      '<td class="td-op"><a onclick="delEquipRow(this)">删除</a></td>';
+    tbody.appendChild(tr);
+  });
+  document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + selectedProjectData.equipList.length + ' 项';
+  recalcSummary();
+}
+
+// 点位→价格联动
+function calcPriceFromPoint(pointInput) {
+  var row = pointInput.closest('tr');
+  var priceInput = row.querySelector('.equip-price');
+  if(!priceInput || !priceInput.dataset.webprice) return;
+  var webPrice = parseFloat(priceInput.dataset.webprice);
+  if(!webPrice || webPrice <= 0) return;
+  var point = parseFloat(pointInput.value);
+  if(isNaN(point)) point = 0;
+  var newPrice = webPrice * (100 - point) / 100;
+  priceInput.value = newPrice.toFixed(2);
+}
+
+// 汇总计算
+function recalcSummary() {
+  var rows = document.querySelectorAll('#pjEquipTbody tr');
+  var totalQty = 0;
+  var totalAmt = 0;
+  rows.forEach(function(row) {
+    var qtyEl = row.querySelector('.equip-qty');
+    var priceEl = row.querySelector('.equip-price');
+    if(qtyEl && priceEl) {
+      var qty = parseInt(qtyEl.value) || 0;
+      var price = parseFloat(priceEl.value) || 0;
+      totalQty += qty;
+      totalAmt += qty * price;
+    }
+  });
+  document.getElementById('pjEquipTotalQty').textContent = totalQty;
+  document.getElementById('pjEquipTotalAmt').textContent = '¥ ' + totalAmt.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// 删除行
+function delEquipRow(el) {
+  var tr = el.closest('tr');
+  if(tr) {
+    tr.remove();
+    recalcSummary();
+    var count = document.querySelectorAll('#pjEquipTbody tr').length;
+    document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + count + ' 项';
+  }
+}
+
+// 添加非标商品
+var nonStdSeq = 100;
+function addNonStdRow() {
+  nonStdSeq++;
+  var tbody = document.getElementById('pjEquipTbody');
+  var tr = document.createElement('tr');
+  tr.setAttribute('data-nonstd','true');
+  tr.innerHTML =
+    '<td style="text-align:center;color:#8f959e;">' + document.querySelectorAll('#pjEquipTbody tr').length + 1 + '</td>' +
+    '<td style="text-align:center;"><span class="nonstd-badge">非</span></td>' +
+    '<td><select class="td-select" style="width:80px;"><option>中央空调</option><option>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option></select></td>' +
+    '<td style="color:#1f2329;">定制机</td>' +
+    '<td><input class="td-input" style="width:90px;" value="-"></td>' +
+    '<td style="color:#8f959e;">--</td>' +
+    '<td><input class="td-input td-num equip-qty" type="number" value="1" min="1" max="9999999" style="width:70px;" onchange="recalcSummary()"></td>' +
+    '<td><input class="td-input td-num equip-price" type="number" value="0" min="0" step="0.01" style="width:90px;" onchange="recalcSummary()"></td>' +
+    '<td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="0" min="0" max="100" step="0.1" style="width:50px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
+    '<td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>' +
+    '<td class="td-op"><a onclick="delEquipRow(this)">删除</a></td>';
+  tbody.appendChild(tr);
+  recalcSummary();
+  document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + document.querySelectorAll('#pjEquipTbody tr').length + ' 项';
+}
+
+// 初始化初始缺口态
+// 页面初始时项目区为空，填写区隐藏
+document.addEventListener('DOMContentLoaded', function(){
+  renderProjectList();
+});
+</script>
+
+</body>
+</html>
