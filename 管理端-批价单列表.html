@@ -193,7 +193,7 @@ a:hover{text-decoration:underline;}
         <input type="text" class="global-input" placeholder="请输入">
       </div>
       <div class="search-item">
-        <span class="label">项目单号</span>
+        <span class="label">关联项目单号</span>
         <input type="text" class="global-input" placeholder="请输入">
       </div>
       <div class="search-item">
@@ -201,7 +201,7 @@ a:hover{text-decoration:underline;}
         <input type="text" class="global-input" placeholder="请输入">
       </div>
       <div class="search-item">
-        <span class="label">批价状态</span>
+        <span class="label">批价单状态</span>
         <div class="ms-wrap">
           <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
           <div class="ms-dropdown">
@@ -224,6 +224,16 @@ a:hover{text-decoration:underline;}
       </div>
 
       <!-- === 展开态追加字段 === -->
+      <div class="search-item expand-field">
+        <span class="label">销售类型</span>
+        <select>
+          <option value="">全部</option>
+          <option value="日常政策">日常政策</option>
+          <option value="一次性买断">一次性买断</option>
+          <option value="促销特价">促销特价</option>
+          <option value="样机">样机</option>
+        </select>
+      </div>
       <div class="search-item expand-field">
         <span class="label">销售公司</span>
         <div class="ms-wrap">
@@ -271,10 +281,10 @@ a:hover{text-decoration:underline;}
             <th style="width:40px">序号</th>
             <th>操作</th>
             <th>批价单号</th>
-            <th>项目单号</th>
+            <th>关联项目单号</th>
             <th>经销商名称</th>
             <th>项目名称</th>
-            <th>批价状态</th>
+            <th>批价单状态</th>
             <th>商品数量</th>
             <th>提货数量</th>
           </tr>
@@ -349,8 +359,8 @@ a:hover{text-decoration:underline;}
           <h4>基本信息</h4>
           <div class="detail-grid">
             <div class="detail-row"><span class="detail-label">批价单号：</span><span class="detail-value" id="dtlId">—</span></div>
-            <div class="detail-row"><span class="detail-label">批价状态：</span><span class="detail-value" id="dtlStatus">—</span></div>
-            <div class="detail-row"><span class="detail-label">项目单号：</span><span class="detail-value" id="dtlProjectNo">—</span></div>
+            <div class="detail-row"><span class="detail-label">批价单状态：</span><span class="detail-value" id="dtlStatus">—</span></div>
+            <div class="detail-row"><span class="detail-label">关联项目单号：</span><span class="detail-value" id="dtlProjectNo">—</span></div>
             <div class="detail-row"><span class="detail-label">项目名称：</span><span class="detail-value" id="dtlProjectName">—</span></div>
             <div class="detail-row"><span class="detail-label">销售公司：</span><span class="detail-value" id="dtlSalesCo">—</span></div>
             <div class="detail-row"><span class="detail-label">经销商名称：</span><span class="detail-value" id="dtlDealer">—</span></div>
@@ -646,10 +656,10 @@ var columnConfig = [
   {key:'index',      name:'\u5E8F\u53F7',             visible:true},
   {key:'op',         name:'\u64CD\u4F5C',             visible:true},
   {key:'priceId',    name:'\u6279\u4EF7\u5355\u53F7', visible:true},
-  {key:'projectNo',  name:'\u9879\u76EE\u5355\u53F7', visible:true},
+  {key:'projectNo',  name:'\u5173\u8054\u9879\u76EE\u5355\u53F7', visible:true},
   {key:'dealer',     name:'\u7ECF\u9500\u5546\u540D\u79F0', visible:true},
   {key:'projectName',name:'\u9879\u76EE\u540D\u79F0', visible:true},
-  {key:'status',     name:'\u6279\u4EF7\u72B6\u6001', visible:true},
+  {key:'status',     name:'\u6279\u4EF7\u5355\u72B6\u6001', visible:true},
   {key:'qty',        name:'\u5546\u54C1\u6570\u91CF', visible:true},
   {key:'pickedQty',  name:'\u63D0\u8D27\u6570\u91CF', visible:true}
 ];
