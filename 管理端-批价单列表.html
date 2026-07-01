@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理端-批价单列表</title>
+<style>
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --danger:#D32F2F; --success:#2E7D32; --warning:#ED6C02; --info:#0288D1;
+  --bg:#fff; --bg-card:#fff; --bg-header:#F7F8FA; --bg-hover:#f0f2f5;
+  --border:#e8eaed; --border-light:#f0f0f0;
+  --text:#1f2329; --text-secondary:#646a73; --text-aux:#8f959e;
+  --font-body:14px; --font-aux:12px;
+  --radius:4px; --radius-card:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:var(--font-body);color:var(--text);background:var(--bg-hover);line-height:1.6;}
+a{color:var(--primary);text-decoration:none;cursor:pointer;}
+a:hover{text-decoration:underline;}
+
+.main-wrap{min-height:100vh;background:var(--bg-hover);}
+.content-inner{padding:16px 20px 32px;}
+
+/* ====== 面包屑 ====== */
+.breadcrumb{padding:10px 20px;font-size:12px;color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border-light);}
+.breadcrumb .sep{margin:0 6px;color:var(--border);}
+.breadcrumb .current{color:var(--text);font-weight:500;}
+
+/* ====== 搜索筛选区 ====== */
+.search-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);padding:16px 20px 12px;margin-bottom:12px;}
+.search-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px 16px;}
+.search-item{display:flex;align-items:center;gap:0;}
+.search-item .label{font-size:13px;color:var(--text);white-space:nowrap;min-width:80px;text-align:right;padding-right:8px;flex-shrink:0;}
+.search-item input,.search-item select{height:32px;border:1px solid var(--border);border-radius:var(--radius);padding:0 10px;font-size:13px;color:var(--text);outline:none;transition:border .2s;width:100%;}
+.search-item input::placeholder{color:var(--text-aux);}
+.search-item input:focus,.search-item select:focus{border-color:var(--primary);}
+.search-item select{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238f959e'/%3E%3C/svg%3E") no-repeat right 10px center;padding-right:28px;}
+.search-item .date-range{display:flex;align-items:center;gap:4px;width:100%;}
+.search-item .date-range input{width:120px;flex-shrink:1;font-size:12px;height:30px;}
+.search-item .date-range .dash{color:var(--text-aux);font-size:13px;}
+
+.search-footer{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border-light);}
+
+/* ====== 按钮 ====== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:6px 16px;font-size:13px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap;}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+.btn-primary:hover{background:var(--primary-light);}
+.btn-default{background:#fff;color:var(--text-secondary);border-color:var(--border);}
+.btn-default:hover{color:var(--primary);border-color:var(--primary);}
+
+/* ====== 表格区 ====== */
+.table-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden;}
+.table-scroll{overflow-x:auto;}
+.data-table{width:100%;border-collapse:collapse;min-width:1600px;}
+.data-table th{background:var(--bg-header);font-size:12px;font-weight:600;color:var(--text-secondary);padding:10px 12px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);}
+.data-table td{font-size:12px;color:var(--text);padding:10px 12px;border-bottom:1px solid var(--border-light);vertical-align:middle;text-align:left;}
+.data-table tr:hover td{background:rgba(59,89,152,.03);}
+
+/* 操作列 */
+.op-cell{white-space:nowrap;}
+.op-cell a{margin-right:10px;font-size:12px;}
+.op-cell a:last-child{margin-right:0;}
+.op-view{color:var(--primary);cursor:pointer;}
+.op-view:hover{text-decoration:underline;}
+.op-approve{color:var(--success);cursor:pointer;}
+.op-approve:hover{text-decoration:underline;}
+.op-void{color:var(--danger);cursor:pointer;}
+.op-void:hover{text-decoration:underline;}
+.op-disabled{color:var(--text-aux) !important;cursor:not-allowed !important;text-decoration:none !important;}
+.op-disabled:hover{text-decoration:none !important;}
+
+/* ====== 状态标签 ====== */
+.st-tag{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;font-weight:500;}
+.st-approve{background:#E3F2FD;color:#1565C0;} /* 审批中 */
+.st-reject{background:#FFEBEE;color:#C62828;}  /* 已驳回 */
+.st-wait{background:#FFF3E0;color:#E65100;}   /* 待提货 */
+.st-part{background:#E8F5E9;color:#2E7D32;}   /* 部分提货 */
+.st-done{background:#E0F2F1;color:#00695C;}   /* 已完结 */
+.st-closed{background:#ECEFF1;color:#78909C;} /* 已关闭 */
+.st-sub{font-size:10px;color:var(--text-aux);margin-left:2px;font-weight:400;} /* 子状态角标 */
+
+/* 金额相关 */
+.money{color:var(--text);font-weight:500;}
+.money-negative{color:var(--danger);}
+
+/* ====== 分页 ====== */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;font-size:12px;color:var(--text-secondary);border-top:1px solid var(--border-light);}
+.page-info{display:flex;align-items:center;gap:4px;}
+.page-ctrl{display:flex;align-items:center;gap:4px;}
+.page-btn{min-width:30px;height:30px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:.15s;}
+.page-btn:hover:not(.disabled):not(.active){border-color:var(--primary);color:var(--primary);}
+.page-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.page-btn.disabled{color:var(--text-aux);cursor:default;border-color:var(--border-light);}
+.page-size{display:flex;align-items:center;gap:4px;margin-left:8px;}
+.page-size select{height:30px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;padding:0 4px;outline:none;}
+.page-jump{display:flex;align-items:center;gap:4px;margin-left:12px;}
+.page-jump input{width:42px;height:30px;border:1px solid var(--border);border-radius:var(--radius);text-align:center;font-size:12px;outline:none;}
+.page-jump input:focus{border-color:var(--primary);}
+
+/* ====== 弹窗（通用） ====== */
+.modal-mask{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);z-index:10000;justify-content:center;align-items:flex-start;padding-top:80px;}
+.modal-mask.show{display:flex;}
+.modal-dialog{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:700px;max-width:92vw;animation:modalIn .25s ease-out;}
+@keyframes modalIn{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid var(--border);}
+.modal-header h3{font-size:16px;font-weight:600;color:var(--text);margin:0;}
+.modal-close{width:28px;height:28px;border:none;background:none;font-size:22px;color:var(--text-aux);cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:.15s;}
+.modal-close:hover{color:var(--text);background:#f5f5f5;}
+.modal-body{padding:20px 24px;max-height:65vh;overflow-y:auto;}
+.modal-footer{display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 24px;border-top:1px solid var(--border-light);}
+
+/* ====== 查看详情弹窗 ====== */
+.detail-wrap{padding:0 0 8px;}
+.detail-section{margin-bottom:20px;}
+.detail-section h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border-light);}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+.detail-row{display:flex;align-items:center;font-size:13px;line-height:1.8;}
+.detail-label{color:var(--text-secondary);min-width:80px;flex-shrink:0;}
+.detail-value{color:var(--text);font-weight:500;}
+.detail-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.detail-table th{background:var(--bg-header);padding:8px 10px;text-align:left;font-weight:600;color:var(--text-secondary);border-bottom:1px solid var(--border);white-space:nowrap;}
+.detail-table td{padding:8px 10px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
+.detail-table tbody tr:hover td{background:rgba(59,89,152,.03);}
+
+/* 确认弹窗 */
+.confirm-icon{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:50%;background:#FFF8E1;color:#F9A825;font-size:24px;margin-bottom:16px;}
+.btn-confirm{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid transparent;background:var(--primary);color:#fff;transition:.15s;}
+.btn-confirm:hover{background:var(--primary-light);}
+.btn-cancel{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text-secondary);transition:.15s;}
+.btn-cancel:hover{color:var(--primary);border-color:var(--primary);}
+</style>
+</head>
+<body>
+
+<div class="main-wrap">
+
+<!-- 面包屑 -->
+<div class="breadcrumb">
+  商用工程 <span class="sep">/</span> 批价单管理 <span class="sep">/</span>
+  <span class="current">批价单列表</span>
+</div>
+
+<div class="content-inner">
+
+<!-- ====== 搜索筛选区 ====== -->
+<div class="search-card">
+  <div class="search-grid">
+    <div class="search-item">
+      <span class="label">批价单号：</span><input type="text" placeholder="请输入" maxlength="50">
+    </div>
+    <div class="search-item">
+      <span class="label">项目单号：</span><input type="text" placeholder="请输入" maxlength="50">
+    </div>
+    <div class="search-item">
+      <span class="label">经销商名称：</span><input type="text" placeholder="请输入" maxlength="100">
+    </div>
+    <div class="search-item">
+      <span class="label">批价状态：</span>
+      <select>
+        <option value="">全部</option>
+        <option>审批中</option>
+        <option>已驳回</option>
+        <option>待提货</option>
+        <option>部分提货</option>
+        <option>已完结</option>
+        <option>已关闭</option>
+      </select>
+    </div>
+    <div class="search-item">
+      <span class="label">项目名称：</span><input type="text" placeholder="请输入" maxlength="100">
+    </div>
+    <div class="search-item">
+      <span class="label">采购单位：</span><input type="text" placeholder="请输入" maxlength="100">
+    </div>
+    <div class="search-item">
+      <span class="label">销售类型：</span>
+      <select>
+        <option value="">全部</option>
+        <option>常规价</option>
+        <option>买断价</option>
+        <option>特批特价</option>
+        <option>样机</option>
+        <option>打包价</option>
+        <option>暂扣价</option>
+      </select>
+    </div>
+    <div class="search-item">
+      <span class="label">审批日期：</span>
+      <div class="date-range"><input type="date"><span class="dash">~</span><input type="date"></div>
+    </div>
+    <div class="search-item">
+      <span class="label">销售公司：</span>
+      <select>
+        <option value="">全部</option>
+        <option>商用销司-华南</option>
+        <option>商用销司-华东</option>
+        <option>商用销司-华北</option>
+        <option>商用销司-华中</option>
+      </select>
+    </div>
+    <div class="search-item">
+      <span class="label">经销商账号：</span><input type="text" placeholder="请输入" maxlength="100">
+    </div>
+  </div>
+  <div class="search-footer">
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-primary" onclick="doSearch()">查询</button>
+      <button class="btn btn-default" onclick="doReset()">重置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 表格区 ====== -->
+<div class="table-card">
+  <div class="table-scroll">
+    <table class="data-table" id="dataTable">
+      <thead>
+        <tr>
+          <th style="width:150px;">批价单号</th>
+          <th style="width:160px;">项目单号</th>
+          <th style="width:140px;">经销商名称</th>
+          <th style="width:180px;">项目名称</th>
+          <th style="width:80px;">批价状态</th>
+          <th style="width:100px;">销售类型</th>
+          <th style="width:80px;">商品数量</th>
+          <th style="width:100px;">批价金额(元)</th>
+          <th style="width:80px;">已提货数</th>
+          <th style="width:80px;">提货金额(元)</th>
+          <th style="width:140px;">审批通过时间</th>
+          <th style="width:100px;">提货有效期</th>
+          <th style="width:160px;">操作</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+
+        <!-- ========= 第1行：审批中 ========= -->
+        <tr>
+          <td><a onclick="showDetail('p1')" style="font-weight:500;">PJ202607010001</a></td>
+          <td>粤东GCDT202506250001</td>
+          <td>珠海格力电器股份有限公司</td>
+          <td>珠海横琴总部大厦中央空调工程</td>
+          <td><span class="st-tag st-approve">审批中</span></td>
+          <td>常规价</td>
+          <td>20</td>
+          <td class="money">¥126,000.00</td>
+          <td>0</td>
+          <td class="money">¥0.00</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p1')">查看</a>
+            <a class="op-approve" onclick="showApprove('p1')">审批</a>
+          </td>
+        </tr>
+        <!-- col-new: 审批中行=仅展示查看+审批(只有M4), 购买数量=0, 作废按钮隐藏(R-07) -->
+
+        <!-- ========= 第2行：已驳回 ========= -->
+        <tr>
+          <td><a onclick="showDetail('p2')" style="font-weight:500;">PJ202606280002</a></td>
+          <td>粤东GCDT202506200002</td>
+          <td>广州格力销售有限公司</td>
+          <td>广州天河城中央空调改造项目</td>
+          <td><span class="st-tag st-reject">已驳回</span></td>
+          <td>特批特价</td>
+          <td>15</td>
+          <td class="money">¥88,500.00</td>
+          <td>0</td>
+          <td class="money">¥0.00</td>
+          <td>2026-06-28 14:30:00</td>
+          <td>—</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p2')">查看</a>
+            <a class="op-void" onclick="showVoid('p2')">作废</a>
+          </td>
+        </tr>
+        <!-- col-new: 已驳回行=查看+管理端作废(购买数量=0→按钮可见#R-05) -->
+
+        <!-- ========= 第3行：待提货 ========= -->
+        <tr>
+          <td><a onclick="showDetail('p3')" style="font-weight:500;">PJ202606250003</a></td>
+          <td>粤东GCDT202506150003</td>
+          <td>深圳格力销售有限公司</td>
+          <td>深圳前海大厦新风系统安装</td>
+          <td><span class="st-tag st-wait">待提货</span></td>
+          <td>常规价</td>
+          <td>50</td>
+          <td class="money">¥320,000.00</td>
+          <td>0</td>
+          <td class="money">¥0.00</td>
+          <td>2026-06-25 10:00:00</td>
+          <td>2026-07-25</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p3')">查看</a>
+            <a class="op-void" onclick="showVoid('p3')">作废</a>
+          </td>
+        </tr>
+        <!-- col-new: 待提货行=购买数量=0→作废按钮可见(R-05), 提示:近效期场景可在批价单号旁加倒计时/黄色标记 -->
+
+        <!-- ========= 第4行：部分提货 ========= -->
+        <tr>
+          <td><a onclick="showDetail('p4')" style="font-weight:500;">PJ202606200004</a></td>
+          <td>粤东GCDT202506080004</td>
+          <td>东莞格力销售有限公司</td>
+          <td>东莞松山湖科技园区多联机工程</td>
+          <td><span class="st-tag st-part">部分提货</span></td>
+          <td>买断价</td>
+          <td>30</td>
+          <td class="money">¥195,000.00</td>
+          <td>12</td>
+          <td class="money">¥78,000.00</td>
+          <td>2026-06-20 09:15:00</td>
+          <td>2026-07-20</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p4')">查看</a>
+            <a class="op-disabled" title="部分提货不能作废(#219)">作废</a>
+          </td>
+        </tr>
+        <!-- col-new: 部分提货行=购买数量>0→作废按钮隐藏/禁用(R-03 #219) -->
+
+        <!-- ========= 第5行：已完结 ========= -->
+        <tr>
+          <td><a onclick="showDetail('p5')" style="font-weight:500;">PJ202606100005</a></td>
+          <td>粤东GCDT202605280005</td>
+          <td>佛山格力销售有限公司</td>
+          <td>佛山南海医院净化空调工程</td>
+          <td><span class="st-tag st-done">已完结</span></td>
+          <td>打包价</td>
+          <td>25</td>
+          <td class="money">¥168,000.00</td>
+          <td>25</td>
+          <td class="money">¥168,000.00</td>
+          <td>2026-06-10 16:00:00</td>
+          <td>—</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p5')">查看</a>
+          </td>
+        </tr>
+        <!-- col-new: 已完结行=终态,仅查看 -->
+
+        <!-- ========= 第6行：已关闭 ========= -->
+        <tr>
+          <td><a onclick="showDetail('p6')" style="font-weight:500;">PJ202606150006</a></td>
+          <td>粤东GCDT202606010006</td>
+          <td>珠海格力电器股份有限公司</td>
+          <td>珠海金湾机场候机楼空调改造</td>
+          <td><span class="st-tag st-closed">已关闭</span></td>
+          <td>样机</td>
+          <td>10</td>
+          <td class="money">¥45,000.00</td>
+          <td>0</td>
+          <td class="money">¥0.00</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p6')">查看</a>
+          </td>
+        </tr>
+        <!-- col-new: 已关闭行=终态,仅查看 -->
+
+        <!-- ========= 第7行：审批中(作废审批子状态) ========= -->
+        <tr>
+          <td><a onclick="showDetail('p7')" style="font-weight:500;">PJ202606220007</a></td>
+          <td>粤东GCDT202605150007</td>
+          <td>广州格力销售有限公司</td>
+          <td>广州国际会展中心冷水机组项目</td>
+          <td><span class="st-tag st-approve">审批中</span><span class="st-sub">(作废审批)</span></td>
+          <td>暂扣价</td>
+          <td>40</td>
+          <td class="money">¥560,000.00</td>
+          <td>0</td>
+          <td class="money">¥0.00</td>
+          <td>—</td>
+          <td>—</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p7')">查看</a>
+            <a class="op-void" onclick="showDeleteConfirm('作废审批')">作废审批中</a>
+          </td>
+        </tr>
+        <!-- col-new: 第7行=作废审批子状态,页面上仍展示'审批中'主状态,括号标注子状态为(作废审批) -->
+
+        <!-- ========= 第8行：待提货(保证金近效期) ========= -->
+        <tr>
+          <td><a onclick="showDetail('p8')" style="font-weight:500;">PJ202605200008</a></td>
+          <td>粤东GCDT202605050008</td>
+          <td>深圳格力销售有限公司</td>
+          <td>深圳大疆创新基地中央空调工程</td>
+          <td><span class="st-tag st-wait">待提货</span></td>
+          <td>常规价</td>
+          <td>60</td>
+          <td class="money">¥420,000.00</td>
+          <td>0</td>
+          <td class="money">¥0.00</td>
+          <td>2026-05-20 08:30:00</td>
+          <td>2026-06-20</td>
+          <td class="op-cell">
+            <a class="op-view" onclick="showDetail('p8')">查看</a>
+            <a class="op-void" onclick="showVoid('p8')">作废</a>
+          </td>
+        </tr>
+        <!-- col-new: 第8行=待提货但提货有效期已过(2026-06-20<当前日期2026-07-01),页面需展示近效期/过期提醒;购买数量=0→作废按钮可见(R-05) -->
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 分页 -->
+  <div class="pagination">
+    <div class="page-info">
+      共<span style="color:var(--text);font-weight:600;">256</span>条记录 &nbsp; 第<span style="color:var(--text);font-weight:600;">1</span>/共<span style="color:var(--text);">26</span>页
+    </div>
+    <div class="page-ctrl">
+      <button class="page-btn disabled">&lt;</button>
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">4</button>
+      <button class="page-btn">5</button>
+      <button class="page-btn">...</button>
+      <button class="page-btn">&gt;</button>
+      <div class="page-size">
+        <select><option>10条/页</option><option>20条/页</option><option>50条/页</option></select>
+      </div>
+      <div class="page-jump">
+        跳至<input type="number" value="1" min="1"> 页
+      </div>
+    </div>
+  </div>
+</div><!-- /table-card -->
+
+</div><!-- /content-inner -->
+</div><!-- /main-wrap -->
+
+<!-- ===== 查看详情弹窗 ===== -->
+<div class="modal-mask" id="modalDetail" onclick="if(event.target===this)closeModal('modalDetail')">
+  <div class="modal-dialog" style="width:960px;">
+    <div class="modal-header">
+      <h3>批价单详情</h3>
+      <button class="modal-close" onclick="closeModal('modalDetail')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="detail-wrap">
+        <!-- 基本信息 -->
+        <div class="detail-section">
+          <h4>基本信息</h4>
+          <div class="detail-grid">
+            <div class="detail-row"><span class="detail-label">批价单号：</span><span class="detail-value" id="dtlId">PJ202607010001</span></div>
+            <div class="detail-row"><span class="detail-label">批价状态：</span><span class="detail-value" id="dtlStatus"><span class="st-tag st-approve">审批中</span></span></div>
+            <div class="detail-row"><span class="detail-label">项目单号：</span><span class="detail-value" id="dtlProjectNo">粤东GCDT202506250001</span></div>
+            <div class="detail-row"><span class="detail-label">销售类型：</span><span class="detail-value" id="dtlSaleType">常规价</span></div>
+            <div class="detail-row"><span class="detail-label">项目名称：</span><span class="detail-value" id="dtlProjectName">珠海横琴总部大厦中央空调工程</span></div>
+            <div class="detail-row"><span class="detail-label">销售公司：</span><span class="detail-value" id="dtlSalesCo">商用销司-华南</span></div>
+            <div class="detail-row"><span class="detail-label">经销商名称：</span><span class="detail-value" id="dtlDealer">珠海格力电器股份有限公司</span></div>
+            <div class="detail-row"><span class="detail-label">创建时间：</span><span class="detail-value" id="dtlCreateTime">2026-07-01 09:30:00</span></div>
+            <div class="detail-row"><span class="detail-label">采购单位：</span><span class="detail-value" id="dtlBuyer">珠海格力电器股份有限公司</span></div>
+            <div class="detail-row"><span class="detail-label">创建人：</span><span class="detail-value" id="dtlCreator">经销商-张三</span></div>
+          </div>
+        </div>
+
+        <!-- 商品明细 -->
+        <div class="detail-section">
+          <h4>商品明细</h4>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>序号</th>
+                <th>商品编码</th>
+                <th>商品名称</th>
+                <th>规格型号</th>
+                <th>申请数量</th>
+                <th>批价(元)</th>
+                <th>批价金额(元)</th>
+                <th>已提货数量</th>
+                <th>提货金额(元)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>GREE-A001</td>
+                <td>高效螺杆式冷水机组</td>
+                <td>LSBLG360/MC</td>
+                <td>10</td>
+                <td>6,300.00</td>
+                <td>63,000.00</td>
+                <td>0</td>
+                <td>0.00</td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>GREE-A002</td>
+                <td>组合式空调机组</td>
+                <td>ZKX25-4T</td>
+                <td>10</td>
+                <td>6,300.00</td>
+                <td>63,000.00</td>
+                <td>0</td>
+                <td>0.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 审批记录 -->
+        <div class="detail-section">
+          <h4>审批记录</h4>
+          <p style="font-size:12px;color:var(--text-aux);margin:0 0 8px;">3条审批流：销售审批 / 销司审批 / 总部审批（全部或签）</p>
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>审批节点</th>
+                <th>审批人</th>
+                <th>审批意见</th>
+                <th>审批结果</th>
+                <th>审批时间</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>销售审批</td>
+                <td>李经理</td>
+                <td>—</td>
+                <td><span class="st-tag st-wait" style="background:#E3F2FD;color:#1565C0;">待审批</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>销司审批</td>
+                <td>王科长</td>
+                <td>—</td>
+                <td><span class="st-tag st-wait" style="background:#E3F2FD;color:#1565C0;">待审批</span></td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>总部审批</td>
+                <td>—</td>
+                <td>—</td>
+                <td><span class="st-tag st-closed">待流转</span></td>
+                <td>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('modalDetail')">关 闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 作废确认弹窗 ===== -->
+<div class="modal-mask" id="modalVoid" onclick="if(event.target===this)closeModal('modalVoid')">
+  <div class="modal-dialog" style="width:500px;">
+    <div class="modal-body" style="padding:32px 24px;text-align:center;">
+      <div class="confirm-icon">⚠</div>
+      <p style="font-size:15px;color:var(--text);font-weight:600;margin-bottom:12px;">确定发起批价单作废？</p>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:20px;text-align:left;padding:0 8px;">管理端作废需走作废审批流程，<br>请填写作废原因：</p>
+      <textarea id="voidReason" style="width:100%;min-height:60px;border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-size:13px;color:var(--text);resize:vertical;outline:none;font-family:inherit;margin-bottom:20px;" placeholder="请输入作废原因（必填）"></textarea>
+      <div style="display:flex;justify-content:center;gap:12px;">
+        <button class="btn-cancel" onclick="closeModal('modalVoid')" style="padding:7px 32px;">取 消</button>
+        <button class="btn-confirm" onclick="doVoid()" style="padding:7px 32px;">发起作废审批</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- col-new: 作废弹窗=管理端作废时弹出,必填原因(#215),走审批流(#208) -->
+
+<script>
+/* ===== 查询/重置 ===== */
+function doSearch() { showToast('查询中...', 'info'); }
+function doReset() {
+  document.querySelectorAll('.search-card input').forEach(function(el){ el.value = ''; });
+  document.querySelectorAll('.search-card select').forEach(function(el){ el.selectedIndex = 0; });
+  showToast('已重置查询条件', 'info');
+}
+
+/* ===== 关闭弹窗 ===== */
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* ===== 查看详情 ===== */
+function showDetail(pid) { document.getElementById('modalDetail').classList.add('show'); }
+
+/* ===== 审批 ===== */
+function showApprove(pid) { showToast('跳转审批页面...', 'info'); }
+
+/* ===== 作废弹窗 ===== */
+function showVoid(pid) { document.getElementById('modalVoid').classList.add('show'); }
+function doVoid() {
+  var reason = document.getElementById('voidReason').value.trim();
+  if(!reason) { showToast('请填写作废原因', 'error'); return; }
+  showToast('已发起作废审批', 'success');
+  closeModal('modalVoid');
+}
+
+/* ===== 删除确认弹窗(作废审批中) ===== */
+function showDeleteConfirm(label) {
+  showToast('当前批价单处于「'+label+'」状态', 'info');
+}
+
+/* ===== Toast消息 ===== */
+function showToast(msg, type) {
+  var existing = document.getElementById('pageToast');
+  if(existing) existing.remove();
+  var el = document.createElement('div');
+  el.id = 'pageToast';
+  el.textContent = msg;
+  el.style.cssText = 'position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:6px;font-size:14px;color:#fff;z-index:10001;box-shadow:0 4px 12px rgba(0,0,0,.15)';
+  if(type === 'info') el.style.background = '#0288D1';
+  else if(type === 'error') el.style.background = '#D32F2F';
+  else el.style.background = '#2E7D32';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2000);
+}
+</script>
+
+</body>
+</html>
