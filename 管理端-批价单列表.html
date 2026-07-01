@@ -20,18 +20,18 @@ a{color:var(--primary);text-decoration:none;cursor:pointer;}
 a:hover{text-decoration:underline;}
 
 .main-wrap{min-height:100vh;background:var(--bg-hover);}
-.content-inner{padding:16px 20px 32px;}
+.content-inner{padding:20px 24px 36px;}
 
-.breadcrumb{padding:10px 20px;font-size:var(--font-aux);color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border-light);}
+.breadcrumb{padding:12px 24px;font-size:13px;color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border-light);}
 .breadcrumb .sep{margin:0 6px;color:var(--border);}
 .breadcrumb .current{color:var(--text);font-weight:500;}
 
 /* ====== 搜索筛选区 ====== */
-.search-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);padding:16px 20px 12px;margin-bottom:0;}
-.search-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 16px;}
+.search-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);padding:20px 24px 14px;margin-bottom:0;}
+.search-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 20px;}
 .search-item{display:flex;align-items:center;gap:0;}
-.search-item .label{font-size:13px;color:var(--text);white-space:nowrap;min-width:76px;text-align:right;padding-right:8px;flex-shrink:0;}
-.search-item input,.search-item select{height:32px;border:1px solid var(--border);border-radius:var(--radius);padding:0 10px;font-size:13px;color:var(--text);outline:none;transition:border .2s;width:100%;}
+.search-item .label{font-size:13px;color:var(--text);white-space:nowrap;min-width:76px;text-align:right;padding-right:10px;flex-shrink:0;}
+.search-item input,.search-item select{height:34px;border:1px solid var(--border);border-radius:var(--radius);padding:0 12px;font-size:13px;color:var(--text);outline:none;transition:border .2s;width:100%;}
 .search-item input::placeholder{color:var(--text-aux);}
 .search-item input:focus,.search-item select:focus{border-color:var(--primary);}
 .search-item select{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238f959e'/%3E%3C/svg%3E") no-repeat right 10px center;padding-right:28px;}
@@ -43,7 +43,9 @@ a:hover{text-decoration:underline;}
 .search-grid .expand-field{display:none;}
 .search-grid.expanded .expand-field{display:flex;}
 
-.search-footer{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border-light);flex-wrap:wrap;}
+.search-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light);flex-wrap:wrap;}
+.search-footer-left{display:flex;align-items:center;gap:10px;}
+.search-footer-right{display:flex;align-items:center;gap:8px;}
 .search-expand-btn{font-size:13px;color:var(--primary);cursor:pointer;display:flex;align-items:center;gap:2px;user-select:none;white-space:nowrap;}
 .search-expand-btn:hover{text-decoration:underline;}
 
@@ -57,15 +59,15 @@ a:hover{text-decoration:underline;}
 /* ====== 表格区 ====== */
 .table-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden;margin-bottom:12px;margin-top:12px;}
 .table-scroll{overflow-x:auto;}
-.data-table{width:100%;border-collapse:collapse;min-width:2400px;}
-.data-table th{background:var(--bg-header);font-size:12px;font-weight:600;color:var(--text-secondary);padding:8px 10px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;}
-.data-table td{font-size:12px;color:var(--text);padding:8px 10px;border-bottom:1px solid var(--border-light);white-space:nowrap;vertical-align:middle;}
+.data-table{width:100%;border-collapse:collapse;min-width:1200px;}
+.data-table th{background:var(--bg-header);font-size:12px;font-weight:600;color:var(--text-secondary);padding:10px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;letter-spacing:.3px;}
+.data-table td{font-size:13px;color:var(--text);padding:10px 14px;border-bottom:1px solid var(--border-light);white-space:nowrap;vertical-align:middle;}
 .data-table tr:hover td{background:rgba(59,89,152,.03);}
 .data-table .op-cell a{margin-right:8px;font-size:12px;}
 .data-table .op-cell a:last-child{margin-right:0;}
 
 /* 状态标签 */
-.status-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;}
+.status-tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:500;}
 .st-approve{background:#E3F2FD;color:#1565C0;}
 .st-reject{background:#FFEBEE;color:#C62828;}
 .st-wait{background:#FFF3E0;color:#E65100;}
@@ -89,7 +91,7 @@ a:hover{text-decoration:underline;}
 .money{font-weight:500;}
 
 /* ====== 分页 ====== */
-.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;font-size:12px;color:var(--text-secondary);}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;font-size:13px;color:var(--text-secondary);}
 .pagination .page-info{display:flex;align-items:center;gap:4px;}
 .pagination .page-ctrl{display:flex;align-items:center;gap:4px;}
 .pagination .page-btn{min-width:28px;height:28px;border:1px solid var(--border);border-radius:var(--radius);background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:.15s;}
@@ -117,7 +119,7 @@ a:hover{text-decoration:underline;}
 .ms-item .ms-label{color:var(--text);line-height:1.4;}
 
 /* ====== 表格工具栏 ====== */
-.table-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:8px 16px;border-bottom:1px solid var(--border-light);background:#fff;}
+.table-toolbar{display:flex;align-items:center;justify-content:flex-end;padding:10px 16px;border-bottom:1px solid var(--border-light);background:#fff;}
 .cfg-btn{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-secondary);cursor:pointer;padding:4px 8px;border-radius:var(--radius);transition:.15s;border:1px solid transparent;}
 .cfg-btn:hover{color:var(--primary);background:rgba(59,89,152,.06);border-color:var(--border);}
 .cfg-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
@@ -126,11 +128,11 @@ a:hover{text-decoration:underline;}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:300;align-items:center;justify-content:center;}
 .modal-overlay.open{display:flex;}
 .modal-box{background:#fff;border-radius:var(--radius-card);box-shadow:0 12px 48px rgba(0,0,0,.18);width:620px;max-height:80vh;display:flex;flex-direction:column;}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .modal-header .title{font-size:15px;font-weight:600;color:var(--text);}
 .modal-header .close-btn{font-size:20px;color:var(--text-aux);cursor:pointer;line-height:1;padding:0 4px;border:none;background:transparent;}
 .modal-header .close-btn:hover{color:var(--text);}
-.modal-body{padding:16px 20px;overflow-y:auto;flex:1;}
+.modal-body{padding:20px 24px;overflow-y:auto;flex:1;}
 .modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid var(--border-light);flex-shrink:0;}
 
 .cfg-table{width:100%;border-collapse:collapse;}
@@ -223,26 +225,6 @@ a:hover{text-decoration:underline;}
 
       <!-- === 展开态追加字段 === -->
       <div class="search-item expand-field">
-        <span class="label">销售类型</span>
-        <div class="ms-wrap">
-          <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
-          <div class="ms-dropdown">
-            <div class="ms-item"><input type="checkbox" value="常规价"> <span class="ms-label">常规价</span></div>
-            <div class="ms-item"><input type="checkbox" value="买断价"> <span class="ms-label">买断价</span></div>
-            <div class="ms-item"><input type="checkbox" value="特批特价"> <span class="ms-label">特批特价</span></div>
-            <div class="ms-item"><input type="checkbox" value="样机"> <span class="ms-label">样机</span></div>
-            <div class="ms-item"><input type="checkbox" value="打包价"> <span class="ms-label">打包价</span></div>
-            <div class="ms-item"><input type="checkbox" value="暂扣价"> <span class="ms-label">暂扣价</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="search-item expand-field">
-        <span class="label">审批日期</span>
-        <div class="date-range">
-          <input type="date"><span class="dash">~</span><input type="date">
-        </div>
-      </div>
-      <div class="search-item expand-field">
         <span class="label">销售公司</span>
         <div class="ms-wrap">
           <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
@@ -261,11 +243,16 @@ a:hover{text-decoration:underline;}
     </div>
 
     <div class="search-footer">
-      <button class="btn btn-primary" onclick="demoSearch()">查询</button>
-      <button class="btn btn-default" onclick="demoReset()">重置</button>
-      <span class="search-expand-btn" id="expandBtn" onclick="toggleSearch()">
-        展开 <span id="expandArrow">▼</span>
-      </span>
+      <div class="search-footer-left">
+        <button class="btn btn-primary" style="background:var(--success);border-color:var(--success);" onclick="proxyApply()">代客申请</button>
+      </div>
+      <div class="search-footer-right">
+        <button class="btn btn-primary" onclick="demoSearch()">查询</button>
+        <button class="btn btn-default" onclick="demoReset()">重置</button>
+        <span class="search-expand-btn" id="expandBtn" onclick="toggleSearch()">
+          展开 <span id="expandArrow">▼</span>
+        </span>
+      </div>
     </div>
   </div>
 
@@ -288,13 +275,8 @@ a:hover{text-decoration:underline;}
             <th>经销商名称</th>
             <th>项目名称</th>
             <th>批价状态</th>
-            <th>销售类型</th>
             <th>商品数量</th>
-            <th>批价金额(元)</th>
-            <th>已提货数</th>
-            <th>提货金额(元)</th>
-            <th>审批通过时间</th>
-            <th>提货有效期</th>
+            <th>提货数量</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -369,7 +351,6 @@ a:hover{text-decoration:underline;}
             <div class="detail-row"><span class="detail-label">批价单号：</span><span class="detail-value" id="dtlId">—</span></div>
             <div class="detail-row"><span class="detail-label">批价状态：</span><span class="detail-value" id="dtlStatus">—</span></div>
             <div class="detail-row"><span class="detail-label">项目单号：</span><span class="detail-value" id="dtlProjectNo">—</span></div>
-            <div class="detail-row"><span class="detail-label">销售类型：</span><span class="detail-value" id="dtlSaleType">—</span></div>
             <div class="detail-row"><span class="detail-label">项目名称：</span><span class="detail-value" id="dtlProjectName">—</span></div>
             <div class="detail-row"><span class="detail-label">销售公司：</span><span class="detail-value" id="dtlSalesCo">—</span></div>
             <div class="detail-row"><span class="detail-label">经销商名称：</span><span class="detail-value" id="dtlDealer">—</span></div>
@@ -595,75 +576,67 @@ var statusClassMap = {
 /* ====== 示例数据 ====== */
 var sampleRows = [
   {
-    priceId:'\u7CA4\u4E1CGCDT202506250001-PJ01', projectNo:'\u7CA4\u4E1CGCDT202506250001',
+    priceId:'\u7CA4\u4E1CGCDT202506250001-PJ001', projectNo:'\u7CA4\u4E1CGCDT202506250001',
     dealer:'\u73E0\u6D77\u683C\u529B\u7535\u5668\u80A1\u4EFD\u6709\u9650\u516C\u53F8',
     projectName:'\u73E0\u6D77\u6A2A\u7434\u603B\u90E8\u5927\u53A6\u4E2D\u592E\u7A7A\u8C03\u5DE5\u7A0B',
-    status:'\u5BA1\u6279\u4E2D', saleType:'\u5E38\u89C4\u4EF7',
-    qty:20, amount:126000.00, pickedQty:0, pickedAmt:0,
-    approveTime:'\u2014', validUntil:'\u2014',
+    status:'\u5BA1\u6279\u4E2D',
+    qty:20, pickedQty:0,
     canVoid:false, canApprove:true, subStatus:''
   },
   {
-    priceId:'\u7CA4\u4E1CGCDT202506200002-PJ01', projectNo:'\u7CA4\u4E1CGCDT202506200002',
+    priceId:'\u7CA4\u4E1CGCDT202506200002-PJ001', projectNo:'\u7CA4\u4E1CGCDT202506200002',
     dealer:'\u5E7F\u5DDE\u683C\u529B\u9500\u552E\u6709\u9650\u516C\u53F8',
     projectName:'\u5E7F\u5DDE\u5929\u6CB3\u57CE\u4E2D\u592E\u7A7A\u8C03\u6539\u9020\u9879\u76EE',
-    status:'\u5DF2\u9A73\u56DE', saleType:'\u7279\u6279\u7279\u4EF7',
-    qty:15, amount:88500.00, pickedQty:0, pickedAmt:0,
-    approveTime:'2026-06-28 14:30:00', validUntil:'\u2014',
+    status:'\u5DF2\u9A73\u56DE',
+    qty:15, pickedQty:0,
     canVoid:true, canApprove:false, subStatus:''
   },
   {
-    priceId:'\u7CA4\u4E1CGCDT202506150003-PJ01', projectNo:'\u7CA4\u4E1CGCDT202506150003',
+    priceId:'\u7CA4\u4E1CGCDT202506150003-PJ001', projectNo:'\u7CA4\u4E1CGCDT202506150003',
     dealer:'\u6DF1\u5733\u683C\u529B\u9500\u552E\u6709\u9650\u516C\u53F8',
     projectName:'\u6DF1\u5733\u524D\u6D77\u5927\u53A6\u65B0\u98CE\u7CFB\u7EDF\u5B89\u88C5',
-    status:'\u5F85\u63D0\u8D27', saleType:'\u5E38\u89C4\u4EF7',
-    qty:50, amount:320000.00, pickedQty:0, pickedAmt:0,
-    approveTime:'2026-06-25 10:00:00', validUntil:'2026-07-25',
+    status:'\u5F85\u63D0\u8D27',
+    qty:50, pickedQty:0,
     canVoid:true, canApprove:false, subStatus:''
   },
   {
-    priceId:'\u7CA4\u4E1CGCDT202506080004-PJ01', projectNo:'\u7CA4\u4E1CGCDT202506080004',
+    priceId:'\u7CA4\u4E1CGCDT202506080004-PJ001', projectNo:'\u7CA4\u4E1CGCDT202506080004',
     dealer:'\u4E1C\u839E\u683C\u529B\u9500\u552E\u6709\u9650\u516C\u53F8',
     projectName:'\u4E1C\u839E\u677E\u5C71\u6E56\u79D1\u6280\u56ED\u533A\u591A\u8054\u673A\u5DE5\u7A0B',
-    status:'\u90E8\u5206\u63D0\u8D27', saleType:'\u4E70\u65AD\u4EF7',
-    qty:30, amount:195000.00, pickedQty:12, pickedAmt:78000.00,
-    approveTime:'2026-06-20 09:15:00', validUntil:'2026-07-20',
+    status:'\u90E8\u5206\u63D0\u8D27',
+    qty:30, pickedQty:12,
     canVoid:false, canApprove:false, subStatus:''
   },
   {
-    priceId:'\u7CA4\u4E1CGCDT202605280005-PJ01', projectNo:'\u7CA4\u4E1CGCDT202605280005',
+    priceId:'\u7CA4\u4E1CGCDT202605280005-PJ001', projectNo:'\u7CA4\u4E1CGCDT202605280005',
     dealer:'\u4F5B\u5C71\u683C\u529B\u9500\u552E\u6709\u9650\u516C\u53F8',
     projectName:'\u4F5B\u5C71\u5357\u6D77\u533B\u9662\u51C0\u5316\u7A7A\u8C03\u5DE5\u7A0B',
-    status:'\u5DF2\u5B8C\u7ED3', saleType:'\u6253\u5305\u4EF7',
-    qty:25, amount:168000.00, pickedQty:25, pickedAmt:168000.00,
-    approveTime:'2026-06-10 16:00:00', validUntil:'\u2014',
+    status:'\u5DF2\u5B8C\u7ED3',
+    qty:25, pickedQty:25,
     canVoid:false, canApprove:false, subStatus:''
   },
   {
-    priceId:'\u7CA4\u4E1CGCDT202606010006-PJ01', projectNo:'\u7CA4\u4E1CGCDT202606010006',
+    priceId:'\u7CA4\u4E1CGCDT202606010006-PJ001', projectNo:'\u7CA4\u4E1CGCDT202606010006',
     dealer:'\u73E0\u6D77\u683C\u529B\u7535\u5668\u80A1\u4EFD\u6709\u9650\u516C\u53F8',
     projectName:'\u73E0\u6D77\u91D1\u6E7E\u673A\u573A\u5019\u673A\u697C\u7A7A\u8C03\u6539\u9020',
-    status:'\u5DF2\u5173\u95ED', saleType:'\u6837\u673A',
-    qty:10, amount:45000.00, pickedQty:0, pickedAmt:0,
-    approveTime:'\u2014', validUntil:'\u2014',
+    status:'\u5DF2\u5173\u95ED',
+    qty:10, pickedQty:0,
     canVoid:false, canApprove:false, subStatus:''
   },
   {
-    priceId:'\u7CA4\u4E1CGCDT202605150007-PJ01', projectNo:'\u7CA4\u4E1CGCDT202605150007',
+    priceId:'\u7CA4\u4E1CGCDT202605150007-PJ001', projectNo:'\u7CA4\u4E1CGCDT202605150007',
     dealer:'\u5E7F\u5DDE\u683C\u529B\u9500\u552E\u6709\u9650\u516C\u53F8',
     projectName:'\u5E7F\u5DDE\u56FD\u9645\u4F1A\u5C55\u4E2D\u5FC3\u51B7\u6C34\u673A\u7EC4\u9879\u76EE',
-    status:'\u5BA1\u6279\u4E2D', saleType:'\u6682\u6263\u4EF7',
-    qty:40, amount:560000.00, pickedQty:0, pickedAmt:0,
-    approveTime:'\u2014', validUntil:'\u2014',
+    status:'\u5BA1\u6279\u4E2D',
+    qty:40, pickedQty:0,
     canVoid:false, canApprove:false, subStatus:'\u4F5C\u5E9F\u5BA1\u6279'
   },
   {
-    priceId:'\u7CA4\u4E1CGCDT202605050008-PJ01', projectNo:'\u7CA4\u4E1CGCDT202605050008',
+    priceId:'\u7CA4\u4E1CGCDT202605050008-PJ001', projectNo:'\u7CA4\u4E1CGCDT202605050008',
     dealer:'\u6DF1\u5733\u683C\u529B\u9500\u552E\u6709\u9650\u516C\u53F8',
     projectName:'\u6DF1\u5733\u5927\u7586\u521B\u65B0\u57FA\u5730\u4E2D\u592E\u7A7A\u8C03\u5DE5\u7A0B',
-    status:'\u5F85\u63D0\u8D27', saleType:'\u5E38\u89C4\u4EF7',
-    qty:60, amount:420000.00, pickedQty:0, pickedAmt:0,
-    approveTime:'2026-05-20 08:30:00', validUntil:'2026-06-20',
+    status:'\u5F85\u63D0\u8D27',
+    qty:60, pickedQty:0,
     canVoid:true, canApprove:false, subStatus:''
   }
 ];
@@ -677,20 +650,9 @@ var columnConfig = [
   {key:'dealer',     name:'\u7ECF\u9500\u5546\u540D\u79F0', visible:true},
   {key:'projectName',name:'\u9879\u76EE\u540D\u79F0', visible:true},
   {key:'status',     name:'\u6279\u4EF7\u72B6\u6001', visible:true},
-  {key:'saleType',   name:'\u9500\u552E\u7C7B\u578B', visible:true},
   {key:'qty',        name:'\u5546\u54C1\u6570\u91CF', visible:true},
-  {key:'amount',     name:'\u6279\u4EF7\u91D1\u989D(\u5143)', visible:true},
-  {key:'pickedQty',  name:'\u5DF2\u63D0\u8D27\u6570', visible:true},
-  {key:'pickedAmt',  name:'\u63D0\u8D27\u91D1\u989D(\u5143)', visible:true},
-  {key:'approveTime',name:'\u5BA1\u6279\u901A\u8FC7\u65F6\u95F4', visible:true},
-  {key:'validUntil', name:'\u63D0\u8D27\u6709\u6548\u671F', visible:true}
+  {key:'pickedQty',  name:'\u63D0\u8D27\u6570\u91CF', visible:true}
 ];
-
-/* ====== 格式化金额 ====== */
-function fmtMoney(v) {
-  if (v === 0) return '\u00A50.00';
-  return '\u00A5' + v.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-}
 
 /* ====== 渲染表格 ====== */
 function renderTable() {
@@ -725,13 +687,8 @@ function renderTable() {
       '<td data-col="dealer">' + r.dealer + '</td>' +
       '<td data-col="projectName">' + r.projectName + '</td>' +
       '<td data-col="status">' + statusHtml + '</td>' +
-      '<td data-col="saleType">' + r.saleType + '</td>' +
-      '<td data-col="qty" style="text-align:right">' + r.qty + '</td>' +
-      '<td data-col="amount" class="money" style="text-align:right">' + fmtMoney(r.amount) + '</td>' +
-      '<td data-col="pickedQty" style="text-align:right">' + r.pickedQty + '</td>' +
-      '<td data-col="pickedAmt" class="money" style="text-align:right">' + fmtMoney(r.pickedAmt) + '</td>' +
-      '<td data-col="approveTime">' + r.approveTime + '</td>' +
-      '<td data-col="validUntil">' + r.validUntil + '</td>' +
+      '<td data-col="qty">' + r.qty + '</td>' +
+      '<td data-col="pickedQty">' + r.pickedQty + '</td>' +
       '</tr>';
   }).join('');
   syncColumnVisibility();
@@ -759,7 +716,6 @@ function showDetail(idx) {
   document.getElementById('dtlStatus').innerHTML = '<span class="status-tag ' + statusClassMap[r.status] + '">' + r.status + '</span>' +
     (r.subStatus ? ' <span class="st-sub">(' + r.subStatus + ')</span>' : '');
   document.getElementById('dtlProjectNo').textContent = r.projectNo;
-  document.getElementById('dtlSaleType').textContent = r.saleType;
   document.getElementById('dtlProjectName').textContent = r.projectName;
   document.getElementById('dtlSalesCo').textContent = ext.salesCo || '\u2014';
   document.getElementById('dtlDealer').textContent = r.dealer;
@@ -790,6 +746,7 @@ function closeModal(id) {
 
 /* ====== 查询/重置 ====== */
 function demoSearch() { showToast('\u67E5\u8BE2\u4E2D...', 'info'); }
+function proxyApply() { showToast('\u8DF3\u8F6C\u4EE3\u5BA2\u7533\u8BF7\u9875\u9762...', 'info'); /* \u8DF3\u8F6C\u4EE3\u5BA2\u7533\u8BF7\u9875\u9762 */ }
 function demoReset() {
   document.querySelectorAll('.search-item input').forEach(function(el) { el.value = ''; });
   document.querySelectorAll('.search-item select').forEach(function(el) { el.selectedIndex = 0; });
