@@ -39,15 +39,9 @@ a:hover{text-decoration:underline;}
 .search-item .date-range input{width:115px;flex-shrink:1;font-size:12px;height:30px;}
 .search-item .date-range .dash{color:var(--text-aux);font-size:13px;}
 
-/* 展开字段 */
-.search-grid .expand-field{display:none;}
-.search-grid.expanded .expand-field{display:flex;}
-
 .search-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light);flex-wrap:wrap;}
 .search-footer-left{display:flex;align-items:center;gap:10px;}
 .search-footer-right{display:flex;align-items:center;gap:8px;}
-.search-expand-btn{font-size:13px;color:var(--primary);cursor:pointer;display:flex;align-items:center;gap:2px;user-select:none;white-space:nowrap;}
-.search-expand-btn:hover{text-decoration:underline;}
 
 /* ====== 按钮 ====== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:6px 16px;font-size:13px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap;}
@@ -59,7 +53,7 @@ a:hover{text-decoration:underline;}
 /* ====== 表格区 ====== */
 .table-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden;margin-bottom:12px;margin-top:12px;}
 .table-scroll{overflow-x:auto;}
-.data-table{width:100%;border-collapse:collapse;min-width:1200px;}
+.data-table{width:100%;border-collapse:collapse;min-width:1400px;}
 .data-table th{background:var(--bg-header);font-size:12px;font-weight:600;color:var(--text-secondary);padding:10px 14px;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;letter-spacing:.3px;}
 .data-table td{font-size:13px;color:var(--text);padding:10px 14px;border-bottom:1px solid var(--border-light);white-space:nowrap;vertical-align:middle;}
 .data-table tr:hover td{background:rgba(59,89,152,.03);}
@@ -224,7 +218,7 @@ a:hover{text-decoration:underline;}
       </div>
 
       <!-- === 展开态追加字段 === -->
-      <div class="search-item expand-field">
+      <div class="search-item">
         <span class="label">销售类型</span>
         <select>
           <option value="">全部</option>
@@ -234,7 +228,7 @@ a:hover{text-decoration:underline;}
           <option value="样机">样机</option>
         </select>
       </div>
-      <div class="search-item expand-field">
+      <div class="search-item">
         <span class="label">销售公司</span>
         <div class="ms-wrap">
           <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
@@ -255,9 +249,6 @@ a:hover{text-decoration:underline;}
       <div class="search-footer-right">
         <button class="btn btn-primary" onclick="demoSearch()">查询</button>
         <button class="btn btn-default" onclick="demoReset()">重置</button>
-        <span class="search-expand-btn" id="expandBtn" onclick="toggleSearch()">
-          展开 <span id="expandArrow">▼</span>
-        </span>
       </div>
     </div>
   </div>
@@ -283,6 +274,7 @@ a:hover{text-decoration:underline;}
             <th>批价单状态</th>
             <th>商品数量</th>
             <th>提货数量</th>
+            <th>登录顺序</th>
           </tr>
         </thead>
         <tbody id="tableBody">
@@ -489,24 +481,6 @@ document.querySelectorAll('.global-input').forEach(function(el) {
   });
 });
 
-/* ====== 搜索展开/收起 ====== */
-var searchExpanded = false;
-function toggleSearch() {
-  var grid = document.getElementById('searchGrid');
-  var arrow = document.getElementById('expandArrow');
-  var btn = document.getElementById('expandBtn');
-  searchExpanded = !searchExpanded;
-  if (searchExpanded) {
-    grid.classList.add('expanded');
-    arrow.textContent = '\u25B2';
-    btn.firstChild.textContent = '\u6536\u8D77 ';
-  } else {
-    grid.classList.remove('expanded');
-    arrow.textContent = '\u25BC';
-    btn.firstChild.textContent = '\u5C55\u5F00 ';
-  }
-}
-
 /* ====== 多选下拉控件 ====== */
 var MultiSelect = (function() {
   function toggle(triggerEl) {
@@ -587,7 +561,7 @@ var sampleRows = [
     projectName:'\u73E0\u6D77\u6A2A\u7434\u603B\u90E8\u5927\u53A6\u4E2D\u592E\u7A7A\u8C03\u5DE5\u7A0B',
     status:'\u5BA1\u6279\u4E2D',
     qty:20, pickedQty:0,
-    canVoid:false, canApprove:true, subStatus:''
+    canVoid:false, canApprove:true, subStatus:'', loginOrder:'\u767B\u5F55\u6210\u529F'
   },
   {
     priceId:'\u7CA4\u4E1CGCDT202506200002-PJ001', projectNo:'\u7CA4\u4E1CGCDT202506200002',
@@ -595,7 +569,7 @@ var sampleRows = [
     projectName:'\u5E7F\u5DDE\u5929\u6CB3\u57CE\u4E2D\u592E\u7A7A\u8C03\u6539\u9020\u9879\u76EE',
     status:'\u5DF2\u9A73\u56DE',
     qty:15, pickedQty:0,
-    canVoid:true, canApprove:false, subStatus:''
+    canVoid:true, canApprove:false, subStatus:'', loginOrder:'-'
   },
   {
     priceId:'\u7CA4\u4E1CGCDT202506150003-PJ001', projectNo:'\u7CA4\u4E1CGCDT202506150003',
@@ -603,7 +577,7 @@ var sampleRows = [
     projectName:'\u6DF1\u5733\u524D\u6D77\u5927\u53A6\u65B0\u98CE\u7CFB\u7EDF\u5B89\u88C5',
     status:'\u5F85\u63D0\u8D27',
     qty:50, pickedQty:0,
-    canVoid:true, canApprove:false, subStatus:''
+    canVoid:true, canApprove:false, subStatus:'', loginOrder:'\u767B\u5F55\u6210\u529F'
   },
   {
     priceId:'\u7CA4\u4E1CGCDT202506080004-PJ001', projectNo:'\u7CA4\u4E1CGCDT202506080004',
@@ -611,7 +585,7 @@ var sampleRows = [
     projectName:'\u4E1C\u839E\u677E\u5C71\u6E56\u79D1\u6280\u56ED\u533A\u591A\u8054\u673A\u5DE5\u7A0B',
     status:'\u90E8\u5206\u63D0\u8D27',
     qty:30, pickedQty:12,
-    canVoid:false, canApprove:false, subStatus:''
+    canVoid:false, canApprove:false, subStatus:'', loginOrder:'\u767B\u5F55\u6210\u529F'
   },
   {
     priceId:'\u7CA4\u4E1CGCDT202605280005-PJ001', projectNo:'\u7CA4\u4E1CGCDT202605280005',
@@ -619,7 +593,7 @@ var sampleRows = [
     projectName:'\u4F5B\u5C71\u5357\u6D77\u533B\u9662\u51C0\u5316\u7A7A\u8C03\u5DE5\u7A0B',
     status:'\u5DF2\u5B8C\u7ED3',
     qty:25, pickedQty:25,
-    canVoid:false, canApprove:false, subStatus:''
+    canVoid:false, canApprove:false, subStatus:'', loginOrder:'\u767B\u5F55\u6210\u529F'
   },
   {
     priceId:'\u7CA4\u4E1CGCDT202606010006-PJ001', projectNo:'\u7CA4\u4E1CGCDT202606010006',
@@ -627,7 +601,7 @@ var sampleRows = [
     projectName:'\u73E0\u6D77\u91D1\u6E7E\u673A\u573A\u5019\u673A\u697C\u7A7A\u8C03\u6539\u9020',
     status:'\u5DF2\u5173\u95ED',
     qty:10, pickedQty:0,
-    canVoid:false, canApprove:false, subStatus:''
+    canVoid:false, canApprove:false, subStatus:'', loginOrder:'-'
   },
   {
     priceId:'\u7CA4\u4E1CGCDT202605150007-PJ001', projectNo:'\u7CA4\u4E1CGCDT202605150007',
@@ -635,7 +609,7 @@ var sampleRows = [
     projectName:'\u5E7F\u5DDE\u56FD\u9645\u4F1A\u5C55\u4E2D\u5FC3\u51B7\u6C34\u673A\u7EC4\u9879\u76EE',
     status:'\u5BA1\u6279\u4E2D',
     qty:40, pickedQty:0,
-    canVoid:false, canApprove:false, subStatus:'\u4F5C\u5E9F\u5BA1\u6279'
+    canVoid:false, canApprove:false, subStatus:'\u4F5C\u5E9F\u5BA1\u6279', loginOrder:'\u767B\u5F55\u6210\u529F'
   },
   {
     priceId:'\u7CA4\u4E1CGCDT202605050008-PJ001', projectNo:'\u7CA4\u4E1CGCDT202605050008',
@@ -643,7 +617,7 @@ var sampleRows = [
     projectName:'\u6DF1\u5733\u5927\u7586\u521B\u65B0\u57FA\u5730\u4E2D\u592E\u7A7A\u8C03\u5DE5\u7A0B',
     status:'\u5F85\u63D0\u8D27',
     qty:60, pickedQty:0,
-    canVoid:true, canApprove:false, subStatus:''
+    canVoid:true, canApprove:false, subStatus:'', loginOrder:'\u5019\u8865\u767B\u5F55'
   }
 ];
 
@@ -657,7 +631,8 @@ var columnConfig = [
   {key:'projectName',name:'\u9879\u76EE\u540D\u79F0', visible:true},
   {key:'status',     name:'\u6279\u4EF7\u5355\u72B6\u6001', visible:true},
   {key:'qty',        name:'\u5546\u54C1\u6570\u91CF', visible:true},
-  {key:'pickedQty',  name:'\u63D0\u8D27\u6570\u91CF', visible:true}
+  {key:'pickedQty',  name:'\u63D0\u8D27\u6570\u91CF', visible:true},
+  {key:'loginOrder', name:'\u767B\u5F55\u987A\u5E8F', visible:true}
 ];
 
 /* ====== 渲染表格 ====== */
@@ -695,6 +670,7 @@ function renderTable() {
       '<td data-col="status">' + statusHtml + '</td>' +
       '<td data-col="qty">' + r.qty + '</td>' +
       '<td data-col="pickedQty">' + r.pickedQty + '</td>' +
+      '<td data-col="loginOrder">' + r.loginOrder + '</td>' +
       '</tr>';
   }).join('');
   syncColumnVisibility();
