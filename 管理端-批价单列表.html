@@ -290,6 +290,9 @@ a:hover{text-decoration:underline;}
 
 .col-hidden{display:none!important;}
 
+.col-frozen{position:sticky;z-index:11;}
+.data-table thead .col-frozen{z-index:12;}
+
 
 
 /* ====== 查看详情弹窗 ====== */
@@ -607,6 +610,16 @@ a:hover{text-decoration:underline;}
       </div>
 
       <div class="modal-body">
+
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:0 0 10px;border-bottom:1px solid var(--border-light);">
+
+          <span style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">左冻结列数：</span>
+
+          <input type="number" id="freezeColsInput" value="0" min="0" max="11" style="width:56px;height:28px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;outline:none;">
+
+          <span style="font-size:11px;color:var(--text-aux);">（前N个可见列在横向滚动时固定）</span>
+
+        </div>
 
         <table class="cfg-table">
 
@@ -1110,6 +1123,18 @@ var MultiSelect = (function() {
 
 
 
+/* ====== 冻结列输入框实时响应 ====== */
+
+document.addEventListener('DOMContentLoaded', function() {
+  var inp = document.getElementById('freezeColsInput');
+  if (inp) {
+    inp.addEventListener('change', function() { syncFreezeColumns(); });
+    inp.addEventListener('input', function() { syncFreezeColumns(); });
+  }
+});
+
+
+
 /* ====== 状态标签映射 ====== */
 
 var statusClassMap = {
@@ -1507,6 +1532,20 @@ function openConfig() {
 
   }).join('');
 
+  // 恢复冻结列数输入值（取当前第一行冻结列数）
+  var inp = document.getElementById('freezeColsInput');
+  if (inp) {
+    var firstRow = document.querySelector('.data-table tbody tr');
+    var n = 0;
+    if (firstRow) {
+      var cells = firstRow.children;
+      for (var i = 0; i < cells.length; i++) {
+        if (cells[i].classList.contains('col-frozen')) n++;
+      }
+    }
+    inp.value = n;
+  }
+
   document.getElementById('configModal').classList.add('open');
 
 }
@@ -1569,6 +1608,45 @@ function syncColumnVisibility() {
 
     }
 
+  });
+
+  syncFreezeColumns();
+
+}
+
+
+
+/* ====== 左冻结列 ====== */
+
+function syncFreezeColumns() {
+
+  var n = parseInt(document.getElementById('freezeColsInput').value) || 0;
+
+  var table = document.querySelector('.data-table');
+
+  if (!table) return;
+
+  // 清除所有冻结
+  table.querySelectorAll('.col-frozen').forEach(function(el) {
+    el.style.left = '';
+    el.classList.remove('col-frozen');
+  });
+
+  if (n <= 0) return;
+
+  // 每行前N个可见列冻结
+  table.querySelectorAll('tr').forEach(function(tr) {
+    var cells = tr.children;
+    var leftAccum = 0;
+    var frozenCount = 0;
+    for (var i = 0; i < cells.length && frozenCount < n; i++) {
+      var cell = cells[i];
+      if (cell.classList.contains('col-hidden')) continue;
+      cell.classList.add('col-frozen');
+      cell.style.left = leftAccum + 'px';
+      leftAccum += cell.offsetWidth;
+      frozenCount++;
+    }
   });
 
 }
