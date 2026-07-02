@@ -474,7 +474,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .equip-table .td-input{border:1px solid #d0d3da;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:#fff;outline:none;transition:.15s;}
 .equip-table .td-input:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);background:#fff;}
 .equip-table .td-input:hover{border-color:#b0b5c0;}
-.equip-table .td-num{text-align:right;}
+.equip-table .td-num{text-align:left;}
 .equip-table .td-op{white-space:nowrap;text-align:center;}
 .equip-table .td-op a{color:#d32f2f;font-size:12px;cursor:pointer;}
 .equip-table .td-op a:hover{text-decoration:underline;}
@@ -523,6 +523,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .btn-submit:hover{background:#2e477a;box-shadow:0 2px 8px rgba(59,89,152,.3);}
 .btn-cancel{padding:8px 20px;font-size:14px;background:#fff;color:#646a73;border:1px solid #e0e3ea;border-radius:5px;cursor:pointer;transition:.15s;}
 .btn-cancel:hover{border-color:#3b5998;color:#3b5998;}
+.btn-submit:disabled{background:#c5cae9;cursor:not-allowed;box-shadow:none;}
+.btn-submit:disabled:hover{background:#c5cae9;box-shadow:none;}
+
+/*= 隐藏状态 — 未选经销商时隐藏所有表单卡片 */
 
 /* 表单页滚动容器 */
 .form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
@@ -676,6 +680,8 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div>
 
 
+<div id="m5FormBody" style="display:none;">
+
 <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
   <div class="form-card-body" style="padding:12px 16px;">
     <div style="display:flex;align-items:center;gap:12px;">
@@ -699,9 +705,9 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <span class="equip-limit-tip" id="m5EquipLimitTip" style="margin-left:8px;"></span>
     </div>
     <div class="equip-card-hd-right">
-      <button class="btn btn-sm" onclick="m5ShowAddStdModal()">+ 添加标准商品</button>
-      <button class="btn btn-sm" onclick="m5AddNonStdRow()">+ 添加非标商品</button>
-      <button class="btn btn-sm" onclick="m5ShowImportModal()">批量导入</button>
+      <button class="btn btn-sm" onclick="m5ShowImportModal()">批量添加商品</button>
+      <button class="btn btn-sm" onclick="m5ShowAddStdModal()">添加商品</button>
+      <button class="btn btn-sm" onclick="m5AddNonStdRow()">添加非标商品</button>
     </div>
   </div>
   <div style="padding:12px 16px;">
@@ -714,8 +720,8 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <th style="width:36px;">&nbsp;</th>
             <th style="min-width:80px;">品类</th>
             <th style="min-width:160px;">商品名称</th>
-            <th style="min-width:110px;">SKU编码</th>
             <th style="min-width:100px;">型号</th>
+            <th style="min-width:110px;">SKU编码</th>
             <th style="min-width:80px;">申请数量</th>
             <th style="min-width:100px;">申请价格</th>
             <th style="min-width:80px;">申请点位</th>
@@ -729,8 +735,8 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <td></td>
             <td style="color:#1f2329;">多联机</td>
             <td style="color:#1f2329;">格力 GMV-H224WL/A1 多联机组</td>
-            <td style="color:#1f2329;">SKU-MLJ-224A1</td>
             <td style="color:#1f2329;">GMV-H224WL/A1</td>
+            <td style="color:#1f2329;">SKU-MLJ-224A1</td>
             <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="10" min="1" max="9999999" onchange="m5RecalcSummary()"></td>
             <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="19800" min="0" step="0.01" data-webprice="19800" onchange="m5RecalcSummary()"></td>
             <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="87" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
@@ -742,8 +748,8 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <td></td>
             <td style="color:#1f2329;">中央空调</td>
             <td style="color:#1f2329;">格力 KFRd-120LW/NhGb1B 柜机</td>
-            <td style="color:#1f2329;">SKU-GJ-120GB</td>
             <td style="color:#1f2329;">KFRd-120LW/NhGb1B</td>
+            <td style="color:#1f2329;">SKU-GJ-120GB</td>
             <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="m5RecalcSummary()"></td>
             <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="7600" min="0" step="0.01" data-webprice="7600" onchange="m5RecalcSummary()"></td>
             <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="91" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
@@ -755,8 +761,8 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <td></td>
             <td style="color:#1f2329;">新风</td>
             <td style="color:#1f2329;">格力 FGR5Pd/NhBa1 吊顶式新风</td>
-            <td style="color:#1f2329;">SKU-XF-5NBA1</td>
             <td style="color:#1f2329;">FGR5Pd/NhBa1</td>
+            <td style="color:#1f2329;">SKU-XF-5NBA1</td>
             <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="10" min="1" max="9999999" onchange="m5RecalcSummary()"></td>
             <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="4200" min="0" step="0.01" data-webprice="4200" onchange="m5RecalcSummary()"></td>
             <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="89" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
@@ -995,13 +1001,14 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div>
 
 <div style="height:68px;"></div>
+</div><!-- /m5FormBody -->
 </div></div>
 
 
-<div class="form-footer">
+<div class="form-footer" id="m5FormFooter">
   <div class="form-footer-left" id="footerTip">提交后直接进入跟进中，无审批流程</div>
   <div class="form-footer-right">
-    <button class="btn-submit" id="btnSubmit" onclick="alert('演示：提交，直接进入跟进中')">提交</button>
+    <button class="btn-submit" id="btnSubmit" disabled onclick="alert('演示：提交，直接进入跟进中')">提交</button>
   </div>
 </div>
 
@@ -1009,7 +1016,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
 
 <!-- ===== 添加经销商弹窗 ===== -->
 <div class="modal-overlay" id="dealerModal" style="display:none;" onclick="if(event.target===this)closeDealerModal()">
-  <div class="modal-content">
+  <div class="modal-content modal-lg">
     <div class="modal-header">
       <span class="modal-title">添加经销商</span>
       <span class="modal-close" onclick="closeDealerModal()">&times;</span>
@@ -1312,6 +1319,9 @@ function confirmDealer() {
   // 回填基本信息卡片
   document.getElementById('m5BaseDealerName').innerHTML  = '<span style="color:#1f2329;">' + selectedDealerData.name + '</span>';
   document.getElementById('m5BaseDealerPhone').innerHTML = '<span style="color:#1f2329;">' + selectedDealerData.phone + '</span>';
+  // 显示表单卡片 + 启用提交按钮
+  document.getElementById('m5FormBody').style.display  = '';
+  document.getElementById('btnSubmit').disabled = false;
   closeDealerModal();
 }
 
@@ -1395,8 +1405,8 @@ function m5AddNonStdRow() {
     +'<td style="text-align:center;"><span class="nonstd-badge">非</span></td>'
     +'<td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>'
     +'<td style="color:#1f2329;">定制机</td>'
-    +'<td style="color:#8f959e;">--</td>'
     +'<td><input class="td-input" style="width:90px;" value="-"></td>'
+    +'<td style="color:#8f959e;">--</td>'
     +'<td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="1" min="1" max="9999999" onchange="m5RecalcSummary()"></td>'
     +'<td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="0" min="0" step="0.01" onchange="m5RecalcSummary()"></td>'
     +'<td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" placeholder="0" min="0" max="100" step="0.1" onchange="m5CalcPriceFromPoint(this);m5RecalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>'
