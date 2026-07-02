@@ -566,6 +566,8 @@ a:hover{text-decoration:underline;}
 
             <th>批价单状态</th>
 
+            <th>业务线</th>
+
             <th>总套数</th>
 
             <th>提货数量</th>
@@ -1141,7 +1143,7 @@ var sampleRows = [
     projectName:'\u73E0\u6D77\u6A2A\u7434\u603B\u90E8\u5927\u53A6\u4E2D\u592E\u7A7A\u8C03\u5DE5\u7A0B',
 
     status:'\u5BA1\u6279\u4E2D',
-
+    businessLine:'\u5546\u7528\u7A7A\u8C03',
     qty:20, pickedQty:0,
 
     canVoid:false, canApprove:true, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1157,7 +1159,7 @@ var sampleRows = [
     projectName:'\u5E7F\u5DDE\u5929\u6CB3\u57CE\u4E2D\u592E\u7A7A\u8C03\u6539\u9020\u9879\u76EE',
 
     status:'\u5DF2\u9A73\u56DE',
-
+    businessLine:'\u5546\u7528\u7A7A\u8C03',
     qty:15, pickedQty:0,
 
     canVoid:true, canApprove:false, subStatus:'', loginOrder:'-'
@@ -1173,7 +1175,7 @@ var sampleRows = [
     projectName:'\u6DF1\u5733\u524D\u6D77\u5927\u53A6\u65B0\u98CE\u7CFB\u7EDF\u5B89\u88C5',
 
     status:'\u5F85\u63D0\u8D27',
-
+    businessLine:'\u5546\u7528\u7A7A\u8C03',
     qty:50, pickedQty:0,
 
     canVoid:true, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1189,7 +1191,7 @@ var sampleRows = [
     projectName:'\u4E1C\u839E\u677E\u5C71\u6E56\u79D1\u6280\u56ED\u533A\u591A\u8054\u673A\u5DE5\u7A0B',
 
     status:'\u90E8\u5206\u63D0\u8D27',
-
+    businessLine:'\u5BB6\u7528\u7A7A\u8C03',
     qty:30, pickedQty:12,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1205,7 +1207,7 @@ var sampleRows = [
     projectName:'\u4F5B\u5C71\u5357\u6D77\u533B\u9662\u51C0\u5316\u7A7A\u8C03\u5DE5\u7A0B',
 
     status:'\u5DF2\u5B8C\u7ED3',
-
+    businessLine:'\u5546\u7528\u7A7A\u8C03',
     qty:25, pickedQty:25,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1221,7 +1223,7 @@ var sampleRows = [
     projectName:'\u73E0\u6D77\u91D1\u6E7E\u673A\u573A\u5019\u673A\u697C\u7A7A\u8C03\u6539\u9020',
 
     status:'\u5DF2\u5173\u95ED',
-
+    businessLine:'\u751F\u6D3B\u7535\u5668',
     qty:10, pickedQty:0,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'-'
@@ -1237,7 +1239,7 @@ var sampleRows = [
     projectName:'\u5E7F\u5DDE\u56FD\u9645\u4F1A\u5C55\u4E2D\u5FC3\u51B7\u6C34\u673A\u7EC4\u9879\u76EE',
 
     status:'\u5BA1\u6279\u4E2D',
-
+    businessLine:'\u5546\u7528\u7A7A\u8C03',
     qty:40, pickedQty:0,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1253,7 +1255,7 @@ var sampleRows = [
     projectName:'\u6DF1\u5733\u5927\u7586\u521B\u65B0\u57FA\u5730\u4E2D\u592E\u7A7A\u8C03\u5DE5\u7A0B',
 
     status:'\u5F85\u63D0\u8D27',
-
+    businessLine:'\u51B0\u7BB1',
     qty:60, pickedQty:0,
 
     canVoid:true, canApprove:false, subStatus:'', loginOrder:'2-\u5019\u8865\u767B\u5F55'
@@ -1281,6 +1283,8 @@ var columnConfig = [
   {key:'projectName',name:'\u9879\u76EE\u540D\u79F0', visible:true},
 
   {key:'status',     name:'\u6279\u4EF7\u5355\u72B6\u6001', visible:true},
+
+  {key:'businessLine',name:'\u4E1A\u52A1\u7EBF', visible:true},
 
   {key:'qty',        name:'\u603B\u5957\u6570', visible:true},
 
@@ -1342,6 +1346,8 @@ function renderTable() {
       '<td data-col="projectName">' + r.projectName + '</td>' +
 
       '<td data-col="status">' + statusHtml + '</td>' +
+
+      '<td data-col="businessLine">' + (r.businessLine || '--') + '</td>' +
 
       '<td data-col="qty">' + r.qty + '</td>' +
 
