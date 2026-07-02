@@ -174,6 +174,9 @@ a:hover{text-decoration:underline;}
 
 /* 隐藏列 */
 .col-hidden{display:none!important;}
+/* ====== 冻结列 ====== */
+.col-frozen{position:sticky;z-index:11;}
+.data-table thead .col-frozen{z-index:12;}
 </style>
 </head>
 <body>
@@ -436,6 +439,10 @@ a:hover{text-decoration:underline;}
           <button class="close-btn" onclick="closeConfig()">&times;</button>
         </div>
         <div class="modal-body">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">左冻结列数：</span>
+            <input type="number" id="freezeColsInput" value="0" min="0" max="22" style="width:56px;height:28px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;outline:none;">
+          </div>
           <table class="cfg-table">
             <thead>
               <tr><th style="width:36px"></th><th style="width:48px">序号</th><th>列名</th><th style="width:80px;text-align:center">显示</th></tr>
@@ -788,9 +795,9 @@ function renderTable() {
   }).join('');
   // 应用当前列显隐配置
   syncColumnVisibility();
+  // 同步冻结列
+  syncFreezeColumns();
 }
-
-renderTable();
 
 /* ====== 自定义配置弹窗 ====== */
 function openConfig() {
@@ -805,6 +812,15 @@ function openConfig() {
       '</td></tr>';
   }).join('');
   document.getElementById('configModal').classList.add('open');
+  // 初始化冻结列数输入值
+  var inp = document.getElementById('freezeColsInput');
+  if (inp) {
+    var n = 0;
+    document.querySelectorAll('.col-frozen').forEach(function(){ n++; });
+    inp.value = n > 0 ? n.toString() : '0';
+    inp.addEventListener('change', function() { syncFreezeColumns(); });
+    inp.addEventListener('input', function() { syncFreezeColumns(); });
+  }
 }
 function closeConfig() {
   document.getElementById('configModal').classList.remove('open');
@@ -848,6 +864,70 @@ function syncColumnVisibility() {
     if (opTh) opTh.classList.remove('col-hidden'); opTds.forEach(function(td){td.classList.remove('col-hidden');});
   }
 }
+
+/* ====== 左冻结列 ====== */
+function syncFreezeColumns() {
+  var n = parseInt(document.getElementById('freezeColsInput').value) || 0;
+  var table = document.querySelector('.data-table');
+  if (!table) return;
+  // 清除所有冻结
+  table.querySelectorAll('.col-frozen').forEach(function(el) {
+    el.style.left = '';
+    el.classList.remove('col-frozen');
+  });
+  if (n <= 0) return;
+  // 取列配置中所有visible的列索引
+  var visibleIdx = [];
+  columnConfig.forEach(function(col, idx) {
+    if (col.visible) visibleIdx.push(idx);
+  });
+  // 只冻结前n个可见列对应的实际th索引
+  var freezeActualIdx = [];
+  for (var vi = 0; vi < visibleIdx.length && vi < n; vi++) {
+    freezeActualIdx.push(visibleIdx[vi]);
+  }
+  // 计算每个冻结列left值
+  var ths = table.querySelectorAll('thead th');
+  var totalLeft = {};
+  var cumulative = 0;
+  freezeActualIdx.forEach(function(idx) {
+    totalLeft[idx] = cumulative;
+    if (ths[idx]) cumulative += ths[idx].offsetWidth;
+  });
+  // 应用冻结
+  freezeActualIdx.forEach(function(idx) {
+    if (ths[idx]) {
+      ths[idx].style.left = totalLeft[idx] + 'px';
+      ths[idx].classList.add('col-frozen');
+    }
+  });
+  // tbody td
+  table.querySelectorAll('tbody td[data-col]').forEach(function(td) {
+    var colKey = td.getAttribute('data-col');
+    for (var i = 0; i < columnConfig.length; i++) {
+      if (columnConfig[i].key === colKey) {
+        var actualIdx = i;
+        var fi = freezeActualIdx.indexOf(actualIdx);
+        if (fi >= 0) {
+          td.style.left = totalLeft[actualIdx] + 'px';
+          td.classList.add('col-frozen');
+        }
+        break;
+      }
+    }
+  });
+  // 操作列（没有data-col的）
+  table.querySelectorAll('tbody .op-cell').forEach(function(td) {
+    var fi = freezeActualIdx.indexOf(0);
+    if (fi >= 0) {
+      td.style.left = totalLeft[0] + 'px';
+      td.classList.add('col-frozen');
+    }
+  });
+}
+
+// 渲染表格（在renderTable内已调用syncColumnVisibility + syncFreezeColumns）
+renderTable();
 </script>
 </body>
 </html>
