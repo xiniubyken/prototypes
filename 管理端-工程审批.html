@@ -265,9 +265,7 @@ a:hover{text-decoration:underline;}
         <div class="tp-item" data-tab="price" onclick="switchPrimaryTab('price',this)">
           价格审批<span class="tp-badge">99+</span>
         </div>
-        <div class="tp-item" data-tab="other" onclick="switchPrimaryTab('other',this)">
-          其他<span class="tp-badge">99+</span>
-        </div>
+        <!-- 作废已迁移到登录审批和价格审批的二级tab，移除"其他"一级tab -->
       </div>
 
       <!-- 二级Tab：动态切换 -->
@@ -367,19 +365,18 @@ var secondaryTabConfig = {
     {key:'local',     label:'非跨区登录', badge:'99+'},
     // {key:'inProvince',label:'省内跨区登录', badge:'99+'},  // 已移除
     {key:'outProvince',label:'省外跨区登录', badge:'99+'},
-    {key:'extend',    label:'登录延期',     badge:'99+'}
+    {key:'extend',    label:'登录延期',     badge:'99+'},
+    {key:'voidApply', label:'作废',        badge:'99+'}
   ],
   price: [
     {key:'pLocal',     label:'非跨区批价', badge:'99+'},
     // {key:'pInProvince',label:'省内跨区批价', badge:'99+'},  // 已移除
     {key:'pOutProvince',label:'省外跨区批价', badge:'99+'},
     {key:'rePrice',    label:'二次批价',    badge:'99+'},
-    {key:'deliveryExt', label:'提货延期',    badge:'99+'}
-  ],
-  // delivery / material 已移除
-  other: [
-    {key:'voidApply',  label:'作废',       badge:'99+'}
+    {key:'deliveryExt', label:'提货延期',    badge:'99+'},
+    {key:'voidApply', label:'作废',        badge:'99+'}
   ]
+  // delivery / material / other 已移除
 };
 
 /* 当前选中状态 */
