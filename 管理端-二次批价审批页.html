@@ -167,6 +167,16 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .lo-badge .lo-txt{color:#2E7D32;font-weight:500;}
 .lo-view-btn{color:#3b5998;font-size:12px;cursor:pointer;text-decoration:underline;}
 .lo-view-btn:hover{text-decoration:none;}
+/* ====== 非标绑定真实商品 ====== */
+.bind-model-wrap{display:flex;flex-direction:column;gap:2px;}
+.bind-model-real{font-size:13px;color:#1f2329;font-weight:500;}
+.bind-model-orig{font-size:11px;color:#8f959e;line-height:1.3;}
+.btn-bind-link{color:#3b5998;font-size:12px;cursor:pointer;font-weight:500;}
+.btn-bind-link:hover{text-decoration:underline;}
+.btn-unbind-link{color:#d32f2f;font-size:12px;cursor:pointer;margin-left:6px;}
+.btn-unbind-link:hover{text-decoration:underline;}
+.nonstd-badge{color:#E65100;font-weight:700;font-size:11px;background:#FFF3E0;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;}
+
 .col-new{color:var(--danger);font-weight:600;}
 
 /* 弹窗扩展 */
@@ -1256,10 +1266,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="modal-body">
       <div class="approve-warn-bar">
         <span class="approve-warn-ico">⚠️</span>
-        <span>确定驳回此批价审批吗？驳回时请填写审批意见</span>
+        <span>确定驳回此批价审批吗？</span>
       </div>
       <div class="approve-form-group">
-        <label class="approve-form-label">备注 <span class="req">*</span></label>
+        <label class="approve-form-label">备注：</label>
         <textarea class="approve-textarea" id="rejectRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
       </div>
       <div class="approve-form-group">
@@ -1367,11 +1377,12 @@ var selectedProjectData = {
   // 设备清单（批价单审批页专用）
   equipList:[
     { seq:1, isNonStd:false, cate:'多联机', name:'GMV5多联机 10HP', model:'GMV-450WM/A', sku:'SKU-GMV5-10HP', id:'P100001',
-      saleType:'常规价', qty:5, origQty:5, price:42000, origPrice:46000, point:8.5, remark:'—',
+      saleType:'常规价', qty:5, origQty:5, price:42000, origPrice:46000, point:8.5, remark:'--',
       approvePrice:41500, resetPoint:1.5, depositRate:10, onlinePrice:48000, estimatePrice:43200 },
-    { seq:2, isNonStd:true,  cate:'定制设备', name:'定制机-非标控制柜', model:'非标-DZ-001', sku:'--', id:'--',
+    { seq:2, isNonStd:true, isBound:false, cate:'定制设备', name:'定制机-非标控制柜', model:'非标-DZ-001', sku:'SKU-NON-001', id:'P100100',
       saleType:'买断价', qty:1, origQty:1, price:38000, origPrice:38000, point:0, remark:'按图纸定制',
-      approvePrice:37500, resetPoint:0, depositRate:15, onlinePrice:0, estimatePrice:0 },
+      approvePrice:37500, resetPoint:0, depositRate:15, onlinePrice:0, estimatePrice:0,
+      originNonStdModel:'', boundProductName:'', boundProductCate:'', boundProductModel:'', boundProductSku:'', boundProductId:'', boundOnlinePrice:0 },
     { seq:3, isNonStd:false, cate:'中央空调', name:'格力 KFRd-120LW/NhGb1B 柜机', model:'KFRd-120LW/NhGb1B', sku:'SKU-GJ-120GB', id:'P100002',
       saleType:'常规价', qty:8, origQty:8, price:7600, origPrice:8000, point:9, remark:'',
       approvePrice:7500, resetPoint:2, depositRate:10, onlinePrice:8500, estimatePrice:7650 },
@@ -1549,11 +1560,23 @@ function renderEquipList() {
     tr.setAttribute('data-seq', eq.seq);
     tr.setAttribute('data-saletype', eq.saleType || '常规价');
     // 金额格式化
-    var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '—';
-    var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '—';
-    // 非标行特殊渲染：品类下拉、名称固定、型号输入框
-    var cateHtml, nameHtml, modelHtml, estimateHtml;
-    if(eq.isNonStd) {
+    var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
+    var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
+    // 非标行特殊渲染
+    var cateHtml, nameHtml, modelHtml, estimateHtml, opHtml, nonstdBadgeHtml, skuHtml, idHtml, effectiveOnlinePrice;
+    if(eq.isNonStd && eq.isBound) {
+      // === 已绑定态：只读展示真实商品 + 双行型号 ===
+      cateHtml = '<span>' + (eq.boundProductCate || eq.cate) + '</span>';
+      nameHtml = '<span style="color:#1f2329;">' + (eq.boundProductName || eq.name) + '</span>';
+      modelHtml = '<div class="bind-model-wrap"><span class="bind-model-real">' + (eq.boundProductModel || '') + '</span><span class="bind-model-orig">原: ' + (eq.originNonStdModel || eq.model || '') + '</span></div>';
+      estimateHtml = '<td><input class="td-input td-num equip-estimate-input" type="number" value="' + (eq.estimatePrice || 0) + '" min="0" step="0.01" style="width:70px;"></td>';
+      nonstdBadgeHtml = '<span class="nonstd-badge">非</span>';
+      skuHtml = '<span style="color:#1f2329;">' + (eq.boundProductSku || '--') + '</span>';
+      idHtml = '<span style="color:#1f2329;">' + (eq.boundProductId || '--') + '</span>';
+      effectiveOnlinePrice = eq.boundOnlinePrice || eq.onlinePrice || 0;
+      opHtml = '<a class="btn-bind-link" onclick="openBindModal(\''+eq.seq+'\',this)">更换</a><a onclick="delEquipRow(this)" style="margin-left:6px;">删除</a>';
+    } else if(eq.isNonStd) {
+      // === 未绑定态（虚拟非标）：品类下拉、名称固定、型号输入框 ===
       var cateOpts = ['中央空调','多联机','新风','冷水机组','精密空调','机房空调'];
       cateHtml = '<select class="td-select" style="width:70px;">';
       cateOpts.forEach(function(v){ cateHtml += '<option value="'+v+'"'+(eq.cate===v?' selected':'')+'>'+v+'</option>'; });
@@ -1561,33 +1584,44 @@ function renderEquipList() {
       nameHtml = '<span style="color:#1f2329;">定制机</span>';
       modelHtml = '<input class="td-input" style="width:85px;" value="' + (eq.model||'') + '" placeholder="输入型号">';
       estimateHtml = '<td style="font-size:12px;color:#8f959e;" class="equip-estimate-txt">待绑定商品后填写</td>';
+      nonstdBadgeHtml = '<span class="nonstd-badge">非</span>';
+      skuHtml = '<span style="color:#1f2329;">' + (eq.sku || '--') + '</span>';
+      idHtml = '<span style="color:#1f2329;">' + (eq.id || '--') + '</span>';
+      effectiveOnlinePrice = eq.onlinePrice || 0;
+      opHtml = '<a class="btn-bind-link" onclick="openBindModal(\''+eq.seq+'\',this)">绑定</a><a onclick="delEquipRow(this)" style="margin-left:6px;">删除</a>';
     } else {
       cateHtml = '<span>' + eq.cate + '</span>';
       nameHtml = '<span style="color:#1f2329;">' + eq.name + '</span>';
       modelHtml = '<span>' + eq.model + '</span>';
       estimateHtml = '<td><input class="td-input td-num equip-estimate-input" type="number" value="' + (eq.estimatePrice || 0) + '" min="0" step="0.01" style="width:70px;"></td>';
+      nonstdBadgeHtml = '';
+      skuHtml = '<span style="color:#1f2329;">' + eq.sku + '</span>';
+      idHtml = '<span style="color:#1f2329;">--</span>';
+      effectiveOnlinePrice = eq.onlinePrice || 0;
+      opHtml = '<a onclick="delEquipRow(this)">删除</a>';
     }
+    var newOnlinePriceFmt = effectiveOnlinePrice ? '¥' + effectiveOnlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     tr.innerHTML =
       '<td style="text-align:center;" data-col="checkbox"><input type="checkbox" class="row-cb" onchange="onRowCheck()"></td>' +
       '<td style="text-align:center;color:#8f959e;" data-col="seq">' + (i+1) + '</td>' +
-      '<td style="text-align:center;" data-col="nonstd">' + (eq.isNonStd ? '<span class="nonstd-badge">非</span>' : '') + '</td>' +
+      '<td style="text-align:center;" data-col="nonstd">' + nonstdBadgeHtml + '</td>' +
       '<td data-col="cate">' + cateHtml + '</td>' +
       '<td style="color:#1f2329;" data-col="name">' + nameHtml + '</td>' +
       '<td data-col="model">' + modelHtml + '</td>' +
-      '<td style="color:#1f2329;" data-col="sku">' + eq.sku + '</td>' +
-      '<td style="color:#1f2329;" data-col="id">' + (eq.isNonStd ? eq.id : '—') + '</td>' +
+      '<td style="color:#1f2329;" data-col="sku">' + skuHtml + '</td>' +
+      '<td style="color:#1f2329;" data-col="id">' + idHtml + '</td>' +
       '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="' + eq.qty + '" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
-      '<td style="color:#1f2329;" data-col="origQty">' + (eq.origQty || eq.qty) + '</td>' +
-      '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="' + eq.price + '" min="0" step="0.01" style="width:78px;" data-origprice="' + eq.origPrice + '" data-onlineprice="' + eq.onlinePrice + '" onchange="recalcSummary()"></td>' +
+      '<td style="color:#1f2329;" data-col="origQty">' + (eq.origQty || '--') + '</td>' +
+      '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="' + eq.price + '" min="0" step="0.01" style="width:78px;" data-origprice="' + eq.origPrice + '" data-onlineprice="' + effectiveOnlinePrice + '" onchange="recalcSummary()"></td>' +
       '<td style="color:#1f2329;" data-col="origPrice">' + origPriceFmt + '</td>' +
       '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="' + eq.point + '" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
       '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="' + eq.approvePrice + '" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
-      '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '—') + '</td>' +
+      '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '--') + '</td>' +
       '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="' + eq.depositRate + '" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
-      '<td style="color:#1f2329;" data-col="onlinePrice">' + onlinePriceFmt + '</td>' +
+      '<td style="color:#1f2329;" data-col="onlinePrice">' + newOnlinePriceFmt + '</td>' +
       estimateHtml.replace('<td', '<td data-col="estimate"') +
-      '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填..." value="' + (eq.remark !== '—' ? eq.remark : '') + '"></td>' +
-      '<td class="td-op" data-col="op"><a onclick="delEquipRow(this)">删除</a></td>';
+      '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填..." value="' + (eq.remark !== '--' ? eq.remark : '') + '"></td>' +
+      '<td class="td-op" data-col="op">' + opHtml + '</td>';
     tbody.appendChild(tr);
   });
   document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + selectedProjectData.equipList.length + ' 项';
@@ -1654,23 +1688,31 @@ function addNonStdRow() {
     '<td data-col="cate"><select class="td-select" style="width:70px;"><option>中央空调</option><option>多联机</option><option>新风</option><option selected>冷水机组</option><option>精密空调</option><option>机房空调</option></select></td>' +
     '<td data-col="name"><span style="color:#1f2329;">定制机</span></td>' +
     '<td data-col="model"><input class="td-input" style="width:85px;" placeholder="输入型号"></td>' +
-    '<td data-col="sku"><input class="td-input" style="width:90px;" value=""></td>' +
-    '<td style="color:#8f959e;" data-col="id"></td>' +
+    '<td data-col="sku" style="color:#8f959e;">--</td>' +
+    '<td style="color:#8f959e;" data-col="id">--</td>' +
     '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="1" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="origQty">—</td>' +
+    '<td style="color:#1f2329;" data-col="origQty">--</td>' +
     '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="0" min="0" step="0.01" style="width:78px;" data-origprice="0" data-onlineprice="0" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="origPrice">—</td>' +
+    '<td style="color:#1f2329;" data-col="origPrice">--</td>' +
     '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="0" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
     '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="0" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="resetPoint">—</td>' +
+    '<td style="color:#1f2329;" data-col="resetPoint">--</td>' +
     '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="10" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
-    '<td style="color:#1f2329;" data-col="onlinePrice">—</td>' +
+    '<td style="color:#1f2329;" data-col="onlinePrice">--</td>' +
     '<td style="font-size:12px;color:#8f959e;" data-col="estimate" class="equip-estimate-txt">待绑定商品后填写</td>' +
     '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填备注..."></td>' +
-    '<td class="td-op" data-col="op"><a onclick="delEquipRow(this)">删除</a></td>';
+    '<td class="td-op" data-col="op"><a class="btn-bind-link" onclick="openBindModalForNew(this)">绑定</a><a onclick="delEquipRow(this)" style="margin-left:6px;">删除</a></td>';
   tbody.appendChild(tr);
+    // 同步写入数据模型（新增非标行无真实商品ID）
+  selectedProjectData.equipList.push({
+    seq: nonStdSeq, isNonStd: true, isBound: false,
+    cate: '冷水机组', name: '定制机', model: '', sku: '', id: '',
+    saleType: '买断价', qty: 1, origQty: 0, price: 0, origPrice: 0,
+    point: 0, remark: '', approvePrice: 0, resetPoint: 0,
+    depositRate: 10, onlinePrice: 0, estimatePrice: 0
+  });
   recalcSummary();
-  document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + document.querySelectorAll('#pjEquipTbody tr').length + ' 项';
+  document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + selectedProjectData.equipList.length + ' 项';
   syncColumnVisibility();
 }
 
@@ -1879,7 +1921,7 @@ document.addEventListener('DOMContentLoaded', function(){
 <div class="modal-overlay" id="addStdModal" style="display:none;" onclick="if(event.target===this)closeAddStdModal()">
   <div class="modal-content modal-lg">
     <div class="modal-header">
-      <span class="modal-title">添加商品</span>
+      <span class="modal-title" id="bindModalTitle">添加商品</span>
       <span class="modal-close" onclick="closeAddStdModal()">&times;</span>
     </div>
     <div class="modal-body">
@@ -1905,7 +1947,7 @@ document.addEventListener('DOMContentLoaded', function(){
         <table class="product-select-table">
           <thead>
             <tr>
-              <th style="width:40px;text-align:center;"><input type="checkbox" onchange="toggleAllChecks(this)"></th>
+              <th style="width:40px;text-align:center;"></th>
               <th style="width:64px;text-align:center;">商品图片</th>
               <th>商品名称</th>
               <th style="width:120px;">SKU编码</th>
@@ -1916,8 +1958,8 @@ document.addEventListener('DOMContentLoaded', function(){
             </tr>
           </thead>
           <tbody id="addStdTbody">
-            <tr>
-              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+            <tr onclick="selectBindProduct(this)">
+              <td style="text-align:center;"><input type="radio" name="bindProductRadio" class="sel-radio" onchange="selectBindProduct(this.parentElement.parentElement)"></td>
               <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
               <td>格力 GMV-H224WL/A1 多联机组</td>
               <td>SKU-MLJ-224A1</td>
@@ -1926,8 +1968,8 @@ document.addEventListener('DOMContentLoaded', function(){
               <td>GMV系列</td>
               <td style="text-align:right;">¥ 19,800.00</td>
             </tr>
-            <tr>
-              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+            <tr onclick="selectBindProduct(this)">
+              <td style="text-align:center;"><input type="radio" name="bindProductRadio" class="sel-radio" onchange="selectBindProduct(this.parentElement.parentElement)"></td>
               <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
               <td>格力 KFRd-120LW/NhGb1B 柜机</td>
               <td>SKU-GJ-120GB</td>
@@ -1936,8 +1978,8 @@ document.addEventListener('DOMContentLoaded', function(){
               <td>NhGb系列</td>
               <td style="text-align:right;">¥ 7,600.00</td>
             </tr>
-            <tr>
-              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+            <tr onclick="selectBindProduct(this)">
+              <td style="text-align:center;"><input type="radio" name="bindProductRadio" class="sel-radio" onchange="selectBindProduct(this.parentElement.parentElement)"></td>
               <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
               <td>格力 FGR5Pd/NhBa1 吊顶式新风</td>
               <td>SKU-XF-5NBA1</td>
@@ -1960,7 +2002,7 @@ document.addEventListener('DOMContentLoaded', function(){
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeAddStdModal()">取消</button>
-      <button class="btn btn-primary" onclick="confirmAddStd()">添加</button>
+      <button class="btn btn-primary" id="bindConfirmBtn" onclick="confirmBind()">确认绑定</button>
     </div>
   </div>
 </div>
@@ -2043,11 +2085,104 @@ document.addEventListener('DOMContentLoaded', function(){
 </div>
 
 <script>
-// ====================== 添加商品弹窗 ======================
-function showAddStdModal(){ document.getElementById('addStdModal').style.display = 'flex'; }
+// ====================== 添加商品弹窗 / 绑定商品 ======================
+var _bindTargetRowIdx = -1; // 绑定目标行的数组索引
+
+function showAddStdModal(){ 
+  _bindTargetRowIdx = -1;
+  document.getElementById('bindModalTitle').textContent = '添加商品';
+  document.getElementById('bindConfirmBtn').textContent = '确认添加';
+  document.getElementById('addStdModal').style.display = 'flex'; 
+}
+
 function closeAddStdModal(){ document.getElementById('addStdModal').style.display = 'none'; }
-function toggleAllChecks(master){ document.querySelectorAll('#addStdTbody .row-chk').forEach(function(c){ c.checked = master.checked; }); }
-function confirmAddStd(){ alert('演示：添加所选商品至设备清单'); closeAddStdModal(); }
+
+function selectBindProduct(tr){
+  document.querySelectorAll('#addStdTbody tr').forEach(function(r){ r.classList.remove('selected'); });
+  tr.classList.add('selected');
+  var radio = tr.querySelector('.sel-radio');
+  if(radio) radio.checked = true;
+}
+
+function getSelectedProductData(){
+  var selTr = document.querySelector('#addStdTbody tr.selected');
+  if(!selTr) return null;
+  var tds = selTr.querySelectorAll('td');
+  return {
+    name: tds[2] ? tds[2].textContent.trim() : '',
+    sku: tds[3] ? tds[3].textContent.trim() : '',
+    cate: tds[4] ? tds[4].textContent.trim() : '',
+    model: tds[5] ? tds[5].textContent.trim() : '',
+    productId: 'P' + Date.now(),
+    onlinePrice: parseFloat((tds[7] ? tds[7].textContent.replace(/[¥,]/g,'').trim() : '0') || '0')
+  };
+}
+
+// 打开绑定弹窗（按seq从equipList中找到目标行）
+function openBindModal(seqStr, btnEl){
+  _bindTargetRowIdx = -1;
+  var list = selectedProjectData.equipList;
+  for(var i=0; i<list.length; i++){
+    if(String(list[i].seq) === String(seqStr)){
+      _bindTargetRowIdx = i;
+      break;
+    }
+  }
+  if(_bindTargetRowIdx === -1) return;
+  document.getElementById('bindModalTitle').textContent = '选择绑定商品';
+  document.getElementById('bindConfirmBtn').textContent = '确认绑定';
+  document.getElementById('addStdModal').style.display = 'flex';
+}
+
+// 打开绑定弹窗（从新增非标行触发）
+function openBindModalForNew(btnEl){
+  var tr = btnEl.closest('tr');
+  if(!tr) return;
+  var seqInputs = tr.querySelectorAll('input');
+  var tbody = document.getElementById('pjEquipTbody');
+  var rows = tbody.querySelectorAll('tr');
+  var idx = -1;
+  for(var i=0; i<rows.length; i++){ if(rows[i] === tr){ idx = i; break; } }
+  if(idx === -1) return;
+  _bindTargetRowIdx = idx;
+  document.getElementById('bindModalTitle').textContent = '选择绑定商品';
+  document.getElementById('bindConfirmBtn').textContent = '确认绑定';
+  document.getElementById('addStdModal').style.display = 'flex';
+}
+
+// 确认绑定/更换
+function confirmBind(){
+  var prod = getSelectedProductData();
+  if(!prod){ alert('请先选择一个商品'); return; }
+  var list = selectedProjectData.equipList;
+  var eq = list[_bindTargetRowIdx];
+  if(!eq) return;
+
+  // 如果是首次绑定，保存原始非标型号
+  if(!eq.isBound){
+    var trEl = document.querySelectorAll('#pjEquipTbody tr')[_bindTargetRowIdx];
+    if(trEl){
+      var modelInput = trEl.querySelector('[data-col="model"] input');
+      if(modelInput) eq.originNonStdModel = modelInput.value || eq.model || '';
+    }
+    eq.originNonStdModel = eq.originNonStdModel || eq.model || '';
+  }
+
+  eq.isBound = true;
+  eq.isNonStd = true;
+  eq.boundProductName = prod.name;
+  eq.boundProductCate = prod.cate;
+  eq.boundProductModel = prod.model;
+  eq.boundProductSku = prod.sku;
+  eq.boundProductId = prod.productId;
+  eq.boundOnlinePrice = prod.onlinePrice;
+  // 价格联动
+  eq.onlinePrice = prod.onlinePrice;
+  eq.cate = prod.cate;
+
+  closeAddStdModal();
+  renderEquipList();
+}
 
 // ====================== 批量导入弹窗 ======================
 function showImportModal(){ document.getElementById('importModal').style.display = 'flex'; }
@@ -2128,7 +2263,6 @@ function closeRejectModal(){
 }
 function confirmReject(){
   var remark = document.getElementById('rejectRemark').value.trim();
-  if(!remark){alert('驳回时必须填写备注');document.getElementById('rejectRemark').focus();return;}
   alert('已驳回。\n原因：' + remark);
   closeRejectModal();
 }
@@ -2194,7 +2328,7 @@ function renderExportTable() {
       '<td>' + eq.sku + '</td>' +
       '<td>' + (eq.isNonStd ? eq.id : '') + '</td>' +
       '<td>' + eq.qty + '</td>' +
-      '<td>' + (eq.origQty || eq.qty) + '</td>' +
+      '<td>' + (eq.origQty || '--') + '</td>' +
       '<td>' + priceFmt + '</td>' +
       '<td>' + origPriceFmt + '</td>' +
       '<td>' + (eq.point !== undefined ? eq.point + '%' : '') + '</td>' +
@@ -2203,7 +2337,7 @@ function renderExportTable() {
       '<td>' + (eq.depositRate !== undefined ? eq.depositRate + '%' : '') + '</td>' +
       '<td>' + onlinePriceFmt + '</td>' +
       '<td>' + estimatePriceFmt + '</td>' +
-      '<td>' + (eq.remark && eq.remark !== '—' ? eq.remark : '') + '</td>';
+      '<td>' + (eq.remark && eq.remark !== '--' ? eq.remark : '') + '</td>';
     tbody.appendChild(tr);
   });
 }
