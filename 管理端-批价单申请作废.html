@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>管理端-批价单申请作废</title>
+<title>审批-批价单作废</title>
 <style>
 /* 商用工程 · 共享样式 */
 :root{
@@ -30,8 +30,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .back-btn:hover{color:var(--primary);border-color:var(--primary);}
 .back-btn svg{width:14px;height:14px;}
 
-/* ====== 紧急标识 ====== */
-.urgent-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--danger);border:1px solid var(--danger);border-radius:3px;padding:2px 8px;background:#fff5f5;margin-left:10px;}
+/* ====== 项目单号展示 & 业务线标签 ====== */
+.proj-no-display{font-size:13px;color:#646a73;background:#f5f6fa;padding:4px 10px;border-radius:4px;}
+.biz-tag{display:inline-block;padding:2px 10px;border-radius:3px;font-size:12px;font-weight:500;background:#FFF8E1;color:#B45309;border:1px solid #FDE68A;}
 
 /* ====== 滚动内容区 ====== */
 .form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
@@ -129,9 +130,15 @@ html,body{height:100%;margin:0;overflow:hidden;}
 
 <!-- ===== 页面头部 ===== -->
 <div class="form-page-header">
-  <div style="display:flex;align-items:center;gap:0;">
-    <span class="form-page-title">申请作废 粤东GCDT202606250001-PJ001（某商业综合体空调项目）</span>
-    <span class="urgent-badge">⚠ 高危操作</span>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      返回
+    </div>
+    <span class="form-page-title">审批-批价单作废</span>
+    <span class="proj-no-display" id="headerProjNo">粤东GCDT202606250001-PJ001 (某商业综合体空调项目)</span>
+    <span class="biz-tag">中央空调</span>
+    <span class="status-badge st-approve" id="headerStatusBadge" style="margin-left:0;">审批中</span>
   </div>
 </div>
 
