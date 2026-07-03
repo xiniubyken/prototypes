@@ -1413,7 +1413,7 @@ var selectedProjectData = {
   // 设备清单（批价单审批页专用）
   equipList:[
     { seq:1, isNonStd:false, cate:'多联机', name:'GMV5多联机 10HP', model:'GMV-450WM/A', sku:'SKU-GMV5-10HP', id:'P100001',
-      saleType:'常规价', qty:5, origQty:5, price:42000, origPrice:46000, point:8.5, remark:'—',
+      saleType:'常规价', qty:5, origQty:5, price:42000, origPrice:46000, point:8.5, remark:'--',
       approvePrice:41500, resetPoint:1.5, depositRate:10, onlinePrice:48000, estimatePrice:43200 },
     { seq:2, isNonStd:true,  cate:'定制设备', name:'定制机-非标控制柜', model:'非标-DZ-001', sku:'--', id:'--',
       saleType:'买断价', qty:1, origQty:1, price:38000, origPrice:38000, point:0, remark:'按图纸定制',
@@ -1595,8 +1595,8 @@ function renderEquipList() {
     tr.setAttribute('data-seq', eq.seq);
     tr.setAttribute('data-saletype', eq.saleType || '常规价');
     // 金额格式化
-    var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '—';
-    var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '—';
+    var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
+    var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     // 非标行特殊渲染：品类下拉、名称固定、型号输入框
     var cateHtml, nameHtml, modelHtml, estimateHtml;
     if(eq.isNonStd) {
@@ -1621,18 +1621,18 @@ function renderEquipList() {
       '<td style="color:#1f2329;" data-col="name">' + nameHtml + '</td>' +
       '<td data-col="model">' + modelHtml + '</td>' +
       '<td style="color:#1f2329;" data-col="sku">' + eq.sku + '</td>' +
-      '<td style="color:#1f2329;" data-col="id">' + (eq.isNonStd ? eq.id : '—') + '</td>' +
+      '<td style="color:#1f2329;" data-col="id">' + (eq.isNonStd ? eq.id : '--') + '</td>' +
       '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="' + eq.qty + '" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
-      '<td style="color:#1f2329;" data-col="origQty">' + (eq.origQty || eq.qty) + '</td>' +
+      '<td style="color:#1f2329;" data-col="origQty">' + (eq.origQty || '--') + '</td>' +
       '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="' + eq.price + '" min="0" step="0.01" style="width:78px;" data-origprice="' + eq.origPrice + '" data-onlineprice="' + eq.onlinePrice + '" onchange="recalcSummary()"></td>' +
       '<td style="color:#1f2329;" data-col="origPrice">' + origPriceFmt + '</td>' +
       '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="' + eq.point + '" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
       '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="' + eq.approvePrice + '" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
-      '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '—') + '</td>' +
+      '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '--') + '</td>' +
       '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="' + eq.depositRate + '" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
       '<td style="color:#1f2329;" data-col="onlinePrice">' + onlinePriceFmt + '</td>' +
       estimateHtml.replace('<td', '<td data-col="estimate"') +
-      '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填..." value="' + (eq.remark !== '—' ? eq.remark : '') + '"></td>' +
+      '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填..." value="' + (eq.remark !== '--' ? eq.remark : '') + '"></td>' +
       '<td class="td-op" data-col="op"><a onclick="delEquipRow(this)">删除</a></td>';
     tbody.appendChild(tr);
   });
@@ -1703,14 +1703,14 @@ function addNonStdRow() {
     '<td data-col="sku"><input class="td-input" style="width:90px;" value=""></td>' +
     '<td style="color:#8f959e;" data-col="id"></td>' +
     '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="1" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="origQty">—</td>' +
+    '<td style="color:#1f2329;" data-col="origQty">--</td>' +
     '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="0" min="0" step="0.01" style="width:78px;" data-origprice="0" data-onlineprice="0" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="origPrice">—</td>' +
+    '<td style="color:#1f2329;" data-col="origPrice">--</td>' +
     '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="0" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
     '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="0" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="resetPoint">—</td>' +
+    '<td style="color:#1f2329;" data-col="resetPoint">--</td>' +
     '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="10" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
-    '<td style="color:#1f2329;" data-col="onlinePrice">—</td>' +
+    '<td style="color:#1f2329;" data-col="onlinePrice">--</td>' +
     '<td style="font-size:12px;color:#8f959e;" data-col="estimate" class="equip-estimate-txt">待绑定商品后填写</td>' +
     '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填备注..."></td>' +
     '<td class="td-op" data-col="op"><a onclick="delEquipRow(this)">删除</a></td>';
@@ -2337,7 +2337,7 @@ function renderExportTable() {
       '<td>' + eq.sku + '</td>' +
       '<td>' + (eq.isNonStd ? eq.id : '') + '</td>' +
       '<td>' + eq.qty + '</td>' +
-      '<td>' + (eq.origQty || eq.qty) + '</td>' +
+      '<td>' + (eq.origQty || '--') + '</td>' +
       '<td>' + priceFmt + '</td>' +
       '<td>' + origPriceFmt + '</td>' +
       '<td>' + (eq.point !== undefined ? eq.point + '%' : '') + '</td>' +
@@ -2346,7 +2346,7 @@ function renderExportTable() {
       '<td>' + (eq.depositRate !== undefined ? eq.depositRate + '%' : '') + '</td>' +
       '<td>' + onlinePriceFmt + '</td>' +
       '<td>' + estimatePriceFmt + '</td>' +
-      '<td>' + (eq.remark && eq.remark !== '—' ? eq.remark : '') + '</td>';
+      '<td>' + (eq.remark && eq.remark !== '--' ? eq.remark : '') + '</td>';
     tbody.appendChild(tr);
   });
 }
