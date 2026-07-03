@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>审批-非跨区登录</title>
+<title>审批-二次批价</title>
 <style>
 :root{
   --primary:#3b5998; --primary-light:#4a72c3;
@@ -305,32 +305,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .fr-hdr-user{min-width:60px}
 .fr-hdr-remark{flex:1}
 
-/* ====== 项目凭证 ====== */
-.cert-card{margin-bottom:12px;}
-.cert-card .form-card-body{padding:16px;}
-.cert-note{margin-bottom:16px;}
-.cert-note textarea{width:100%;height:60px;padding:8px 10px;border:1px solid var(--border,#e8eaed);border-radius:4px;font-size:13px;resize:vertical;outline:none;transition:border-color .15s;font-family:inherit;}
-.cert-note textarea:focus{border-color:var(--primary,#3b5998);}
-
-.cert-list{display:flex;flex-direction:column;gap:2px;}
-.cert-row{display:flex;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--border-light,#f0f0f0);gap:8px;}
-.cert-row:last-child{border-bottom:none;}
-.cert-label{flex-shrink:0;width:150px;font-size:13px;color:var(--text,#1f2329);line-height:28px;}
-.cert-label .req{color:var(--danger,#D32F2F);margin-right:2px;}
-.cert-cell{flex:1;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:28px;}
-.cert-add-btn{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border:1px dashed var(--primary,#3b5998);border-radius:4px;color:var(--primary,#3b5998);font-size:18px;cursor:pointer;flex-shrink:0;transition:background .15s;}
-.cert-add-btn:hover{background:var(--primary-light,#4a72c3);color:#fff;}
-
-.cert-file{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:#f7f8fa;border-radius:4px;font-size:12px;color:var(--text,#1f2329);line-height:22px;}
-.cert-file .cert-del{cursor:pointer;color:var(--text-aux,#8f959e);font-size:14px;line-height:1;margin-left:2px;}
-.cert-file .cert-del:hover{color:var(--danger,#D32F2F);}
-.cert-file-preview{width:40px;height:40px;border-radius:4px;overflow:hidden;background:#fff4e5;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border,#e8eaed);cursor:pointer;}
-.cert-file-preview img{width:100%;height:100%;object-fit:cover;}
-.cert-file-icon{width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
-.cert-file-icon svg{width:18px;height:18px;}
-
-.cert-foot{margin-top:12px;padding-top:10px;border-top:1px solid var(--border-light,#f0f0f0);font-size:12px;color:var(--text-aux,#8f959e);}
-
 /* ====== 附件区（只读展示） ====== */
 .attach-read-list{display:flex;flex-direction:column;gap:6px;}
 .attach-read-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f5f6fa;border-radius:4px;font-size:13px;}
@@ -466,6 +440,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .af-node-table td{padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#555;line-height:1.5;vertical-align:top;}
 .af-node-table tr:last-child td{border-bottom:none;}
 .af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
+
 </style>
 </head>
 <body>
@@ -479,7 +454,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">审批-工程批价</span>
+    <span class="form-page-title">审批-二次批价</span>
     <span class="proj-no-display" id="headerProjNo">粤东GCDT202506250001-PJ001 (希望小学A项目)</span>
     <span class="biz-tag">中央空调</span>
     <span class="status-badge st-approve" id="headerStatusBadge" style="margin-left:0;">审批中</span>
@@ -571,25 +546,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
             <div class="equip-summary-item">总数量：<span id="pjEquipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="pjEquipTotalAmt">¥ 0.00</span>&nbsp;&nbsp;|&nbsp;&nbsp;批复总金额：<span id="pjEquipApproveAmt">¥ 0.00</span></div>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- 2.1.5 项目凭证 -->
-    <div class="form-card cert-card" id="cardCert">
-      <div class="form-card-header">
-        <div class="form-card-title"><div class="fct-accent"></div><span class="fct-text">项目凭证</span></div>
-      </div>
-      <div class="form-card-body">
-        <!-- 备注说明 -->
-        <div class="cert-note">
-          <textarea placeholder="请输入项目凭证备注说明（选填）..."></textarea>
-        </div>
-        <!-- 凭证列表 -->
-        <div class="cert-list" id="certList">
-          <!-- 由 JS 动态渲染 -->
-        </div>
-        <!-- 底部提示 -->
-        <div class="cert-foot">支持扩展：png jpg jpeg pdf docx doc xls xlsx doc zip rar，单个文件大小不超过50M，单种类里上传数量不超过20个。</div>
       </div>
     </div>
 
@@ -829,7 +785,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
 </div><!-- /page-root -->
 
-
 <!-- ========== 审批流程弹窗 ========== -->
 <div class="af-overlay" id="afOverlay" style="display:none;">
 <div class="af-modal">
@@ -939,7 +894,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 </div>
 </div>
-
 
 <!-- ==================== 弹窗：选择工程项目单 ==================== -->
 <div class="modal-overlay" id="projectModal">
@@ -1916,106 +1870,9 @@ document.addEventListener('DOMContentLoaded', function(){
   fillRefData(selectedProjectData);
   // 渲染设备清单（可编辑批复）
   renderEquipList();
-  // 渲染项目凭证
-  renderCertList();
   // 弹窗列表备用
   renderProjectList();
 });
-
-// ====================== 项目凭证 ======================
-
-var certData = [
-  { label:'合同扫描件', required:true, files:[
-    { type:'img', name:'合同第1-3页.png' },
-    { type:'img', name:'合同第4-6页.png' }
-  ]},
-  { label:'中标通知书', required:true, files:[
-    { type:'pdf', name:'中标通知书_格力商用工程.pdf' }
-  ]},
-  { label:'评标/询价/成交通知书', required:true, files:[
-    { type:'pdf', name:'评标报告.pdf' },
-    { type:'docx', name:'询价记录(供应商回执).docx' }
-  ]},
-  { label:'客户资质证明', required:true, files:[] },
-  { label:'区域授权函', required:true, files:[
-    { type:'xls', name:'区域授权函_附件.xls' }
-  ]},
-  { label:'项目信息说明', required:true, files:[
-    { type:'docx', name:'项目概况说明.docx' }
-  ]},
-  { label:'发票凭证(已开/未开)', required:false, files:[
-    { type:'img', name:'发票_已开.png' },
-    { type:'docx', name:'发票清单.docx' }
-  ]},
-  { label:'验收报告(部分/最终)', required:false, files:[
-    { type:'img', name:'验收报告_首页.png' },
-    { type:'docx', name:'验收报告_完整版.docx' }
-  ]},
-  { label:'技术方案确认书', required:false, files:[
-    { type:'img', name:'技术方案确认书.png' },
-    { type:'docx', name:'技术方案.docx' }
-  ]},
-  { label:'合码文件', required:false, files:[
-    { type:'img', name:'合码确认.png' },
-    { type:'docx', name:'合码说明.docx' }
-  ]},
-  { label:'工程图纸', required:false, files:[
-    { type:'img', name:'图纸-平面图.png' },
-    { type:'docx', name:'图纸说明.docx' }
-  ]},
-  { label:'资质材料', required:false, files:[
-    { type:'img', name:'资质证书.png' },
-    { type:'docx', name:'资质说明.docx' }
-  ]},
-  { label:'*解算其他附件', required:true, files:[
-    { type:'img', name:'结算单.png' },
-    { type:'docx', name:'其他补充说明.docx' }
-  ]}
-];
-
-// 获取文件图标SVG
-function getCertFileIcon(type) {
-  if(type === 'pdf') return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#D32F2F" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  if(type === 'docx' || type === 'doc') return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#2b579a" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  if(type === 'xls' || type === 'xlsx') return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#217346" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  if(type === 'zip' || type === 'rar') return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#8f959e" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#8f959e" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  return '';
-}
-
-// 渲染单个文件
-function renderCertFile(f, idx) {
-  if(f.type === 'img') {
-    return '<span class="cert-file" data-idx="' + idx + '">' +
-      '<span class="cert-file-preview" onclick="alert(\'演示：预览图片\')"><img src="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22%3E%3Crect width=%2240%22 height=%2240%22 fill=%22%23fff4e5%22/%3E%3Ctext x=%2220%22 y=%2224%22 text-anchor=%22middle%22 font-size=%2210%22 fill=%22%23e6a817%22%3Eimg%3C/text%3E%3C/svg%3E" alt="preview"></span>' +
-      '<span style="color:#1f2329;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + f.name + '</span>' +
-      '<span class="cert-del" onclick="this.closest(\'.cert-file\').remove()">&times;</span></span>';
-  }
-  var icon = getCertFileIcon(f.type);
-  return '<span class="cert-file" data-idx="' + idx + '">' +
-    '<span class="cert-file-icon">' + icon + '</span>' +
-    '<span style="color:#1f2329;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + f.name + '</span>' +
-    '<span class="cert-del" onclick="this.closest(\'.cert-file\').remove()">&times;</span></span>';
-}
-
-// 渲染项目凭证列表
-function renderCertList() {
-  var list = document.getElementById('certList');
-  if(!list) return;
-  list.innerHTML = '';
-  certData.forEach(function(item, i){
-    var row = document.createElement('div');
-    row.className = 'cert-row';
-    var reqMark = item.required ? '<span class="req">*</span>' : '';
-    var filesHtml = item.files.length > 0 ? item.files.map(function(f, fi){ return renderCertFile(f, i + '-' + fi); }).join('') : '';
-    row.innerHTML =
-      '<div class="cert-label">' + reqMark + item.label + '</div>' +
-      '<div class="cert-cell">' +
-        '<span class="cert-add-btn" onclick="alert(\'演示：上传 ' + item.label + '\')">+</span>' +
-        filesHtml +
-      '</div>';
-    list.appendChild(row);
-  });
-}
 </script>
 
 <!-- ==================== 弹窗：添加商品 ==================== -->
@@ -2354,9 +2211,6 @@ function openExportModal(){
   renderExportTable();
   document.getElementById('exportModal').classList.add('show');
 }
-function closeExportModal(){document.getElementById('exportModal').classList.remove('show');}
-function doExportExcel(){alert('演示：已导出Excel：批价单_设备清单_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.xlsx');}
-
 /* ====== 审批流程弹窗 ====== */
 function openApprovalFlowModal(){
   var o=document.getElementById('afOverlay');
@@ -2372,6 +2226,9 @@ function switchAfTab(tabName,btnEl){
   document.getElementById('afFlowPanel').style.display=tabName==='flow'?'block':'none';
   document.getElementById('afNodePanel').style.display=tabName==='node'?'block':'none';
 }
+
+function closeExportModal(){document.getElementById('exportModal').classList.remove('show');}
+function doExportExcel(){alert('演示：已导出Excel：批价单_设备清单_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.xlsx');}
 </script>
 
 </body>
