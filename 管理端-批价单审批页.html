@@ -606,96 +606,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
     </div>
 
-    <!-- ==================== 三、关联项目参考区（不可折叠） ==================== -->
-    <div style="margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;margin-bottom:4px;">
-        <span style="font-size:13px;font-weight:600;color:#1f2329;">关联项目参考</span>
-        <span style="font-size:11px;color:#8f959e;">（以下信息来自所选工程项目单，仅供参考）</span>
-      </div>
-
-      <!-- 3.1 基本信息 -->
-      <div class="ref-card">
-        <div class="ref-card-header">
-          <div class="fct-accent"></div>
-          <span>基本信息</span>
-        </div>
-        <div class="ref-card-body">
-          <div class="info-grid">
-            <div class="info-item"><div class="info-label">项目单号</div><div class="info-value" id="refProjectNo">--</div></div>
-            <div class="info-item"><div class="info-label">经销商名称</div><div class="info-value" id="refDealerName">--</div></div>
-            <div class="info-item"><div class="info-label">经销商电话</div><div class="info-value" id="refDealerPhone">--</div></div>
-            <div class="info-item"><div class="info-label">业务线</div><div class="info-value" id="refBizType">--</div></div>
-            <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">--</div></div>
-            <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">--</div></div>
-            <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">--</div></div>
-            <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">--</div></div>
-            <div class="info-item"><div class="info-label">登录顺序</div><div class="info-value"><span class="lo-badge" id="refLoBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="openLoginOrderModal()">查看</span></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3.2 使用方信息 -->
-      <div class="ref-card">
-        <div class="ref-card-header">
-          <div class="fct-accent"></div>
-          <span>使用方信息</span>
-        </div>
-        <div class="ref-card-body">
-          <div class="info-grid">
-            <div class="info-item"><div class="info-label">项目名称</div><div class="info-value" id="refProjectName">--</div></div>
-            <div class="info-item"><div class="info-label">客户类型</div><div class="info-value" id="refCustType">--</div></div>
-            <div class="info-item"><div class="info-label">客户名称</div><div class="info-value" id="refCustName">--</div></div>
-            <div class="info-item"><div class="info-label">采购单位</div><div class="info-value" id="refBuyer">--</div></div>
-            <div class="info-item"><div class="info-label">行业大类</div><div class="info-value" id="refIndustry">--</div></div>
-            <div class="info-item"><div class="info-label">使用方负责人</div><div class="info-value" id="refContact">--</div></div>
-            <div class="info-item"><div class="info-label">联系方式</div><div class="info-value" id="refPhone">--</div></div>
-            <div class="info-item"><div class="info-label">项目地址</div><div class="info-value" id="refAddress">--</div></div>
-            <div class="info-item"><div class="info-label">空调面积</div><div class="info-value" id="refArea">--</div></div>
-            <div class="info-item"><div class="info-label">预计设备金额</div><div class="info-value" id="refAmount">--</div></div>
-            <div class="info-item"><div class="info-label">跨区类型</div><div class="info-value" id="refCrossRegion">--</div></div>
-            <div class="info-item"><div class="info-label">跨区编号</div><div class="info-value" id="refCrossCode">--</div></div>
-            <div class="info-item"><div class="info-label">执行单位</div><div class="info-value" id="refExecUnit">--</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3.3 项目设备清单（参考） -->
-      <div class="ref-card">
-        <div class="ref-card-header">
-          <div class="fct-accent"></div>
-          <span>项目设备清单</span>
-        </div>
-        <div class="ref-card-body" style="padding:8px 16px;">
-          <div class="equip-table-wrap" style="max-height:200px;">
-            <table class="equip-table" style="min-width:900px;">
-              <thead>
-                <tr>
-                  <th style="width:44px;text-align:center;">序号</th>
-                  <th style="width:36px;"></th>
-                  <th>品类</th>
-                  <th>商品名称</th>
-                  <th>SKU编码</th>
-                  <th>商品ID</th>
-                  <th>型号</th>
-                  <th>数量</th>
-                  <th>申请价格</th>
-                  <th>申请点位</th>
-                </tr>
-              </thead>
-              <tbody id="refEquipTbody">
-                <!-- 由JS渲染 -->
-              </tbody>
-            </table>
-          </div>
-          <div class="equip-table-foot" style="border:none;background:transparent;padding:6px 0 0;">
-            <div style="display:flex;align-items:center;gap:16px;">
-              <div class="equip-summary-item">总数量：<span id="refEquipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="refEquipTotalAmt">¥ 0.00</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- ========== 审批记录 ========== -->
     <div class="form-card">
       <div class="approval-record-header">
@@ -785,6 +695,96 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ==================== 三、关联项目参考区（不可折叠） ==================== -->
+    <div style="margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;margin-bottom:4px;">
+        <span style="font-size:13px;font-weight:600;color:#1f2329;">关联项目参考</span>
+        <span style="font-size:11px;color:#8f959e;">（以下信息来自所选工程项目单，仅供参考）</span>
+      </div>
+
+      <!-- 3.1 基本信息 -->
+      <div class="ref-card">
+        <div class="ref-card-header">
+          <div class="fct-accent"></div>
+          <span>基本信息</span>
+        </div>
+        <div class="ref-card-body">
+          <div class="info-grid">
+            <div class="info-item"><div class="info-label">项目单号</div><div class="info-value" id="refProjectNo">--</div></div>
+            <div class="info-item"><div class="info-label">经销商名称</div><div class="info-value" id="refDealerName">--</div></div>
+            <div class="info-item"><div class="info-label">经销商电话</div><div class="info-value" id="refDealerPhone">--</div></div>
+            <div class="info-item"><div class="info-label">业务线</div><div class="info-value" id="refBizType">--</div></div>
+            <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">--</div></div>
+            <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">--</div></div>
+            <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">--</div></div>
+            <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">--</div></div>
+            <div class="info-item"><div class="info-label">登录顺序</div><div class="info-value"><span class="lo-badge" id="refLoBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="openLoginOrderModal()">查看</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.2 使用方信息 -->
+      <div class="ref-card">
+        <div class="ref-card-header">
+          <div class="fct-accent"></div>
+          <span>使用方信息</span>
+        </div>
+        <div class="ref-card-body">
+          <div class="info-grid">
+            <div class="info-item"><div class="info-label">项目名称</div><div class="info-value" id="refProjectName">--</div></div>
+            <div class="info-item"><div class="info-label">客户类型</div><div class="info-value" id="refCustType">--</div></div>
+            <div class="info-item"><div class="info-label">客户名称</div><div class="info-value" id="refCustName">--</div></div>
+            <div class="info-item"><div class="info-label">采购单位</div><div class="info-value" id="refBuyer">--</div></div>
+            <div class="info-item"><div class="info-label">行业大类</div><div class="info-value" id="refIndustry">--</div></div>
+            <div class="info-item"><div class="info-label">使用方负责人</div><div class="info-value" id="refContact">--</div></div>
+            <div class="info-item"><div class="info-label">联系方式</div><div class="info-value" id="refPhone">--</div></div>
+            <div class="info-item"><div class="info-label">项目地址</div><div class="info-value" id="refAddress">--</div></div>
+            <div class="info-item"><div class="info-label">空调面积</div><div class="info-value" id="refArea">--</div></div>
+            <div class="info-item"><div class="info-label">预计设备金额</div><div class="info-value" id="refAmount">--</div></div>
+            <div class="info-item"><div class="info-label">跨区类型</div><div class="info-value" id="refCrossRegion">--</div></div>
+            <div class="info-item"><div class="info-label">跨区编号</div><div class="info-value" id="refCrossCode">--</div></div>
+            <div class="info-item"><div class="info-label">执行单位</div><div class="info-value" id="refExecUnit">--</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3.3 项目设备清单（参考） -->
+      <div class="ref-card">
+        <div class="ref-card-header">
+          <div class="fct-accent"></div>
+          <span>项目设备清单</span>
+        </div>
+        <div class="ref-card-body" style="padding:8px 16px;">
+          <div class="equip-table-wrap" style="max-height:200px;">
+            <table class="equip-table" style="min-width:900px;">
+              <thead>
+                <tr>
+                  <th style="width:44px;text-align:center;">序号</th>
+                  <th style="width:36px;"></th>
+                  <th>品类</th>
+                  <th>商品名称</th>
+                  <th>SKU编码</th>
+                  <th>商品ID</th>
+                  <th>型号</th>
+                  <th>数量</th>
+                  <th>申请价格</th>
+                  <th>申请点位</th>
+                </tr>
+              </thead>
+              <tbody id="refEquipTbody">
+                <!-- 由JS渲染 -->
+              </tbody>
+            </table>
+          </div>
+          <div class="equip-table-foot" style="border:none;background:transparent;padding:6px 0 0;">
+            <div style="display:flex;align-items:center;gap:16px;">
+              <div class="equip-summary-item">总数量：<span id="refEquipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="refEquipTotalAmt">¥ 0.00</span></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
