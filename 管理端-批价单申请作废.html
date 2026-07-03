@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理端-批价单申请作废</title>
+<style>
+/* 商用工程 · 共享样式 */
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --danger:#D32F2F; --success:#2E7D32; --warning:#ED6C02; --info:#0288D1;
+  --bg:#fff; --bg-card:#fff; --bg-header:#F7F8FA; --bg-hover:#f0f2f5;
+  --border:#e8eaed; --border-light:#f0f0f0;
+  --text:#1f2329; --text-secondary:#646a73; --text-aux:#8f959e;
+  --font-body:14px; --font-card-title:14px; --font-aux:12px; --font-small:13px;
+  --radius:4px; --radius-card:6px;
+  --gap:4px; --gap8:8px; --gap12:12px; --gap16:16px; --gap24:24px;
+  --row-h:36px; --header-h:40px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:var(--font-body);color:var(--text);background:#f0f2f5;line-height:1.6;}
+
+/* 页面根容器 */
+.page-root{display:flex;flex-direction:column;height:100vh;background:#f0f2f5;overflow:hidden;}
+
+/* ====== 页面头 ====== */
+.form-page-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 12px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0;}
+.form-page-title{font-size:17px;font-weight:700;color:var(--text);}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text-secondary);cursor:pointer;padding:5px 10px;border-radius:4px;border:1px solid var(--border);background:#fff;transition:.15s;margin-right:8px;}
+.back-btn:hover{color:var(--primary);border-color:var(--primary);}
+.back-btn svg{width:14px;height:14px;}
+
+/* ====== 紧急标识 ====== */
+.urgent-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--danger);border:1px solid var(--danger);border-radius:3px;padding:2px 8px;background:#fff5f5;margin-left:10px;}
+
+/* ====== 滚动内容区 ====== */
+.form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
+.form-page-inner{padding:16px 24px 0 24px;}
+
+/* ====== 页面子标题区 ====== */
+.page-sub-header{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);padding:16px 20px;margin-bottom:12px;}
+.page-sub-header h2{font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.page-sub-header p{font-size:13px;color:var(--text-aux);line-height:1.5;}
+
+/* ====== 批价单信息摘要 ====== */
+.price-info-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);margin-bottom:12px;padding:16px 20px;}
+.price-info-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.price-info-title{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
+.price-info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 20px;}
+.price-info-item{font-size:13px;}
+.price-info-item .pil{color:var(--text-aux);font-size:12px;margin-bottom:1px;}
+.price-info-item .piv{color:var(--text);font-weight:500;}
+.price-info-divider{height:1px;background:var(--border-light);margin:10px 0;}
+
+/* ====== 表单卡片 ====== */
+.form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);margin-bottom:12px;overflow:hidden;}
+.form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--border-light);background:var(--bg-header);display:flex;align-items:center;justify-content:space-between;}
+.form-card-title{display:flex;align-items:center;gap:8px;}
+.fct-accent{width:4px;height:16px;background:var(--danger);border-radius:2px;flex-shrink:0;}
+.fct-text{font-size:14px;font-weight:700;color:var(--text);}
+.form-card-body{padding:16px;}
+
+/* ====== 表单项 ====== */
+.form-item{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;}
+.form-label .req{color:var(--danger);font-size:12px;}
+.form-hint{font-size:11px;color:var(--text-aux);line-height:1.4;margin-top:2px;}
+.form-hint.error{color:var(--danger);}
+
+/* ====== 表单控件 ====== */
+.form-ctrl{height:32px;border:1px solid #e0e3ea;border-radius:4px;padding:0 10px;font-size:13px;color:var(--text);outline:none;transition:.15s;background:#fff;width:100%;}
+.form-ctrl:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+textarea.form-ctrl{height:100px;resize:vertical;padding:8px 10px;line-height:1.6;font-size:13px;}
+
+/* ====== 附件区 ====== */
+.attach-zone{border:1.5px dashed #c5cae9;border-radius:5px;padding:24px;text-align:center;cursor:pointer;transition:.15s;background:#fafbfc;}
+.attach-zone:hover{border-color:var(--primary);background:#f0f4ff;}
+.attach-zone-text{font-size:13px;color:var(--text-aux);line-height:1.6;}
+.attach-zone-text span{color:var(--primary);text-decoration:underline;}
+.attach-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.attach-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f5f6fa;border-radius:4px;font-size:12px;color:var(--text-secondary);}
+.attach-item .at-icon{flex-shrink:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
+.attach-item .at-name{flex:1;color:var(--primary);cursor:pointer;font-size:13px;}
+.attach-item .at-name:hover{text-decoration:underline;}
+.attach-item .at-size{color:var(--text-aux);font-size:11px;}
+.attach-item .at-del{color:var(--danger);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;}
+.attach-item .at-del:hover{color:#b71c1c;}
+.attach-item .at-preview{color:var(--primary);font-size:12px;cursor:pointer;padding:2px 6px;background:rgba(59,89,152,.08);border-radius:3px;}
+.attach-item .at-preview:hover{background:rgba(59,89,152,.18);}
+.attach-ext-tip{margin-top:8px;font-size:12px;color:var(--text-aux);background:#f5f6fa;padding:8px 12px;border-radius:4px;line-height:1.5;}
+
+/* ====== 字符计数 ====== */
+.char-counter{font-size:11px;color:var(--text-aux);text-align:right;margin-top:2px;}
+.char-counter.warn{color:var(--warning);}
+.char-counter.over{color:var(--danger);}
+
+/* ====== 底部固定操作栏 ====== */
+.form-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);flex-shrink:0;}
+.form-footer-left{font-size:12px;color:var(--text-aux);}
+.form-footer-right{display:flex;gap:10px;align-items:center;}
+.btn-submit{padding:8px 32px;font-size:14px;font-weight:700;background:var(--danger);color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-submit:hover{background:#b71c1c;box-shadow:0 2px 8px rgba(211,47,47,.3);}
+.btn-submit:disabled{background:#bbb;cursor:not-allowed;box-shadow:none;}
+.btn-cancel{padding:8px 20px;font-size:14px;background:#fff;color:var(--text-secondary);border:1px solid #e0e3ea;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-cancel:hover{border-color:var(--primary);color:var(--primary);}
+
+/* ====== 弹窗（Modal） ====== */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
+.modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:420px;overflow:hidden;}
+.modal-body{padding:28px 24px 16px;text-align:center;}
+.modal-body .modal-icon{font-size:40px;margin-bottom:12px;display:block;}
+.modal-icon-warn{width:44px;height:44px;border-radius:50%;background:#FFF3E0;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#ED6C02;font-weight:700;line-height:1;margin-bottom:16px;}
+.modal-body .modal-msg{font-size:15px;color:var(--text);font-weight:600;margin-bottom:4px;}
+.modal-body .modal-sub{font-size:13px;color:var(--text-aux);margin-bottom:20px;}
+.modal-footer{display:flex;align-items:center;justify-content:center;gap:12px;padding:0 24px 24px;}
+.modal-footer .btn-confirm{padding:7px 36px;font-size:14px;font-weight:700;background:var(--danger);color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.modal-footer .btn-confirm:hover{background:#b71c1c;}
+.modal-footer .btn-cancel-modal{padding:7px 24px;font-size:14px;background:#fff;color:var(--text-secondary);border:1px solid #e0e3ea;border-radius:5px;cursor:pointer;transition:.15s;}
+.modal-footer .btn-cancel-modal:hover{border-color:var(--primary);color:var(--primary);}
+
+/* ====== 提示弹窗（Toast） ====== */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:6px;font-size:14px;color:#fff;z-index:2000;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+
+html,body{height:100%;margin:0;overflow:hidden;}
+
+/* ====== 状态徽章 ====== */
+.status-badge{display:inline-block;padding:2px 10px;border-radius:3px;font-size:12px;font-weight:500;}
+.st-approve{background:#e8f4fd;color:#0288D1;border:1px solid #81d4fa;}
+.st-ok{background:#e8f5e9;color:#2E7D32;border:1px solid #a5d6a7;}
+.st-rej{background:#fce4ec;color:#D32F2F;border:1px solid #ef9a9a;}
+.st-info{background:#f0f2f5;color:#646a73;border:1px solid #d0d5dd;}
+.st-warn{background:#fff8e1;color:#B45309;border:1px solid #FDE68A;}
+</style>
+</head>
+<body>
+<div class="page-root">
+
+<!-- ===== 页面头部 ===== -->
+<div class="form-page-header">
+  <div style="display:flex;align-items:center;gap:0;">
+    <span class="form-page-title">申请作废 粤东GCDT202606250001-PJ001（某商业综合体空调项目）</span>
+    <span class="urgent-badge">⚠ 高危操作</span>
+  </div>
+</div>
+
+<!-- ===== 滚动内容区 ===== -->
+<div class="form-page-scroll">
+<div class="form-page-inner">
+
+  <!-- ===== 页面子标题区 ===== -->
+  <div class="page-sub-header">
+    <h2>⚠️ 操作提示</h2>
+    <p>批价单作废后将无法恢复，已提交的批价审批流程也将同时终止。请确认该批价单确实不再需要执行后再提交申请。申请提交后将进入审批流程，审批通过后批价单状态变更为"已关闭"。</p>
+  </div>
+
+  <!-- ===== 批价单信息摘要 ===== -->
+  <div class="price-info-card">
+    <div class="price-info-head">
+      <div class="price-info-title">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="#3b5998" stroke-width="1.2"/><path d="M5 8h6M8 5v6" stroke="#3b5998" stroke-width="1.2" stroke-linecap="round"/></svg>
+        批价单信息
+      </div>
+      <span class="status-badge st-approve">审批中</span>
+    </div>
+    <div class="price-info-grid">
+      <div class="price-info-item"><div class="pil">项目单号</div><div class="piv">粤东GCDT202606250001</div></div>
+      <div class="price-info-item"><div class="pil">批价单号</div><div class="piv">PJ202607030001</div></div>
+      <div class="price-info-item"><div class="pil">经销商</div><div class="piv">珠海华鸿电器销售有限公司</div></div>
+      <div class="price-info-item"><div class="pil">业务线</div><div class="piv">中央空调</div></div>
+    </div>
+    <div class="price-info-divider"></div>
+    <div class="price-info-grid">
+      <div class="price-info-item"><div class="pil">申请总金额</div><div class="piv" style="font-weight:700;color:var(--text);">¥ 486,600.00</div></div>
+      <div class="price-info-item"><div class="pil">设备数量</div><div class="piv">27 台</div></div>
+      <div class="price-info-item"><div class="pil">申请人</div><div class="piv">张三（销司管理）</div></div>
+      <div class="price-info-item"><div class="pil">申请时间</div><div class="piv">2026-07-03 09:30</div></div>
+    </div>
+  </div>
+
+  <!-- ===== 作废原因卡片 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">作废原因</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-item">
+        <label class="form-label">
+          <span class="req">*</span> 原因描述
+        </label>
+        <textarea class="form-ctrl" id="reasonInput" placeholder="请输入作废原因，需明确说明作废依据，最多500字符" maxlength="500" oninput="updateCharCount(this)"></textarea>
+        <div class="char-counter" id="charCount">已输入 0 / 500</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 附件上传卡片 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">附件上传</span>
+        <span style="font-size:12px;color:var(--text-aux);font-weight:400;">（选填，建议上传相关审批凭证）</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="attach-zone" id="attachZone" onclick="document.getElementById('fileInput').click()">
+        <div class="attach-zone-text">
+          点击或拖拽文件到此处上传<br>
+          <span>支持 PNG / JPG / PDF / DOCX / XLSX 格式</span>
+        </div>
+      </div>
+      <input type="file" id="fileInput" style="display:none;" multiple accept=".png,.jpg,.jpeg,.pdf,.docx,.xlsx" onchange="handleFileSelect(this)">
+      <div class="attach-list" id="attachList"></div>
+      <div class="attach-ext-tip" id="attachTip">
+        ✅ 支持扩展名：.png .jpg .pdf .docx .xlsx ，每文件大小不超过20MB，上传数量不超过10个<br>
+        ✅ 图片类文件可点击预览
+      </div>
+    </div>
+  </div>
+
+  <div style="height:68px;"></div>
+</div><!-- /form-page-inner -->
+</div><!-- /form-page-scroll -->
+
+<!-- ===== 底部固定操作栏 ===== -->
+<div class="form-footer">
+  <div class="form-footer-left">
+    <div class="back-btn" onclick="showToast('返回批价单详情页','success')">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      返回
+    </div>
+  </div>
+  <div class="form-footer-right">
+    <button class="btn-cancel" onclick="showCancelConfirm()">取消</button>
+    <button class="btn-submit" id="btnSubmit" onclick="showSubmitConfirm()">提交作废申请</button>
+  </div>
+</div>
+
+<!-- ===== 提交确认弹窗 ===== -->
+<div class="modal-overlay" id="submitModal" onclick="if(event.target===this)closeModal('submitModal')">
+  <div class="modal-content">
+    <div class="modal-body">
+      <div class="modal-icon-warn">!</div>
+      <div class="modal-msg" style="margin-bottom:24px;">确定 提交批价单作废申请吗？</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal('submitModal')">取消</button>
+      <button class="btn-confirm" style="background:var(--primary);" onmouseover="this.style.background='#2d4377'" onmouseout="this.style.background='var(--primary)'" onclick="confirmSubmit()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 取消确认弹窗 ===== -->
+<div class="modal-overlay" id="cancelModal" onclick="if(event.target===this)closeModal('cancelModal')">
+  <div class="modal-content">
+    <div class="modal-body">
+      <div class="modal-icon-warn">!</div>
+      <div class="modal-msg" style="margin-bottom:24px;">确定 放弃本次作废申请吗？</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal('cancelModal')">取消</button>
+      <button class="btn-confirm" style="background:var(--primary);" onmouseover="this.style.background='#2d4377'" onmouseout="this.style.background='var(--primary)'" onclick="cancelApply()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast通知 ===== -->
+<div class="toast" id="toast"></div>
+
+</div><!-- /page-root -->
+
+<script>
+/* ===== 字符计数 ===== */
+function updateCharCount(textarea) {
+  var count = textarea.value.length;
+  var counter = document.getElementById('charCount');
+  counter.textContent = '已输入 ' + count + ' / 500';
+  counter.className = 'char-counter';
+  if(count > 400) counter.classList.add('warn');
+  if(count >= 500) counter.classList.add('over');
+}
+
+/* ===== 附件上传 ===== */
+var attachFiles = [];
+
+function handleFileSelect(input) {
+  var files = input.files;
+  if(!files || files.length === 0) return;
+
+  for(var i = 0; i < files.length; i++) {
+    var file = files[i];
+    // 格式校验
+    var ext = file.name.split('.').pop().toLowerCase();
+    var allowed = ['png','jpg','jpeg','pdf','docx','xlsx'];
+    if(allowed.indexOf(ext) === -1) {
+      showToast('格式不支持："' + file.name + '"，请上传指定格式文件', 'error');
+      continue;
+    }
+    // 大小校验
+    if(file.size > 20 * 1024 * 1024) {
+      showToast('文件超过大小限制："' + file.name + '"（最大20MB），请重新上传', 'error');
+      continue;
+    }
+    // 数量校验
+    if(attachFiles.length >= 10) {
+      showToast('上传数量已达上限（10个），无法继续添加', 'error');
+      break;
+    }
+    attachFiles.push(file);
+  }
+  renderAttachList();
+  input.value = '';
+}
+
+function renderAttachList() {
+  var list = document.getElementById('attachList');
+  list.innerHTML = '';
+  for(var i = 0; i < attachFiles.length; i++) {
+    var f = attachFiles[i];
+    var isImage = ['png','jpg','jpeg'].indexOf(f.name.split('.').pop().toLowerCase()) !== -1;
+    var div = document.createElement('div');
+    div.className = 'attach-item';
+    div.innerHTML = '<span class="at-icon">📄</span>'
+      + '<span class="at-name" onclick="' + (isImage ? 'previewFile(' + i + ')' : 'showToast(\'预览暂只支持图片格式\',\'error\')') + '">' + escapeHtml(f.name) + '</span>'
+      + '<span class="at-size">' + formatFileSize(f.size) + '</span>'
+      + (isImage ? '<span class="at-preview" onclick="previewFile(' + i + ')">预览</span>' : '')
+      + '<span class="at-del" onclick="removeFile(' + i + ')">×</span>';
+    list.appendChild(div);
+  }
+  // 超过10个隐藏上传区
+  var zone = document.getElementById('attachZone');
+  zone.style.display = attachFiles.length >= 10 ? 'none' : '';
+}
+
+function removeFile(index) {
+  attachFiles.splice(index, 1);
+  renderAttachList();
+}
+
+function previewFile(index) {
+  var file = attachFiles[index];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var w = window.open('', '_blank', 'width=800,height=600');
+    w.document.write('<html><head><title>图片预览</title><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#333;}img{max-width:100%;max-height:100vh;object-fit:contain;}</style></head><body><img src="' + e.target.result + '" alt="预览"></body></html>');
+    w.document.close();
+  };
+  reader.readAsDataURL(file);
+}
+
+function formatFileSize(bytes) {
+  if(bytes < 1024) return bytes + 'B';
+  if(bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+  return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+}
+
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ===== 弹窗控制 ===== */
+function showModal(id) {
+  document.getElementById(id).style.display = 'flex';
+}
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function showSubmitConfirm() {
+  var reason = document.getElementById('reasonInput').value.trim();
+  if(!reason) {
+    showToast('请填写作废原因', 'error');
+    document.getElementById('reasonInput').focus();
+    return;
+  }
+  showModal('submitModal');
+}
+
+function confirmSubmit() {
+  closeModal('submitModal');
+  showToast('批价单作废申请已提交，等待审批', 'success');
+}
+
+function showCancelConfirm() {
+  showModal('cancelModal');
+}
+
+function cancelApply() {
+  closeModal('cancelModal');
+  showToast('已取消操作', 'error');
+}
+
+/* ===== Toast ===== */
+function showToast(msg, type) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + (type || 'success');
+  toast.style.display = 'block';
+  setTimeout(function() {
+    toast.style.display = 'none';
+  }, 3000);
+}
+
+/* ===== 文档拖拽上传 ===== */
+document.addEventListener('DOMContentLoaded', function() {
+  var zone = document.getElementById('attachZone');
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--primary)';
+    this.style.background = '#f0f4ff';
+  });
+  zone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#c5cae9';
+    this.style.background = '#fafbfc';
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#c5cae9';
+    this.style.background = '#fafbfc';
+    if(e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileSelect({files: e.dataTransfer.files});
+    }
+  });
+});
+</script>
+</body>
+</html>
