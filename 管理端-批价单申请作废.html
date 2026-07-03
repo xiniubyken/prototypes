@@ -42,16 +42,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .page-sub-header h2{font-size:16px;font-weight:700;color:var(--text);margin-bottom:2px;}
 .page-sub-header p{font-size:13px;color:var(--text-aux);line-height:1.5;}
 
-/* ====== 批价单信息摘要 ====== */
-.price-info-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);margin-bottom:12px;padding:16px 20px;}
-.price-info-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.price-info-title{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px;}
-.price-info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 20px;}
-.price-info-item{font-size:13px;}
-.price-info-item .pil{color:var(--text-aux);font-size:12px;margin-bottom:1px;}
-.price-info-item .piv{color:var(--text);font-weight:500;}
-.price-info-divider{height:1px;background:var(--border-light);margin:10px 0;}
-
 /* ====== 表单卡片 ====== */
 .form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);margin-bottom:12px;overflow:hidden;}
 .form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--border-light);background:var(--bg-header);display:flex;align-items:center;justify-content:space-between;}
@@ -155,29 +145,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
     <p>批价单作废后将无法恢复，已提交的批价审批流程也将同时终止。请确认该批价单确实不再需要执行后再提交申请。申请提交后将进入审批流程，审批通过后批价单状态变更为"已关闭"。</p>
   </div>
 
-  <!-- ===== 批价单信息摘要 ===== -->
-  <div class="price-info-card">
-    <div class="price-info-head">
-      <div class="price-info-title">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="#3b5998" stroke-width="1.2"/><path d="M5 8h6M8 5v6" stroke="#3b5998" stroke-width="1.2" stroke-linecap="round"/></svg>
-        批价单信息
-      </div>
-      <span class="status-badge st-approve">审批中</span>
-    </div>
-    <div class="price-info-grid">
-      <div class="price-info-item"><div class="pil">项目单号</div><div class="piv">粤东GCDT202606250001</div></div>
-      <div class="price-info-item"><div class="pil">批价单号</div><div class="piv">PJ202607030001</div></div>
-      <div class="price-info-item"><div class="pil">经销商</div><div class="piv">珠海华鸿电器销售有限公司</div></div>
-      <div class="price-info-item"><div class="pil">业务线</div><div class="piv">中央空调</div></div>
-    </div>
-    <div class="price-info-divider"></div>
-    <div class="price-info-grid">
-      <div class="price-info-item"><div class="pil">申请总金额</div><div class="piv" style="font-weight:700;color:var(--text);">¥ 486,600.00</div></div>
-      <div class="price-info-item"><div class="pil">设备数量</div><div class="piv">27 台</div></div>
-      <div class="price-info-item"><div class="pil">申请人</div><div class="piv">张三（销司管理）</div></div>
-      <div class="price-info-item"><div class="pil">申请时间</div><div class="piv">2026-07-03 09:30</div></div>
-    </div>
-  </div>
 
   <!-- ===== 作废原因卡片 ===== -->
   <div class="form-card">
