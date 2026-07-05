@@ -293,7 +293,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 </div><!-- end t1 -->
 
 <!-- T2 审批进度 -->
-<div class="tp pi" id="t2" style="display:none">
+<div class="tp pi" id="t2">
   <div class="card">
     <div class="ch"><span>审批进度</span></div>
     <div class="cb cb0"><div class="tw"><table class="dt" id="apt"><thead><tr>
@@ -305,11 +305,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
       <th>操作</th>
     </tr></thead><tbody id="aptb"></tbody></table></div></div>
   </div>
-  <!-- 审批节点时间线 -->
-  <div class="card">
-    <div class="ch"><span>审批节点</span></div>
-    <div class="cb"><div class="atl" id="apTimeline"></div></div>
-  </div>
+  <!-- 审批节点时间线 & 审批流程图已隐藏 -->
 </div><!-- end t2 -->
 
 </div><!-- end scroll -->
@@ -548,7 +544,9 @@ const C={
       {n:'办事处内勤·张经理',t:'待审批',r:'审批中',st:'c'},
       {n:'工程科内勤·王科长',t:'待审批',r:'待审批',st:'p'}
     ],
-    al:[{type:'工程批价',status:'审批中',updated:'--',created:'2026-06-25 10:30:00',ops:['查看']}],
+    al:[
+      {type:'工程批价',status:'审批中',updated:'--',created:'2026-06-25 10:30:00',ops:['查看']}
+    ],
   }
 },
 
@@ -595,7 +593,7 @@ const C={
       {n:'工程科内勤·王科长',t:'待审批',r:'待审批',st:'p'}
     ],
     al:[
-      {type:'工程批价',status:'审批中',updated:'--',created:'2026-06-25 10:30:00',ops:['查看']},
+      {type:'工程批价',status:'已驳回',updated:'2026-07-01 17:30:00',created:'2026-06-25 10:30:00',ops:['查看']},
       {type:'作废',status:'审批中',updated:'--',created:'2026-07-02 09:00:00',ops:['查看']}
     ],
   }
@@ -662,7 +660,7 @@ const C={
       {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'--',qty:6,origQty:6,price:12000,origPrice:12000,point:7.5,approvePrice:11500,resetPoint:7.0,depositRate:10,onlinePrice:11500,estimate:null,remark:'',buyQty:0,shipQty:0},
       {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:39500,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
     ],
-    ft:true,a:['提货延期'],
+    ft:true,a:[],
     lt:'2026-06-27 14:30',v:{d:90,c:'#2E7D32'},
     ap:[
       {n:'经销商提交',t:'2026-06-25 10:30',r:'已提交',st:'d'},
@@ -670,7 +668,8 @@ const C={
       {n:'工程科内勤·王科长',t:'2026-06-27 14:30',r:'已通过',st:'d'}
     ],
     al:[
-      {type:'工程批价',status:'通过',updated:'2026-06-27 14:30:00',created:'2026-06-25 10:30:00',ops:['查看']}
+      {type:'工程批价',status:'通过',updated:'2026-06-27 14:30:00',created:'2026-06-25 10:30:00',ops:['查看']},
+      {type:'提货延期',status:'通过',updated:'2026-07-02 11:00:00',created:'2026-07-01 14:20:00',ops:['查看']}
     ],
   }
 },
@@ -690,7 +689,7 @@ const C={
       {seq:4,nonstd:true,cate:'风管机',name:'风管机FGR7.5/C-非标定制',model:'FGR7.5/C-CUS',sku:'SKU-FGR75C-CUS',id:'GID-30002',qty:6,origQty:6,price:15000,origPrice:15000,point:null,approvePrice:14500,resetPoint:7.0,depositRate:10,onlinePrice:14500,estimate:null,remark:'特殊风压定制',buyQty:2,shipQty:1},
       {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:null,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
     ],
-    ft:true,a:['提货延期'],
+    ft:true,a:[],
     lt:'2026-06-27 14:30',v:{d:90,c:'#B45309'},
     ap:[
       {n:'经销商提交',t:'2026-06-25 10:30',r:'已提交',st:'d'},
@@ -698,7 +697,8 @@ const C={
       {n:'工程科内勤·王科长',t:'2026-06-27 14:30',r:'已通过',st:'d'}
     ],
     al:[
-      {type:'工程批价',status:'通过',updated:'2026-06-27 14:30:00',created:'2026-06-25 10:30:00',ops:['查看']}
+      {type:'工程批价',status:'通过',updated:'2026-06-27 14:30:00',created:'2026-06-25 10:30:00',ops:['查看']},
+      {type:'提货延期',status:'通过',updated:'2026-07-02 11:00:00',created:'2026-07-01 14:20:00',ops:['查看']}
     ],
   }
 },
@@ -730,7 +730,8 @@ const C={
       {n:'工程科内勤·王科长',t:'2026-06-27 14:30',r:'已通过',st:'d'}
     ],
     al:[
-      {type:'工程批价',status:'通过',updated:'2026-06-27 14:30:00',created:'2026-06-25 10:30:00',ops:['查看']}
+      {type:'工程批价',status:'通过',updated:'2026-06-27 14:30:00',created:'2026-06-25 10:30:00',ops:['查看']},
+      {type:'提货延期',status:'通过',updated:'2026-07-05 11:20:00',created:'2026-07-01 10:00:00',ops:['查看']}
     ],
   }
 },
@@ -753,8 +754,7 @@ const C={
       {n:'经销商放弃',t:'2026-06-26 11:00',r:'已关闭',st:'cc'}
     ],
     al:[
-      {type:'工程批价',status:'已取消',updated:'2026-06-26 11:00:00',created:'2026-06-25 10:30:00',ops:['查看']},
-      {type:'作废',status:'通过',updated:'2026-06-26 11:05:00',created:'2026-06-26 11:00:00',ops:['查看']}
+      {type:'工程批价',status:'通过',updated:'2026-06-26 11:00:00',created:'2026-06-25 10:30:00',ops:['查看']}
     ],
   }
 },
@@ -799,8 +799,7 @@ const C={
       {n:'项目联动关闭',t:'2026-07-05 14:20',r:'已关闭',st:'cc'}
     ],
     al:[
-      {type:'工程批价',status:'已取消',updated:'2026-07-05 14:20:00',created:'2026-06-25 10:30:00',ops:['查看']},
-      {type:'作废',status:'通过',updated:'2026-07-05 14:20:00',created:'2026-07-05 14:20:00',ops:['查看']}
+      {type:'工程批价',status:'已取消',updated:'2026-07-05 14:20:00',created:'2026-06-25 10:30:00',ops:['查看']}
     ],
   }
 },
@@ -1135,7 +1134,7 @@ function renderApproval(al,ap){
     else if(a.status==='驳回'||a.status==='已驳回') statusClass='st-rej';
     else if(a.status==='已取消') statusClass='st-info';
     var ops=a.ops.map(function(op){
-      return '<span class="link-btn" onclick="showOpinionModal()">'+op+'</span>';
+      return '<span class="link-btn" onclick="da(\'进入单据查看详情演示\')">'+op+'</span>';
     }).join('');
     html+='<tr><td class="cn">'+(i+1)+'</td><td>'+a.type+'</td><td><span class="'+statusClass+'">'+a.status+'</span></td><td>'+a.updated+'</td><td>'+a.created+'</td><td>'+ops+' <span class="link-btn" onclick="openApprovalFlowModal()">审批流程</span></td></tr>';
   });
