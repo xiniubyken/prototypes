@@ -80,6 +80,38 @@ textarea.form-ctrl{height:100px;resize:vertical;padding:8px 10px;line-height:1.6
 .attach-item .at-preview:hover{background:rgba(59,89,152,.18);}
 .attach-ext-tip{margin-top:8px;font-size:12px;color:var(--text-aux);background:#f5f6fa;padding:8px 12px;border-radius:4px;line-height:1.5;}
 
+/* ====== 工程项目单信息 ====== */
+.project-selected-card{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.project-selected-info{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+.project-selected-name{font-size:15px;font-weight:700;color:#1f2329;}
+.project-selected-meta{font-size:12px;color:#646a73;display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.project-meta-item{display:inline-flex;align-items:center;gap:0;}
+.project-meta-sep{color:#d0d3da;margin:0 8px;font-size:11px;}
+
+/* ====== 登录信息摘要 ====== */
+.login-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+.login-info-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);padding:6px 0;border-bottom:1px dashed var(--border-light);}
+.login-info-item .lii-label{font-size:12px;color:var(--text-aux);min-width:80px;flex-shrink:0;}
+.login-info-item .lii-value{font-weight:600;color:var(--text);}
+.login-info-item .lii-value.status-ok{color:var(--success);}
+.login-info-item .lii-value.status-warn{color:var(--warning);}
+
+/* ====== 日期选择 ====== */
+.date-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.date-row .date-label{font-size:12px;color:var(--text-aux);white-space:nowrap;}
+.date-row .date-input{width:160px;}
+.date-row .date-sep{color:var(--text-aux);font-size:13px;}
+.date-row .date-days{font-size:12px;color:var(--text-aux);background:#f5f6fa;padding:4px 10px;border-radius:4px;}
+
+/* ====== 快捷延期按钮 ====== */
+.quick-pick-group{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.quick-pick-label{font-size:11px;color:var(--text-aux);white-space:nowrap;}
+.quick-btn{font-size:12px;padding:4px 14px;border:1px solid #d0d3da;border-radius:14px;background:#fff;color:var(--text-secondary);cursor:pointer;transition:.15s;user-select:none;}
+.quick-btn:hover{border-color:var(--primary);color:var(--primary);background:#f0f4ff;}
+.quick-btn.active{border-color:var(--primary);background:var(--primary);color:#fff;font-weight:600;}
+.quick-btn.quick-custom{border-style:dashed;color:var(--text-aux);}
+.quick-btn.quick-custom:hover{border-style:solid;}
+
 /* ====== 字符计数 ====== */
 .char-counter{font-size:11px;color:var(--text-aux);text-align:right;margin-top:2px;}
 .char-counter.warn{color:var(--warning);}
@@ -126,7 +158,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">登录延期 粤东GCDT202506250001 (希望小学A项目)</span>
+    <span class="form-page-title">登录延期 粤东GCDT202606250001-LG001 (汕头市某中学空调改造项目)</span>
   </div>
 </div>
 
@@ -142,6 +174,32 @@ html,body{height:100%;margin:0;overflow:hidden;}
   <!-- ===== 页面子标题区 ===== -->
   <div class="page-sub-header">
     <p>若发生特殊情况需登录延期，请完善并上传相关资料证明</p>
+  </div>
+
+  <!-- ===== 卡片1：工程项目单信息 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">工程项目单信息</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="project-selected-card" style="border:none;background:transparent;padding:0 0 10px 0;">
+        <div class="project-selected-info">
+          <div class="project-selected-name">汕头市某中学空调改造项目</div>
+          <div class="project-selected-meta">
+            <span class="project-meta-item">项目单号：粤东GCDT202606250001</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item">经销商：汕头市华鸿电器有限公司</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item">业务线：中央空调</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item">状态：已登录</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ===== 延期原因卡片 ===== -->
@@ -160,6 +218,71 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <textarea class="form-ctrl" id="reasonInput" placeholder="请输入延期原因，最多500字符" maxlength="500" oninput="updateCharCount(this)"></textarea>
         <div class="char-counter" id="charCount">已输入 0 / 500</div>
       
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 卡片3：登录有效期信息 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">登录有效期信息</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="login-info-grid">
+        <div class="login-info-item">
+          <span class="lii-label">登录单号</span>
+          <span class="lii-value">粤东GCDT202606250001-LG001</span>
+        </div>
+        <div class="login-info-item">
+          <span class="lii-label">设备数量</span>
+          <span class="lii-value">58 台</span>
+        </div>
+        <div class="login-info-item">
+          <span class="lii-label">当前登录状态</span>
+          <span class="lii-value status-ok">已登录</span>
+        </div>
+        <div class="login-info-item">
+          <span class="lii-label">原定登录截止</span>
+          <span class="lii-value status-warn">2026-07-20</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 卡片4：期望延期期限 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">期望延期期限</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-item">
+        <label class="form-label">
+          <span class="req">*</span> 新的登录截止日期
+        </label>
+        <div class="date-row">
+          <span class="date-label">原定截止：</span>
+          <span style="font-size:13px;color:var(--warning);font-weight:600;">2026-07-20</span>
+          <span class="date-sep">→</span>
+          <span class="date-label">延期至：</span>
+          <input class="form-ctrl date-input" id="newDeadline" type="date" min="2026-07-21" onchange="calcDays()" onfocus="onDateManualFocus()">
+        </div>
+        <div class="date-row" style="margin-top:8px;">
+          <span class="date-days" id="daysDisplay">延期天数：— 天</span>
+        </div>
+        <div class="quick-pick-group">
+          <span class="quick-pick-label">快捷选择：</span>
+          <span class="quick-btn" data-days="30" onclick="quickPickDays(30)">30天</span>
+          <span class="quick-btn" data-days="60" onclick="quickPickDays(60)">60天</span>
+          <span class="quick-btn" data-days="90" onclick="quickPickDays(90)">90天</span>
+          <span class="quick-btn quick-custom active" data-days="custom" onclick="quickPickCustom()">自定义</span>
+        </div>
+        <div class="form-hint">请选择 2026-07-21 之后的日期，或点击上方快捷按钮</div>
       </div>
     </div>
   </div>
@@ -232,6 +355,25 @@ html,body{height:100%;margin:0;overflow:hidden;}
   </div>
 </div>
 
+<!-- ===== 提交成功详情弹窗 ===== -->
+<div class="modal-overlay" id="resultModal" onclick="if(event.target===this)closeModal('resultModal')">
+  <div class="modal-content">
+    <div class="modal-body">
+      <span class="modal-icon">✅</span>
+      <div class="modal-msg">登录延期申请已提交</div>
+      <div class="modal-sub" style="text-align:left;font-size:12px;background:#f5f6fa;padding:12px;border-radius:4px;margin-top:12px;">
+        <div style="margin-bottom:4px;"><strong>申请编号：</strong>YQ202607060001</div>
+        <div style="margin-bottom:4px;"><strong>项目单号：</strong>粤东GCDT202606250001</div>
+        <div style="margin-bottom:4px;"><strong>原定截止：</strong>2026-07-20</div>
+        <div><strong>延期至：</strong><span id="resultNewDate">—</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm" onclick="closeModal('resultModal')">知道了</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Toast通知 ===== -->
 <div class="toast" id="toast"></div>
 
@@ -246,6 +388,67 @@ function updateCharCount(textarea) {
   counter.className = 'char-counter';
   if(count > 400) counter.classList.add('warn');
   if(count >= 500) counter.classList.add('over');
+}
+
+/* ===== 延期天数计算 ===== */
+function calcDays() {
+  var input = document.getElementById('newDeadline');
+  var display = document.getElementById('daysDisplay');
+  var val = input.value;
+  if(!val) {
+    display.textContent = '延期天数：— 天';
+    return;
+  }
+  var from = new Date('2026-07-20');
+  var to = new Date(val);
+  var diff = Math.ceil((to - from) / (1000 * 60 * 60 * 24));
+  if(diff <= 0) {
+    display.textContent = '延期天数：请选择 2026-07-21 之后的日期';
+    display.style.color = 'var(--danger)';
+  } else {
+    display.textContent = '延期天数：' + diff + ' 天';
+    display.style.color = '';
+  }
+}
+
+/* ===== 快捷延期选择 ===== */
+var ORIGINAL_DEADLINE = '2026-07-20';
+
+function quickPickDays(days) {
+  var from = new Date(ORIGINAL_DEADLINE);
+  var to = new Date(from);
+  to.setDate(to.getDate() + days);
+  var y = to.getFullYear();
+  var m = String(to.getMonth() + 1).padStart(2, '0');
+  var dd = String(to.getDate()).padStart(2, '0');
+  var dateStr = y + '-' + m + '-' + dd;
+  document.getElementById('newDeadline').value = dateStr;
+  setQuickActive(days);
+  calcDays();
+}
+
+function setQuickActive(days) {
+  var btns = document.querySelectorAll('.quick-btn');
+  for(var i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active');
+  }
+  if(days === 'custom') {
+    document.querySelector('.quick-btn.quick-custom').classList.add('active');
+  } else {
+    var target = document.querySelector('.quick-btn[data-days="' + days + '"]');
+    if(target) target.classList.add('active');
+  }
+}
+
+function quickPickCustom() {
+  document.getElementById('newDeadline').value = '';
+  setQuickActive('custom');
+  calcDays();
+  document.getElementById('newDeadline').focus();
+}
+
+function onDateManualFocus() {
+  setQuickActive('custom');
 }
 
 /* ===== 附件上传 ===== */
@@ -344,12 +547,20 @@ function showSubmitConfirm() {
     document.getElementById('reasonInput').focus();
     return;
   }
+  var deadline = document.getElementById('newDeadline').value;
+  if(!deadline) {
+    showToast('请选择新的登录截止日期', 'error');
+    return;
+  }
   showModal('submitModal');
 }
 
 function confirmSubmit() {
   closeModal('submitModal');
-  showToast('提交成功！申请已进入审批流程', 'success');
+  // 回填结果弹窗日期
+  var nd = document.getElementById('newDeadline').value;
+  document.getElementById('resultNewDate').textContent = nd || '—';
+  showModal('resultModal');
 }
 
 function showCancelConfirm() {
@@ -393,6 +604,13 @@ document.addEventListener('DOMContentLoaded', function() {
       handleFileSelect({files: e.dataTransfer.files});
     }
   });
+
+  // 默认填示例原因数据
+  var reasonEl = document.getElementById('reasonInput');
+  if(reasonEl) {
+    reasonEl.value = '因项目工地施工进度调整，原定7月20日登录的设备需延期至8月中旬，目前教学楼主体尚未完工导致设备无法进场安装，已与甲方确认工期变更，附施工进度调整通知书及甲方确认函。';
+    updateCharCount(reasonEl);
+  }
 });
 </script>
 </body>
