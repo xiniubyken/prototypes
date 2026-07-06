@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户端-批价单提货延期申请</title>
+<style>
+/* 商用工程 · 共享样式 */
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --danger:#D32F2F; --success:#2E7D32; --warning:#ED6C02; --info:#0288D1;
+  --bg:#fff; --bg-card:#fff; --bg-header:#F7F8FA; --bg-hover:#f0f2f5;
+  --border:#e8eaed; --border-light:#f0f0f0;
+  --text:#1f2329; --text-secondary:#646a73; --text-aux:#8f959e;
+  --font-body:14px; --font-card-title:14px; --font-aux:12px; --font-small:13px;
+  --radius:4px; --radius-card:6px;
+  --gap:4px; --gap8:8px; --gap12:12px; --gap16:16px; --gap24:24px;
+  --row-h:36px; --header-h:40px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:var(--font-body);color:var(--text);background:#f0f2f5;line-height:1.6;}
+
+/* 页面根容器 */
+.page-root{display:flex;flex-direction:column;height:100vh;background:#f0f2f5;overflow:hidden;}
+
+/* ====== 页面头 ====== */
+.form-page-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 12px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50;flex-shrink:0;}
+.form-page-title{font-size:17px;font-weight:700;color:var(--text);}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text-secondary);cursor:pointer;padding:5px 10px;border-radius:4px;border:1px solid var(--border);background:#fff;transition:.15s;margin-right:8px;}
+.back-btn:hover{color:var(--primary);border-color:var(--primary);}
+.back-btn svg{width:14px;height:14px;}
+
+/* ====== 面包屑 ====== */
+.breadcrumb{padding:8px 24px;font-size:var(--font-aux);color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border);flex-shrink:0;}
+.breadcrumb span.sep{margin:0 6px;color:var(--border);}
+
+/* ====== 滚动内容区 ====== */
+.form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
+.form-page-inner{padding:16px 24px 0 24px;}
+
+/* ====== 页面子标题区 ====== */
+.page-sub-header{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);padding:16px 20px;margin-bottom:12px;}
+.page-sub-header p{font-size:13px;color:var(--text-aux);line-height:1.5;}
+
+/* ====== 表单卡片 ====== */
+.form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);margin-bottom:12px;overflow:hidden;}
+.form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--border-light);background:var(--bg-header);display:flex;align-items:center;justify-content:space-between;}
+.form-card-title{display:flex;align-items:center;gap:8px;}
+.fct-accent{width:4px;height:16px;background:var(--primary);border-radius:2px;flex-shrink:0;}
+.fct-text{font-size:14px;font-weight:700;color:var(--text);}
+.form-card-body{padding:16px;}
+
+/* ====== 工程项目单信息 ====== */
+.project-selected-card{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.project-selected-info{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+.project-selected-name{font-size:15px;font-weight:700;color:#1f2329;}
+.project-selected-meta{font-size:12px;color:#646a73;display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.project-meta-item{display:inline-flex;align-items:center;gap:0;}
+.project-meta-sep{color:#d0d3da;margin:0 8px;font-size:11px;}
+
+/* ====== 批价单信息摘要 ====== */
+.price-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+.price-info-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);padding:6px 0;border-bottom:1px dashed var(--border-light);}
+.price-info-item .pii-label{font-size:12px;color:var(--text-aux);min-width:80px;flex-shrink:0;}
+.price-info-item .pii-value{font-weight:600;color:var(--text);}
+.price-info-item .pii-value.money{color:var(--danger);}
+.price-info-item .pii-value.status-ok{color:var(--success);}
+.price-info-item .pii-value.status-warn{color:var(--warning);}
+
+/* ====== 表单项 ====== */
+.form-item{display:flex;flex-direction:column;gap:6px;}
+.form-label{font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:4px;}
+.form-label .req{color:var(--danger);font-size:12px;}
+.form-hint{font-size:11px;color:var(--text-aux);line-height:1.4;margin-top:2px;}
+.form-hint.error{color:var(--danger);}
+
+/* ====== 表单控件 ====== */
+.form-ctrl{height:32px;border:1px solid #e0e3ea;border-radius:4px;padding:0 10px;font-size:13px;color:var(--text);outline:none;transition:.15s;background:#fff;width:100%;}
+.form-ctrl:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+textarea.form-ctrl{height:100px;resize:vertical;padding:8px 10px;line-height:1.6;font-size:13px;}
+
+/* ====== 日期选择 ====== */
+.date-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.date-row .date-label{font-size:12px;color:var(--text-aux);white-space:nowrap;}
+.date-row .date-input{width:160px;}
+.date-row .date-sep{color:var(--text-aux);font-size:13px;}
+.date-row .date-days{font-size:12px;color:var(--text-aux);background:#f5f6fa;padding:4px 10px;border-radius:4px;}
+
+/* ====== 快捷延期按钮 ====== */
+.quick-pick-group{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.quick-pick-label{font-size:11px;color:var(--text-aux);white-space:nowrap;}
+.quick-btn{font-size:12px;padding:4px 14px;border:1px solid #d0d3da;border-radius:14px;background:#fff;color:var(--text-secondary);cursor:pointer;transition:.15s;user-select:none;}
+.quick-btn:hover{border-color:var(--primary);color:var(--primary);background:#f0f4ff;}
+.quick-btn.active{border-color:var(--primary);background:var(--primary);color:#fff;font-weight:600;}
+.quick-btn.quick-custom{border-style:dashed;color:var(--text-aux);}
+.quick-btn.quick-custom:hover{border-style:solid;}
+
+/* ====== 附件区 ====== */
+.attach-zone{border:1.5px dashed #c5cae9;border-radius:5px;padding:24px;text-align:center;cursor:pointer;transition:.15s;background:#fafbfc;}
+.attach-zone:hover{border-color:var(--primary);background:#f0f4ff;}
+.attach-zone-text{font-size:13px;color:var(--text-aux);line-height:1.6;}
+.attach-zone-text span{color:var(--primary);text-decoration:underline;}
+.attach-list{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+.attach-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f5f6fa;border-radius:4px;font-size:12px;color:var(--text-secondary);}
+.attach-item .at-icon{flex-shrink:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
+.attach-item .at-name{flex:1;color:var(--primary);cursor:pointer;font-size:13px;}
+.attach-item .at-name:hover{text-decoration:underline;}
+.attach-item .at-size{color:var(--text-aux);font-size:11px;}
+.attach-item .at-del{color:var(--danger);cursor:pointer;font-size:16px;line-height:1;padding:0 2px;}
+.attach-item .at-del:hover{color:#b71c1c;}
+.attach-item .at-preview{color:var(--primary);font-size:12px;cursor:pointer;padding:2px 6px;background:rgba(59,89,152,.08);border-radius:3px;}
+.attach-item .at-preview:hover{background:rgba(59,89,152,.18);}
+.attach-ext-tip{margin-top:8px;font-size:12px;color:var(--text-aux);background:#f5f6fa;padding:8px 12px;border-radius:4px;line-height:1.5;}
+
+/* ====== 字符计数 ====== */
+.char-counter{font-size:11px;color:var(--text-aux);text-align:right;margin-top:2px;}
+.char-counter.warn{color:var(--warning);}
+.char-counter.over{color:var(--danger);}
+
+/* ====== 底部固定操作栏 ====== */
+.form-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);flex-shrink:0;}
+.form-footer-left{font-size:12px;color:var(--text-aux);}
+.form-footer-right{display:flex;gap:10px;align-items:center;}
+.btn-submit{padding:8px 32px;font-size:14px;font-weight:700;background:var(--primary);color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-submit:hover{background:#2e477a;box-shadow:0 2px 8px rgba(59,89,152,.3);}
+.btn-submit:disabled{background:#bbb;cursor:not-allowed;box-shadow:none;}
+.btn-cancel{padding:8px 20px;font-size:14px;background:#fff;color:var(--text-secondary);border:1px solid #e0e3ea;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-cancel:hover{border-color:var(--primary);color:var(--primary);}
+
+/* ====== 弹窗（Modal） ====== */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
+.modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:420px;overflow:hidden;}
+.modal-body{padding:28px 24px 16px;text-align:center;}
+.modal-body .modal-icon{font-size:40px;margin-bottom:12px;display:block;}
+.modal-body .modal-msg{font-size:15px;color:var(--text);font-weight:600;margin-bottom:4px;}
+.modal-body .modal-sub{font-size:13px;color:var(--text-aux);margin-bottom:20px;}
+.modal-footer{display:flex;align-items:center;justify-content:center;gap:12px;padding:0 24px 24px;}
+.modal-footer .btn-confirm{padding:7px 36px;font-size:14px;font-weight:700;background:var(--primary);color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.modal-footer .btn-confirm:hover{background:#2e477a;}
+.modal-footer .btn-cancel-modal{padding:7px 24px;font-size:14px;background:#fff;color:var(--text-secondary);border:1px solid #e0e3ea;border-radius:5px;cursor:pointer;transition:.15s;}
+.modal-footer .btn-cancel-modal:hover{border-color:var(--primary);color:var(--primary);}
+
+/* ====== Toast ====== */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:6px;font-size:14px;color:#fff;z-index:2000;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+
+html,body{height:100%;margin:0;overflow:hidden;}
+</style>
+</head>
+<body>
+<div class="page-root">
+
+<!-- ===== 页面头部 ===== -->
+<div class="form-page-header">
+  <div style="display:flex;align-items:center;gap:0;">
+    <div class="back-btn" onclick="showToast('返回批价单详情页','success')">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      返回
+    </div>
+    <span class="form-page-title">提货延期申请 粤东GCDT202506250001-PJ001 (希望小学A项目)</span>
+  </div>
+</div>
+
+<!-- ===== 面包屑 ===== -->
+<div class="breadcrumb">
+  工程机 <span class="sep">/</span> 我的工程 <span class="sep">/</span> 工程批价 <span class="sep">/</span> 批价单详情 <span class="sep">/</span> <span style="color:var(--text-secondary);">提货延期申请</span>
+</div>
+
+<!-- ===== 滚动内容区 ===== -->
+<div class="form-page-scroll">
+<div class="form-page-inner">
+
+  <!-- ===== 页面子标题区 ===== -->
+  <div class="page-sub-header">
+    <p>若批价单因特殊情况需延期提货，请填写延期原因及期望延期期限，并上传相关资料证明。</p>
+  </div>
+
+  <!-- ===== 卡片1：工程项目单信息（已隐藏） ===== -->
+  <div class="form-card" style="display:none;">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">工程项目单信息</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="project-selected-card" style="border:none;background:transparent;padding:0 0 10px 0;">
+        <div class="project-selected-info">
+          <div class="project-selected-name">某商业综合体空调项目</div>
+          <div class="project-selected-meta">
+            <span class="project-meta-item">项目单号：粤东GCDT202606250001</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item">经销商：珠海华鸿电器销售有限公司</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item">业务线：中央空调</span>
+            <span class="project-meta-sep">|</span>
+            <span class="project-meta-item">状态：审批中</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 卡片2：批价单信息 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">批价单信息</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="price-info-grid">
+        <div class="price-info-item">
+          <span class="pii-label">批价单号</span>
+          <span class="pii-value">粤东GCDT202506250001-PJ001</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">批价类型</span>
+          <span class="pii-value">工程批价</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">批价总金额</span>
+          <span class="pii-value money">¥ 386,500.00</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">批复金额</span>
+          <span class="pii-value money">¥ 372,800.00</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">当前状态</span>
+          <span class="pii-value status-ok">已批复</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">原定提货截止</span>
+          <span class="pii-value status-warn">2026-07-15</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 卡片3：延期原因 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">延期原因</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-item">
+        <label class="form-label">
+          <span class="req">*</span> 原因描述
+        </label>
+        <textarea class="form-ctrl" id="reasonInput" placeholder="请输入延期原因，最多500字符" maxlength="500" oninput="updateCharCount(this)"></textarea>
+        <div class="char-counter" id="charCount">已输入 0 / 500</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 卡片4：期望延期期限 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">期望延期期限</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-item">
+        <label class="form-label">
+          <span class="req">*</span> 新的提货截止日期
+        </label>
+        <div class="date-row">
+          <span class="date-label">原定截止：</span>
+          <span style="font-size:13px;color:var(--warning);font-weight:600;">2026-07-15</span>
+          <span class="date-sep">→</span>
+          <span class="date-label">延期至：</span>
+          <input class="form-ctrl date-input" id="newDeadline" type="date" min="2026-07-16" onchange="calcDays()" onfocus="onDateManualFocus()">
+        </div>
+        <div class="date-row" style="margin-top:8px;">
+          <span class="date-days" id="daysDisplay">延期天数：— 天</span>
+        </div>
+        <div class="quick-pick-group">
+          <span class="quick-pick-label">快捷选择：</span>
+          <span class="quick-btn" data-days="30" onclick="quickPickDays(30)">30天</span>
+          <span class="quick-btn" data-days="60" onclick="quickPickDays(60)">60天</span>
+          <span class="quick-btn" data-days="90" onclick="quickPickDays(90)">90天</span>
+          <span class="quick-btn quick-custom active" data-days="custom" onclick="quickPickCustom()">自定义</span>
+        </div>
+        <div class="form-hint">请选择 2026-07-16 之后的日期，或点击上方快捷按钮</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 卡片5：附件上传 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">附件上传</span>
+        <span style="font-size:12px;color:var(--text-aux);font-weight:400;">（选填）</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="attach-zone" id="attachZone" onclick="document.getElementById('fileInput').click()">
+        <div class="attach-zone-text">
+          点击或拖拽文件到此处上传<br>
+          <span>支持 PNG / JPG / PDF / DOCX / XLSX 格式</span>
+        </div>
+      </div>
+      <input type="file" id="fileInput" style="display:none;" multiple accept=".png,.jpg,.jpeg,.pdf,.docx,.xlsx" onchange="handleFileSelect(this)">
+      <div class="attach-list" id="attachList"></div>
+      <div class="attach-ext-tip">
+        ✅ 支持扩展名：.png .jpg .pdf .docx .xlsx ，每文件大小不超过20MB，上传数量不超过10个<br>
+        ✅ 图片类文件可点击预览
+      </div>
+    </div>
+  </div>
+
+  <div style="height:68px;"></div>
+</div><!-- /form-page-inner -->
+</div><!-- /form-page-scroll -->
+
+<!-- ===== 底部固定操作栏 ===== -->
+<div class="form-footer">
+  <div class="form-footer-left">提交后进入审批流程</div>
+  <div class="form-footer-right">
+    <button class="btn-cancel" onclick="showCancelConfirm()">取消</button>
+    <button class="btn-submit" id="btnSubmit" onclick="showSubmitConfirm()">提交申请</button>
+  </div>
+</div>
+
+<!-- ===== 提交确认弹窗 ===== -->
+<div class="modal-overlay" id="submitModal" onclick="if(event.target===this)closeModal('submitModal')">
+  <div class="modal-content">
+    <div class="modal-body">
+      <span class="modal-icon">📝</span>
+      <div class="modal-msg">确定提交提货延期申请吗？</div>
+      <div class="modal-sub">提交后进入审批流程，审批通过后方可延期提货</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal('submitModal')">取 消</button>
+      <button class="btn-confirm" onclick="confirmSubmit()">确 认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 取消确认弹窗 ===== -->
+<div class="modal-overlay" id="cancelModal" onclick="if(event.target===this)closeModal('cancelModal')">
+  <div class="modal-content">
+    <div class="modal-body">
+      <span class="modal-icon">⚠️</span>
+      <div class="modal-msg">确认放弃本次申请？</div>
+      <div class="modal-sub">已填写的信息将不会被保存</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal('cancelModal')">继续填写</button>
+      <button class="btn-confirm" style="background:var(--danger);" onclick="cancelApply()">确认放弃</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 提交成功详情弹窗 ===== -->
+<div class="modal-overlay" id="resultModal" onclick="if(event.target===this)closeModal('resultModal')">
+  <div class="modal-content">
+    <div class="modal-body">
+      <span class="modal-icon">✅</span>
+      <div class="modal-msg">提货延期申请已提交</div>
+      <div class="modal-sub" style="text-align:left;font-size:12px;background:#f5f6fa;padding:12px;border-radius:4px;margin-top:12px;">
+        <div style="margin-bottom:4px;"><strong>申请编号：</strong>YQ202607060001</div>
+        <div style="margin-bottom:4px;"><strong>批价单号：</strong>粤东GCDT202506250001-PJ001</div>
+        <div style="margin-bottom:4px;"><strong>原定截止：</strong>2026-07-15</div>
+        <div><strong>延期至：</strong><span id="resultNewDate">—</span></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-confirm" onclick="closeModal('resultModal')">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast通知 ===== -->
+<div class="toast" id="toast"></div>
+
+</div><!-- /page-root -->
+
+<script>
+/* ===== 字符计数 ===== */
+function updateCharCount(textarea) {
+  var count = textarea.value.length;
+  var counter = document.getElementById('charCount');
+  counter.textContent = '已输入 ' + count + ' / 500';
+  counter.className = 'char-counter';
+  if(count > 400) counter.classList.add('warn');
+  if(count >= 500) counter.classList.add('over');
+}
+
+/* ===== 延期天数计算 ===== */
+function calcDays() {
+  var input = document.getElementById('newDeadline');
+  var display = document.getElementById('daysDisplay');
+  var val = input.value;
+  if(!val) {
+    display.textContent = '延期天数：— 天';
+    return;
+  }
+  var from = new Date('2026-07-15');
+  var to = new Date(val);
+  var diff = Math.ceil((to - from) / (1000 * 60 * 60 * 24));
+  if(diff <= 0) {
+    display.textContent = '延期天数：请选择 2026-07-16 之后的日期';
+    display.style.color = 'var(--danger)';
+  } else {
+    display.textContent = '延期天数：' + diff + ' 天';
+    display.style.color = '';
+  }
+}
+
+/* ===== 快捷延期选择 ===== */
+var ORIGINAL_DEADLINE = '2026-07-15';
+
+function quickPickDays(days) {
+  var from = new Date(ORIGINAL_DEADLINE);
+  var to = new Date(from);
+  to.setDate(to.getDate() + days);
+  var y = to.getFullYear();
+  var m = String(to.getMonth() + 1).padStart(2, '0');
+  var d = String(to.getDate()).padStart(2, '0');
+  var dateStr = y + '-' + m + '-' + d;
+  document.getElementById('newDeadline').value = dateStr;
+  setQuickActive(days);
+  calcDays();
+}
+
+function setQuickActive(days) {
+  var btns = document.querySelectorAll('.quick-btn');
+  for(var i = 0; i < btns.length; i++) {
+    btns[i].classList.remove('active');
+  }
+  if(days === 'custom') {
+    document.querySelector('.quick-btn.quick-custom').classList.add('active');
+  } else {
+    var target = document.querySelector('.quick-btn[data-days="' + days + '"]');
+    if(target) target.classList.add('active');
+  }
+}
+
+function quickPickCustom() {
+  document.getElementById('newDeadline').value = '';
+  setQuickActive('custom');
+  calcDays();
+  document.getElementById('newDeadline').focus();
+}
+
+function onDateManualFocus() {
+  setQuickActive('custom');
+}
+
+/* ===== 附件上传 ===== */
+var attachFiles = [];
+
+function handleFileSelect(input) {
+  var files = input.files;
+  if(!files || files.length === 0) return;
+
+  for(var i = 0; i < files.length; i++) {
+    var file = files[i];
+    var ext = file.name.split('.').pop().toLowerCase();
+    var allowed = ['png','jpg','jpeg','pdf','docx','xlsx'];
+    if(allowed.indexOf(ext) === -1) {
+      showToast('格式不支持："' + file.name + '"，请上传指定格式文件', 'error');
+      continue;
+    }
+    if(file.size > 20 * 1024 * 1024) {
+      showToast('文件超过大小限制："' + file.name + '"（最大20MB），请重新上传', 'error');
+      continue;
+    }
+    if(attachFiles.length >= 10) {
+      showToast('上传数量已达上限（10个），无法继续添加', 'error');
+      break;
+    }
+    attachFiles.push(file);
+  }
+  renderAttachList();
+  input.value = '';
+}
+
+function renderAttachList() {
+  var list = document.getElementById('attachList');
+  list.innerHTML = '';
+  for(var i = 0; i < attachFiles.length; i++) {
+    var f = attachFiles[i];
+    var isImage = ['png','jpg','jpeg'].indexOf(f.name.split('.').pop().toLowerCase()) !== -1;
+    var div = document.createElement('div');
+    div.className = 'attach-item';
+    div.innerHTML = '<span class="at-icon">📄</span>'
+      + '<span class="at-name" onclick="' + (isImage ? 'previewFile(' + i + ')' : 'showToast(\'预览暂只支持图片格式\',\'error\')') + '">' + escapeHtml(f.name) + '</span>'
+      + '<span class="at-size">' + formatFileSize(f.size) + '</span>'
+      + (isImage ? '<span class="at-preview" onclick="previewFile(' + i + ')">预览</span>' : '')
+      + '<span class="at-del" onclick="removeFile(' + i + ')">×</span>';
+    list.appendChild(div);
+  }
+  var zone = document.getElementById('attachZone');
+  zone.style.display = attachFiles.length >= 10 ? 'none' : '';
+}
+
+function removeFile(index) {
+  attachFiles.splice(index, 1);
+  renderAttachList();
+}
+
+function previewFile(index) {
+  var file = attachFiles[index];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var w = window.open('', '_blank', 'width=800,height=600');
+    w.document.write('<html><head><title>图片预览</title><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#333;}img{max-width:100%;max-height:100vh;object-fit:contain;}</style></head><body><img src="' + e.target.result + '" alt="预览"></body></html>');
+    w.document.close();
+  };
+  reader.readAsDataURL(file);
+}
+
+function formatFileSize(bytes) {
+  if(bytes < 1024) return bytes + 'B';
+  if(bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + 'KB';
+  return (bytes / 1024 / 1024).toFixed(1) + 'MB';
+}
+
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ===== 弹窗控制 ===== */
+function showModal(id) {
+  document.getElementById(id).style.display = 'flex';
+}
+function closeModal(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function showSubmitConfirm() {
+  var reason = document.getElementById('reasonInput').value.trim();
+  if(!reason) {
+    showToast('请填写延期原因', 'error');
+    document.getElementById('reasonInput').focus();
+    return;
+  }
+  var deadline = document.getElementById('newDeadline').value;
+  if(!deadline) {
+    showToast('请选择新的提货截止日期', 'error');
+    return;
+  }
+  showModal('submitModal');
+}
+
+function confirmSubmit() {
+  closeModal('submitModal');
+  // 回填结果弹窗日期
+  var nd = document.getElementById('newDeadline').value;
+  document.getElementById('resultNewDate').textContent = nd || '—';
+  showModal('resultModal');
+}
+
+function showCancelConfirm() {
+  showModal('cancelModal');
+}
+
+function cancelApply() {
+  closeModal('cancelModal');
+  showToast('已取消申请', 'error');
+}
+
+/* ===== Toast ===== */
+function showToast(msg, type) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + (type || 'success');
+  toast.style.display = 'block';
+  setTimeout(function() {
+    toast.style.display = 'none';
+  }, 3000);
+}
+
+/* ===== 文档拖拽上传 ===== */
+document.addEventListener('DOMContentLoaded', function() {
+  var zone = document.getElementById('attachZone');
+  zone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--primary)';
+    this.style.background = '#f0f4ff';
+  });
+  zone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#c5cae9';
+    this.style.background = '#fafbfc';
+  });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '#c5cae9';
+    this.style.background = '#fafbfc';
+    if(e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileSelect({files: e.dataTransfer.files});
+    }
+  });
+
+  // 默认填示例数据
+  document.getElementById('reasonInput').value = '因项目工地施工进度调整，原定7月15日提货的设备需延期至8月初，已与甲方确认工期变更，附施工进度调整通知书。';
+  updateCharCount(document.getElementById('reasonInput'));
+});
+</script>
+</body>
+</html>
