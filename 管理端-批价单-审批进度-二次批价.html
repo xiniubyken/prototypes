@@ -89,6 +89,25 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .attach-item .at-name:hover{text-decoration:underline;}
 .attach-item .at-size{color:var(--text-aux);font-size:11px;}
 
+/* 表单网格（附件与备注） */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;}
+.form-item{display:flex;flex-direction:column;gap:4px;}
+.form-item.span3{grid-column:span 3;}
+.form-label{font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
+.form-ctrl[readonly]{background:#f5f6fa;color:#8f959e;cursor:not-allowed;}
+/* 附件只读区 */
+.attach-read-list{display:flex;flex-direction:column;gap:6px;}
+.attach-read-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f5f6fa;border-radius:4px;font-size:13px;}
+.attach-read-item .at-icon{width:32px;height:32px;border-radius:4px;background:#e8eaed;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+.attach-read-item .at-icon.img-icon{background:#E3F2FD;color:#1565C0;}
+.attach-read-item .at-icon.doc-icon{background:#FFF3E0;color:#E65100;}
+.attach-read-item .at-icon.xls-icon{background:#E8F5E9;color:#2E7D32;}
+.attach-read-item .at-icon.pdf-icon{background:#FFEBEE;color:#C62828;}
+.attach-read-item .at-name{color:#3b5998;cursor:pointer;text-decoration:none;}
+.attach-read-item .at-name:hover{text-decoration:underline;}
+.attach-read-item .at-size{font-size:12px;color:#8f959e;margin-left:auto;}
+
 /* ====== 审批记录表格 ====== */
 .record-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;}
 .record-table th{background:#fafbfc;height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:1px solid #e8eaed;white-space:nowrap;}
@@ -173,6 +192,41 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <div class="equip-table-foot">
         <div style="display:flex;align-items:center;gap:16px;" id="equipFoot">
           <div class="equip-summary-item">总数量：<span id="equipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="equipTotalAmt">¥0.00</span>&nbsp;&nbsp;|&nbsp;&nbsp;批复总金额：<span id="equipApproveAmt">--</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 附件与备注卡片 ===== -->
+  <div class="form-card">
+    <div class="form-card-header" style="cursor:default;">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">附件与备注</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="form-grid">
+        <!-- 备注 -->
+        <div class="form-item span3">
+          <label class="form-label">备注</label>
+          <textarea class="form-ctrl" style="height:80px;background:#f5f6fa;color:#646a73;cursor:default;" readonly>代客申请批价，由销司管理者协助经销商录入。</textarea>
+        </div>
+        <!-- 附件 -->
+        <div class="form-item span3">
+          <label class="form-label">附件上传</label>
+          <div class="attach-read-list">
+            <div class="attach-read-item">
+              <span class="at-icon pdf-icon">PDF</span>
+              <span class="at-name">批价申请说明_附件.pdf</span>
+              <span class="at-size">2.3MB</span>
+            </div>
+            <div class="attach-read-item">
+              <span class="at-icon img-icon">JPG</span>
+              <span class="at-name">设备照片_现场勘察.jpg</span>
+              <span class="at-size">1.8MB</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
