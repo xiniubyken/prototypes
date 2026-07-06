@@ -43,6 +43,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .page-sub-header .psh-icon{font-size:16px;line-height:1.5;flex-shrink:0;}
 .page-sub-header p{font-size:13px;color:#8a6100;line-height:1.6;margin:0;}
 
+/* ====== 场景切换器（模拟演示） ====== */
+.form-header-right{display:flex;align-items:center;gap:8px;}
+.scene-switcher{display:flex;gap:0;background:#f5f6fa;border:1px solid #e0e3ea;border-radius:6px;overflow:hidden;padding:3px;width:fit-content;}
+.scene-btn{padding:6px 16px;font-size:13px;color:#646a73;cursor:pointer;border-radius:4px;transition:.15s;font-weight:500;white-space:nowrap;border:none;background:transparent;}
+.scene-btn:hover{color:var(--primary);background:rgba(59,89,152,.06);}
+.scene-btn.active{background:#fff;color:var(--primary);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.10);}
+
+/* ====== 场景提示卡 ====== */
+.scene-notice{display:none;border-radius:6px;padding:10px 14px;font-size:13px;margin-bottom:12px;}
+.scene-notice.visible{display:flex;align-items:flex-start;gap:10px;}
+.scene-notice.reject{background:#FFF0F0;border:1px solid #ffc8c8;}
+.scene-notice .notice-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+.scene-notice .notice-content{flex:1;}
+.scene-notice .notice-title{font-weight:700;margin-bottom:6px;font-size:13px;color:#c62828;}
+.scene-notice .notice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 16px;}
+.scene-notice .notice-item{font-size:12px;color:#646a73;}
+.scene-notice .notice-item span{color:#1f2329;font-weight:500;}
+
 /* ====== 表单卡片 ====== */
 .form-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-card);margin-bottom:12px;overflow:hidden;}
 .form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid var(--border-light);background:var(--bg-header);display:flex;align-items:center;justify-content:space-between;}
@@ -133,7 +151,14 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">解除地址限制 粤东GCDT202606250001 (汕头市某中学空调改造项目)</span>
+    <span class="form-page-title" id="pageMainTitle">解除地址限制 粤东GCDT202606250001 (汕头市某中学空调改造项目)</span>
+  </div>
+  <div class="form-header-right" style="display:flex;align-items:center;gap:8px;">
+    <span style="font-size:12px;color:#8f959e;">模拟场景：</span>
+    <div class="scene-switcher">
+      <button class="scene-btn active" data-scene="new" onclick="switchScene('new')">新建申请</button>
+      <button class="scene-btn" data-scene="resubmit" onclick="switchScene('resubmit')">重新提交（驳回后）</button>
+    </div>
   </div>
 </div>
 
@@ -145,6 +170,22 @@ html,body{height:100%;margin:0;overflow:hidden;}
 <!-- ===== 滚动内容区 ===== -->
 <div class="form-page-scroll">
 <div class="form-page-inner">
+
+  <!-- ===== 场景提示区（模拟） ===== -->
+  <div id="sceneNoticeWrap" style="margin-bottom:12px;">
+    <div class="scene-notice reject" id="noticeReject">
+      <div class="notice-icon">⚠️</div>
+      <div class="notice-content">
+        <div class="notice-title">驳回重提 · 请修改后重新提交</div>
+        <div class="notice-grid">
+          <div class="notice-item">驳回原因：<span>安装范围超出该经销商销司授权区域，请重新核实实际安装地址后提交</span></div>
+          <div class="notice-item">驳回人：<span>王丽（商用工程部审批）</span></div>
+          <div class="notice-item">驳回时间：<span>2026-07-02 10:24</span></div>
+          <div class="notice-item">剩余有效期：<span style="color:#c62828;">还剩 8 天</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== 页面子标题区（提示条） ===== -->
   <div class="page-sub-header">
@@ -218,7 +259,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
 
 <!-- ===== 底部固定操作栏 ===== -->
 <div class="form-footer">
-  <div class="form-footer-left">
+  <div class="form-footer-left" id="footerTip">
     剩余可提交次数：<span class="ff-count">10</span> 次
     <span class="ff-sep">|</span>
     若提交次数用完，可通过已驳回的申请单重新修改后提交
@@ -265,9 +306,9 @@ html,body{height:100%;margin:0;overflow:hidden;}
   <div class="modal-content">
     <div class="modal-body">
       <span class="modal-icon">✅</span>
-      <div class="modal-msg">解除地址限制申请已提交</div>
+      <div class="modal-msg" id="resultMsg">解除地址限制申请已提交</div>
       <div class="modal-sub" style="text-align:left;font-size:12px;background:#f5f6fa;padding:12px;border-radius:4px;margin-top:12px;">
-        <div style="margin-bottom:4px;"><strong>申请编号：</strong>JCDZ202607060001</div>
+        <div style="margin-bottom:4px;"><strong>申请编号：</strong><span id="resultNo">JCDZ202607060001</span></div>
         <div style="margin-bottom:4px;"><strong>项目单号：</strong>粤东GCDT202606250001</div>
         <div style="margin-bottom:4px;"><strong>安装范围：</strong><span id="resultAddr">—</span></div>
       </div>
@@ -471,6 +512,8 @@ function showSubmitConfirm() {
 function confirmSubmit() {
   closeModal('submitModal');
   document.getElementById('resultAddr').textContent = getSelectedAddr();
+  document.getElementById('resultNo').textContent = (currentScene === 'resubmit') ? 'JCDZ202607010001' : 'JCDZ202607060001';
+  document.getElementById('resultMsg').textContent = (currentScene === 'resubmit') ? '解除地址限制申请已重新提交' : '解除地址限制申请已提交';
   showModal('resultModal');
 }
 
@@ -492,6 +535,42 @@ function showToast(msg, type) {
   setTimeout(function() {
     toast.style.display = 'none';
   }, 3000);
+}
+
+/* ===== 场景模拟：新建申请 / 驳回重提 ===== */
+var currentScene = 'new';
+var NEW_REASON = '因项目实际安装地点超出原工程单开单地址范围，需新增浙江省杭州市西湖区作为动销系统(RMS)开单安装地址。已与甲方确认实际安装位置及设备清单，附现场勘测报告及甲方确认函，请审批通过后开放该区域开单权限。';
+var RESUBMIT_REASON = '（驳回重提）已重新核实实际安装地址：浙江省杭州市西湖区确为该经销商合规授权安装区域，项目为甲方指定安装地点。已补充经销商授权区域证明及甲方确认函，请审批通过后开放该区域开单权限。';
+var defaultFooterHtml = '';
+
+function switchScene(scene) {
+  currentScene = scene;
+  document.querySelectorAll('.scene-btn').forEach(function(b){ b.classList.remove('active'); });
+  var btn = document.querySelector('.scene-btn[data-scene="' + scene + '"]');
+  if(btn) btn.classList.add('active');
+
+  var noticeReject = document.getElementById('noticeReject');
+  var title = document.getElementById('pageMainTitle');
+  var footerTip = document.getElementById('footerTip');
+  var btnSubmit = document.getElementById('btnSubmit');
+  var reasonEl = document.getElementById('reasonInput');
+
+  noticeReject.classList.remove('visible');
+
+  if(scene === 'new') {
+    title.textContent = '解除地址限制 粤东GCDT202606250001 (汕头市某中学空调改造项目)';
+    footerTip.innerHTML = defaultFooterHtml;
+    btnSubmit.textContent = '提交申请';
+    reasonEl.value = NEW_REASON;
+    updateCharCount(reasonEl);
+  } else if(scene === 'resubmit') {
+    title.textContent = '解除地址限制 重新提交 — JCDZ202607010001 (驳回重提)';
+    noticeReject.classList.add('visible');
+    footerTip.innerHTML = '原申请单号：<span class="ff-count" style="color:var(--primary);">JCDZ202607010001</span>　｜　驳回重提保留原单号，修改后重新提交即可';
+    btnSubmit.textContent = '重新提交';
+    reasonEl.value = RESUBMIT_REASON;
+    updateCharCount(reasonEl);
+  }
 }
 
 /* ===== 文档拖拽上传 ===== */
@@ -519,12 +598,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // 初始化地址联动（默认浙江省 / 杭州市 / 西湖区）
   initAddr();
 
-  // 默认填示例原因数据
+  // 默认填示例原因数据 + 捕获底部提示默认结构（场景切回"新建申请"时还原）
   var reasonEl = document.getElementById('reasonInput');
   if(reasonEl) {
-    reasonEl.value = '因项目实际安装地点超出原工程单开单地址范围，需新增浙江省杭州市西湖区作为动销系统(RMS)开单安装地址。已与甲方确认实际安装位置及设备清单，附现场勘测报告及甲方确认函，请审批通过后开放该区域开单权限。';
+    reasonEl.value = NEW_REASON;
     updateCharCount(reasonEl);
   }
+  defaultFooterHtml = document.getElementById('footerTip').innerHTML;
 });
 </script>
 </body>
