@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>审批进度-批价单作废</title>
+<style>
+/* 商用工程 · 共享样式 */
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --danger:#D32F2F; --success:#2E7D32; --warning:#ED6C02; --info:#0288D1;
+  --bg:#fff; --bg-card:#fff; --bg-header:#F7F8FA; --bg-hover:#f0f2f5;
+  --border:#e8eaed; --border-light:#f0f0f0;
+  --text:#1f2329; --text-secondary:#646a73; --text-aux:#8f959e;
+  --font-body:14px; --font-card-title:14px; --font-aux:12px; --font-small:13px;
+  --radius:4px; --radius-card:6px;
+  --gap:4px; --gap8:8px; --gap12:12px; --gap16:16px; --gap24:24px;
+  --row-h:36px; --header-h:40px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:var(--font-body);color:var(--text);background:#f0f2f5;line-height:1.6;}
+
+html,body{height:100%;margin:0;overflow:hidden;}
+.page-root{display:flex;flex-direction:column;height:100%;background:#f0f2f5;overflow:hidden;}
+
+/* ====== 页面头 ====== */
+.form-page-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 12px;background:#fff;border-bottom:1px solid #e8eaed;position:sticky;top:0;z-index:50;}
+.form-page-title{font-size:17px;font-weight:700;color:#1f2329;}
+.form-header-right{display:flex;align-items:center;gap:16px;font-size:12px;color:#8f959e;}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:#646a73;cursor:pointer;padding:5px 10px;border-radius:4px;border:1px solid #e8eaed;background:#fff;transition:.15s;margin-right:8px;}
+.back-btn:hover{color:#3b5998;border-color:#3b5998;}
+.back-btn svg{width:14px;height:14px;}
+
+/* 状态badge */
+.status-badge{padding:3px 12px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap;}
+.status-badge.ok{background:#E8F5E9;color:#2E7D32;}
+.status-badge.rj{background:#FFF3E0;color:#E65100;}
+
+/* 项目单号显示 */
+.proj-no-display{font-size:13px;color:#646a73;background:#f5f6fa;padding:4px 10px;border-radius:4px;}
+
+/* ====== 滚动内容区 ====== */
+.form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
+.form-page-inner{padding:16px 24px 0 24px;}
+
+/* ====== 表单卡片 ====== */
+.form-card{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:12px;overflow:hidden;}
+.form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;}
+.form-card-title{display:flex;align-items:center;gap:8px;}
+.form-card-title .fct-accent{width:4px;height:16px;background:#C62828;border-radius:2px;flex-shrink:0;}
+.form-card-title .fct-text{font-size:14px;font-weight:700;color:#1f2329;}
+.form-card-body{padding:16px;}
+
+/* ====== 只读字段 ====== */
+.field-readonly{font-size:13px;color:#1f2329;display:flex;align-items:center;gap:6px;}
+
+/* ====== 审批记录表格 ====== */
+.record-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;}
+.record-table th{background:#fafbfc;height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:1px solid #e8eaed;white-space:nowrap;}
+.record-table td{height:42px;padding:6px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;color:#1f2329;vertical-align:middle;}
+.record-table .td-center{text-align:left;}
+
+/* 审批状态标签 */
+.st-ok{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#e8f8ea;color:#2E7D32;border:1px solid #a5d6a7;}
+.st-rej{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#fce8e6;color:#D32F2F;border:1px solid #ef9a9a;}
+
+/* 无附件标记 */
+.no-attach-tag{color:#c5cae9;font-size:12px;}
+
+/* ====== Toast ====== */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:6px;font-size:14px;color:#fff;z-index:2000;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+
+/* ====== 附件列表（只读） ====== */
+.attach-list{display:flex;flex-direction:column;gap:6px;}
+.attach-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f5f6fa;border-radius:4px;font-size:12px;color:var(--text-secondary);}
+.attach-item .at-icon{flex-shrink:0;width:16px;height:16px;display:flex;align-items:center;justify-content:center;}
+.attach-item .at-name{flex:1;color:var(--primary);cursor:pointer;font-size:13px;}
+.attach-item .at-name:hover{text-decoration:underline;}
+.attach-item .at-size{color:var(--text-aux);font-size:11px;}
+/* ========== 单据状态卡片 ========== */
+.doc-status-bar{padding:12px 24px;background:#f0f2f5;border-bottom:1px solid #e8eaed;}
+.doc-status-card{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:8px;border:1px solid #e0e0e0;cursor:pointer;transition:.2s;}
+.doc-status-card:hover{box-shadow:0 1px 6px rgba(0,0,0,.08);}
+.doc-status-card.status-pending{background:#E3F2FD;border-color:#BBDEFB;}
+.doc-status-card.status-passed{background:#E8F5E9;border-color:#C8E6C9;}
+.doc-status-card.status-rejected{background:#FFEBEE;border-color:#FFCDD2;}
+.doc-status-card.status-cancelled{background:#FFEBEE;border-color:#FFCDD2;}
+.doc-status-icon{flex-shrink:0;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
+.status-pending .doc-status-icon{background:#1976D2;}
+.status-passed .doc-status-icon{background:#388E3C;}
+.status-rejected .doc-status-icon{background:#D32F2F;}
+.status-cancelled .doc-status-icon{background:#D32F2F;}
+.doc-status-body{flex:1;min-width:0;}
+.doc-status-title{font-size:14px;font-weight:600;margin-bottom:4px;}
+.status-pending .doc-status-title{color:#1565C0;}
+.status-passed .doc-status-title{color:#2E7D32;}
+.status-rejected .doc-status-title{color:#C62828;}
+.status-cancelled .doc-status-title{color:#C62828;}
+.doc-status-note{font-size:12px;color:#666;line-height:1.5;margin-bottom:2px;word-break:break-all;}
+.doc-status-time{font-size:11px;color:#999;}
+.doc-status-close{flex-shrink:0;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:16px;cursor:pointer;line-height:1;}
+
+/* ====== 底部操作栏 ====== */
+.approval-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:14px 24px;display:flex;align-items:center;justify-content:center;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
+.btn-quick-view{padding:8px 20px;font-size:13px;font-weight:600;background:#fff;color:#3370ff;border:1.5px solid #3370ff;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-quick-view:hover{background:#eef2ff;box-shadow:0 2px 8px rgba(51,112,255,.2);}
+
+/* ====== 审批流程弹窗 ====== */
+.af-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;}
+.af-modal{background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.18);width:820px;max-width:92vw;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;}
+.af-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.af-title{font-size:15px;font-weight:700;color:#1f2329;}
+.af-close{font-size:22px;color:#bbb;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;}
+.af-close:hover{color:#666;background:#f5f5f5;}
+.af-tabs{display:flex;padding:0 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;gap:0;}
+.af-tab{padding:12px 20px;font-size:14px;font-weight:500;color:#666;cursor:pointer;position:relative;border:none;background:none;margin-bottom:-1px;transition:.15s;}
+.af-tab.active{color:#3370ff;font-weight:600;}
+.af-tab.active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2.5px;background:#3370ff;border-radius:3px 3px 0 0;}
+.af-tab:hover:not(.active){color:#3370ff;}
+.af-body{flex:1;overflow:auto;padding:20px 24px;}
+.af-flow-wrap{overflow-x:auto;padding:10px 0;}
+.af-flow-svg{min-width:700px;height:420px;display:block;}
+.af-node-type{font-size:13px;font-weight:600;color:#333;margin-bottom:12px;}
+.af-node-table{width:100%;border-collapse:collapse;border:1px solid #e0e0e0;font-size:13px;}
+.af-node-table th{background:#fafafa;padding:10px 14px;text-align:left;font-weight:600;color:#333;border-bottom:1px solid #e0e0e0;white-space:nowrap;}
+.af-node-table td{padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#555;line-height:1.5;vertical-align:top;}
+.af-node-table tr:last-child td{border-bottom:none;}
+.af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
+
+</style>
+</head>
+<body>
+<div class="page-root">
+
+<!-- ===== 页面头部 ===== -->
+<div class="form-page-header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="back-btn" onclick="goBack()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      返回
+    </div>
+    <span class="form-page-title">查看-批价单作废</span>
+    <span class="proj-no-display">粤东GCDT202506250001-PJ001 (某商业综合体空调项目)</span>
+  </div>
+  <div class="form-header-right">
+  </div>
+</div>
+
+<!-- ========== 单据状态卡片 ========== -->
+<div class="doc-status-bar">
+  <div class="doc-status-card status-pending" id="docStatusCard">
+    <div class="doc-status-icon" id="docStatusIcon">
+      <svg id="docStatusSvg" width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 2"/></svg>
+    </div>
+    <div class="doc-status-body">
+      <div class="doc-status-title" id="docStatusTitle">批价单资料 - 审批中</div>
+      <div class="doc-status-note" id="docStatusNote">工程组结算员 备注：-</div>
+      <div class="doc-status-time" id="docStatusTime">2026-06-30 14:00</div>
+    </div>
+    <div class="doc-status-close" id="docStatusClose" style="display:none;">×</div>
+  </div>
+</div>
+
+
+
+
+<!-- ===== 滚动内容区 ===== -->
+<div class="form-page-scroll">
+<div class="form-page-inner">
+
+  <!-- ===== 作废申请信息卡片 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">作废申请信息</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <!-- 作废原因 -->
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <span style="font-size:12px;color:#646a73;width:84px;flex-shrink:0;line-height:32px;">作废原因</span>
+          <div class="field-readonly" style="line-height:1.6;">因客户方项目规划调整，某商业综合体空调项目不再推进，经与代理商沟通确认，申请作废此批价单。相关解除协议已附后。</div>
+        </div>
+        <!-- 附件 -->
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <span style="font-size:12px;color:#646a73;width:84px;flex-shrink:0;line-height:32px;">附件</span>
+          <div class="attach-list" style="flex:1;">
+            <div class="attach-item">
+              <span class="at-icon">📄</span>
+              <span class="at-name" onclick="showToast('预览：解除协议.pdf','success')">解除协议.pdf</span>
+              <span class="at-size">1.2MB</span>
+            </div>
+            <div class="attach-item">
+              <span class="at-icon">📄</span>
+              <span class="at-name" onclick="showToast('预览：客户通知邮件.png','success')">客户通知邮件.png</span>
+              <span class="at-size">340KB</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 审批记录卡片 ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent" style="background:var(--info);"></div>
+        <span class="fct-text">审批记录</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <table class="record-table">
+        <colgroup>
+          <col style="width:44px;">
+          <col style="width:auto;">
+          <col style="width:auto;">
+          <col style="width:auto;">
+          <col style="width:auto;">
+          <col style="width:auto;">
+        </colgroup>
+        <thead>
+          <tr>
+            <th style="text-align:center;">序号</th>
+            <th>审批人</th>
+            <th>审批状态</th>
+            <th>审批意见</th>
+            <th>附件</th>
+            <th>审批时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="text-align:center;color:#8f959e;">1</td>
+            <td>张三（商用工程部）</td>
+            <td><span class="st-ok">通过</span></td>
+            <td>资料齐全，同意发起作废流程。</td>
+            <td><span class="no-attach-tag">—</span></td>
+            <td>2026-06-26 10:30</td>
+          </tr>
+          <tr>
+            <td style="text-align:center;color:#8f959e;">2</td>
+            <td>李四（粤东大区）</td>
+            <td><span class="st-ok">通过</span></td>
+            <td>同意作废，客户已确认。</td>
+            <td><span class="no-attach-tag">—</span></td>
+            <td>2026-06-28 15:22</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="height:24px;"></div>
+</div><!-- /form-page-inner -->
+</div><!-- /form-page-scroll -->
+
+<!-- ===== Toast通知 ===== -->
+<div class="toast" id="toast"></div>
+
+</div><!-- /page-root -->
+
+<script>
+/* ===== Toast ===== */
+function showToast(msg, type) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + (type || 'success');
+  toast.style.display = 'block';
+  setTimeout(function() {
+    toast.style.display = 'none';
+  }, 3000);
+}
+
+/* ===== 返回 ===== */
+function goBack() {
+  showToast('返回批价单列表页','success');
+}
+</script>
+<!-- ========== 底部操作栏 ========== -->
+<div class="approval-footer">
+  <button class="btn-quick-view" onclick="openApprovalFlowModal()">审批流程</button>
+</div>
+
+<!-- ========== 审批流程弹窗 ========== -->
+<div class="af-overlay" id="afOverlay" style="display:none;">
+<div class="af-modal">
+  <div class="af-header">
+    <span class="af-title">审批流程</span>
+    <span class="af-close" onclick="closeApprovalFlowModal()">&times;</span>
+  </div>
+  <div class="af-tabs">
+    <button class="af-tab active" data-tab="flow" onclick="switchAfTab('flow',this)">审批流程</button>
+    <button class="af-tab" data-tab="node" onclick="switchAfTab('node',this)">当前节点</button>
+  </div>
+  <div class="af-body">
+    <!-- 审批流程Tab -->
+    <div id="afFlowPanel" class="af-flow-wrap">
+      <svg class="af-flow-svg" viewBox="0 0 720 400">
+        <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f0f0f0" stroke-width=".5"/></pattern></defs>
+        <rect width="100%" height="100%" fill="#fff"/>
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+        <defs>
+          <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#999"/></marker>
+          <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#4CAF50"/></marker>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3370ff"/></marker>
+        </defs>
+
+        <!-- ===== 连接线 ===== -->
+        <path d="M90 130 L130 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M170 110 L170 60 L280 60 L280 80" stroke="#4CAF50" stroke-width="2" fill="none" marker-end="url(#arrowGreen)"/>
+        <text x="200" y="52" font-size="11" fill="#4CAF50" font-weight="600">省内跨区</text>
+        <path d="M340 100 L380 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M420 100 L480 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M540 100 L595 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M190 130 L240 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/><text x="195" y="148" font-size="11" fill="#666">省外跨区</text>
+        <path d="M300 130 L350 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M390 130 L450 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M510 130 L565 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M150 150 L150 270 L280 270 L280 290" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/><text x="158" y="260" font-size="11" fill="#666">省外跨区</text>
+        <path d="M340 310 L390 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M430 310 L490 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M550 310 L595 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+
+        <!-- 回退虚线 -->
+        <path d="M400 78 L400 45 L50 45 L50 120 L55 125" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <path d="M370 148 L370 180 L30 180 L30 135 L53 132" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <path d="M410 330 L410 365 L15 365 L15 138 L53 133" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+
+        <!-- ===== 节点（上层）===== -->
+        <circle cx="70" cy="130" r="16" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        <path d="M62 130 L68 136 L78 124" stroke="#4CAF50" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="92" y="112" width="56" height="36" rx="4" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1.8"/>
+        <circle cx="104" cy="122" r="7" fill="#FFE0B2"/><text x="101" y="126" font-size="9" fill="#E65100">👤</text>
+        <text x="102" y="142" font-size="10" fill="#333" text-anchor="middle">经销商提交</text>
+
+        <polygon points="170,108 192,130 170,152 148,130" fill="#fff" stroke="#D32F2F" stroke-width="1.8"/>
+        <text x="170" y="134" font-size="14" fill="#D32F2F" text-anchor="middle">×</text>
+
+        <rect x="276" y="82" width="64" height="38" rx="4" fill="#FFF3E0" stroke="#E65100" stroke-width="2"/>
+        <circle cx="290" cy="94" r="7" fill="#FFE0B2"/><text x="287" y="98" font-size="9" fill="#E65100">👤</text>
+        <text x="308" y="106" font-size="10" fill="#333" text-anchor="middle">办事处内勤</text>
+
+        <polygon points="400,78 420,100 400,122 380,100" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="400" y="105" font-size="14" fill="#333" text-anchor="middle">×</text>
+
+        <rect x="482" y="81" width="58" height="38" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="496" cy="93" r="7" fill="#E3F2FD"/><text x="493" y="97" font-size="9" fill="#1976D2">👤</text>
+        <text x="511" y="106" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="612" cy="100" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+
+        <!-- ===== 节点（中层）===== -->
+        <rect x="246" y="111" width="54" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="258" cy="121" r="7" fill="#FFE0B2"/><text x="255" y="125" font-size="9" fill="#E65100">👤</text>
+        <text x="273" y="134" font-size="10" fill="#666" text-anchor="middle">办事处内勤</text>
+        <polygon points="370,110 390,130 370,150 350,130" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="370" y="134" font-size="13" fill="#333" text-anchor="middle">×</text>
+        <rect x="454" y="111" width="56" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="466" cy="121" r="7" fill="#E3F2FD"/><text x="463" y="125" font-size="9" fill="#1976D2">👤</text>
+        <text x="482" y="134" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="582" cy="130" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+
+        <!-- ===== 节点（下层）===== -->
+        <rect x="282" y="292" width="54" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="294" cy="302" r="7" fill="#FFE0B2"/><text x="291" y="306" font-size="9" fill="#E65100">👤</text>
+        <text x="309" y="315" font-size="10" fill="#666" text-anchor="middle">办事处内勤</text>
+        <polygon points="410,292 430,310 410,328 390,310" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="410" y="315" font-size="13" fill="#333" text-anchor="middle">×</text>
+        <rect x="494" y="292" width="56" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="506" cy="302" r="7" fill="#E3F2FD"/><text x="503" y="306" font-size="9" fill="#1976D2">👤</text>
+        <text x="522" y="315" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="612" cy="310" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <!-- 当前节点Tab -->
+    <div id="afNodePanel" style="display:none;">
+      <div class="af-node-type">节点类型：岗位</div>
+      <table class="af-node-table">
+        <thead><tr><th>岗位编号</th><th>岗位名称</th><th>员工</th></tr></thead>
+        <tbody>
+          <tr><td>XXX</td><td>部门名称二</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>部门名称三</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>...</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>部门名称xxx</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="af-footer-btn">
+    <button class="btn-quick-view" onclick="closeApprovalFlowModal()" style="color:#666;border-color:#c0c4cc;">关闭</button>
+  </div>
+</div>
+</div>
+
+
+
+<script>
+/* ====== 审批流程弹窗 ====== */
+function openApprovalFlowModal(){
+  var o=document.getElementById('afOverlay');
+  o.style.display='flex';
+  switchAfTab('flow',document.querySelector('.af-tab[data-tab="flow"]'));
+}
+function closeApprovalFlowModal(){
+  document.getElementById('afOverlay').style.display='none';
+}
+function switchAfTab(tabName,btnEl){
+  document.querySelectorAll('.af-tab').forEach(function(t){t.classList.remove('active');});
+  if(btnEl) btnEl.classList.add('active');
+  document.getElementById('afFlowPanel').style.display=tabName==='flow'?'block':'none';
+  document.getElementById('afNodePanel').style.display=tabName==='node'?'block':'none';
+}
+
+
+/* ====== 单据状态卡片点击切换 ====== */
+(function(){
+  var CARD=document.getElementById('docStatusCard');
+  if(!CARD)return;
+  var states=[{"cls": "status-pending", "icon": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" fill=\"none\"><circle cx=\"7\" cy=\"7\" r=\"6\" stroke=\"#fff\" stroke-width=\"1.5\" stroke-dasharray=\"3 2\"/></svg>", "title": "批价单作废 - 审批中", "note": "商用工程部 张三 备注：-", "time": "2026-06-30 14:00", "closeShow": false}, {"cls": "status-passed", "icon": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" fill=\"none\"><path d=\"M3.5 7L6 9.5L10.5 4.5\" stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>", "title": "批价单作废 - 审批通过", "note": "审批意见：资料齐全，同意作废。张三 已审批", "time": "2026-06-30 16:00", "closeShow": true}, {"cls": "status-rejected", "icon": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" fill=\"none\"><path d=\"M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5\" stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>", "title": "批价单作废 - 已驳回", "note": "驳回原因：作废材料不完整，缺少客户签字确认函。", "time": "2026-06-30 15:30", "closeShow": false}, {"cls": "status-cancelled", "icon": "<svg width=\"14\" height=\"14\" viewBox=\"0 0 14 14\" fill=\"none\"><path d=\"M3.5 3.5L10.5 10.5M10.5 3.5L3.5 10.5\" stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>", "title": "批价单作废 - 已取消", "note": "", "time": "2026-06-30 15:00", "closeShow": false}];
+  var idx=0;
+  CARD.addEventListener('click',function(e){
+    if(e.target.closest('.doc-status-close'))return;
+    idx=(idx+1)%states.length;
+    var s=states[idx];
+    CARD.className='doc-status-card '+s.cls;
+    document.getElementById('docStatusIcon').innerHTML=s.icon;
+    document.getElementById('docStatusTitle').textContent=s.title;
+    document.getElementById('docStatusNote').textContent=s.note;
+    document.getElementById('docStatusNote').style.display=s.note?'':'none';
+    document.getElementById('docStatusTime').textContent=s.time;
+    var closeEl=document.getElementById('docStatusClose');
+    closeEl.style.display=s.closeShow?'':'none';
+  });
+  document.getElementById('docStatusClose').addEventListener('click',function(e){
+    e.stopPropagation();
+    CARD.style.display='none';
+  });
+})();
+
+</script>
+</body>
+</html>
