@@ -153,46 +153,41 @@ html,body{height:100%;margin:0;overflow:hidden;}
   </div>
 
 
-  <!-- ===== 作废原因卡片 ===== -->
+  <!-- ===== 作废原因与凭证卡片（合并） ===== -->
   <div class="form-card">
     <div class="form-card-header">
       <div class="form-card-title">
         <div class="fct-accent"></div>
-        <span class="fct-text">作废原因</span>
+        <span class="fct-text">作废原因与凭证</span>
       </div>
     </div>
     <div class="form-card-body">
-      <div class="form-item">
+      <div class="form-item" style="margin-bottom:16px;">
         <label class="form-label">
           <span class="req">*</span> 原因描述
         </label>
         <textarea class="form-ctrl" id="reasonInput" placeholder="请输入作废原因，需明确说明作废依据，最多500字符" maxlength="500" oninput="updateCharCount(this)"></textarea>
         <div class="char-counter" id="charCount">已输入 0 / 500</div>
       </div>
-    </div>
-  </div>
 
-  <!-- ===== 附件上传卡片 ===== -->
-  <div class="form-card">
-    <div class="form-card-header">
-      <div class="form-card-title">
-        <div class="fct-accent"></div>
-        <span class="fct-text">附件上传</span>
-        <span style="font-size:12px;color:var(--text-aux);font-weight:400;">（选填，建议上传相关审批凭证）</span>
-      </div>
-    </div>
-    <div class="form-card-body">
-      <div class="attach-zone" id="attachZone" onclick="document.getElementById('fileInput').click()">
-        <div class="attach-zone-text">
-          点击或拖拽文件到此处上传<br>
-          <span>支持 PNG / JPG / PDF / DOCX / XLSX 格式</span>
+      <div style="border-top:1px dashed #e0e3ea;margin-bottom:14px;"></div>
+
+      <div class="form-item">
+        <label class="form-label">
+          相关凭证 <span style="font-size:11px;color:var(--text-aux);font-weight:400;">（选填，建议上传相关审批凭证）</span>
+        </label>
+        <div class="attach-zone" id="attachZone" onclick="document.getElementById('fileInput').click()">
+          <div class="attach-zone-text">
+            点击或拖拽文件到此处上传<br>
+            <span>支持 PNG / JPG / PDF / DOCX / XLSX 格式</span>
+          </div>
         </div>
-      </div>
-      <input type="file" id="fileInput" style="display:none;" multiple accept=".png,.jpg,.jpeg,.pdf,.docx,.xlsx" onchange="handleFileSelect(this)">
-      <div class="attach-list" id="attachList"></div>
-      <div class="attach-ext-tip" id="attachTip">
-        ✅ 支持扩展名：.png .jpg .pdf .docx .xlsx ，每文件大小不超过20MB，上传数量不超过10个<br>
-        ✅ 图片类文件可点击预览
+        <input type="file" id="fileInput" style="display:none;" multiple accept=".png,.jpg,.jpeg,.pdf,.docx,.xlsx" onchange="handleFileSelect(this)">
+        <div class="attach-list" id="attachList"></div>
+        <div class="attach-ext-tip" id="attachTip">
+          ✅ 支持扩展名：.png .jpg .pdf .docx .xlsx ，每文件大小不超过20MB，上传数量不超过10个<br>
+          ✅ 图片类文件可点击预览
+        </div>
       </div>
     </div>
   </div>
