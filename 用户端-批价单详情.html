@@ -864,12 +864,12 @@ function render(data){
   /* 底部按钮 — 用户端只保留放弃提货按钮 */
   var footerActions=[];
   var ms=curM.split('-')[0];
-  /* 放弃提货：仅非终态（非已完结/已关闭）+ 非审批中（审批中时状态未定）显示 */
-  var showAbandon=(ms!=='已完结'&&ms!=='已关闭');
+  /* 放弃提货：仅非终态（非已完结/已关闭）+ 非部分提货（已部分提货不可放弃剩余）显示 */
+  var showAbandon=(ms!=='已完结'&&ms!=='已关闭'&&ms!=='部分提货');
   if(showAbandon){
     footerActions.push('放弃提货');
   }
-  renderFooter(d.ft,footerActions,data.b);
+  renderFooter(d.ft && footerActions.length>0,footerActions,data.b);
 
   /* 状态徽章颜色 */
   var parts=data.b.split('/');
