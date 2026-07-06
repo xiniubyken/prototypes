@@ -185,11 +185,11 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .af-node-table tr:last-child td{border-bottom:none;}
 .af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
 
-/* ====== 工程项目单信息表格 ====== */
-.login-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
-.login-info-item{display:flex;align-items:center;gap:6px;font-size:13px;padding:4px 0;}
-.lii-label{font-size:12px;color:var(--text-aux);min-width:70px;flex-shrink:0;}
-.lii-value{font-weight:500;color:var(--text);}
+/* ====== 批价单信息表格 ====== */
+.price-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+.price-info-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text);padding:6px 0;border-bottom:1px dashed var(--border-light);}
+.price-info-item .pii-label{font-size:12px;color:var(--text-aux);min-width:80px;flex-shrink:0;}
+.price-info-item .pii-value{font-weight:600;color:var(--text);}
 /* ====== 快捷选择按钮 ====== */
 .quick-pick-group{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
 .quick-btn{padding:5px 16px;font-size:13px;border:1px solid #d0d3da;border-radius:4px;background:#fff;color:#1f2329;cursor:pointer;transition:.15s;}
@@ -248,42 +248,39 @@ html,body{height:100%;margin:0;overflow:hidden;}
 <div class="form-page-scroll">
 <div class="form-page-inner">
 
-  <!-- ===== 工程项目单信息卡片（只读） ===== -->
+  <!-- ===== 批价单信息卡片（只读） ===== -->
   <div class="form-card">
     <div class="form-card-header">
       <div class="form-card-title">
         <div class="fct-accent"></div>
-        <span class="fct-text">工程项目单信息</span>
+        <span class="fct-text">批价单信息</span>
       </div>
     </div>
     <div class="form-card-body">
-      <div class="project-selected-card" style="border:none;background:transparent;padding:0 0 6px 0;">
-        <div class="project-selected-info">
-          <div class="project-selected-name" style="margin-bottom:6px;">希望小学A项目</div>
-          <div class="login-info-grid">
-            <div class="login-info-item">
-              <span class="lii-label">项目单号</span>
-              <span class="lii-value">粤东GCDT202506250001</span>
-            </div>
-            <div class="login-info-item">
-              <span class="lii-label">经销商</span>
-              <span class="lii-value">格力电器广州经销商</span>
-            </div>
-            <div class="login-info-item">
-              <span class="lii-label">业务线</span>
-              <span class="lii-value">家用中央空调</span>
-            </div>
-            <div class="login-info-item">
-              <span class="lii-label">状态</span>
-              <span class="lii-value status-ok" style="color:#2E7D32;">已批价</span>
-            </div>
-          </div>
-          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-light);">
-            <div class="login-info-item">
-              <span class="lii-label">原定提货截止</span>
-              <span class="lii-value status-warn" style="color:var(--warning);font-weight:600;">2026-07-20</span>
-            </div>
-          </div>
+      <div class="price-info-grid">
+        <div class="price-info-item">
+          <span class="pii-label">批价单号</span>
+          <span class="pii-value">粤东GCDT202506250001-PJ001</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">申请数量</span>
+          <span class="pii-value">58 台</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">购买数量</span>
+          <span class="pii-value">58 台</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">业务线</span>
+          <span class="pii-value">中央空调</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">当前状态</span>
+          <span class="pii-value" style="color:var(--success);font-weight:600;">已批价</span>
+        </div>
+        <div class="price-info-item">
+          <span class="pii-label">原定提货截止</span>
+          <span class="pii-value" style="color:var(--warning);font-weight:600;">2026-07-20</span>
         </div>
       </div>
     </div>
