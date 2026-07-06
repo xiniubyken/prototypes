@@ -150,6 +150,14 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 /* ====== 非标标签 ====== */
 .nonstd-badge{color:#E65100;font-weight:700;font-size:11px;background:#FFF3E0;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;}
 
+/* ====== 工程项目单信息（来自批价单审批页） ====== */
+.project-selected-card{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.project-selected-info{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+.project-selected-name{font-size:15px;font-weight:700;color:#1f2329;}
+.project-selected-meta{font-size:12px;color:#646a73;display:flex;align-items:center;gap:0;flex-wrap:wrap;}
+.project-meta-item{display:inline-flex;align-items:center;gap:0;}
+.project-meta-sep{color:#d0d3da;margin:0 8px;font-size:11px;}
+
 /* ====== 设备清单表格 ====== */
 .equip-table-wrap{overflow-x:auto;max-height:320px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;}
 .equip-table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
@@ -531,7 +539,31 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
 
 
+<!-- ==================== 工程项目单信息 ==================== -->
+<div class="form-card">
+  <div class="form-card-header">
+    <div class="form-card-title"><div class="fct-accent"></div><span class="fct-text">工程项目单信息</span></div>
+  </div>
+  <div class="form-card-body">
+    <div class="project-selected-card" style="border:none;background:transparent;padding:0 0 10px 0;">
+      <div class="project-selected-info">
+        <div class="project-selected-name" id="pjDispName">某商业综合体空调项目</div>
+        <div class="project-selected-meta">
+          <span class="project-meta-item" id="pjDispNo">项目单号：粤东GCDT202606250001</span>
+          <span class="project-meta-sep">|</span>
+          <span class="project-meta-item" id="pjDispDealer">经销商：珠海华鸿电器销售有限公司</span>
+          <span class="project-meta-sep">|</span>
+          <span class="project-meta-item" id="pjDispBiz">业务线：中央空调</span>
+          <span class="project-meta-sep">|</span>
+          <span class="project-meta-item" id="pjDispStatus">状态：审批中</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ========== 卡片1：设备清单（批价单20列·只读） ========== -->
+
 <div class="form-card" id="cardEquipList">
   <div class="equip-card-hd">
     <div class="equip-card-hd-left">
