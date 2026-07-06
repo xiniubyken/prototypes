@@ -897,12 +897,13 @@ function render(data){
   /* 审批进度 */
   renderApproval(d.al,d.ap);
 
-  /* 底部按钮 — 作废按钮条件逻辑：非审批中/已完结/已关闭 且有购买数量>0 */
+  /* 底部按钮 — 作废按钮：已驳回/待提货/购买数量全部=0 且非终态则显示 */
   var footerActions=d.a.slice();
   var ms=curM.split('-')[0];
   var canVoid=(ms!=='审批中'&&ms!=='已完结'&&ms!=='已关闭');
   var hasBuyQty=(d.equip||[]).some(function(e){return (e.buyQty||0)>0});
-  if(canVoid && (ms==='已驳回'||!hasBuyQty) && footerActions.indexOf('作废')===-1){
+  var showVoid=(ms==='已驳回'||ms==='待提货') || (canVoid && !hasBuyQty);
+  if(showVoid && footerActions.indexOf('作废')===-1){
     footerActions.push('作废');
   }
   renderFooter(d.ft,footerActions,data.b);
@@ -1140,19 +1141,21 @@ function renderApproval(al,ap){
   });
   tbody.innerHTML=html||'<tr><td colspan="6" style="text-align:center;color:var(--text-aux);padding:20px;">暂无审批记录</td></tr>';
 
-  /* 审批节点时间线 */
+  /* 审批节点时间线（HTML已移除→仅保留数据，不渲染） */
   var tl=document.getElementById('apTimeline');
-  html='';
-  ap.forEach(function(a){
-    var ndClass='nd ';
-    if(a.st==='d') ndClass+='d';
-    else if(a.st==='c') ndClass+='c';
-    else ndClass+='p';
-    var rkHtml=a.rk?'<div class="nrk">'+a.rk+'</div>':'';
-    html+='<div class="an"><div class="'+ndClass+'">'+(a.st==='d'?'✓':a.st==='c'?'●':'○')+'</div>'
-      +'<div class="ni"><div class="nn">'+a.n+'</div><div class="nt">'+a.t+'</div><div class="nr">'+a.r+'</div>'+rkHtml+'</div></div>';
-  });
-  tl.innerHTML=html;
+  if(tl){
+    html='';
+    ap.forEach(function(a){
+      var ndClass='nd ';
+      if(a.st==='d') ndClass+='d';
+      else if(a.st==='c') ndClass+='c';
+      else ndClass+='p';
+      var rkHtml=a.rk?'<div class="nrk">'+a.rk+'</div>':'';
+      html+='<div class="an"><div class="'+ndClass+'">'+(a.st==='d'?'✓':a.st==='c'?'●':'○')+'</div>'
+        +'<div class="ni"><div class="nn">'+a.n+'</div><div class="nt">'+a.t+'</div><div class="nr">'+a.r+'</div>'+rkHtml+'</div></div>';
+    });
+    tl.innerHTML=html;
+  }
 }
 
 /* 底部操作栏 */
