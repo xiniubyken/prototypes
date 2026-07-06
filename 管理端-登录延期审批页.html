@@ -185,6 +185,97 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .af-node-table tr:last-child td{border-bottom:none;}
 .af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
 
+/* ====== 工程项目单信息表格 ====== */
+.login-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;}
+.login-info-item{display:flex;align-items:center;gap:6px;font-size:13px;padding:4px 0;}
+.lii-label{font-size:12px;color:var(--text-aux);min-width:70px;flex-shrink:0;}
+.lii-value{font-weight:500;color:var(--text);}
+/* ====== 快捷选择按钮 ====== */
+.quick-pick-group{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.quick-btn{padding:5px 16px;font-size:13px;border:1px solid #d0d3da;border-radius:4px;background:#fff;color:#1f2329;cursor:pointer;transition:.15s;}
+.quick-btn:hover{border-color:#3b5998;color:#3b5998;}
+.quick-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+/* ====== 日期选择行 ====== */
+.date-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.date-label{font-size:12px;color:var(--text-aux);}
+.date-sep{color:var(--text-aux);font-size:13px;}
+.date-days{font-weight:600;color:var(--warning);}
+
+/* ====== 关联项目参考区 ====== */
+.ref-card{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:12px;overflow:hidden;border-left:3px solid #3b5998;}
+.ref-card-header{padding:9px 16px;font-size:13px;font-weight:600;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;gap:8px;}
+.ref-card-body{padding:10px 16px;}
+.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 24px;}
+.info-item{font-size:13px;}
+.info-label{color:var(--text-aux);font-size:12px;margin-bottom:2px;}
+.info-value{color:var(--text);font-weight:500;}
+.lo-badge{display:inline-flex;align-items:center;gap:6px;background:#E8F5E9;border-radius:12px;padding:2px 10px;font-size:12px;white-space:nowrap;}
+.lo-badge .lo-num{background:#2E7D32;color:#fff;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.lo-badge .lo-txt{color:#2E7D32;font-weight:500;}
+.lo-view-btn{color:#3b5998;font-size:12px;cursor:pointer;text-decoration:underline;}
+.lo-view-btn:hover{text-decoration:none;}
+/* 设备清单表 */
+.equip-table-wrap{overflow-x:auto;max-height:400px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;}
+.equip-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px;}
+.equip-table thead{position:sticky;top:0;z-index:10;}
+.equip-table th{background:#f7f8fa;height:36px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
+.equip-table td{height:38px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.equip-table tr:hover td{background:rgba(59,89,152,.02);}
+.equip-table-foot{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#fafbfc;border-top:1px solid #f0f0f0;}
+.equip-summary-item{font-size:12px;color:#646a73;}
+.equip-summary-item span{color:#1f2329;font-weight:700;}
+/* 登录顺序详情弹窗 */
+.lod-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:1001;display:none;align-items:center;justify-content:center}
+.lod-box{background:#fff;border-radius:8px;width:880px;max-width:92vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.lod-hd{padding:14px 20px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lod-title{font-size:15px;font-weight:600;color:var(--text)}
+.lod-x{font-size:18px;color:var(--text-aux);cursor:pointer;padding:4px 8px}
+.lod-x:hover{color:var(--text)}
+.lod-body{padding:16px 20px;overflow-y:auto;flex:1}
+.lod-info-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px}
+.lod-info-label{color:var(--text-aux)}
+.lod-info-val{color:var(--text);font-weight:500}
+.lod-edit-link{font-size:13px;color:var(--primary);cursor:pointer;text-decoration:none}
+.lod-edit-link:hover{text-decoration:underline}
+.lod-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border-light)}
+.lod-tab{padding:7px 18px;font-size:13px;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
+.lod-tab:hover{color:var(--primary)}
+.lod-tab.on{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.lod-tp{display:none}
+.lod-tp.on{display:block}
+.lod-table{width:100%;border-collapse:collapse;font-size:13px}
+.lod-table th{background:var(--bg-header);height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:var(--text-secondary);border-bottom:1px solid var(--border)}
+.lod-table td{padding:8px 10px;border-bottom:1px solid var(--border-light);vertical-align:middle}
+.lod-table tr:hover td{background:rgba(59,89,152,.03)}
+.ls-badge{display:inline-flex;align-items:center;gap:4px}
+.ls-num{width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.ls-num.ok{background:#4CAF50}
+.ls-num.sub{background:#2196F3}
+.ls-txt{font-size:12px;font-weight:500}
+.ls-txt.ok{color:#2E7D32}
+.ls-txt.sub{color:#1565C0}
+/* 折叠记录控件 */
+.fr-wrap{display:flex;flex-direction:column;gap:2px}
+.fr-item{border:1px solid var(--border,#e8eaed);border-radius:3px;overflow:hidden;background:#fff}
+.fr-hd{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;background:var(--bg-header,#F7F8FA);transition:background .12s;font-size:13px;user-select:none}
+.fr-hd:hover{background:#eef0f4}
+.fr-ico{width:20px;height:20px;border-radius:3px;background:var(--primary,#3b5998);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;line-height:1;transition:transform .2s}
+.fr-item.open .fr-ico{transform:rotate(45deg);background:var(--text-aux,#8f959e)}
+.fr-time{color:var(--text,#1f2329);font-weight:500;min-width:140px}
+.fr-user{color:var(--text-secondary,#646a73);min-width:60px}
+.fr-remark{color:var(--text-aux,#8f959e);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-bd{display:none;padding:12px 14px;border-top:1px solid var(--border-light,#f0f0f0);background:#FAFBFC}
+.fr-item.open .fr-bd{display:block}
+.fr-cg{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.fr-cl{font-size:12px;font-weight:600;color:var(--text-aux,#8f959e);margin-bottom:8px}
+.fr-items{display:flex;flex-direction:column;gap:5px}
+.fr-item-row{font-size:13px;color:var(--text,#1f2329);display:flex;align-items:center;gap:6px}
+.fr-hdr{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--text-aux,#8f959e);background:var(--bg-header,#F7F8FA);border-bottom:1px solid var(--border,#e8eaed);margin-top:4px}
+.fr-hdr-ico{width:20px;flex-shrink:0}
+.fr-hdr-time{min-width:140px}
+.fr-hdr-user{min-width:60px}
+.fr-hdr-remark{flex:1}
+
 </style>
 </head>
 <body>
@@ -208,6 +299,47 @@ html,body{height:100%;margin:0;overflow:hidden;}
 <!-- ===== 滚动内容区 ===== -->
 <div class="form-page-scroll">
 <div class="form-page-inner">
+
+  <!-- ===== 工程项目单信息卡片（只读） ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent"></div>
+        <span class="fct-text">工程项目单信息</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div class="project-selected-card" style="border:none;background:transparent;padding:0 0 6px 0;">
+        <div class="project-selected-info">
+          <div class="project-selected-name" style="margin-bottom:6px;">希望小学A项目</div>
+          <div class="login-info-grid">
+            <div class="login-info-item">
+              <span class="lii-label">项目单号</span>
+              <span class="lii-value">粤东GCDT202506250001</span>
+            </div>
+            <div class="login-info-item">
+              <span class="lii-label">经销商</span>
+              <span class="lii-value">格力电器广州经销商</span>
+            </div>
+            <div class="login-info-item">
+              <span class="lii-label">业务线</span>
+              <span class="lii-value">家用中央空调</span>
+            </div>
+            <div class="login-info-item">
+              <span class="lii-label">状态</span>
+              <span class="lii-value status-ok" style="color:#2E7D32;">已登录</span>
+            </div>
+          </div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--border-light);">
+            <div class="login-info-item">
+              <span class="lii-label">原定登录截止</span>
+              <span class="lii-value status-warn" style="color:var(--warning);font-weight:600;">2026-07-20</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== 延期申请信息卡片 ===== -->
   <div class="form-card">
@@ -240,6 +372,34 @@ html,body{height:100%;margin:0;overflow:hidden;}
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 决定延期期限卡片（待审批） ===== -->
+  <div class="form-card">
+    <div class="form-card-header">
+      <div class="form-card-title">
+        <div class="fct-accent" style="background:var(--warning);"></div>
+        <span class="fct-text">决定延期期限</span>
+      </div>
+    </div>
+    <div class="form-card-body">
+      <div style="margin-bottom:10px;font-size:13px;color:var(--text-secondary);">
+        当前登录截止：
+        <span style="font-weight:600;color:var(--warning);">2026-07-20</span>
+      </div>
+      <div class="quick-pick-group">
+        <span style="font-size:13px;color:var(--text-aux);line-height:32px;margin-right:4px;">快捷选择：</span>
+        <button class="quick-btn" onclick="quickPick(30)">30 天</button>
+        <button class="quick-btn" onclick="quickPick(60)">60 天</button>
+        <button class="quick-btn" onclick="quickPick(90)">90 天</button>
+        <button class="quick-btn" onclick="quickPickCustom()" style="border:1px dashed #c0c4cc;">自定义</button>
+      </div>
+      <div class="date-row">
+        <span class="date-label">延期至</span>
+        <input type="date" class="form-ctrl" id="newDeadline" style="width:160px;padding:6px 10px;border:1px solid #d0d3da;border-radius:4px;font-size:13px;" onfocus="onDateManualFocus()" onchange="calcDays()">
+        <span class="date-sep">（延期 <span id="extendDays" class="date-days">--</span> 天）</span>
       </div>
     </div>
   </div>
@@ -303,6 +463,96 @@ html,body{height:100%;margin:0;overflow:hidden;}
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- ==================== 关联项目参考区 ==================== -->
+  <div style="margin-bottom:8px;">
+    <div style="display:flex;align-items:center;gap:6px;padding:4px 0;margin-bottom:4px;">
+      <span style="font-size:13px;font-weight:600;color:#1f2329;">关联项目参考</span>
+      <span style="font-size:11px;color:#8f959e;">（以下信息来自所选工程项目单，仅供参考）</span>
+    </div>
+
+    <!-- 基本信息 -->
+    <div class="ref-card">
+      <div class="ref-card-header">
+        <div class="fct-accent"></div>
+        <span>基本信息</span>
+      </div>
+      <div class="ref-card-body">
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">项目单号</div><div class="info-value" id="refProjectNo">--</div></div>
+          <div class="info-item"><div class="info-label">经销商名称</div><div class="info-value" id="refDealerName">--</div></div>
+          <div class="info-item"><div class="info-label">经销商电话</div><div class="info-value" id="refDealerPhone">--</div></div>
+          <div class="info-item"><div class="info-label">业务线</div><div class="info-value" id="refBizType">--</div></div>
+          <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">--</div></div>
+          <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">--</div></div>
+          <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">--</div></div>
+          <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">--</div></div>
+          <div class="info-item"><div class="info-label">登录顺序</div><div class="info-value"><span class="lo-badge" id="refLoBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="openLoginOrderModal()">查看</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 使用方信息 -->
+    <div class="ref-card">
+      <div class="ref-card-header">
+        <div class="fct-accent"></div>
+        <span>使用方信息</span>
+      </div>
+      <div class="ref-card-body">
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">项目名称</div><div class="info-value" id="refProjectName">--</div></div>
+          <div class="info-item"><div class="info-label">客户类型</div><div class="info-value" id="refCustType">--</div></div>
+          <div class="info-item"><div class="info-label">客户名称</div><div class="info-value" id="refCustName">--</div></div>
+          <div class="info-item"><div class="info-label">采购单位</div><div class="info-value" id="refBuyer">--</div></div>
+          <div class="info-item"><div class="info-label">行业大类</div><div class="info-value" id="refIndustry">--</div></div>
+          <div class="info-item"><div class="info-label">使用方负责人</div><div class="info-value" id="refContact">--</div></div>
+          <div class="info-item"><div class="info-label">联系方式</div><div class="info-value" id="refPhone">--</div></div>
+          <div class="info-item"><div class="info-label">项目地址</div><div class="info-value" id="refAddress">--</div></div>
+          <div class="info-item"><div class="info-label">空调面积</div><div class="info-value" id="refArea">--</div></div>
+          <div class="info-item"><div class="info-label">预计设备金额</div><div class="info-value" id="refAmount">--</div></div>
+          <div class="info-item"><div class="info-label">跨区类型</div><div class="info-value" id="refCrossRegion">--</div></div>
+          <div class="info-item"><div class="info-label">跨区编号</div><div class="info-value" id="refCrossCode">--</div></div>
+          <div class="info-item"><div class="info-label">执行单位</div><div class="info-value" id="refExecUnit">--</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 项目设备清单（参考） -->
+    <div class="ref-card">
+      <div class="ref-card-header">
+        <div class="fct-accent"></div>
+        <span>项目设备清单</span>
+      </div>
+      <div class="ref-card-body" style="padding:8px 16px;">
+        <div class="equip-table-wrap" style="max-height:200px;">
+          <table class="equip-table" style="min-width:900px;">
+            <thead>
+              <tr>
+                <th style="width:44px;text-align:center;">序号</th>
+                <th style="width:36px;"></th>
+                <th>品类</th>
+                <th>商品名称</th>
+                <th>SKU编码</th>
+                <th>商品ID</th>
+                <th>型号</th>
+                <th>数量</th>
+                <th>申请价格</th>
+                <th>申请点位</th>
+              </tr>
+            </thead>
+            <tbody id="refEquipTbody">
+              <!-- 由JS渲染 -->
+            </tbody>
+          </table>
+        </div>
+        <div class="equip-table-foot" style="border:none;background:transparent;padding:6px 0 0;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="equip-summary-item">总数量：<span id="refEquipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="refEquipTotalAmt">¥ 0.00</span></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -555,6 +805,136 @@ function switchAfTab(tabName,btnEl){
   document.getElementById('afNodePanel').style.display=tabName==='node'?'block':'none';
 }
 
+/* ===== 关联项目参考：登录顺序详情弹窗 ===== */
+function openLoginOrderModal(){ document.getElementById('lodModal').style.display = 'flex'; }
+function hideLoginOrderDetail(){ document.getElementById('lodModal').style.display = 'none'; }
+function lodTab(el, id){
+  document.querySelectorAll('.lod-tab').forEach(function(t){ t.classList.remove('on'); });
+  document.querySelectorAll('.lod-tp').forEach(function(p){ p.classList.remove('on'); });
+  el.classList.add('on');
+  document.getElementById(id).classList.add('on');
+}
+/* 折叠记录 */
+var FoldRecord = {
+  toggle: function(el){
+    var item = el.closest('.fr-item');
+    if(item) item.classList.toggle('open');
+  }
+};
+
+// ====================== 示例演示数据 ======================
+function loadDemoRefData(){
+  var fields = {
+    refProjectNo: 'GC20240625001',
+    refDealerName: '格力电器广州经销商',
+    refDealerPhone: '020-88886666',
+    refBizType: '家用中央空调',
+    refProjectStatus: '审批中',
+    refLoginTime: '2024-06-25 14:30:00',
+    refProjectType: '新建工程',
+    refBondType: '保函',
+    refProjectName: '广州天河区万科云城项目',
+    refCustType: '地产公司',
+    refCustName: '万科企业股份有限公司',
+    refBuyer: '广州万科置业有限公司',
+    refIndustry: '房地产',
+    refContact: '张三',
+    refPhone: '13800138001',
+    refAddress: '广州市天河区华观路1934号',
+    refArea: '2850 ㎡',
+    refAmount: '¥ 1,280,000.00',
+    refCrossRegion: '否',
+    refCrossCode: '--',
+    refExecUnit: '广州销售公司'
+  };
+  Object.keys(fields).forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.textContent = fields[id];
+  });
+  // 登录顺序
+  var loEl = document.getElementById('refLoBadge');
+  if(loEl){
+    loEl.querySelector('.lo-num').textContent = '1';
+    loEl.querySelector('.lo-txt').textContent = '登录成功';
+  }
+  // 设备清单示例
+  var demoEquip = [
+    {seq:1, cate:'室内机', name:'GMV-N140T/L', sku:'SKU001', id:'PID001', model:'GMV-N140T/L', qty:8, price:3850, point:15},
+    {seq:2, cate:'室外机', name:'GMV-450WM/A', sku:'SKU002', id:'PID002', model:'GMV-450WM/A', qty:2, price:26800, point:12, isNonStd:true},
+    {seq:3, cate:'线控器', name:'XC70-33/H', sku:'SKU003', id:'PID003', model:'XC70-33/H', qty:8, price:180, point:10},
+    {seq:4, cate:'风管', name:'FG-150', sku:'SKU004', id:'PID004', model:'FG-150', qty:16, price:95, point:0}
+  ];
+  var tbody = document.getElementById('refEquipTbody');
+  if(tbody){
+    tbody.innerHTML = '';
+    var totQty = 0, totAmt = 0;
+    demoEquip.forEach(function(eq){
+      totQty += eq.qty;
+      totAmt += eq.qty * eq.price;
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td style="text-align:center;color:#8f959e;width:44px;">' + eq.seq + '</td>' +
+        '<td style="width:36px;text-align:center;">' + (eq.isNonStd ? '<span class="nonstd-badge">非</span>' : '') + '</td>' +
+        '<td>' + eq.cate + '</td>' +
+        '<td>' + eq.name + '</td>' +
+        '<td>' + (eq.sku || '--') + '</td>' +
+        '<td>' + (eq.id || '--') + '</td>' +
+        '<td>' + eq.model + '</td>' +
+        '<td>' + eq.qty + '</td>' +
+        '<td>¥' + eq.price.toLocaleString('zh-CN', {minimumFractionDigits:2}) + '</td>' +
+        '<td>' + (eq.point !== undefined ? eq.point + '%' : '--') + '</td>';
+      tbody.appendChild(tr);
+    });
+    document.getElementById('refEquipTotalQty').textContent = totQty;
+    document.getElementById('refEquipTotalAmt').textContent = '¥ ' + totAmt.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+}
+document.addEventListener('DOMContentLoaded', loadDemoRefData);
+
+/* ===== 快捷延期选择 ===== */
+var _quickActive = null;
+var _originalDeadline = '2026-07-20';
+function _calcNewDate(baseDate, days){
+  var d = new Date(baseDate);
+  d.setDate(d.getDate() + days);
+  var y = d.getFullYear();
+  var m = ('0'+(d.getMonth()+1)).slice(-2);
+  var day = ('0'+d.getDate()).slice(-2);
+  return y+'-'+m+'-'+day;
+}
+function _daysBetween(d1,d2){
+  var a = new Date(d1), b = new Date(d2);
+  return Math.round((b-a)/(86400000));
+}
+function quickPick(days){
+  _quickActive = days;
+  document.querySelectorAll('.quick-btn').forEach(function(b){
+    b.classList.remove('active');
+    if(b.textContent.trim()===days+' 天') b.classList.add('active');
+  });
+  var newDate = _calcNewDate(_originalDeadline, days);
+  document.getElementById('newDeadline').value = newDate;
+  document.getElementById('extendDays').textContent = days;
+}
+function quickPickCustom(){
+  _quickActive = null;
+  document.querySelectorAll('.quick-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('newDeadline').value = '';
+  document.getElementById('extendDays').textContent = '--';
+  document.getElementById('newDeadline').focus();
+  document.getElementById('newDeadline').showPicker();
+}
+function onDateManualFocus(){
+  _quickActive = null;
+  document.querySelectorAll('.quick-btn').forEach(function(b){b.classList.remove('active');});
+}
+function calcDays(){
+  var v = document.getElementById('newDeadline').value;
+  if(!v){document.getElementById('extendDays').textContent='--';return;}
+  var days = _daysBetween(_originalDeadline, v);
+  if(days<0){document.getElementById('extendDays').textContent='0 (早于原截止日期)'; return;}
+  document.getElementById('extendDays').textContent = days;
+}
+
 </script>
 
 <!-- ========== 审批流程弹窗 ========== -->
@@ -650,6 +1030,116 @@ function switchAfTab(tabName,btnEl){
   </div>
 </div>
 </div>
+
+<!-- ==================== 弹窗：登录顺序详情 ==================== -->
+<div class="lod-modal" id="lodModal" onclick="if(event.target===this)hideLoginOrderDetail()">
+<div class="lod-box">
+<div class="lod-hd">
+<span class="lod-title">登录顺序-查看详情</span>
+<span class="lod-x" onclick="hideLoginOrderDetail()">&times;</span>
+</div>
+<div class="lod-body">
+<div class="lod-info-row">
+<div><span class="lod-info-label">关联编号：</span><span class="lod-info-val">GL02202407180001</span></div>
+<a class="lod-edit-link" onclick="alert('演示：修改顺序')">修改顺序</a>
+</div>
+<div class="lod-tabs">
+<div class="lod-tab on" onclick="lodTab(this,'lodTp1')">关联工程信息</div>
+<div class="lod-tab" onclick="lodTab(this,'lodTp2')">修改记录</div>
+</div>
+<!-- Tab1: 关联工程信息 -->
+<div class="lod-tp on" id="lodTp1">
+<table class="lod-table">
+<thead><tr><th>登录书签</th><th>工程单号</th><th>经销商名称</th><th>工程状态</th><th>登录时间</th><th>业务经理</th></tr></thead>
+<tbody>
+<tr>
+<td><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span></td>
+<td>GC01202401010001</td><td>经销商名称A</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理a</td>
+</tr>
+<tr>
+<td><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span></td>
+<td>GC01202401010001</td><td>经销商名称B</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理d</td>
+</tr>
+<tr>
+<td><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span></td>
+<td>GC01202401010001</td><td>经销商名称C</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理c</td>
+</tr>
+<tr>
+<td><span class="ls-badge"><span class="ls-num sub">4</span><span class="ls-txt sub">候补登录</span></span></td>
+<td>GC01202401010001</td><td>经销商名称D</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理d</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Tab2: 修改记录 -->
+<div class="lod-tp" id="lodTp2">
+  <p style="font-size:12px;color:var(--text-aux);margin:0 0 8px;line-height:1.5">共 2 条修改记录，点击 <strong>+</strong> 展开详情</p>
+  <div class="fr-hdr">
+    <span class="fr-hdr-ico"> </span>
+    <span class="fr-hdr-time">修改时间</span>
+    <span class="fr-hdr-user">修改人</span>
+    <span class="fr-hdr-remark">备注</span>
+  </div>
+  <div class="fr-wrap">
+    <div class="fr-item">
+      <div class="fr-hd" onclick="FoldRecord.toggle(this)">
+        <span class="fr-ico">+</span>
+        <span class="fr-time">2022-11-11 11:11:11</span>
+        <span class="fr-user">马华腾</span>
+        <span class="fr-remark">修改了登录顺序</span>
+      </div>
+      <div class="fr-bd">
+        <div class="fr-cg">
+          <div class="fr-col">
+            <div class="fr-cl">修改前</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010001</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010002</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010003</div>
+            </div>
+          </div>
+          <div class="fr-col">
+            <div class="fr-cl">修改后</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010003</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010002</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fr-item">
+      <div class="fr-hd" onclick="FoldRecord.toggle(this)">
+        <span class="fr-ico">+</span>
+        <span class="fr-time">2022-11-10 09:30:15</span>
+        <span class="fr-user">唐静安</span>
+        <span class="fr-remark">批量调整候补登录</span>
+      </div>
+      <div class="fr-bd">
+        <div class="fr-cg">
+          <div class="fr-col">
+            <div class="fr-cl">修改前</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">1</span><span class="ls-txt sub">候补登录</span></span> GC01202401010005</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010004</div>
+            </div>
+          </div>
+          <div class="fr-col">
+            <div class="fr-cl">修改后</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010005</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010004</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!-- end lod-tp -->
+</div><!-- end lod-body -->
+</div><!-- end lod-box -->
+</div><!-- end lod-modal -->
 
 </body>
 </html>
