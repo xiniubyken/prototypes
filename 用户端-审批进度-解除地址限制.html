@@ -51,16 +51,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .form-card-title .fct-text{font-size:14px;font-weight:700;color:#1f2329;}
 .form-card-body{padding:16px;}
 
-/* ====== 原销范围展示区（黄色底） ====== */
-.orig-scope-area{background:#FFFBE6;border:1px solid #FFE082;border-radius:6px;padding:16px 18px;margin-bottom:16px;}
-.orig-scope-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;}
-.orig-scope-icon{font-size:17px;flex-shrink:0;margin-top:1px;color:#ED6C02;}
-.orig-scope-text{font-size:13px;color:#8B6914;line-height:1.55;}
-.orig-scope-tags{display:flex;flex-wrap:wrap;gap:8px;}
-.os-tag{display:inline-flex;align-items:center;padding:5px 12px;border:1px solid #E0D0A0;border-radius:4px;font-size:13px;color:#5D4E37;background:#FFFEF5;white-space:nowrap;}
-.orig-scope-collapse{text-align:left;margin-top:10px;}
-.orig-scope-collapse .osc-link{color:var(--info);font-size:13px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
-.orig-scope-collapse .osc-link:hover{text-decoration:underline;}
 
 /* ====== 只读字段 ====== */
 .field-readonly{font-size:13px;color:#1f2329;display:flex;align-items:center;gap:6px;}
@@ -196,34 +186,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
       </div>
     </div>
     <div class="form-card-body">
-      <!-- 黄色底：原销范围展示区 -->
-      <div class="orig-scope-area">
-        <div class="orig-scope-head">
-          <span class="orig-scope-icon">&#x26A0;</span>
-          <span class="orig-scope-text">请注意：非跨区工程，所选安装范围已超出经销销销售范围，原销售范围包括：</span>
-        </div>
-        <div class="orig-scope-tags">
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-          <span class="os-tag">云南/昆明市/安宁市</span>
-        </div>
-        <div class="orig-scope-collapse">
-          <span class="osc-link" onclick="toggleOrigScope()" id="oscLink">&#x25B2; 收起</span>
-        </div>
-      </div>
-      <!-- 只读：当前选择的安装范围 -->
+<!-- 只读：当前选择的安装范围 -->
       <div style="display:flex;align-items:center;gap:8px;">
         <span style="font-size:12px;color:#646a73;"><span style="color:var(--danger);">*</span> 选择安装范围：</span>
         <span class="field-readonly" style="font-weight:500;">浙江省 / 杭州市 / 西湖区</span>
@@ -325,16 +288,6 @@ function showToast(msg, type) {
   setTimeout(function() { toast.style.display = 'none'; }, 3000);
 }
 
-/* ===== 原销范围收起/展开 =====*/
-function toggleOrigScope() {
-  var tags = document.querySelector('.orig-scope-tags');
-  var link = document.getElementById('oscLink');
-  if(tags.style.display === 'none') {
-    tags.style.display = ''; link.innerHTML = '&#x25B2; 收起';
-  } else {
-    tags.style.display = 'none'; link.innerHTML = '&#x25BC; 展开';
-  }
-}
 </script>
 <!-- ========== 底部操作栏 ==========-->
 <div class="approval-footer">
