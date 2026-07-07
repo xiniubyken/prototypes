@@ -335,6 +335,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .scene-notice{display:none;border-radius:6px;padding:10px 14px;font-size:13px;margin-bottom:12px;}
 .scene-notice.visible{display:flex;align-items:flex-start;gap:10px;}
 .scene-notice.reject{background:#FFF0F0;border:1px solid #ffc8c8;}
+.scene-notice.copy{background:#FFFBE6;border:1px solid #FFE082;}
+.scene-notice.copy .notice-title{color:#B57900;}
+.scene-notice.copy .notice-hint{color:#D97706;font-weight:600;}
 .scene-notice .notice-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
 .scene-notice .notice-content{flex:1;}
 .scene-notice .notice-title{font-weight:700;margin-bottom:6px;font-size:13px;color:#c62828;}
@@ -362,6 +365,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="scene-switcher">
       <button class="scene-btn active" data-scene="new" onclick="switchScene('new')">新建申请</button>
       <button class="scene-btn" data-scene="resubmit" onclick="switchScene('resubmit')">重新提交（驳回后）</button>
+      <button class="scene-btn" data-scene="copy" onclick="switchScene('copy')">复制新建（关闭重开）</button>
     </div>
   </div>
 </div>
@@ -380,6 +384,17 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <div class="notice-item">驳回原因：<span>设备清单价格超出指导价，请调整申请价格/点位后重新提交</span></div>
           <div class="notice-item">驳回人：<span>李工（商用工程部审批）</span></div>
           <div class="notice-item">剩余有效期：<span style="color:#c62828;">还剩 7 天</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="scene-notice copy" id="noticeCopy">
+      <div class="notice-content" style="flex:1;">
+        <div class="notice-title">复制重提 · 请修改后重新提交</div>
+        <div class="notice-grid">
+          <div class="notice-item">来源项目单号：<span>粤东GCDT202112010001</span></div>
+          <div class="notice-item">关闭类型：<span>经销商放弃登录</span></div>
+          <div class="notice-item">关闭时间：<span>2026-06-19 14:32</span></div>
+          <div class="notice-item notice-hint">提交后将生成全新项目单号</div>
         </div>
       </div>
     </div>
@@ -1234,11 +1249,13 @@ function closeSubmitModal() {
 }
 function confirmSubmit() {
   closeSubmitModal();
-  var pjNo = PJ_NO;
+  var pjNo = (currentScene === 'copy') ? '（全新项目单号待生成）' : PJ_NO;
   document.getElementById('resultPjNo').textContent = pjNo;
-  document.getElementById('resultProjNo').textContent = '粤东GCDT202606250001';
-  document.getElementById('resultMsg').textContent = (currentScene === 'resubmit') ? '批价申请已重新提交' : '批价申请已提交';
-  document.getElementById('resultTitle').textContent = (currentScene === 'resubmit') ? '重新提交成功' : '提交成功';
+  document.getElementById('resultProjNo').textContent = (currentScene === 'copy') ? COPY_SRC_NO : '粤东GCDT202606250001';
+  var msgMap = { new:'批价申请已提交', resubmit:'批价申请已重新提交', copy:'已复制新建，生成全新项目单号' };
+  document.getElementById('resultMsg').textContent = msgMap[currentScene] || '批价申请已提交';
+  var titleMap = { new:'提交成功', resubmit:'重新提交成功', copy:'复制新建成功' };
+  document.getElementById('resultTitle').textContent = titleMap[currentScene] || '提交成功';
   openResultModal();
 }
 function openResultModal(){ document.getElementById('resultModal').style.display = 'flex'; }
@@ -1567,12 +1584,14 @@ var FoldRecord = {
   }
 };
 
-// ====================== 场景模拟：新建申请 / 驳回重提 ======================
+// ====================== 场景模拟：新建申请 / 驳回重提 / 复制新建 ======================
 var currentScene = 'new';
 var defaultFooterHtml = '';
 var PJ_NO = '粤东GCDT202606250001-PJ001';
+var COPY_SRC_NO = '粤东GCDT202112010001';
 var NEW_REMARK = '经销商新建批价单，提交后进入审批流程。';
 var RESUBMIT_REMARK = '（驳回重提）已根据驳回意见调整设备清单价格与点位，重新提交审批。';
+var COPY_REMARK = '（复制新建）原项目单已关闭（经销商放弃登录），复制原设备清单重新发起批价申请，提交后将生成全新项目单号。';
 
 function switchScene(scene) {
   currentScene = scene;
@@ -1581,12 +1600,14 @@ function switchScene(scene) {
   if(btn) btn.classList.add('active');
 
   var noticeReject = document.getElementById('noticeReject');
+  var noticeCopy = document.getElementById('noticeCopy');
   var title = document.getElementById('pageMainTitle');
   var footerTip = document.getElementById('footerTip');
   var btnSubmit = document.getElementById('btnSubmit');
   var remarkEl = document.getElementById('applyRemark');
 
   noticeReject.classList.remove('visible');
+  noticeCopy.classList.remove('visible');
 
   if(scene === 'new') {
     // 复位项目选择态
@@ -1610,6 +1631,16 @@ function switchScene(scene) {
     title.textContent = '工程批价单申请 重新提交 — ' + PJ_NO + ' (驳回重提)';
     if(remarkEl) remarkEl.value = RESUBMIT_REMARK;
     // 重新提交场景：移除「设备清单已自动带入」演示提示卡
+    document.getElementById('equipAutoHint').style.display = 'none';
+  } else if(scene === 'copy') {
+    // 复制新建（关闭重开）：带入来源项目单数据
+    applyProjectData(projectListData[0]);
+    noticeCopy.classList.add('visible');
+    footerTip.innerHTML = '来源项目单号：<span style="color:#B57900;font-weight:700;">' + COPY_SRC_NO + '</span>　｜　提交后将生成<span style="color:#D97706;font-weight:700;">全新项目单号</span>';
+    btnSubmit.textContent = '提交批价申请';
+    title.textContent = '工程批价单申请 复制新建 — ' + COPY_SRC_NO + ' (关闭重开)';
+    if(remarkEl) remarkEl.value = COPY_REMARK;
+    // 复制新建场景：移除「设备清单已自动带入」演示提示卡
     document.getElementById('equipAutoHint').style.display = 'none';
   }
 }
