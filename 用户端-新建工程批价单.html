@@ -364,8 +364,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <span style="font-size:12px;color:#8f959e;">模拟场景：</span>
     <div class="scene-switcher">
       <button class="scene-btn active" data-scene="new" onclick="switchScene('new')">新建申请</button>
-      <button class="scene-btn" data-scene="resubmit" onclick="switchScene('resubmit')">重新提交（驳回后）</button>
-      <button class="scene-btn" data-scene="copy" onclick="switchScene('copy')">复制新建（关闭重开）</button>
+      <button class="scene-btn" data-scene="resubmit" onclick="switchScene('resubmit')">重新提交</button>
+      <button class="scene-btn" data-scene="copy" onclick="switchScene('copy')">复制新建</button>
     </div>
   </div>
 </div>
@@ -1628,17 +1628,17 @@ function switchScene(scene) {
     noticeReject.classList.add('visible');
     footerTip.innerHTML = '原批价单：<span style="color:#3b5998;font-weight:700;">' + PJ_NO + '</span>　｜　驳回重提保留原单号，修改后重新提交即可';
     btnSubmit.textContent = '重新提交';
-    title.textContent = '工程批价单申请 重新提交 — ' + PJ_NO + ' (驳回重提)';
+    title.textContent = '工程批价单申请 重新提交 — ' + PJ_NO;
     if(remarkEl) remarkEl.value = RESUBMIT_REMARK;
     // 重新提交场景：移除「设备清单已自动带入」演示提示卡
     document.getElementById('equipAutoHint').style.display = 'none';
   } else if(scene === 'copy') {
-    // 复制新建（关闭重开）：带入来源项目单数据
+    // 复制新建：带入来源项目单数据
     applyProjectData(projectListData[0]);
     noticeCopy.classList.add('visible');
     footerTip.innerHTML = '来源项目单号：<span style="color:#B57900;font-weight:700;">' + COPY_SRC_NO + '</span>　｜　提交后将生成<span style="color:#D97706;font-weight:700;">全新项目单号</span>';
     btnSubmit.textContent = '提交批价申请';
-    title.textContent = '工程批价单申请 复制新建 — ' + COPY_SRC_NO + ' (关闭重开)';
+    title.textContent = '工程批价单申请 复制新建 — ' + COPY_SRC_NO;
     if(remarkEl) remarkEl.value = COPY_REMARK;
     // 复制新建场景：移除「设备清单已自动带入」演示提示卡
     document.getElementById('equipAutoHint').style.display = 'none';
