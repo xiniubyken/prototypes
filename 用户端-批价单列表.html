@@ -130,10 +130,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .detail-validity{font-size:12px;color:var(--text-aux);}
 
 /* 有效期倒计时 ★收紧防换行 */
-.validity-countdown{padding:4px 8px;border-radius:4px;font-size:11px;font-weight:500;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
-.validity-normal{background:#E8F5E9;color:#2E7D32;}
-.validity-warning{background:#FFF3E0;color:#E65100;}
-.validity-danger{background:#FFEBEE;color:#C62828;}
+.time-remain{font-size:11px;font-weight:600;white-space:nowrap;}
+.time-remain.urgent{color:#D32F2F;}
+.time-remain.normal{color:#ED6C02;}
+.time-remain.safe{color:#2E7D32;}
 
 /* ========== 审批进度（商用框架） ========== */
 .approval-timeline{padding:0 16px;}
@@ -696,13 +696,14 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 /* 子状态(方案2：圆点+灰字，拉与主状态色块的层级差) */
 .sub-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#646a73;margin-top:5px;white-space:nowrap;}
 .sub-status .sub-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex:none;}
-.sub-price .sub-dot{background:#1565C0;}
-.sub-reprice .sub-dot{background:#0F6E56;}
-.sub-cancel .sub-dot{background:#C62828;}
-.sub-delay .sub-dot{background:#E65100;}
-.sub-giveup .sub-dot{background:#993C1D;}
-.sub-expire .sub-dot{background:#854F0B;}
-.sub-link .sub-dot{background:#534AB7;}
+/* 审批中-子状态 */
+.sub-login .sub-dot{background:#1565C0;}            /* 工程登录 */
+.sub-cancel-approve .sub-dot{background:#C62828;}   /* 销司作废审批 */
+/* 已关闭-子状态 */
+.sub-dealer-login .sub-dot{background:#FF7043;}     /* 经销商放弃登录 */
+.sub-login-expire .sub-dot{background:#E65100;}     /* 登录有效期到期 */
+.sub-reject-expire .sub-dot{background:#8E24AA;}    /* 已驳回有效期到期 */
+.sub-cancel .sub-dot{background:#C62828;}           /* 销司作废 */
 .sub-status{font-size:11px;color:#8f959e;}
 
 /* ⑥操作区 ★18% */
@@ -776,8 +777,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
 <!-- 状态页签条（合并：待提货+部分提货=提货中） -->
 <div class="d2-tabs" id="d2Tabs">
-  <div class="d2-tab active" data-tab="all" onclick="switchTab('all')">全部 <span class="tab-count">13</span></div>
-  <div class="d2-tab" data-tab="approving" onclick="switchTab('approving')">审批中 <span class="tab-count">4</span></div>
+  <div class="d2-tab active" data-tab="all" onclick="switchTab('all')">全部 <span class="tab-count">11</span></div>
+  <div class="d2-tab" data-tab="approving" onclick="switchTab('approving')">审批中 <span class="tab-count">2</span></div>
   <div class="d2-tab" data-tab="rejected" onclick="switchTab('rejected')">已驳回 <span class="tab-count">2</span></div>
   <div class="d2-tab" data-tab="picking" onclick="switchTab('picking')">提货中 <span class="tab-count">2</span></div>
   <div class="d2-tab" data-tab="closed" onclick="switchTab('closed')">已关闭 <span class="tab-count">4</span></div>
@@ -791,7 +792,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <span class="order-no">粤东GCDT202606250001-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
         <span class="card-created">创建：2026-06-25 09:30</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">汕头市某中学空调改造项目</div>
@@ -806,14 +807,13 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-approving">审批中</span>
-        <span class="sub-status sub-price"><span class="sub-dot"></span>价格审批</span>
+        <span class="sub-status sub-login"><span class="sub-dot"></span>工程登录</span>
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606250001-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606250001-PJ01')">复制新建</a>
         <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606250001-PJ01',false)">放弃提货</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
   <div class="d2-card" data-status="approving" data-projno="粤东GCDT202606260010">
@@ -821,7 +821,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <span class="order-no">粤东GCDT202606260010-PJ02</span>
       <span class="biz-tag biz-tag-ac">多联机</span>
         <span class="card-created">创建：2026-06-26 10:20</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">深圳前海某写字楼多联机采购项目</div>
@@ -836,82 +836,21 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-approving">审批中</span>
-        <span class="sub-status sub-reprice"><span class="sub-dot"></span>二次批价</span>
+        <span class="sub-status sub-cancel-approve"><span class="sub-dot"></span>销司作废审批</span>
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606260010-PJ02')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606260010-PJ02')">复制新建</a>
         <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606260010-PJ02',false)">放弃提货</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
-  <div class="d2-card" data-status="approving" data-projno="粤东GCDT202606270011">
-    <div class="d2-card-header">
-      <span class="order-no">粤东GCDT202606270011-PJ03</span>
-      <span class="biz-tag biz-tag-ac">商用工程</span>
-        <span class="card-created">创建：2026-06-27 15:40</span>
-  </div>
-    <div class="d2-card-body">
-      <div class="d2-card-main">
-        <div class="project-name">广州某商场中央空调工程项目</div>
-      </div>
-      <div class="d2-card-time no-validity">
-        <div class="time-label">有效期</div>
-        <div class="time-value">—</div>
-      </div>
-      <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">0</span></div>
-        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥180,000</span></div>
-      </div>
-      <div class="d2-card-status">
-        <span class="status-badge sb-approving">审批中</span>
-        <span class="sub-status sub-cancel"><span class="sub-dot"></span>销司作废</span>
-      </div>
-      <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606270011-PJ03')">查看</a>
-        <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606270011-PJ03')">复制新建</a>
-        <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606270011-PJ03',false)">放弃提货</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="d2-card" data-status="approving" data-projno="粤东GCDT202606280012">
-    <div class="d2-card-header">
-      <span class="order-no">粤东GCDT202606280012-PJ04</span>
-      <span class="biz-tag biz-tag-leng">冷链</span>
-        <span class="card-created">创建：2026-06-28 11:10</span>
-  </div>
-    <div class="d2-card-body">
-      <div class="d2-card-main">
-        <div class="project-name">东莞某食品厂冷库扩建项目</div>
-      </div>
-      <div class="d2-card-time no-validity">
-        <div class="time-label">有效期</div>
-        <div class="time-value">—</div>
-      </div>
-      <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">0</span></div>
-        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥95,000</span></div>
-      </div>
-      <div class="d2-card-status">
-        <span class="status-badge sb-approving">审批中</span>
-        <span class="sub-status sub-delay"><span class="sub-dot"></span>提货延期</span>
-      </div>
-      <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606280012-PJ04')">查看</a>
-        <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606280012-PJ04')">复制新建</a>
-        <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606280012-PJ04',false)">放弃提货</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606240002" data-validfrom="2026-06-24" data-validto="2026-07-08">
+  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606240002">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606240002-PJ01</span>
       <span class="biz-tag biz-tag-ac">多联机</span>
         <span class="card-created">创建：2026-06-24 14:15</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">深圳前海某写字楼多联机采购项目</div>
@@ -919,7 +858,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="d2-card-time">
         <div class="time-label">有效期</div>
         <div class="time-value">至 2026-07-08</div>
-        <div class="validity-countdown validity-warning">剩余 1 天可重提</div>
+        <div class="time-remain urgent">剩余 1 天可重提</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">18</span></div>
@@ -933,17 +872,16 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606240002-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606240002-PJ01')">复制新建</a>
         <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606240002-PJ01',true)">放弃提货</a>
-      </div>
-    </div>
+      </div>    </div>
     <div class="d2-card-reject">驳回原因：设备清单中型号与工程项目单不一致，请核对后重新提交</div>
   </div>
 
-  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606150007" data-validfrom="2026-06-15" data-validto="2026-07-12">
+  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606150007">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606150007-PJ02</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
         <span class="card-created">创建：2026-06-15 09:20</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">佛山某医院空调工程项目</div>
@@ -951,7 +889,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="d2-card-time">
         <div class="time-label">有效期</div>
         <div class="time-value">至 2026-07-12</div>
-        <div class="validity-countdown validity-warning">剩余 5 天可重提</div>
+        <div class="time-remain normal">剩余 5 天可重提</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">22</span></div>
@@ -965,17 +903,16 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606150007-PJ02')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606150007-PJ02')">复制新建</a>
         <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606150007-PJ02',true)">放弃提货</a>
-      </div>
-    </div>
+      </div>    </div>
     <div class="d2-card-reject">驳回原因：批价单价超出指导价，需补充说明</div>
   </div>
 
-  <div class="d2-card" data-status="picking" data-projno="粤东GCDT202606200003" data-validfrom="2026-06-21" data-validto="2026-07-21">
+  <div class="d2-card" data-status="picking" data-projno="粤东GCDT202606200003">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606200003-PJ01</span>
       <span class="biz-tag biz-tag-ac">多联机</span>
         <span class="card-created">创建：2026-06-20 08:50</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">惠州某酒店多联机项目</div>
@@ -983,7 +920,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="d2-card-time">
         <div class="time-label">有效期</div>
         <div class="time-value">2026-06-21 至 2026-07-21</div>
-        <div class="validity-countdown validity-ok">剩余 14 天</div>
+        <div class="time-remain safe">剩余 14 天</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">0</span></div>
@@ -996,16 +933,15 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606200003-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606200003-PJ01')">复制新建</a>
         <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606200003-PJ01',false)">放弃提货</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
-  <div class="d2-card" data-status="partpick" data-projno="粤东GCDT202606180004" data-validfrom="2026-06-18" data-validto="2026-07-18">
+  <div class="d2-card" data-status="partpick" data-projno="粤东GCDT202606180004">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606180004-PJ01</span>
       <span class="biz-tag biz-tag-ac">商用工程</span>
         <span class="card-created">创建：2026-06-18 13:30</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">珠海某工厂中央空调项目</div>
@@ -1013,7 +949,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="d2-card-time">
         <div class="time-label">有效期</div>
         <div class="time-value">2026-06-18 至 2026-07-18</div>
-        <div class="validity-countdown validity-ok">剩余 11 天</div>
+        <div class="time-remain safe">剩余 11 天</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">30</span></div>
@@ -1025,8 +961,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606180004-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606180004-PJ01')">复制新建</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
   <div class="d2-card is-finished" data-status="finished" data-projno="粤东GCDT202606100005">
@@ -1034,7 +969,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <span class="order-no">粤东GCDT202606100005-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
         <span class="card-created">创建：2026-06-10 16:00</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">江门某学校空调项目</div>
@@ -1053,8 +988,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606100005-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606100005-PJ01')">复制新建</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
   <div class="d2-card is-closed" data-status="closed" data-projno="粤东GCDT202606050008">
@@ -1062,7 +996,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <span class="order-no">粤东GCDT202606050008-PJ01</span>
       <span class="biz-tag biz-tag-leng">冷链</span>
         <span class="card-created">创建：2026-06-05 09:00</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">中山冷链物流中心冷库设备项目</div>
@@ -1077,13 +1011,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-closed">已关闭</span>
-        <span class="sub-status sub-giveup"><span class="sub-dot"></span>放弃提货</span>
+        <span class="sub-status sub-dealer-login"><span class="sub-dot"></span>经销商放弃登录</span>
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606050008-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606050008-PJ01')">复制新建</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
   <div class="d2-card is-closed" data-status="closed" data-projno="粤东GCDT202606030009">
@@ -1091,7 +1024,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <span class="order-no">粤东GCDT202606030009-PJ02</span>
       <span class="biz-tag biz-tag-ac">多联机</span>
         <span class="card-created">创建：2026-06-03 10:30</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">肇庆某商场多联机项目</div>
@@ -1106,13 +1039,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-closed">已关闭</span>
-        <span class="sub-status sub-expire"><span class="sub-dot"></span>提货有效期到期</span>
+        <span class="sub-status sub-login-expire"><span class="sub-dot"></span>登录有效期到期</span>
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606030009-PJ02')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606030009-PJ02')">复制新建</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
   <div class="d2-card is-closed" data-status="closed" data-projno="粤东GCDT202605280013">
@@ -1120,7 +1052,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <span class="order-no">粤东GCDT202605280013-PJ03</span>
       <span class="biz-tag biz-tag-ac">商用工程</span>
         <span class="card-created">创建：2026-05-28 14:40</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">清远某产业园中央空调项目</div>
@@ -1135,13 +1067,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-closed">已关闭</span>
-        <span class="sub-status sub-link"><span class="sub-dot"></span>项目联动</span>
+        <span class="sub-status sub-reject-expire"><span class="sub-dot"></span>已驳回有效期到期</span>
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202605280013-PJ03')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202605280013-PJ03')">复制新建</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
   <div class="d2-card is-closed" data-status="closed" data-projno="粤东GCDT202605200014">
@@ -1149,7 +1080,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <span class="order-no">粤东GCDT202605200014-PJ04</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
         <span class="card-created">创建：2026-05-20 09:15</span>
-  </div>
+    </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">韶关某政府办公楼空调项目</div>
@@ -1169,15 +1100,14 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202605200014-PJ04')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202605200014-PJ04')">复制新建</a>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
-</div><!-- /d2-card-list -->
+  </div><!-- /d2-card-list -->
 
 <!-- 分页区 -->
 <div class="d2-pagination">
-  <span class="page-info">共 13 条记录</span>
+  <span class="page-info">共 11 条记录</span>
   <div class="page-btns">
     <div class="page-btn disabled">&lt;</div>
     <div class="page-btn active">1</div>
@@ -1190,8 +1120,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 <script>
 // 页签计数固定值
 var TAB_COUNTS = {
-  all: 13,
-  approving: 4,
+  all: 11,
+  approving: 2,
   rejected: 2,
   picking: 2,
   closed: 4,
