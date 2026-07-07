@@ -884,13 +884,21 @@ function render(data){
   /* 审批进度 */
   renderApproval(d.al,d.ap);
 
-  /* 底部按钮 — 用户端只保留放弃提货按钮 */
+  /* 底部按钮 */
   var footerActions=[];
   var ms=curM.split('-')[0];
   /* 放弃提货：仅非终态（非已完结/已关闭）+ 非部分提货（已部分提货不可放弃剩余）显示 */
   var showAbandon=(ms!=='已完结'&&ms!=='已关闭'&&ms!=='部分提货');
   if(showAbandon){
     footerActions.push('放弃提货');
+  }
+  /* 提货延期：待提货和部分提货状态显示 */
+  if(ms==='待提货'||ms==='部分提货'){
+    footerActions.push('提货延期');
+  }
+  /* 再次申请批价：待提货和部分提货状态显示 */
+  if(ms==='待提货'||ms==='部分提货'){
+    footerActions.push('再次申请批价');
   }
   renderFooter(d.ft && footerActions.length>0,footerActions,data.b);
 
@@ -1131,6 +1139,8 @@ function renderFooter(show,actions,badgeStyle){
   var html='';
   actions.forEach(function(a){
     if(a==='放弃提货'){html+='<button class="btn bd" onclick="showAbd()">'+a+'</button>';return}
+    if(a==='提货延期'){html+='<button class="btn bp" onclick="da(\'提货延期→进入提货延期申请页\')">'+a+'</button>';return}
+    if(a==='再次申请批价'){html+='<button class="btn bp" onclick="da(\'再次申请批价\')">'+a+'</button>';return}
     html+='<button class="btn bp" onclick="da(\''+a+'\')">'+a+'</button>';
   });
   ab.innerHTML=html;
