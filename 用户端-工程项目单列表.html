@@ -686,6 +686,17 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .status-badge.sb-lost{background:#F3E5F5;color:#6A1B9A;}
 .status-badge.sb-closed{background:#ECEFF1;color:#546E7A;}
 .status-badge.sb-finished{background:#E0F2F1;color:#00695C;}
+/* 子状态(方案2：圆点+灰字，拉开与主状态色块的层级差) */
+.sub-status{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#646a73;margin-top:5px;white-space:nowrap;}
+.sub-status .sub-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex:none;}
+/* 审批中-子状态 */
+.sub-login .sub-dot{background:#1565C0;}            /* 工程登录 */
+.sub-cancel-approve .sub-dot{background:#C62828;}   /* 销司作废审批 */
+/* 已关闭-子状态 */
+.sub-dealer-login .sub-dot{background:#FF7043;}     /* 经销商放弃登录 */
+.sub-login-expire .sub-dot{background:#E65100;}     /* 登录有效期到期 */
+.sub-reject-expire .sub-dot{background:#8E24AA;}    /* 已驳回有效期到期 */
+.sub-cancel .sub-dot{background:#C62828;}           /* 销司作废 */
 .sub-status{font-size:11px;color:#8f959e;}
 
 /* ⑥操作区 */
@@ -792,7 +803,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-approving">审批中</span>
-        <span class="sub-status">初审</span>
+        <span class="sub-status sub-login"><span class="sub-dot"></span>工程登录</span>
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情')">查看详情</a>
@@ -973,6 +984,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-closed">已关闭</span>
+        <span class="sub-status sub-dealer-login"><span class="sub-dot"></span>经销商放弃登录</span>
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link" onclick="alert('查看详情')">查看详情</a>
