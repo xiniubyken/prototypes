@@ -236,6 +236,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
       </div>
       <span class="dh-biz" id="hbz">中央空调-批价</span>
       <span class="dh-sub" id="ssb" style="display:none"></span>
+      <span class="dh-sub" id="saleTypeTag" style="background:#E0F2F1;color:#00695C;border:1px solid #B2DFDB;display:none"></span>
     </div>
     <div class="dh-sg">
       <div class="dh-countdown" id="cdb" style="display:none"><span class="cd-lbl" id="cdLbl">提货有效</span><span class="cd-d" id="cdd" style="color:#2E7D32">29</span><span class="cd-u">天</span><i class="ico-hint" id="vh" data-tip="" style="display:none">?</i></div>
@@ -288,6 +289,19 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
     <div class="cert-list" id="certList"><!-- 由 JS 动态渲染（分类式只读） --></div>
     
   </div>
+</div>
+
+<!-- 1.4 基本信息 -->
+<div class="card">
+  <div class="ch"><span>基本信息</span></div>
+  <div class="cb"><div class="ig">
+    <div class="ii"><div class="il">批价单号</div><div>粤东GCDT202606250001-PJ001</div></div>
+    <div class="ii"><div class="il">创建时间</div><div>2026-06-25 10:30</div></div>
+    <div class="ii"><div class="il">经销商名称</div><div>XX商贸有限公司</div></div>
+    <div class="ii"><div class="il">保证金类型</div><div>比例保证金-A（10%）</div></div>
+    <div class="ii"><div class="il">业务线</div><div>中央空调</div></div>
+    <div class="ii"><div class="il">销售类型</div><div>常规价</div></div>
+  </div></div>
 </div>
 
 </div><!-- end t1 -->
@@ -533,7 +547,7 @@ const C={
   ms:'审批中 → 价格审批',
   b:'#E3F2FD/#1565C0',sub:{l:'子状态',v:'价格审批',sb:'#FFF8E1/#B45309'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'审批中',certNote:'经销商提交的项目凭证材料，包含合同扫描件、中标通知书等。\n\n审核进度：\n1. 销司已初审通过\n2. 工程部复审中\n3. 待价格审批确认',
     remark:'代客申请批价，由销司管理者协助经销商录入。',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'价格清单_202606.xlsx',size:'1.1MB'}],
@@ -554,10 +568,7 @@ const C={
   ms:'审批中 → 二次批价',
   b:'#E3F2FD/#1565C0',sub:{l:'子状态',v:'二次批价',sb:'#FFF3E0/#E65100'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
-    status:'审批中',certNote:'二次批价申请说明：\n原批复价格已无法满足当前市场情况。\n\n原因分析：\n1. 原材料价格上涨约15%\n2. 物流成本增加\n3. 需重新核定价格',
-    remark:'因原材料价格上涨，申请调整部分商品批价。本次为二次批价流程。',
-    attaches:[{name:'二次批价申请说明.pdf',size:'1.5MB'},{name:'最新报价对比表.xlsx',size:'0.8MB'}],
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     equip:[
       {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'GID-10001',qty:5,origQty:5,price:45000,origPrice:42000,point:8.5,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:40000,estimate:null,remark:'涨价申请'},
       {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'GID-10002',qty:3,origQty:3,price:59000,origPrice:56000,point:8.0,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:54000,estimate:null,remark:'涨价申请'},
@@ -580,7 +591,7 @@ const C={
   ms:'审批中 → 销司作废',
   b:'#E3F2FD/#1565C0',sub:{l:'子状态',v:'销司作废',sb:'#FFEBEE/#D32F2F'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'审批中',certNote:'销司作废申请：关联工程项目单所有批价单购买数量=0',
     remark:'销司发起作废操作，需经过审批流确认。',
     attaches:[{name:'销司作废申请单.pdf',size:'0.6MB'}],
@@ -603,7 +614,7 @@ const C={
   ms:'审批中 → 提货延期',
   b:'#E3F2FD/#1565C0',sub:{l:'子状态',v:'提货延期',sb:'#E8EAF6/#3F51B5'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'审批中',certNote:'提货延期申请：项目工期调整，需延长提货有效期',
     remark:'因项目施工进度延后，申请将提货有效期从原定90天延长至120天。⚠️ 延期审批并行进行，不改变主状态。',
     attaches:[{name:'提货延期申请书.pdf',size:'1.0MB'},{name:'工期调整说明.docx',size:'0.4MB'}],
@@ -625,7 +636,7 @@ const C={
 '已驳回':{
   b:'#FFEBEE/#D32F2F',
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'已驳回',certNote:'批价申请已被驳回。\n\n驳回原因：\n1. 项目凭证不完整，缺少合同扫描件\n2. 申请价格与市场价差异较大\n3. 请补充完整材料后重新提交',
     remark:'驳回原因：申请价格偏离市场价格过多，请重新核算后再次提交。\n\n驳回人：工程科内勤·王科长\n驳回时间：2026-06-26 16:45',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'驳回通知书.pdf',size:'0.3MB'}],
@@ -649,7 +660,7 @@ const C={
 '待提货':{
   b:'#E8F5E9/#2E7D32',
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'待提货',certNote:'批价审批已通过，等待经销商提货',
     remark:'审批通过！经销商可在有效期内按批复价格提货。提货有效期至 2026-09-25。',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'批复确认单.pdf',size:'0.8MB'}],
@@ -678,7 +689,7 @@ const C={
 '部分提货':{
   b:'#FFF8E1/#B45309',
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'部分提货',certNote:'部分商品已提货，剩余可继续提货',
     remark:'已提货 3 项 / 共 5 项，剩余 2 项可在有效期内继续提货。提货有效期至 2026-09-25。',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'批复确认单.pdf',size:'0.8MB'},{name:'提货单_第一批.pdf',size:'1.2MB'}],
@@ -707,7 +718,7 @@ const C={
 '已完结':{
   b:'#E8F5E9/#2E7D32',
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'已完结',certNote:'全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。',
     remark:'✅ 全部 5 项商品已于 2026-07-15 完成提货，批价单已自动进入完结状态。实际成交总金额：¥469,000.00',
     attaches:[
@@ -742,7 +753,7 @@ const C={
   b:'#ECEFF1/#546E7A',closeType:'放弃提货',
   closeDetail:{source:'经销商主动放弃',condition:'批价单无购买数量',note:'经销商二次确认放弃此批价申请，不再继续推进。'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'已关闭',certNote:'批价单已关闭 — 放弃提货',
     remark:'❌ 经销商主动发起「放弃登求」，二次确认+备注后关闭。\n\n条件：批价单无购买数量\n来源：经销商主动放弃',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'放弃确认书.pdf',size:'0.3MB'}],
@@ -763,7 +774,7 @@ const C={
   b:'#ECEFF1/#546E7A',closeType:'提货有效期到期',
   closeDetail:{source:'系统自动',condition:'提货有效期到期且未完成提货',note:'工程批价审批通过且完结后，系统计算有效期到期后自动关闭。'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'已关闭',certNote:'批价单已关闭 — 提货有效期到期',
     remark:'⏰ 提货有效期已于 2026-09-25 到期，期间未进行提货操作，系统自动关闭本批价单。\n\n来源：系统自动计算（审批通过且完结后开始计时）',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'批复确认单.pdf',size:'0.8MB'}],
@@ -787,7 +798,7 @@ const C={
   b:'#ECEFF1/#546E7A',closeType:'项目联动',
   closeDetail:{source:'关联工程项目单-作废审批通过',condition:'关联的工程项目单被作废',note:'关联工程项目单「粤东GCDT202606250001」的作废审批通过后，本批价单同步关闭。'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'已关闭',certNote:'批价单已关闭 — 项目联动关闭',
     remark:'🔗 关联的工程项目单「粤东GCDT202606250001」作废审批通过，本批价单同步关闭。\n\n来源：项目联动（工程单作废→批价单级联关闭）',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'项目作废通知.pdf',size:'0.5MB'}],
@@ -808,7 +819,7 @@ const C={
   b:'#ECEFF1/#546E7A',closeType:'销司作废',
   closeDetail:{source:'销司发起作废',condition:'审批中/待提货 + 购买数量=0',note:'销司发起作废操作，经审批流确认后关闭。'},
   d:{
-    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',
+    pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'已关闭',certNote:'批价单已关闭 — 销司作废',
     remark:'🏢 销司发起作废操作，经审批流确认后关闭。\n\n条件：批价单购买数量=0\n来源：销司主动发起',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'销司作废审批单.pdf',size:'0.6MB'}],
@@ -848,6 +859,15 @@ function render(data){
     ssb.textContent=data.sub.v;
   }else{
     ssb.style.display='none';
+  }
+
+  /* 销售类型标签 */
+  var stt=document.getElementById('saleTypeTag');
+  if(d.saleType){
+    stt.style.display='inline-block';
+    stt.textContent=d.saleType;
+  }else{
+    stt.style.display='none';
   }
 
   /* 提示文字 */
