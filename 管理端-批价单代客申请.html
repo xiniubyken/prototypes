@@ -195,6 +195,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
 .page-btn.disabled{color:#c5cae9;cursor:default;}
 
+/* ====== 横向选择器（灰底/白底选中，参考审批页销售类型） ====== */
+.sales-type-selector{display:flex;gap:0;background:#f5f6fa;border:1px solid #e0e3ea;border-radius:6px;overflow:hidden;padding:3px;width:fit-content;}
+.sales-type-tag{padding:5px 18px;font-size:13px;color:#646a73;cursor:pointer;border-radius:4px;transition:.15s;font-weight:500;white-space:nowrap;border:none;background:transparent;line-height:1.5;user-select:none;}
+.sales-type-tag:hover{color:#3b5998;background:rgba(59,89,152,.06);}
+.sales-type-tag.active{background:#fff;color:#3b5998;font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.10);}
+
 /* 状态标签 */
 .status-badge{display:inline-block;padding:2px 10px;border-radius:4px;font-size:12px;font-weight:600;}
 .st-approve{background:#E3F2FD;color:#1565C0;}
@@ -363,17 +369,16 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <!-- 业务线选择（选完项目后可选） -->
     <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
       <div class="form-card-body" style="padding:12px 16px;">
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
-          <select class="form-ctrl" id="bizSelector" style="width:160px;">
-            <option value="">请选择业务线</option>
-            <option value="central">中央空调</option>
-            <option value="multi">多联机</option>
-            <option value="fresh">新风</option>
-            <option value="hotwater">热水</option>
-            <option value="coldchain">冷链</option>
-            <option value="precision">精密空调</option>
-          </select>
+          <div class="sales-type-selector">
+            <span class="sales-type-tag active" onclick="selectBizType(this,'central')">中央空调</span>
+            <span class="sales-type-tag" onclick="selectBizType(this,'multi')">多联机</span>
+            <span class="sales-type-tag" onclick="selectBizType(this,'fresh')">新风</span>
+            <span class="sales-type-tag" onclick="selectBizType(this,'hotwater')">热水</span>
+            <span class="sales-type-tag" onclick="selectBizType(this,'coldchain')">冷链</span>
+            <span class="sales-type-tag" onclick="selectBizType(this,'precision')">精密空调</span>
+          </div>
         </div>
       </div>
     </div>
@@ -958,20 +963,31 @@ function confirmProject() {
   closeProjectModal();
 }
 
-// ====================== 业务线选择 ======================
-var currentBizType = '';
+// ====================== 业务线选择（标签平铺） ======================
+var currentBizType = 'central'; // 默认选中第一个
 
-// 业务线change监听（由下方DOMContentLoaded一起初始化）
+function selectBizType(el, val) {
+  document.querySelectorAll('.sales-type-tag').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  currentBizType = val;
+}
+
+function getCurrentBizType() {
+  return currentBizType;
+}
 
 // 根据项目数据自动匹配业务线
 function autoMatchBizType(bizName) {
   var map = { '中央空调':'central', '多联机':'multi', '新风':'fresh', '热水':'hotwater', '冷链':'coldchain', '精密空调':'precision' };
-  var val = map[bizName] || '';
-  var sel = document.getElementById('bizSelector');
-  if(sel) {
-    sel.value = val;
-    currentBizType = val;
-  }
+  var val = map[bizName] || 'central'; // 匹配不到默认第一个
+  var tags = document.querySelectorAll('.sales-type-tag');
+  tags.forEach(function(t){
+    t.classList.remove('active');
+    if(t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'" + val + "'") >= 0) {
+      t.classList.add('active');
+    }
+  });
+  currentBizType = val;
 }
 
 // ====================== 填充参考区 ======================
@@ -1145,9 +1161,6 @@ function confirmSubmit() {
 document.addEventListener('DOMContentLoaded', function(){
   renderProjectList();
   renderCertList();
-  // 业务线change监听
-  var bs = document.getElementById('bizSelector');
-  if(bs) bs.addEventListener('change', function(){ currentBizType = this.value; });
 });
 
 // ====================== 项目凭证 ======================
