@@ -652,8 +652,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .biz-tag-ac{background:rgba(59,89,152,.1);color:#3b5998;}
 .biz-tag-ll{background:rgba(2,136,209,.1);color:#0288D1;}
 .biz-tag-leng{background:rgba(46,125,50,.1);color:#2E7D32;}
-.d2-card-header .time-tag{color:#8f959e;margin-left:auto;}
-
 /* ②-⑥ 中间主体行 */
 .d2-card-body{display:flex;align-items:stretch;min-height:64px;}
 
@@ -742,10 +740,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <input type="text" class="s-input" id="searchProjNo" placeholder="精确搜索">
   </div>
   <div class="search-item">
-    <span class="search-label">创建时间</span>
-    <input type="date" id="timeStart">
+    <span class="search-label">有效期</span>
+    <input type="date" id="validStart">
     <span class="time-sep">至</span>
-    <input type="date" id="timeEnd">
+    <input type="date" id="validEnd">
   </div>
   <button class="d2-btn-search" onclick="doSearch()">搜索</button>
 </div>
@@ -767,7 +765,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606250001-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
-      <span class="time-tag">创建时间 2026-06-25 10:30</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
@@ -775,10 +772,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-25 10:30</div>
-        <div class="time-label" style="margin-top:4px;">提交审批</div>
-        <div class="time-value">2026-06-25 14:20</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">25</span></div>
@@ -795,11 +790,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片2：已驳回 ★带驳回原因 + 重新提交 -->
-  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606240002">
+  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606240002" data-validfrom="2026-06-24" data-validto="2026-07-08">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606240002-PJ01</span>
       <span class="biz-tag biz-tag-ac">多联机</span>
-      <span class="time-tag">创建时间 2026-06-24 09:10</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
@@ -807,10 +801,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-24 09:10</div>
-        <div class="time-label" style="margin-top:4px;">提交审批</div>
-        <div class="time-value">2026-06-24 11:00</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">至 2026-07-08</div>
+        <div class="validity-countdown validity-warning">剩余 1 天可重提</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">18</span></div>
@@ -831,11 +824,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片3：提货中 - 待提货 -->
-  <div class="d2-card" data-status="picking" data-projno="粤东GCDT202606200003">
+  <div class="d2-card" data-status="picking" data-projno="粤东GCDT202606200003" data-validfrom="2026-06-21" data-validto="2026-07-21">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606200003-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
-      <span class="time-tag">创建时间 2026-06-20 15:40</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
@@ -843,10 +835,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-20 15:40</div>
-        <div class="time-label" style="margin-top:4px;">审批通过</div>
-        <div class="time-value">2026-06-21 09:30</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">2026-06-21 至 2026-07-21</div>
+        <div class="validity-countdown validity-normal">剩余 14 天</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">40</span></div>
@@ -863,11 +854,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片4：提货中 - 部分提货 -->
-  <div class="d2-card" data-status="partpick" data-projno="粤东GCDT202606180004">
+  <div class="d2-card" data-status="partpick" data-projno="粤东GCDT202606180004" data-validfrom="2026-06-18" data-validto="2026-07-18">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606180004-PJ01</span>
       <span class="biz-tag biz-tag-leng">冷链</span>
-      <span class="time-tag">创建时间 2026-06-18 10:20</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
@@ -875,10 +865,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-18 10:20</div>
-        <div class="time-label" style="margin-top:4px;">审批通过</div>
-        <div class="time-value">2026-06-18 16:00</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">2026-06-18 至 2026-07-18</div>
+        <div class="validity-countdown validity-normal">剩余 11 天</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">30</span></div>
@@ -900,17 +889,14 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606100005-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
-      <span class="time-tag">创建时间 2026-06-10 09:00</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">佛山顺德工厂中央空调改造项目</div>
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-10 09:00</div>
-        <div class="time-label" style="margin-top:4px;">审批通过</div>
-        <div class="time-value">2026-06-10 15:40</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">50</span></div>
@@ -931,7 +917,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606260006-PJ01</span>
       <span class="biz-tag biz-tag-ll">家用空调</span>
-      <span class="time-tag">创建时间 2026-06-26 11:15</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
@@ -939,10 +924,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-26 11:15</div>
-        <div class="time-label" style="margin-top:4px;">提交审批</div>
-        <div class="time-value">2026-06-26 13:40</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">120</span></div>
@@ -959,11 +942,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片7：已驳回 - 另一条 -->
-  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606150007">
+  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606150007" data-validfrom="2026-06-15" data-validto="2026-07-12">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606150007-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
-      <span class="time-tag">创建时间 2026-06-15 08:30</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
@@ -971,10 +953,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-15 08:30</div>
-        <div class="time-label" style="margin-top:4px;">提交审批</div>
-        <div class="time-value">2026-06-15 10:20</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">至 2026-07-12</div>
+        <div class="validity-countdown validity-warning">剩余 5 天可重提</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">22</span></div>
@@ -999,17 +980,14 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606050008-PJ01</span>
       <span class="biz-tag biz-tag-leng">冷链</span>
-      <span class="time-tag">创建时间 2026-06-05 14:00</span>
     </div>
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">中山冷链物流中心冷库设备项目</div>
       </div>
       <div class="d2-card-time">
-        <div class="time-label">创建时间</div>
-        <div class="time-value">2026-06-05 14:00</div>
-        <div class="time-label" style="margin-top:4px;">审批通过</div>
-        <div class="time-value">2026-06-06 09:15</div>
+        <div class="time-label">有效期</div>
+        <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
         <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">15</span></div>
@@ -1085,8 +1063,8 @@ function doSearch() {
   var status = document.getElementById('searchStatus').value;
   var orderNo = document.getElementById('searchOrderNo').value.trim();
   var projNo = document.getElementById('searchProjNo').value.trim();
-  var start = document.getElementById('timeStart').value;
-  var end = document.getElementById('timeEnd').value;
+  var start = document.getElementById('validStart').value;
+  var end = document.getElementById('validEnd').value;
 
   var cards = document.querySelectorAll('.d2-card');
   var visible = 0;
@@ -1094,7 +1072,8 @@ function doSearch() {
     var statusAttr = card.dataset.status;
     var orderText = card.querySelector('.order-no').textContent;
     var projText = card.dataset.projno || '';
-    var timeText = card.querySelector('.d2-card-time').textContent;
+    var validFrom = card.dataset.validfrom || '';
+    var validTo = card.dataset.validto || '';
 
     var okStatus = true;
     if (status) {
@@ -1108,10 +1087,13 @@ function doSearch() {
     var okProj = !projNo || projText.indexOf(projNo) >= 0;
     var okTime = true;
     if (start || end) {
-      // 以创建时间(yyyy-mm-dd)做简单包含判断
-      var datePart = (timeText.match(/\d{4}-\d{2}-\d{2}/) || [''])[0];
-      if (start && datePart < start) okTime = false;
-      if (end && datePart > end) okTime = false;
+      // 有效期筛选：无有效期的卡片不参与；有有效期的按 [validFrom, validTo] 与筛选区间重叠判断
+      if (!validFrom && !validTo) {
+        okTime = false;
+      } else {
+        if (start && validTo && validTo < start) okTime = false;
+        if (end && validFrom && validFrom > end) okTime = false;
+      }
     }
 
     var show = (okStatus && okOrder && okProj && okTime);
