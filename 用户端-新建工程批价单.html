@@ -423,7 +423,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   <div id="formFillArea" style="display:none;">
 
     <!-- 演示提示 -->
-    <div class="demo-hint">ⓘ 设备清单已从工程项目单自动带入，可修改数量/价格/点位后提交批价申请</div>
+    <div class="demo-hint" id="equipAutoHint">ⓘ 设备清单已从工程项目单自动带入，可修改数量/价格/点位后提交批价申请</div>
 
     <!-- 业务线选择（选完项目后可选） -->
     <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
@@ -1599,6 +1599,8 @@ function switchScene(scene) {
     btnSubmit.textContent = '提交批价申请';
     title.textContent = '工程批价单申请 粤东GCDT202606250001';
     if(remarkEl) remarkEl.value = NEW_REMARK;
+    // 新建场景：选单带入后显示演示提示卡
+    document.getElementById('equipAutoHint').style.display = '';
   } else if(scene === 'resubmit') {
     // 直接带入原项目单（隐藏选单）
     applyProjectData(projectListData[0]);
@@ -1607,6 +1609,8 @@ function switchScene(scene) {
     btnSubmit.textContent = '重新提交';
     title.textContent = '工程批价单申请 重新提交 — ' + PJ_NO + ' (驳回重提)';
     if(remarkEl) remarkEl.value = RESUBMIT_REMARK;
+    // 重新提交场景：移除「设备清单已自动带入」演示提示卡
+    document.getElementById('equipAutoHint').style.display = 'none';
   }
 }
 
