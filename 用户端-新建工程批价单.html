@@ -135,33 +135,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .lo-view-btn:hover{text-decoration:none;}
 .col-new{color:var(--danger);font-weight:600;}
 
-/* ====== 业务线横向选择器（参考代建项目单） ====== */
-.biz-type-selector {
-  display: flex;
-  gap: 0;
-  background: #f5f6fa;
-  border: 1px solid #e0e3ea;
-  border-radius: 6px;
-  overflow: hidden;
-  padding: 3px;
-  width: fit-content;
-}
-.biz-type-option {
-  padding: 5px 18px;
-  font-size: 13px;
-  color: #646a73;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: .15s;
-  font-weight: 500;
-  white-space: nowrap;
-  border: none;
-  background: transparent;
-  line-height: 1.5;
-}
-.biz-type-option:hover { color: #3b5998; background: rgba(59,89,152,.06); }
-.biz-type-option.active { background: #fff; color: #3b5998; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.10); }
-
 /* 弹窗扩展 */
 .modal-content.modal-lg{width:780px;max-height:88vh;}
 .filter-row{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
@@ -440,18 +413,33 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <!-- 演示提示 -->
     <div class="demo-hint" id="equipAutoHint">ⓘ 设备清单已从工程项目单自动带入，可修改数量/价格/点位后提交批价申请</div>
 
-    <!-- 业务线选择（选完项目后可选） -->
+    <!-- 业务线 + 销售类型（选完项目后可选） -->
     <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
       <div class="form-card-body" style="padding:12px 16px;">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
-          <div class="biz-type-selector" id="bizSelector">
-            <div class="biz-type-option" onclick="selectBizType(this,'central')">中央空调</div>
-            <div class="biz-type-option" onclick="selectBizType(this,'multi')">多联机</div>
-            <div class="biz-type-option" onclick="selectBizType(this,'fresh')">新风</div>
-            <div class="biz-type-option" onclick="selectBizType(this,'hotwater')">热水</div>
-            <div class="biz-type-option" onclick="selectBizType(this,'coldchain')">冷链</div>
-            <div class="biz-type-option" onclick="selectBizType(this,'precision')">精密空调</div>
+        <div style="display:flex;align-items:center;gap:24px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
+            <select class="form-ctrl" id="bizSelector" style="width:150px;">
+              <option value="">请选择</option>
+              <option value="central">中央空调</option>
+              <option value="multi">多联机</option>
+              <option value="fresh">新风</option>
+              <option value="hotwater">热水</option>
+              <option value="coldchain">冷链</option>
+              <option value="precision">精密空调</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">销售类型 <span style="color:#d32f2f;">*</span></label>
+            <select class="form-ctrl" id="salesTypeSelector" style="width:150px;">
+              <option value="">请选择</option>
+              <option value="normal">常规价</option>
+              <option value="buyout">买断价</option>
+              <option value="special">特批特价</option>
+              <option value="sample">样机</option>
+              <option value="package">打包价</option>
+              <option value="hold">暂扣价</option>
+            </select>
           </div>
         </div>
       </div>
@@ -1062,28 +1050,24 @@ function confirmProject() {
   closeProjectModal();
 }
 
-// ====================== 业务线选择 ======================
-var currentBizType = '';
+// ====================== 业务线 + 销售类型选择 ======================
+var currentSalesType = '';
 
-function selectBizType(el, val) {
-  document.querySelectorAll('#bizSelector .biz-type-option').forEach(function(b){ b.classList.remove('active'); });
-  el.classList.add('active');
-  currentBizType = val;
+// 获取当前选中的业务线值
+function getCurrentBizType() {
+  return document.getElementById('bizSelector').value;
 }
 
-// 根据项目数据自动匹配业务线
+// 根据项目数据自动匹配业务线（下拉选中）
 function autoMatchBizType(bizName) {
-  currentBizType = '';
-  document.querySelectorAll('#bizSelector .biz-type-option').forEach(function(el){
-    el.classList.remove('active');
-    // 名称映射
-    var map = { '中央空调':'central', '多联机':'multi', '新风':'fresh', '热水':'hotwater', '冷链':'coldchain', '精密空调':'precision' };
-    var val = map[bizName] || '';
-    if(val && el.getAttribute('onclick') && el.getAttribute('onclick').indexOf("'" + val + "'") >= 0) {
-      el.classList.add('active');
-      currentBizType = val;
-    }
-  });
+  var map = { '中央空调':'central', '多联机':'multi', '新风':'fresh', '热水':'hotwater', '冷链':'coldchain', '精密空调':'precision' };
+  var val = map[bizName] || '';
+  document.getElementById('bizSelector').value = val;
+}
+
+// 获取当前选中的销售类型
+function getCurrentSalesType() {
+  return document.getElementById('salesTypeSelector').value;
 }
 
 // ====================== 填充参考区 ======================
