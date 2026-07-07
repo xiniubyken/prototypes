@@ -738,7 +738,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <input type="text" class="s-input" id="searchOrderNo" placeholder="精确搜索">
   </div>
   <div class="search-item">
-    <span class="search-label">工程单号</span>
+    <span class="search-label">项目单号</span>
     <input type="text" class="s-input" id="searchProjNo" placeholder="精确搜索">
   </div>
   <div class="search-item">
@@ -763,7 +763,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 <div class="d2-card-list" id="cardList">
 
   <!-- 卡片1：审批中 -->
-  <div class="d2-card" data-status="approving">
+  <div class="d2-card" data-status="approving" data-projno="粤东GCDT202606250001">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606250001-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
@@ -772,7 +772,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">汕头市某中学空调改造项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606250001</div>
+        
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -795,7 +795,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片2：已驳回 ★带驳回原因 + 重新提交 -->
-  <div class="d2-card" data-status="rejected">
+  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606240002">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606240002-PJ01</span>
       <span class="biz-tag biz-tag-ac">多联机</span>
@@ -804,7 +804,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">深圳前海某写字楼多联机采购项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606240002</div>
+        
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -831,7 +831,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片3：提货中 - 待提货 -->
-  <div class="d2-card" data-status="picking">
+  <div class="d2-card" data-status="picking" data-projno="粤东GCDT202606200003">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606200003-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
@@ -840,7 +840,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">广州天河商业综合体空调供货项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606200003</div>
+        
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -863,7 +863,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片4：提货中 - 部分提货 -->
-  <div class="d2-card" data-status="partpick">
+  <div class="d2-card" data-status="partpick" data-projno="粤东GCDT202606180004">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606180004-PJ01</span>
       <span class="biz-tag biz-tag-leng">冷链</span>
@@ -872,7 +872,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">东莞松山湖冷链仓储设备供应项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606180004</div>
+        
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -896,7 +896,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片5：已完结 -->
-  <div class="d2-card is-finished" data-status="finished">
+  <div class="d2-card is-finished" data-status="finished" data-projno="粤东GCDT202606100005">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606100005-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
@@ -905,7 +905,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">佛山顺德工厂中央空调改造项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606100005</div>
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -928,7 +927,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片6：审批中 - 不同业务线 -->
-  <div class="d2-card" data-status="approving">
+  <div class="d2-card" data-status="approving" data-projno="粤东GCDT202606260006">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606260006-PJ01</span>
       <span class="biz-tag biz-tag-ll">家用空调</span>
@@ -937,7 +936,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">珠海某住宅小区家用空调集采项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606260006</div>
+        
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -960,7 +959,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片7：已驳回 - 另一条 -->
-  <div class="d2-card" data-status="rejected">
+  <div class="d2-card" data-status="rejected" data-projno="粤东GCDT202606150007">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606150007-PJ01</span>
       <span class="biz-tag biz-tag-ac">中央空调</span>
@@ -969,7 +968,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">惠州某酒店中央空调采购项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606150007</div>
+        
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -996,7 +995,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 
   <!-- 卡片8：已完结 - 另一条 -->
-  <div class="d2-card is-finished" data-status="finished">
+  <div class="d2-card is-finished" data-status="finished" data-projno="粤东GCDT202606050008">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606050008-PJ01</span>
       <span class="biz-tag biz-tag-leng">冷链</span>
@@ -1005,7 +1004,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="d2-card-body">
       <div class="d2-card-main">
         <div class="project-name">中山冷链物流中心冷库设备项目</div>
-        <div class="project-sub">关联工程单：粤东GCDT202606050008</div>
       </div>
       <div class="d2-card-time">
         <div class="time-label">创建时间</div>
@@ -1095,7 +1093,7 @@ function doSearch() {
   cards.forEach(function(card) {
     var statusAttr = card.dataset.status;
     var orderText = card.querySelector('.order-no').textContent;
-    var projText = card.querySelector('.project-sub').textContent;
+    var projText = card.dataset.projno || '';
     var timeText = card.querySelector('.d2-card-time').textContent;
 
     var okStatus = true;
