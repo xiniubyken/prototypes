@@ -1,3 +1,13 @@
+
+/* 已关闭状态 */
+.sb-closed{background:#F2F3F5;color:#8F959E;}
+.is-closed{opacity:.72;}
+.is-closed .project-name{color:#8f959e;}
+
+/* 放弃提货按钮 */
+.abandon-btn{color:#ED6C02 !important;}
+.abandon-btn:hover{color:#D84315 !important;text-decoration:underline;}
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -750,11 +760,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
 <!-- 状态页签条（合并：待提货+部分提货=提货中） -->
 <div class="d2-tabs" id="d2Tabs">
-  <div class="d2-tab active" data-tab="all" onclick="switchTab('all')">全部批价单 <span class="tab-count">8</span></div>
+  <div class="d2-tab active" data-tab="all" onclick="switchTab('all')">全部 <span class="tab-count">8</span></div>
   <div class="d2-tab" data-tab="approving" onclick="switchTab('approving')">审批中 <span class="tab-count">2</span></div>
   <div class="d2-tab" data-tab="rejected" onclick="switchTab('rejected')">已驳回 <span class="tab-count">2</span></div>
   <div class="d2-tab" data-tab="picking" onclick="switchTab('picking')">提货中 <span class="tab-count">2</span></div>
-  <div class="d2-tab" data-tab="finished" onclick="switchTab('finished')">已完结 <span class="tab-count">2</span></div>
+  <div class="d2-tab" data-tab="closed" onclick="switchTab('closed')">已关闭 <span class="tab-count">1</span></div>
+  <div class="d2-tab" data-tab="finished" onclick="switchTab('finished')">已完结 <span class="tab-count">1</span></div>
 </div>
 
 <!-- 卡片列表区 -->
@@ -783,8 +794,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <span class="status-badge sb-approving">审批中</span>
       </div>
       <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606250001-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606250001-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606250001-PJ01')">复制新建</a>
+        <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606250001-PJ01',true)">放弃提货</a>
       </div>
     </div>
   </div>
@@ -814,8 +826,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link danger" onclick="location.href='用户端-新建工程批价单.html'">重新提交</a>
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606240002-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606240002-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606240002-PJ01')">复制新建</a>
+        <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606240002-PJ01',true)">放弃提货</a>
       </div>
     </div>
     <div class="d2-card-footer">
@@ -823,7 +836,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     </div>
   </div>
 
-  <!-- 卡片3：提货中 - 待提货 -->
+  <!-- 卡片3：提货中 - 待提货 ★无购买数量→显示放弃提货 -->
   <div class="d2-card" data-status="picking" data-projno="粤东GCDT202606200003" data-validfrom="2026-06-21" data-validto="2026-07-21">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606200003-PJ01</span>
@@ -840,15 +853,16 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="validity-countdown validity-normal">剩余 14 天</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">40</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val" style="color:#8f959e;">0</span></div>
         <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥360,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-picking">待提货</span>
       </div>
       <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606200003-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606200003-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606200003-PJ01')">复制新建</a>
+        <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606200003-PJ01',false)">放弃提货</a>
       </div>
     </div>
   </div>
@@ -878,8 +892,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <span class="sub-status">已提货 12/30</span>
       </div>
       <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606180004-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606180004-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606180004-PJ01')">复制新建</a>
+        <!-- 放弃提货：已购买30套，不满足"无购买数量"前置条件，故不展示 -->
       </div>
     </div>
   </div>
@@ -906,7 +921,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <span class="status-badge sb-finished">已完结</span>
       </div>
       <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606100005-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606100005-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606100005-PJ01')">复制新建</a>
       </div>
     </div>
@@ -935,8 +950,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <span class="status-badge sb-approving">审批中</span>
       </div>
       <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606260006-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606260006-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606260006-PJ01')">复制新建</a>
+        <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606260006-PJ01',true)">放弃提货</a>
       </div>
     </div>
   </div>
@@ -966,8 +982,9 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div class="d2-card-actions">
         <a class="d2-btn-link danger" onclick="location.href='用户端-新建工程批价单.html'">重新提交</a>
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606150007-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606150007-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606150007-PJ01')">复制新建</a>
+        <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606150007-PJ01',true)">放弃提货</a>
       </div>
     </div>
     <div class="d2-card-footer">
@@ -975,8 +992,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     </div>
   </div>
 
-  <!-- 卡片8：已完结 - 另一条 -->
-  <div class="d2-card is-finished" data-status="finished" data-projno="粤东GCDT202606050008">
+  <!-- 卡片8：已关闭 ★放弃提货后的终态 -->
+  <div class="d2-card is-closed" data-status="closed" data-projno="粤东GCDT202606050008">
     <div class="d2-card-header">
       <span class="order-no">粤东GCDT202606050008-PJ01</span>
       <span class="biz-tag biz-tag-leng">冷链</span>
@@ -990,14 +1007,14 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">15</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val" style="color:#8f959e;">0</span></div>
         <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥230,000</span></div>
       </div>
       <div class="d2-card-status">
-        <span class="status-badge sb-finished">已完结</span>
+        <span class="status-badge sb-closed">已关闭</span>
       </div>
       <div class="d2-card-actions">
-        <a class="d2-btn-link" onclick="alert('查看批价单详情 - 粤东GCDT202606050008-PJ01')">查看</a>
+        <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606050008-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606050008-PJ01')">复制新建</a>
       </div>
     </div>
@@ -1024,7 +1041,8 @@ var TAB_COUNTS = {
   approving: 2,
   rejected: 2,
   picking: 2,
-  finished: 2
+  closed: 1,
+  finished: 1
 };
 
 // 页签切换逻辑（提货中 = 待提货 + 部分提货）
@@ -1045,6 +1063,8 @@ function switchTab(tabKey) {
       show = (status === 'rejected');
     } else if (tabKey === 'picking') {
       show = (status === 'picking' || status === 'partpick');
+    } else if (tabKey === 'closed') {
+      show = (status === 'closed');
     } else if (tabKey === 'finished') {
       show = (status === 'finished');
     }
@@ -1056,6 +1076,7 @@ function switchTab(tabKey) {
   document.querySelector('[data-tab="approving"] .tab-count').textContent = TAB_COUNTS.approving;
   document.querySelector('[data-tab="rejected"] .tab-count').textContent = TAB_COUNTS.rejected;
   document.querySelector('[data-tab="picking"] .tab-count').textContent = TAB_COUNTS.picking;
+  document.querySelector('[data-tab="closed"] .tab-count').textContent = TAB_COUNTS.closed;
   document.querySelector('[data-tab="finished"] .tab-count').textContent = TAB_COUNTS.finished;
 }
 
@@ -1108,6 +1129,43 @@ function doSearch() {
 
   document.querySelector('.d2-pagination .page-info').textContent = '共 ' + visible + ' 条记录';
 }
+
+// ====== 放弃提货弹窗 ======
+function showAbandonModal(no, hasQty) {
+  if (hasQty) {
+    alert('该批价单已有购买数量，无法放弃提货');
+    return;
+  }
+  document.getElementById('abandonNo').textContent = no;
+  document.getElementById('abandonOverlay').style.display = 'flex';
+}
+function hideAbandonModal() {
+  document.getElementById('abandonOverlay').style.display = 'none';
+}
+function confirmAbandon() {
+  var no = document.getElementById('abandonNo').textContent;
+  hideAbandonModal();
+  alert('✅ 批价单 ' + no + ' 已放弃提货，状态变更为「已关闭」');
+}
+
 </script>
+
+<!-- 放弃提货确认弹窗 -->
+<div class="modal-overlay" id="abandonOverlay" onclick="if(event.target===this)hideAbandonModal()">
+  <div class="modal-content" style="width:420px;border-radius:10px;" onclick="event.stopPropagation()">
+    <div class="modal-body" style="padding:28px 24px;text-align:center;">
+      <div style="width:44px;height:44px;background:#FFF3E0;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+        <span style="font-size:22px;color:#ED6C02;">⚠</span>
+      </div>
+      <div style="font-size:15px;color:#1f2329;font-weight:600;margin-bottom:6px;">确定 放弃提货 之后无法撤销，要继续吗？</div>
+      <div style="font-size:12px;color:#8f959e;margin-top:4px;">批价单号：<span id="abandonNo" style="color:#ED6C02;font-weight:600;"></span></div>
+    </div>
+    <div class="modal-footer" style="border:none;padding:0 24px 20px;justify-content:center;gap:12px;">
+      <button onclick="hideAbandonModal()" style="padding:7px 24px;border:1px solid #d0d3da;border-radius:6px;background:#fff;font-size:13px;cursor:pointer;color:#546a73;">取 消</button>
+      <button onclick="confirmAbandon()" style="padding:7px 24px;border:none;border-radius:6px;background:#1677FF;font-size:13px;cursor:pointer;color:#fff;">确 认</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
