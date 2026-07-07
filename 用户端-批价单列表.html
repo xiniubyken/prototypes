@@ -119,8 +119,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .detail-status-badge{padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;}
 .detail-validity{font-size:12px;color:var(--text-aux);}
 
-/* 有效期倒计时 */
-.validity-countdown{padding:6px 12px;border-radius:4px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:4px;}
+/* 有效期倒计时 ★收紧防换行 */
+.validity-countdown{padding:4px 8px;border-radius:4px;font-size:11px;font-weight:500;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
 .validity-normal{background:#E8F5E9;color:#2E7D32;}
 .validity-warning{background:#FFF3E0;color:#E65100;}
 .validity-danger{background:#FFEBEE;color:#C62828;}
@@ -608,12 +608,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .breadcrumb span.sep{margin:0 6px;color:#d0d3da;}
 
 /* 页面头部 */
-.d2-page-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid #e8eaed;}
+.d2-page-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#fff;border-bottom:1px solid #e8eaed;}
 .d2-page-title{font-size:18px;font-weight:700;color:#1f2329;}
 .d2-page-header-right{display:flex;align-items:center;gap:12px;}
 
 /* 搜索区：4项并排 + 搜索按钮 */
-.d2-search-bar{display:flex;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid #e8eaed;flex-wrap:wrap;}
+.d2-search-bar{display:flex;align-items:center;gap:12px;padding:12px 24px;background:#fff;border-bottom:1px solid #e8eaed;flex-wrap:wrap;}
 .d2-search-bar .search-item{display:flex;align-items:center;gap:6px;}
 .d2-search-bar .search-label{font-size:12px;color:#646a73;white-space:nowrap;}
 .d2-search-bar select,.d2-search-bar input{height:30px;border:1px solid #e0e3ea;border-radius:4px;padding:0 8px;font-size:12px;outline:none;transition:.15s;}
@@ -631,7 +631,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .btn-new:hover{background:#4a72c3;}
 
 /* 状态页签条 */
-.d2-tabs{display:flex;gap:0;border-bottom:1px solid #e8eaed;background:#fff;padding:0 20px;}
+.d2-tabs{display:flex;gap:0;border-bottom:1px solid #e8eaed;background:#fff;padding:0 24px;}
 .d2-tab{padding:10px 20px;font-size:13px;color:#646a73;cursor:pointer;border-bottom:2px solid transparent;transition:.15s;position:relative;font-weight:500;white-space:nowrap;}
 .d2-tab:hover{color:#3b5998;}
 .d2-tab.active{color:#3b5998;font-weight:700;border-bottom-color:#3b5998;}
@@ -639,7 +639,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .d2-tab.active .tab-count{background:rgba(59,89,152,.1);color:#3b5998;}
 
 /* 卡片列表区 */
-.d2-card-list{padding:16px 20px;}
+.d2-card-list{padding:16px 24px;}
 .d2-card{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:10px;overflow:hidden;transition:box-shadow .2s;}
 .d2-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06);}
 .d2-card.is-closed{background:#fafafa;opacity:.85;}
@@ -653,26 +653,26 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .biz-tag-ll{background:rgba(2,136,209,.1);color:#0288D1;}
 .biz-tag-leng{background:rgba(46,125,50,.1);color:#2E7D32;}
 /* ②-⑥ 中间主体行 */
-.d2-card-body{display:flex;align-items:stretch;min-height:64px;}
+.d2-card-body{display:flex;align-items:stretch;min-height:54px;}
 
-/* ②左侧主体 */
-.d2-card-main{flex:1;min-width:0;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;}
+/* ②左侧主体 ★百分比宽度 */
+.d2-card-main{width:38%;min-width:280px;padding:12px 16px;display:flex;flex-direction:column;justify-content:center;}
 .d2-card-main .project-name{font-size:14px;font-weight:600;color:#1f2329;line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .d2-card-main .project-sub{font-size:11px;color:#8f959e;margin-top:2px;}
 
-/* ③时间信息区 ★v1.3 加宽 170→200 */
-.d2-card-time{width:200px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:2px;border-left:1px solid #f5f5f5;}
+/* ③有效期信息区 ★18% */
+.d2-card-time{width:18%;min-width:140px;padding:10px 14px;display:flex;flex-direction:column;justify-content:center;gap:2px;border-left:1px solid #f5f5f5;}
 .d2-card-time .time-label{font-size:11px;color:#8f959e;}
-.d2-card-time .time-value{font-size:12px;color:#1f2329;font-weight:500;}
+.d2-card-time .time-value{font-size:12px;color:#1f2329;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
-/* ④履约信息区 ★v1.3 加宽 140→170 */
-.d2-card-delivery{width:170px;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;border-left:1px solid #f5f5f5;}
+/* ④数量/发货区 ★16% */
+.d2-card-delivery{width:16%;min-width:130px;padding:10px 14px;display:flex;flex-direction:column;justify-content:center;gap:4px;border-left:1px solid #f5f5f5;}
 .d2-card-delivery .delivery-item{display:flex;align-items:baseline;gap:4px;}
 .d2-card-delivery .delivery-label{font-size:11px;color:#8f959e;white-space:nowrap;}
-.d2-card-delivery .delivery-val{font-size:13px;font-weight:600;color:#1f2329;}
+.d2-card-delivery .delivery-val{font-size:13px;font-weight:600;color:#1f2329;white-space:nowrap;}
 
-/* ⑤状态区 */
-.d2-card-status{width:110px;padding:12px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;border-left:1px solid #f5f5f5;}
+/* ⑤状态区 ★10% */
+.d2-card-status{width:10%;min-width:80px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;border-left:1px solid #f5f5f5;}
 .status-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;line-height:1.4;}
 .status-badge.sb-approving{background:#E3F2FD;color:#1565C0;}
 .status-badge.sb-rejected{background:#FFEBEE;color:#C62828;}
@@ -681,8 +681,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .status-badge.sb-finished{background:#E0F2F1;color:#00695C;}
 .sub-status{font-size:11px;color:#8f959e;}
 
-/* ⑥操作区 */
-.d2-card-actions{width:190px;padding:12px 12px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:5px;border-left:1px solid #f5f5f5;}
+/* ⑥操作区 ★18% */
+.d2-card-actions{width:18%;min-width:140px;padding:10px 14px;display:flex;flex-direction:column;justify-content:center;align-items:flex-end;gap:4px;border-left:1px solid #f5f5f5;}
 .d2-btn-primary{display:inline-block;padding:5px 14px;font-size:12px;font-weight:600;background:#3b5998;color:#fff;border-radius:4px;cursor:pointer;border:none;transition:.15s;line-height:1.5;}
 .d2-btn-primary:hover{background:#4a72c3;}
 .d2-btn-link{font-size:12px;color:#3b5998;cursor:pointer;background:none;border:none;padding:0;transition:.15s;}
@@ -696,7 +696,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .d2-card-footer .footer-value{color:#1f2329;}
 
 /* 分页区 */
-.d2-pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;font-size:12px;color:#8f959e;}
+.d2-pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;font-size:12px;color:#8f959e;}
 .d2-pagination .page-info{color:#646a73;}
 .d2-pagination .page-btns{display:flex;gap:4px;}
 .d2-pagination .page-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid #e0e3ea;border-radius:4px;cursor:pointer;font-size:12px;color:#646a73;background:#fff;transition:.15s;}
@@ -776,8 +776,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">25</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥248,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">25</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥248,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-approving">审批中</span>
@@ -806,8 +806,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="validity-countdown validity-warning">剩余 1 天可重提</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">18</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥156,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">18</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥156,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-rejected">已驳回</span>
@@ -840,8 +840,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="validity-countdown validity-normal">剩余 14 天</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">40</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥360,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">40</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥360,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-picking">待提货</span>
@@ -870,8 +870,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="validity-countdown validity-normal">剩余 11 天</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">30</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥290,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">30</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥290,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-partpick">部分提货</span>
@@ -899,8 +899,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">50</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥455,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">50</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥455,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-finished">已完结</span>
@@ -928,8 +928,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">120</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥680,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">120</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥680,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-approving">审批中</span>
@@ -958,8 +958,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="validity-countdown validity-warning">剩余 5 天可重提</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">22</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥198,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">22</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥198,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-rejected">已驳回</span>
@@ -990,8 +990,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="time-value">—</div>
       </div>
       <div class="d2-card-delivery">
-        <div class="delivery-item"><span class="delivery-label">设备总套数</span><span class="delivery-val">15</span></div>
-        <div class="delivery-item"><span class="delivery-label">总申请金额</span><span class="delivery-val">¥230,000</span></div>
+        <div class="delivery-item"><span class="delivery-label">购买数量</span><span class="delivery-val">15</span></div>
+        <div class="delivery-item"><span class="delivery-label">发货数量</span><span class="delivery-val">¥230,000</span></div>
       </div>
       <div class="d2-card-status">
         <span class="status-badge sb-finished">已完结</span>
@@ -1013,7 +1013,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="page-btn active">1</div>
     <div class="page-btn disabled">&gt;</div>
   </div>
-</div>
+</div><!-- /d2-pagination -->
 
 </div><!-- /pageRoot -->
 
