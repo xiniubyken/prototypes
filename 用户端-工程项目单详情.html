@@ -75,7 +75,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 
 
 /* Tab（固定在头部下方，不在滚动区内） */
-.tabs{display:flex;gap:0;background:#fff;padding:0 24px;border-bottom:1px solid var(--border);flex-shrink:0}
+.tabs{display:flex;gap:0;background:#fff;padding:0 24px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative;z-index:1}
 .tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
 .tab:hover{color:var(--primary)}
 .tab.on{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
@@ -173,6 +173,21 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .nst-badge{background:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:var(--fs-sm);font-weight:600;display:inline-block}
 .img-cell{width:56px;text-align:center;font-size:var(--fs-sm);color:var(--text-aux)}
 .img-cell .img-placeholder{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--bg-header);border:1px solid var(--border-light);border-radius:4px;font-size:16px;color:var(--text-aux)}
+
+/* 批价单卡片 */
+.pj-card{border:1px solid var(--border);border-radius:6px;margin-bottom:20px;overflow:hidden;background:#fff}
+.pj-card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-light);font-size:13px}
+.pj-card-hd .pj-id{color:var(--text);font-weight:600}
+.pj-card-hd .pj-hd-right{display:flex;align-items:center;gap:12px}
+.pj-card-hd .pj-hd-link{font-size:13px;color:var(--primary);cursor:pointer;transition:.12s}
+.pj-card-hd .pj-hd-link:hover{opacity:.75}
+.pj-sep{color:var(--border);font-size:12px}
+.pj-card-summary .pj-biz-line{color:var(--text-aux);font-size:12px}
+.pj-card-bd{padding:0}
+.pj-card-bd .tw{padding:0}
+.pj-card-summary{display:flex;gap:16px;padding:8px 16px;border-top:1px solid var(--border-light);font-size:12px;color:var(--text-secondary)}
+.pj-card-summary .pj-sum-val{color:var(--text);font-weight:600}
+
 /* 有效期hover提示 */
 .ico-hint{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;font-size:var(--fs-sm);border-radius:50%;background:var(--primary);color:#fff;cursor:help;flex-shrink:0;font-style:normal;font-weight:700;line-height:1;vertical-align:middle;margin-left:3px;position:relative}
 .ico-hint:hover::after{content:attr(data-tip);position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:4px;padding:5px 8px;background:#333;color:#fff;font-size:var(--fs-sm);border-radius:4px;white-space:nowrap;z-index:10;pointer-events:none}
@@ -390,7 +405,9 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 <div class="tp pi" id="t2"><div class="card"><div class="ch"><span class="card-title">审批进度</span></div><div class="cb cb0"><div class="tw"><table class="dt" id="apt"><thead><tr><th class="cn">序号</th><th>审批类型</th><th>状态</th><th>更新时间</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="aptb"></tbody></table></div></div></div></div>
 
 <!-- T3 关联批价单 -->
-<div class="tp pi" id="t3"><div class="card"><div class="ch"><span class="card-title">关联批价单</span></div><div class="cb cb0"><div class="tw"><table class="dt" id="pjt"><thead><tr><th class="cn">序号</th><th>批价单号</th><th>批价单状态</th><th>操作</th></tr></thead><tbody id="pjtb"></tbody></table></div></div></div></div>
+<div class="tp pi" id="t3">
+  <div id="pjCards"></div>
+</div>
 
 </div><!-- end scroll -->
 
@@ -575,7 +592,7 @@ const C={
 '跟进中':{
  b:'#E8F5E9/#2E7D32',
  ps:'跟进中',
- d:{cr:{type:'省外跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',lt:'2026-06-25 10:30',v:{d:30,c:'#2E7D32'},q:null,ft:true,a:['发起批价'],sd:'放弃登录',ap:[
+ d:{cr:{type:'省外跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',lt:'2026-06-25 10:30',v:{d:30,c:'#2E7D32'},q:null,ft:true,a:['发起批价','登录延期','解除地址限制'],sd:'放弃登录',ap:[
   {n:'经销商提交',t:'2026-06-24 14:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-24 18:30',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-25 10:00',r:'已通过',st:'d'}
@@ -583,8 +600,15 @@ const C={
   {type:'登录审批',status:'通过',updated:'2026-06-25 10:00:00',created:'2026-06-24 14:00:00',ops:['查看']},
   {type:'登录延期',status:'审批中',updated:'—',created:'2026-06-26 06:30:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'审批中',ops:['查看']},
-  {id:'粤东GCDT202606250001-PJ02',status:'已驳回',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'审批中',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:null,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:0,remark:'—'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:null,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:0,remark:'—'}
+   ]},
+  {id:'粤东GCDT202606250001-PJ02',biz:'中央空调',status:'已驳回',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-15HP',id:'GREE-003',qty:2,price:52000,approvePrice:null,estimate:48000,depositRate:30,onlinePrice:56000,buyQty:0,shipQty:0,remark:'信息待补充'}
+   ]}
  ]}
 },
 
@@ -592,7 +616,7 @@ const C={
 '已中标':{
  b:'#E3F2FD/#1565C0',
  ps:'已中标',
- d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,lt:'2026-06-25 10:30',v:{d:20,c:'#1565C0'},q:{b:20,s:8},ft:true,a:['发起批价'],sd:'放弃登录',ap:[
+ d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,lt:'2026-06-25 10:30',v:{d:20,c:'#1565C0'},q:{b:20,s:8},ft:true,a:['发起批价','登录延期','解除地址限制'],sd:'放弃登录',ap:[
   {n:'经销商提交',t:'2026-06-20 09:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-22 10:00',r:'已通过',st:'d'},
@@ -602,7 +626,11 @@ const C={
   {type:'登录延期',status:'通过',updated:'2026-06-23 14:00:00',created:'2026-06-23 09:00:00',ops:['查看']},
   {type:'登录延期',status:'驳回',updated:'2026-06-25 09:30:00',created:'2026-06-25 08:00:00',ops:['查看','重新提交']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'待提货',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'待提货',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:3,remark:'标准配置'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:1,remark:'—'}
+   ]}
  ]}
 },
 
@@ -610,7 +638,7 @@ const C={
 '已签单':{
  b:'#E8F5E9/#1B5E20',
  ps:'已签单',
- d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,lt:'2026-06-25 10:30',v:{d:15,c:'#1B5E20'},q:{b:20,s:12},ft:true,a:['发起批价'],sd:null,ap:[
+ d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,lt:'2026-06-25 10:30',v:{d:15,c:'#1B5E20'},q:{b:20,s:12},ft:true,a:['发起批价','登录延期','解除地址限制'],sd:null,ap:[
   {n:'经销商提交',t:'2026-06-18 09:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-19 14:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-20 10:00',r:'已通过',st:'d'},
@@ -621,8 +649,15 @@ const C={
   {type:'登录延期',status:'通过',updated:'2026-06-21 16:00:00',created:'2026-06-21 10:00:00',ops:['查看']},
   {type:'登录延期',status:'通过',updated:'2026-06-23 11:00:00',created:'2026-06-23 08:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'部分提货',ops:['查看']},
-  {id:'粤东GCDT202606250001-PJ02',status:'已完结',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'部分提货',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:5,remark:'标准配置'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:2,remark:'—'}
+   ]},
+  {id:'粤东GCDT202606250001-PJ02',biz:'中央空调',status:'已完结',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-15HP',id:'GREE-003',qty:2,price:52000,approvePrice:50000,estimate:48000,depositRate:30,onlinePrice:56000,buyQty:2,shipQty:2,remark:'已全部发货'}
+   ]}
  ]}
 },
 
@@ -639,7 +674,10 @@ const C={
   {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']},
   {type:'登录延期',status:'通过',updated:'2026-06-23 14:00:00',created:'2026-06-23 09:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'审批中',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'审批中',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:null,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:0,remark:'—'}
+   ]}
  ]}
 },
 
@@ -693,7 +731,11 @@ const C={
   {type:'登录延期',status:'通过',updated:'2026-06-12 15:00:00',created:'2026-06-12 09:00:00',ops:['查看']},
   {type:'登录延期',status:'通过',updated:'2026-06-18 14:00:00',created:'2026-06-18 08:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'已完结',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'已完结',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:5,remark:'已完成'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:3,remark:'已完成'}
+   ]}
  ]}
 }
 };
@@ -853,6 +895,8 @@ function render(){
   (d.a||[]).forEach(function(a){
    if(a==='重新提交') h+='<button class="btn bp" onclick="da(\'跳转驳回重提\')">'+a+'</button>';
    else if(a==='发起批价') h+='<button class="btn bp" onclick="da(\'创建新批价单\')">'+a+'</button>';
+   else if(a==='登录延期') h+='<button class="btn bp" onclick="da(\'登录延期→进入申请延期页\')">'+a+'</button>';
+   else if(a==='解除地址限制') h+='<button class="btn bp" onclick="da(\'解除地址限制→进入解除限制申请页\')">'+a+'</button>';
    else if(a==='关联批价单') h+='<button class="btn bp" onclick="da(\'关联已有项目单的批价单\')">'+a+'</button>';
    else h+='<button class="btn bp" onclick="da(\''+a+'\')">'+a+'</button>';
   });
@@ -879,22 +923,90 @@ function render(){
   aptb.innerHTML='<tr><td colspan="6" class="es">暂无审批记录</td></tr>';
  }
 
- /* ---- 关联批价单表 ---- */
- var pjtb=document.getElementById('pjtb');
+ /* ---- 关联批价单 卡片渲染 ---- */
+ var pc=document.getElementById('pjCards');
  var plist=(d.pl||[]);
  if(plist.length){
-  pjtb.innerHTML=plist.map(function(r,i){
+  /* 14列定义 */
+  var COLS_PJ=[
+   {key:'cn',label:'序号',cn:true},
+   {key:'name',label:'商品'},
+   {key:'cate',label:'品类'},
+   {key:'sku',label:'SKU编码'},
+   {key:'id',label:'商品ID'},
+   {key:'qty',label:'申请数量'},
+   {key:'price',label:'申请价格'},
+   {key:'approvePrice',label:'批复价格'},
+   {key:'estimate',label:'预估价'},
+   {key:'depositRate',label:'定金比例'},
+   {key:'onlinePrice',label:'网批挂价'},
+   {key:'buyQty',label:'购买数量'},
+   {key:'shipQty',label:'发货数量'},
+   {key:'remark',label:'备注'}
+  ];
+  var pjMs=curM.split('-')[0];
+  var isAprvGreen=(pjMs==='待提货'||pjMs==='部分提货'||pjMs==='已完结'||curM.indexOf('已关闭')===0);
+
+  pc.innerHTML=plist.map(function(r,pi){
+   var eq=r.equip||[];
+   var totalQty=0,totalAprv=0;
+   var rows=eq.map(function(e,ei){
+    totalQty+=e.qty||0;
+    if(e.approvePrice) totalAprv+=e.approvePrice*e.qty;
+    return '<tr>'
+     +'<td class="cn">'+(ei+1)+'</td>'
+     +'<td>'+(e.name||'--')+'</td>'
+     +'<td>'+(e.cate||'--')+'</td>'
+     +'<td>'+(e.sku||'--')+'</td>'
+     +'<td>'+(e.id||'--')+'</td>'
+     +'<td>'+(e.qty!==null?e.qty:'--')+'</td>'
+     +'<td>'+(e.price!==null?'¥'+e.price.toLocaleString():'--')+'</td>'
+     +'<td style="color:'+(isAprvGreen?'#2E7D32':'#999')+';font-weight:'+(isAprvGreen?'600':'400')+'">'
+       +(e.approvePrice!==null&&e.approvePrice!==undefined?'¥'+e.approvePrice.toLocaleString():(pjMs==='审批中'?'待批复':'--'))
+     +'</td>'
+     +'<td>'+(e.estimate!==null?'¥'+e.estimate.toLocaleString():'--')+'</td>'
+     +'<td>'+(e.depositRate!==null?e.depositRate+'%':'--')+'</td>'
+     +'<td>'+(e.onlinePrice!==null?'¥'+e.onlinePrice.toLocaleString():'--')+'</td>'
+     +'<td>'+(e.buyQty!==null?e.buyQty:'--')+'</td>'
+     +'<td>'+(e.shipQty!==null?e.shipQty:'--')+'</td>'
+     +'<td>'+(e.remark||'--')+'</td>'
+    +'</tr>';
+   }).join('');
+
    var sc=r.status==='审批中'?'sp':r.status==='已驳回'?'rj':r.status==='待提货'?'dd':r.status==='部分提货'?'pt':r.status==='已完结'?'ok':'cc';
-   return '<tr><td class="cn">'+(i+1)+'</td><td style="color:#3b5998;cursor:pointer;text-decoration:underline" onclick="da(\'批价单详情\')">'+r.id+'</td><td><span class="st-badge '+sc+'">'+r.status+'</span></td><td><span class="link-btn" onclick="da(\'批价单详情\')">查看</span></td></tr>';
+
+   return '<div class="pj-card">'
+    +'<div class="pj-card-hd">'
+     +'<span class="pj-id">批价单号：'+r.id+'</span>'
+     +'<span class="pj-hd-right"><span class="st-badge '+sc+'">'+r.status+'</span><span class="pj-hd-link" onclick="da(\'批价单详情—\'+r.id+\'\')">查看详情</span></span>'
+    +'</div>'
+    +'<div class="pj-card-bd">'
+     +'<div class="tw"><table class="dt">'
+      +'<thead><tr>'+COLS_PJ.map(function(c){return '<th'+(c.cn?' class="cn"':'')+'>'+c.label+'</th>'}).join('')+'</tr></thead>'
+      +'<tbody>'+(eq.length?rows:'<tr><td colspan="'+COLS_PJ.length+'" style="text-align:center;padding:24px;color:var(--text-aux)">暂无设备数据</td></tr>')+'</tbody>'
+     +'</table></div>'
+    +'</div>'
+    +'<div class="pj-card-summary">'
+     +'<span>总申请数量：<span class="pj-sum-val">'+totalQty+'</span> 台</span>'
+     +'<span class="pj-sep">|</span>'
+     +'<span>总批复价格：<span class="pj-sum-val">'+(totalAprv>0?'¥'+totalAprv.toLocaleString():'待批复')+'</span></span>'
+     +'<span class="pj-sep">|</span>'
+     +'<span class="pj-biz-line">业务线：'+(r.biz||'--')+'</span>'
+    +'</div>'
+   +'</div>';
   }).join('');
  }else{
-  pjtb.innerHTML='<tr><td colspan="4" class="es">暂无关联批价单</td></tr>';
+  pc.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--text-aux)">暂无关联批价单</div>';
+  }
  }
 
  /* ---- 审批流程弹窗时间线（同步渲染）---- */
 
-/* 初始化 */
-mc('审批中');
+/* 初始化 — 包在 DOMContentLoaded 内，确保所有DOM元素（含底部lod-modal）存在 */
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('.af-overlay,.lod-modal').forEach(function(e){e.style.display='none'});
+  mc('审批中');
+});
 
 /* ====== 登录顺序·查看详情弹窗 ====== */
 function showLoginOrderDetail(){document.getElementById('lodModal').style.display='flex'}
@@ -933,7 +1045,7 @@ var FoldRecord = (function() {
 })();
 </script>
 <!-- 登录顺序·查看详情弹窗 -->
-<div class="lod-modal" id="lodModal" onclick="if(event.target===this)hideLoginOrderDetail()">
+<div class="lod-modal" id="lodModal" style="display:none" onclick="if(event.target===this)hideLoginOrderDetail()">
 <div class="lod-box">
 <div class="lod-hd">
 <span class="lod-title">登录顺序-查看详情</span>
