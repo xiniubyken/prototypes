@@ -305,6 +305,20 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 .fr-hdr-time{min-width:140px}
 .fr-hdr-user{min-width:60px}
 .fr-hdr-remark{flex:1}
+
+/* ====== 关联批价单卡片 ====== */
+.pj-card{border:1px solid var(--border);border-radius:6px;margin-bottom:20px;overflow:hidden;background:#fff}
+.pj-card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border-light);font-size:13px}
+.pj-card-hd .pj-id{color:var(--text);font-weight:600}
+.pj-card-hd .pj-hd-right{display:flex;align-items:center;gap:12px}
+.pj-card-hd .pj-hd-link{font-size:13px;color:var(--primary);cursor:pointer;transition:.12s}
+.pj-card-hd .pj-hd-link:hover{opacity:.75}
+.pj-sep{color:var(--border);font-size:12px}
+.pj-card-summary .pj-biz-line{color:var(--text-aux);font-size:12px}
+.pj-card-bd{padding:0}
+.pj-card-bd .tw{padding:0}
+.pj-card-summary{display:flex;gap:16px;padding:8px 16px;border-top:1px solid var(--border-light);font-size:12px;color:var(--text-secondary)}
+.pj-card-summary .pj-sum-val{color:var(--text);font-weight:600}
 </style>
 </head>
 <body>
@@ -411,7 +425,9 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <div class="tp pi" id="t2"><div class="card"><div class="ch"><span>审批进度</span></div><div class="cb cb0"><div class="tw"><table class="dt" id="apt"><thead><tr><th class="cn">序号</th><th>审批类型</th><th>状态</th><th>更新时间</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="aptb"></tbody></table></div></div></div></div>
 
 <!-- T3 关联批价单 -->
-<div class="tp pi" id="t3"><div class="card"><div class="ch"><span>关联批价单</span></div><div class="cb cb0"><div class="tw"><table class="dt" id="pjt"><thead><tr><th class="cn">序号</th><th>批价单号</th><th>批价单状态</th><th>操作</th></tr></thead><tbody id="pjtb"></tbody></table></div></div></div></div>
+<div class="tp pi" id="t3">
+  <div id="pjCards"></div>
+</div>
 
 </div><!-- end scroll -->
 
@@ -808,7 +824,7 @@ const C={
 '审批中':{
  b:'#E3F2FD/#1565C0',
  s:{
- '工程登录':{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:null,co:null,ft:true,a:['作废'],ap:[
+ '工程登录':{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:null,co:null,ft:true,a:[],ap:[
   {n:'经销商提交',t:'2026-06-25 10:30',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'待审批',r:'审批中',st:'c'},
   {n:'二级审批人·李总',t:'待审批',r:'待审批',st:'p'}
@@ -841,7 +857,11 @@ const C={
  ],al:[
   {type:'登录审批',status:'通过',updated:'2026-06-25 10:00:00',created:'2026-06-24 14:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'审批中',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'审批中',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:null,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:0,remark:'—'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:null,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:0,remark:'—'}
+   ]}
  ]}
 },
 '已中标':{
@@ -854,7 +874,11 @@ const C={
  ],al:[
   {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'待提货',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'待提货',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:3,remark:'标准配置'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:1,remark:'—'}
+   ]}
  ]}
 },
 '已签单':{
@@ -868,7 +892,11 @@ const C={
  ],al:[
   {type:'登录审批',status:'通过',updated:'2026-06-20 10:00:00',created:'2026-06-18 09:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'部分提货',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'部分提货',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:5,remark:'标准配置'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:2,remark:'—'}
+   ]}
  ]}
 },
 '已流标':{
@@ -881,7 +909,10 @@ const C={
  ],al:[
   {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'审批中',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'审批中',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:null,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:0,remark:'—'}
+   ]}
  ]}
 },
 '已关闭':{
@@ -926,10 +957,13 @@ const C={
  ],al:[
   {type:'登录审批',status:'通过',updated:'2026-06-11 10:00:00',created:'2026-06-10 09:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',status:'已完结',ops:['查看']}
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'已完结',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:5,remark:'已完成'},
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:3,remark:'已完成'}
+   ]}
  ]}
-}
-};
+}};
 
 /* 主状态切换 */
 function mc(v){
@@ -1266,16 +1300,80 @@ if(alist.length){
  aptb.innerHTML='<tr><td colspan="6" class="es">暂无审批记录</td></tr>';
 }
 
-/* 关联批价单 */
-var pjtb=document.getElementById('pjtb');
+/* ---- 关联批价单 卡片渲染 ---- */
+var pc=document.getElementById('pjCards');
 var plist=(d.pl||[]);
 if(plist.length){
- pjtb.innerHTML=plist.map(function(r,i){
+ /* 14列定义 */
+ var COLS_PJ=[
+  {key:'cn',label:'序号',cn:true},
+  {key:'name',label:'商品'},
+  {key:'cate',label:'品类'},
+  {key:'sku',label:'SKU编码'},
+  {key:'id',label:'商品ID'},
+  {key:'qty',label:'申请数量'},
+  {key:'price',label:'申请价格'},
+  {key:'approvePrice',label:'批复价格'},
+  {key:'estimate',label:'预估价'},
+  {key:'depositRate',label:'定金比例'},
+  {key:'onlinePrice',label:'网批挂价'},
+  {key:'buyQty',label:'购买数量'},
+  {key:'shipQty',label:'发货数量'},
+  {key:'remark',label:'备注'}
+ ];
+ var pjMs=curM.split('-')[0];
+ var isAprvGreen=(pjMs==='待提货'||pjMs==='部分提货'||pjMs==='已完结'||curM.indexOf('已关闭')===0);
+
+ pc.innerHTML=plist.map(function(r,pi){
+  var eq=r.equip||[];
+  var totalQty=0,totalAprv=0;
+  var rows=eq.map(function(e,ei){
+   totalQty+=e.qty||0;
+   if(e.approvePrice) totalAprv+=e.approvePrice*e.qty;
+   return '<tr>'
+    +'<td class="cn">'+(ei+1)+'</td>'
+    +'<td>'+(e.name||'--')+'</td>'
+    +'<td>'+(e.cate||'--')+'</td>'
+    +'<td>'+(e.sku||'--')+'</td>'
+    +'<td>'+(e.id||'--')+'</td>'
+    +'<td>'+(e.qty!==null?e.qty:'--')+'</td>'
+    +'<td>'+(e.price!==null?'¥'+e.price.toLocaleString():'--')+'</td>'
+    +'<td style="color:'+(isAprvGreen?'#2E7D32':'#999')+';font-weight:'+(isAprvGreen?'600':'400')+'">'
+      +(e.approvePrice!==null&&e.approvePrice!==undefined?'¥'+e.approvePrice.toLocaleString():(pjMs==='审批中'?'待批复':'--'))
+    +'</td>'
+    +'<td>'+(e.estimate!==null?'¥'+e.estimate.toLocaleString():'--')+'</td>'
+    +'<td>'+(e.depositRate!==null?e.depositRate+'%':'--')+'</td>'
+    +'<td>'+(e.onlinePrice!==null?'¥'+e.onlinePrice.toLocaleString():'--')+'</td>'
+    +'<td>'+(e.buyQty!==null?e.buyQty:'--')+'</td>'
+    +'<td>'+(e.shipQty!==null?e.shipQty:'--')+'</td>'
+    +'<td>'+(e.remark||'--')+'</td>'
+   +'</tr>';
+  }).join('');
+
   var sc=r.status==='审批中'?'sp':r.status==='已驳回'?'rj':r.status==='待提货'?'dd':r.status==='部分提货'?'pt':r.status==='已完结'?'ok':'cc';
-  return '<tr><td class="cn">'+(i+1)+'</td><td>'+r.id+'</td><td><span class="st-badge '+sc+'">'+r.status+'</span></td><td><span class="link-btn" onclick="da(\'批价单详情\')">查看</span></td></tr>';
+
+  return '<div class="pj-card">'
+   +'<div class="pj-card-hd">'
+    +'<span class="pj-id">批价单号：'+r.id+'</span>'
+    +'<span class="pj-hd-right"><span class="st-badge '+sc+'">'+r.status+'</span><span class="pj-hd-link" onclick="da(\'批价单详情—\'+r.id+\'\')">查看详情</span></span>'
+   +'</div>'
+   +'<div class="pj-card-bd">'
+    +'<div class="tw"><table class="dt">'
+     +'<thead><tr>'+COLS_PJ.map(function(c){return '<th'+(c.cn?' class="cn"':'')+'>'+c.label+'</th>'}).join('')+'</tr></thead>'
+     +'<tbody>'+(eq.length?rows:'<tr><td colspan="'+COLS_PJ.length+'" style="text-align:center;padding:24px;color:var(--text-aux)">暂无设备数据</td></tr>')+'</tbody>'
+    +'</table></div>'
+   +'</div>'
+   +'<div class="pj-card-summary">'
+    +'<span>总申请数量：<span class="pj-sum-val">'+totalQty+'</span> 台</span>'
+    +'<span class="pj-sep">|</span>'
+    +'<span>总批复价格：<span class="pj-sum-val">'+(totalAprv>0?'¥'+totalAprv.toLocaleString():'待批复')+'</span></span>'
+    +'<span class="pj-sep">|</span>'
+    +'<span class="pj-biz-line">业务线：'+(r.biz||'--')+'</span>'
+   +'</div>'
+  +'</div>';
  }).join('');
 }else{
- pjtb.innerHTML='<tr><td colspan="4" class="es">暂无关联批价单</td></tr>';
+ pc.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--text-aux)">暂无关联批价单</div>';
 }
 
 }
