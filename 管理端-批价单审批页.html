@@ -577,7 +577,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
             <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             自定义配置
           </div>
-          <button class="btn btn-sm btn-primary" onclick="openBatchModal()" style="background:#fff1f0;color:#D32F2F;border-color:#ffccc7;">批量处理</button>
+          <button class="btn btn-sm" onclick="exportEquipList()">导出</button>
           <button class="btn btn-sm" onclick="showImportModal()">批量添加商品</button>
           <button class="btn btn-sm" onclick="showAddStdModal()">添加商品</button>
           <button class="btn btn-sm" onclick="addNonStdRow()">添加非标商品</button>
@@ -1111,37 +1111,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 </div>
 
-<!-- ==================== 弹窗：批量处理 ==================== -->
-<div class="modal-overlay" id="batchModal" style="display:none;" onclick="if(event.target===this)closeBatchModal()">
-  <div class="modal-content" style="width:480px;">
-    <div class="modal-header">
-      <span class="modal-title">批量处理</span>
-      <span class="modal-close" onclick="closeBatchModal()">&times;</span>
-    </div>
-    <div class="modal-body" style="padding:20px;">
-      <div style="font-size:13px;color:#646a73;margin-bottom:16px;">对已选中的商品行批量配置以下信息：</div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:13px;font-weight:600;color:#1f2329;display:block;margin-bottom:6px;">定金比例（%）</label>
-        <input type="number" id="batchDepositRate" value="10" min="0" max="100" step="0.1" style="width:120px;padding:6px 10px;border:1px solid #d0d3d8;border-radius:4px;font-size:13px;">
-      </div>
-      <div style="margin-bottom:8px;">
-        <label style="font-size:13px;font-weight:600;color:#1f2329;display:block;margin-bottom:6px;">销售类型</label>
-        <select id="batchSaleType" style="width:160px;padding:6px 10px;border:1px solid #d0d3d8;border-radius:4px;font-size:13px;">
-          <option value="常规价">常规价</option>
-          <option value="买断价">买断价</option>
-          <option value="特批特价">特批特价</option>
-          <option value="样机">样机</option>
-          <option value="打包价">打包价</option>
-          <option value="暂扣价">暂扣价</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer" style="justify-content:center;">
-      <button class="btn-cancel" onclick="closeBatchModal()" style="padding:8px 32px;">取消</button>
-      <button class="btn-submit" onclick="confirmBatchProcess()" style="padding:8px 32px;">确定</button>
-    </div>
-  </div>
-</div>
 
 <!-- ====== 自定义配置弹窗（从工程项目列表抄） ====== -->
 <div class="modal-overlay" id="configModal" onclick="if(event.target===this)closeConfig()">
@@ -1788,8 +1757,6 @@ function addNonStdRow() {
   syncColumnVisibility();
 }
 
-// ====================== 批量处理 ======================
-
 // 全选/取消全选
 function toggleAllRows(masterCb) {
   var cbs = document.querySelectorAll('#pjEquipTbody .row-cb');
@@ -1808,41 +1775,43 @@ function onRowCheck() {
   }
 }
 
-// 打开批量处理弹窗
-function openBatchModal() {
-  var checked = document.querySelectorAll('#pjEquipTbody .row-cb:checked');
-  if(checked.length === 0) {
-    alert('请先勾选需要批量处理的商品行');
-    return;
-  }
-  document.getElementById('batchModal').style.display = 'flex';
-}
-function closeBatchModal() {
-  document.getElementById('batchModal').style.display = 'none';
-}
-
-// 确认批量处理
-function confirmBatchProcess() {
-  var depositRate = document.getElementById('batchDepositRate').value;
-  var saleType = document.getElementById('batchSaleType').value;
+// ====================== 导出设备清单（当前可见列） ======================
+function exportEquipList() {
   var rows = document.querySelectorAll('#pjEquipTbody tr');
-  var count = 0;
+  if(rows.length === 0) { alert('设备清单为空，无可导出的数据'); return; }
+  // 导出字段：商品名称、型号、SKU、申请数量
+  var headers = ['商品名称','型号','SKU','申请数量'];
+  var csvRows = [headers.join(',')];
   rows.forEach(function(tr){
-    var cb = tr.querySelector('.row-cb');
-    if(cb && cb.checked) {
-      // 更新定金比例列（第16列，index 15）
-      var cells = tr.querySelectorAll('td');
-      if(cells.length >= 16) {
-        var depositInput = cells[15].querySelector('input');
-        if(depositInput) depositInput.value = depositRate;
-      }
-      // 记录销售类型到行属性
-      tr.setAttribute('data-saletype', saleType);
-      count++;
+    var cells = tr.querySelectorAll('td');
+    var nameEl = tr.querySelector('[data-col="name"]');
+    var modelEl = tr.querySelector('[data-col="model"]');
+    var skuEl = tr.querySelector('[data-col="sku"]');
+    var qtyEl = tr.querySelector('[data-col="qty"] .equip-qty');
+    var name = nameEl ? nameEl.textContent.trim() : '';
+    var model = modelEl ? modelEl.textContent.trim() : '';
+    var sku = skuEl ? skuEl.textContent.trim() : '';
+    var qty = qtyEl ? qtyEl.value.trim() : '';
+    // 非标行：型号/SKU可能在input里
+    if(!model && tr.matches('[data-nonstd]')) {
+      var mi = tr.querySelector('[data-col="model"] input');
+      if(mi) model = mi.value.trim();
     }
+    if(!sku && tr.matches('[data-nonstd]')) {
+      var si = tr.querySelector('[data-col="sku"] input');
+      if(si) sku = si.value.trim();
+    }
+    csvRows.push([name, model, sku, qty].join(','));
   });
-  closeBatchModal();
-  alert('批量处理完成：已更新 ' + count + ' 行');
+  var csv = csvRows.join('\n');
+  var blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  var now = new Date();
+  var dateStr = now.getFullYear() + ('0'+(now.getMonth()+1)).slice(-2) + ('0'+now.getDate()).slice(-2);
+  link.download = '批价单_设备清单_' + dateStr + '.csv';
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 // ====================== 自定义配置（从工程项目列表抄） ======================
