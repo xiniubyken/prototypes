@@ -564,6 +564,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
             <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             自定义配置
           </div>
+          <button class="btn btn-sm" onclick="exportEquipList()">导出</button>
           <button class="btn btn-sm" onclick="showImportModal()">批量添加商品</button>
           <button class="btn btn-sm" onclick="showAddStdModal()">添加商品</button>
           <button class="btn btn-sm" onclick="addNonStdRow()">添加非标商品</button>
@@ -1707,6 +1708,44 @@ function autoCheckChanged() {
     if (qtyInput) compareQtyChange(qtyInput, qtyInput.dataset.origqty);
     if (priceInput) comparePriceChange(priceInput, priceInput.dataset.origprice);
   });
+}
+
+// ====================== 导出设备清单（CSV） ======================
+function exportEquipList() {
+  var rows = document.querySelectorAll('#pjEquipTbody tr');
+  if(rows.length === 0) { alert('设备清单为空，无可导出的数据'); return; }
+  // 导出字段：商品名称、型号、SKU、申请数量
+  var headers = ['商品名称','型号','SKU','申请数量'];
+  var csvRows = [headers.join(',')];
+  rows.forEach(function(tr){
+    var nameEl = tr.querySelector('[data-col="name"]');
+    var modelEl = tr.querySelector('[data-col="model"]');
+    var skuEl = tr.querySelector('[data-col="sku"]');
+    var qtyEl = tr.querySelector('[data-col="qty"] .equip-qty');
+    var name = nameEl ? nameEl.textContent.trim() : '';
+    var model = modelEl ? modelEl.textContent.trim() : '';
+    var sku = skuEl ? skuEl.textContent.trim() : '';
+    var qty = qtyEl ? qtyEl.value.trim() : '';
+    // 非标行：型号/SKU可能在input里
+    if(!model && tr.matches('[data-nonstd]')) {
+      var mi = tr.querySelector('[data-col="model"] input');
+      if(mi) model = mi.value.trim();
+    }
+    if(!sku && tr.matches('[data-nonstd]')) {
+      var si = tr.querySelector('[data-col="sku"] input');
+      if(si) sku = si.value.trim();
+    }
+    csvRows.push([name, model, sku, qty].join(','));
+  });
+  var csv = csvRows.join('\n');
+  var blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+  var link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = '批价单_设备清单_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.csv';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
 }
 
 // 汇总计算（总数量 + 总申请金额 + 批复总金额）
