@@ -205,6 +205,13 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .nonstd-badge{color:#E65100;font-weight:700;font-size:11px;background:#FFF3E0;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;}
 
 .col-new{color:var(--danger);font-weight:600;}
+/* 交互标红（申请数量/申请价格与原始值对比变化） */
+.equip-changed{background-color:#FFF0F0!important;border-color:#D32F2F!important;color:#D32F2F!important;}
+/* 新增商品行（浅红色底标识） */
+.row-added td{background-color:#FFF0F0!important;}
+.row-added:hover td{background-color:#FDE8E8!important;}
+.row-added .col-frozen{background-color:#FFF0F0!important;}
+.row-added:hover .col-frozen{background-color:#FDE8E8!important;}
 
 /* 弹窗扩展 */
 .modal-content.modal-lg{width:780px;max-height:88vh;}
@@ -557,7 +564,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
             <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
             自定义配置
           </div>
-          <button class="btn btn-sm btn-primary" onclick="openBatchModal()" style="background:#fff1f0;color:#D32F2F;border-color:#ffccc7;">批量处理</button>
           <button class="btn btn-sm" onclick="showImportModal()">批量添加商品</button>
           <button class="btn btn-sm" onclick="showAddStdModal()">添加商品</button>
           <button class="btn btn-sm" onclick="addNonStdRow()">添加非标商品</button>
@@ -1060,37 +1066,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   </div>
 </div>
 
-<!-- ==================== 弹窗：批量处理 ==================== -->
-<div class="modal-overlay" id="batchModal" style="display:none;" onclick="if(event.target===this)closeBatchModal()">
-  <div class="modal-content" style="width:480px;">
-    <div class="modal-header">
-      <span class="modal-title">批量处理</span>
-      <span class="modal-close" onclick="closeBatchModal()">&times;</span>
-    </div>
-    <div class="modal-body" style="padding:20px;">
-      <div style="font-size:13px;color:#646a73;margin-bottom:16px;">对已选中的商品行批量配置以下信息：</div>
-      <div style="margin-bottom:14px;">
-        <label style="font-size:13px;font-weight:600;color:#1f2329;display:block;margin-bottom:6px;">定金比例（%）</label>
-        <input type="number" id="batchDepositRate" value="10" min="0" max="100" step="0.1" style="width:120px;padding:6px 10px;border:1px solid #d0d3d8;border-radius:4px;font-size:13px;">
-      </div>
-      <div style="margin-bottom:8px;">
-        <label style="font-size:13px;font-weight:600;color:#1f2329;display:block;margin-bottom:6px;">销售类型</label>
-        <select id="batchSaleType" style="width:160px;padding:6px 10px;border:1px solid #d0d3d8;border-radius:4px;font-size:13px;">
-          <option value="常规价">常规价</option>
-          <option value="买断价">买断价</option>
-          <option value="特批特价">特批特价</option>
-          <option value="样机">样机</option>
-          <option value="打包价">打包价</option>
-          <option value="暂扣价">暂扣价</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer" style="justify-content:center;">
-      <button class="btn-cancel" onclick="closeBatchModal()" style="padding:8px 32px;">取消</button>
-      <button class="btn-submit" onclick="confirmBatchProcess()" style="padding:8px 32px;">确定</button>
-    </div>
-  </div>
-</div>
 
 <!-- ====== 自定义配置弹窗（从工程项目列表抄） ====== -->
 <div class="modal-overlay" id="configModal" onclick="if(event.target===this)closeConfig()">
@@ -1612,6 +1587,8 @@ function renderEquipList() {
     tr.setAttribute('data-nonstd', eq.isNonStd ? 'true' : 'false');
     tr.setAttribute('data-seq', eq.seq);
     tr.setAttribute('data-saletype', eq.saleType || '常规价');
+    // 新增商品行 或 第5行（索引4）演示新增商品，加浅红底色标识
+    if (i === 4 || eq.isNewAdded) tr.classList.add('row-added');
     // 金额格式化
     var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
@@ -1663,9 +1640,9 @@ function renderEquipList() {
       '<td data-col="model">' + modelHtml + '</td>' +
       '<td style="color:#1f2329;" data-col="sku">' + skuHtml + '</td>' +
       '<td style="color:#1f2329;" data-col="id">' + idHtml + '</td>' +
-      '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="' + eq.qty + '" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
+      '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="' + eq.qty + '" min="1" max="9999999" style="width:65px;" data-origqty="' + (eq.origQty || 0) + '" oninput="validateQtyRange(this);compareQtyChange(this,this.dataset.origqty);recalcSummary()" onfocusout="compareQtyChange(this,this.dataset.origqty)"></td>' +
       '<td style="color:#1f2329;" data-col="origQty">' + (eq.origQty || '--') + '</td>' +
-      '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="' + eq.price + '" min="0" step="0.01" style="width:78px;" data-origprice="' + eq.origPrice + '" data-onlineprice="' + effectiveOnlinePrice + '" onchange="recalcSummary()"></td>' +
+      '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="' + eq.price + '" min="0" step="0.01" style="width:78px;" data-origprice="' + eq.origPrice + '" data-onlineprice="' + effectiveOnlinePrice + '" onchange="comparePriceChange(this,this.dataset.origprice);recalcSummary()" onfocusout="comparePriceChange(this,this.dataset.origprice)"></td>' +
       '<td style="color:#1f2329;" data-col="origPrice">' + origPriceFmt + '</td>' +
       '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="' + eq.point + '" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
       '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="' + eq.approvePrice + '" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
@@ -1680,11 +1657,56 @@ function renderEquipList() {
   document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + selectedProjectData.equipList.length + ' 项';
   recalcSummary();
   syncColumnVisibility();
+  autoCheckChanged();
 }
 
 // 点位变更→触发汇总重算
 function calcPriceFromPoint(pointInput) {
   recalcSummary();
+}
+
+// ====================== 申请数量/申请价格 与原值对比标红 ======================
+
+// 申请数量输入范围校验（实时）
+function validateQtyRange(el) {
+  var val = el.value.trim();
+  if (val === '' || val === '-') return;
+  var n = parseInt(val);
+  if (isNaN(n) || n < 1) el.value = 1;
+  else if (n > 9999999) el.value = 9999999;
+}
+
+// 申请数量与原申请数量对比标红
+function compareQtyChange(el, origQty) {
+  var currentVal = parseInt(el.value) || 0;
+  var origVal = parseInt(origQty) || 0;
+  if (origVal !== 0 && currentVal !== origVal) {
+    el.classList.add('equip-changed');
+  } else {
+    el.classList.remove('equip-changed');
+  }
+}
+
+// 申请价格与原申请价格对比标红
+function comparePriceChange(el, origPrice) {
+  var currentVal = parseFloat(el.value) || 0;
+  var origVal = parseFloat(origPrice) || 0;
+  if (origVal !== 0 && Math.abs(currentVal - origVal) > 0.001) {
+    el.classList.add('equip-changed');
+  } else {
+    el.classList.remove('equip-changed');
+  }
+}
+
+// 进入页面后自动检测所有异常并标红
+function autoCheckChanged() {
+  var rows = document.querySelectorAll('#pjEquipTbody tr');
+  rows.forEach(function(tr){
+    var qtyInput = tr.querySelector('.equip-qty');
+    var priceInput = tr.querySelector('.equip-price');
+    if (qtyInput) compareQtyChange(qtyInput, qtyInput.dataset.origqty);
+    if (priceInput) comparePriceChange(priceInput, priceInput.dataset.origprice);
+  });
 }
 
 // 汇总计算（总数量 + 总申请金额 + 批复总金额）
@@ -1734,6 +1756,7 @@ function addNonStdRow() {
   var tbody = document.getElementById('pjEquipTbody');
   var tr = document.createElement('tr');
   tr.setAttribute('data-nonstd','true');
+  tr.classList.add('row-added');
   tr.innerHTML =
     '<td style="text-align:center;" data-col="checkbox"><input type="checkbox" class="row-cb" onchange="onRowCheck()"></td>' +
     '<td style="text-align:center;color:#8f959e;" data-col="seq">' + (document.querySelectorAll('#pjEquipTbody tr').length + 1) + '</td>' +
@@ -1743,9 +1766,9 @@ function addNonStdRow() {
     '<td data-col="model"><input class="td-input" style="width:85px;" placeholder="输入型号"></td>' +
     '<td data-col="sku" style="color:#8f959e;">--</td>' +
     '<td style="color:#8f959e;" data-col="id">--</td>' +
-    '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="1" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
+    '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="1" min="1" max="9999999" style="width:65px;" data-origqty="0" oninput="validateQtyRange(this);compareQtyChange(this,this.dataset.origqty);recalcSummary()" onfocusout="compareQtyChange(this,this.dataset.origqty)"></td>' +
     '<td style="color:#1f2329;" data-col="origQty">--</td>' +
-    '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="0" min="0" step="0.01" style="width:78px;" data-origprice="0" data-onlineprice="0" onchange="recalcSummary()"></td>' +
+    '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="0" min="0" step="0.01" style="width:78px;" data-origprice="0" data-onlineprice="0" onchange="comparePriceChange(this,this.dataset.origprice);recalcSummary()" onfocusout="comparePriceChange(this,this.dataset.origprice)"></td>' +
     '<td style="color:#1f2329;" data-col="origPrice">--</td>' +
     '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="0" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
     '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="0" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
@@ -1769,9 +1792,7 @@ function addNonStdRow() {
   syncColumnVisibility();
 }
 
-// ====================== 批量处理 ======================
-
-// 全选/取消全选
+// ====================== 自定义配置（从工程项目列表抄） ======================
 function toggleAllRows(masterCb) {
   var cbs = document.querySelectorAll('#pjEquipTbody .row-cb');
   cbs.forEach(function(cb){ cb.checked = masterCb.checked; });
@@ -1787,43 +1808,6 @@ function onRowCheck() {
     var master = table.querySelector('thead input[type="checkbox"]');
     if(master) master.checked = allChecked;
   }
-}
-
-// 打开批量处理弹窗
-function openBatchModal() {
-  var checked = document.querySelectorAll('#pjEquipTbody .row-cb:checked');
-  if(checked.length === 0) {
-    alert('请先勾选需要批量处理的商品行');
-    return;
-  }
-  document.getElementById('batchModal').style.display = 'flex';
-}
-function closeBatchModal() {
-  document.getElementById('batchModal').style.display = 'none';
-}
-
-// 确认批量处理
-function confirmBatchProcess() {
-  var depositRate = document.getElementById('batchDepositRate').value;
-  var saleType = document.getElementById('batchSaleType').value;
-  var rows = document.querySelectorAll('#pjEquipTbody tr');
-  var count = 0;
-  rows.forEach(function(tr){
-    var cb = tr.querySelector('.row-cb');
-    if(cb && cb.checked) {
-      // 更新定金比例列（第16列，index 15）
-      var cells = tr.querySelectorAll('td');
-      if(cells.length >= 16) {
-        var depositInput = cells[15].querySelector('input');
-        if(depositInput) depositInput.value = depositRate;
-      }
-      // 记录销售类型到行属性
-      tr.setAttribute('data-saletype', saleType);
-      count++;
-    }
-  });
-  closeBatchModal();
-  alert('批量处理完成：已更新 ' + count + ' 行');
 }
 
 // ====================== 自定义配置（从工程项目列表抄） ======================
@@ -2208,6 +2192,24 @@ function confirmBind(){
   var prod = getSelectedProductData();
   if(!prod){ alert('请先选择一个商品'); return; }
   var list = selectedProjectData.equipList;
+
+  // 新增商品模式（通过"添加商品"按钮触发，无绑定目标行）
+  if (_bindTargetRowIdx === -1) {
+    if (typeof nonStdSeq === 'undefined') nonStdSeq = 100;
+    nonStdSeq++;
+    list.push({
+      seq: nonStdSeq, isNonStd: false, isBound: false, isNewAdded: true,
+      cate: prod.cate, name: prod.name, model: prod.model,
+      sku: prod.sku, id: prod.productId,
+      saleType: '常规价', qty: 1, origQty: 0, price: 0, origPrice: 0,
+      point: 0, remark: '', approvePrice: 0, resetPoint: 0,
+      depositRate: 10, onlinePrice: prod.onlinePrice || 0, estimatePrice: 0
+    });
+    closeAddStdModal();
+    renderEquipList();
+    return;
+  }
+
   var eq = list[_bindTargetRowIdx];
   if(!eq) return;
 
