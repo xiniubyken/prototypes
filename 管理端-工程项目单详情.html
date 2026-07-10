@@ -76,6 +76,34 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .il{color:var(--text-aux);font-size:12px;margin-bottom:2px}
 .iv{color:var(--text)}
 
+/* 状态子区块（使用方信息卡片内联 — Demo精度级还原） */
+.state-sub-block{border-top:1px solid var(--border-light);margin-top:30px}
+/* 横向并排 — 方案B：中标信息 + 签单信息 同行左右排列 */
+.ssb-blocks{display:flex;flex-wrap:nowrap;margin:0}
+.ssb-block-item{flex:1;min-width:0;padding:14px 18px;border-left:4px solid #E0E0E0}
+.ssb-block-item:only-child{flex:1 1 100%;border-left-color:#1565C0}
+/* 区块之间浅灰细竖分割线 */
+.ssb-block-sep{width:0;border-left:1px solid #E0E0E0;flex-shrink:0;align-self:stretch;margin:14px 0}
+/* 区块标题 */
+.ssb-tt{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ssb-dot{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+/* 字段行 */
+.ssb-row{margin-bottom:10px}
+.ssb-row:last-child{margin-bottom:0}
+/* 标签 — 在卡片上方 */
+.ssb-lbl{color:var(--text-aux);font-size:12px;margin-bottom:4px}
+/* 文件卡片 — 灰底+边框+圆角（Demo精度还原） */
+.ssb-file{display:flex;align-items:center;gap:8px;background:var(--bg-header);padding:9px 14px;border-radius:6px;font-size:13px;border:1px solid var(--border-light)}
+.ssb-file-ico{width:14px;height:14px;flex-shrink:0;color:var(--text-aux)}
+.ssb-file-nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.ssb-file-vw{color:var(--primary);cursor:pointer;font-size:12px;flex-shrink:0;font-weight:500}
+.ssb-file-vw:hover{opacity:.8}
+/* 文本卡片 — 灰底+边框+圆角（Demo精度还原） */
+.ssb-text{background:var(--bg-header);padding:8px 12px;border-radius:6px;font-size:13px;color:var(--text);border:1px solid var(--border-light)}
+/* 文字对并排（合同客户 + 签单金额） */
+.ssb-pair{display:flex;gap:12px}
+.ssb-pair>.ssb-pair-item{flex:1}
+
 /* 表格 */
 .tw{overflow-x:auto}
 .dt{width:100%;border-collapse:collapse;font-size:13px}
@@ -404,7 +432,9 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <div class="ii"><div class="il">跨区类型</div><div><span class="cross-region-tag" id="crType">非跨区</span></div></div>
 <div class="ii" id="crCodeWrap"><div class="il">跨区编号</div><div id="crCode">GZ-2026-001</div></div>
 <div class="ii"><div class="il">执行单位</div><div>XX工程服务有限公司</div></div>
-</div></div></div>
+</div>
+<!-- 状态子区块（由render动态填充至卡片内） -->
+<div id="stateBlock"></div></div></div>
 
 <!-- 基本信息 -->
 <div class="card">
@@ -879,7 +909,9 @@ const C={
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:3,remark:'标准配置'},
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:1,remark:'—'}
    ]}
- ]}
+ ],ext:{
+  bidNotice:'中标通知书_XX商业综合体.pdf'
+ }}
 },
 '已签单':{
  b:'#E8F5E9/#1B5E20',
@@ -897,8 +929,16 @@ const C={
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:5,remark:'标准配置'},
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:2,remark:'—'}
    ]}
- ]}
-},
+ ],ext:{
+  bidNotice:'中标通知书_XX商业综合体.pdf',
+  sign:{
+   hasContract:true,
+   contractFile:'合同附件_XX商业综合体.pdf',
+   noContractFile:null,
+   customer:'XX商业管理有限公司',
+   amount:480000
+  }}
+}},
 '已流标':{
  b:'#FFF3E0/#E65100',
  d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,ft:true,a:['签单确认','中标确认','完结确认','作废'],ap:[
@@ -913,7 +953,10 @@ const C={
    equip:[
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:null,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:0,remark:'—'}
    ]}
- ]}
+ ],ext:{
+  failReason:'价格原因',
+  failReport:'丢单报告_XX商业综合体.pdf'
+ }}
 },
 '已关闭':{
  b:'#ECEFF1/#546E7A',
@@ -962,7 +1005,12 @@ const C={
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:5,remark:'已完成'},
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:3,remark:'已完成'}
    ]}
- ]}
+  ],ext:{
+  completionReport:'验收报告_XX商业综合体.pdf',
+  acceptanceFile:'竣工验收文件_XX商业综合体.pdf',
+  summary:'项目已完工，所有设备已交付并完成验收'
+  }
+ }
 }};
 
 /* 主状态切换 */
@@ -1375,6 +1423,111 @@ if(plist.length){
 }else{
  pc.innerHTML='<div style="text-align:center;padding:40px 0;color:var(--text-aux)">暂无关联批价单</div>';
 }
+
+/* ===== 状态子区块（使用方信息卡片内联 — Demo精度级还原） ===== */
+(function renderStateBlock(){
+var el=document.getElementById('stateBlock');
+var ext=d.ext;
+if(!ext){el.innerHTML='';return}
+var sc=curM;
+var blocks=[];
+
+/* 文件卡片HTML（对标Demo） */
+function fileRow(label,file,cb){
+ return '<div class="ssb-row">'
+  +'<div class="ssb-lbl">'+label+'</div>'
+  +'<div class="ssb-file">'
+  +'<svg class="ssb-file-ico" viewBox="0 0 16 16" fill="none"><path d="M2 2h7l5 5v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.3"/><path d="M9 2v5h5" stroke="currentColor" stroke-width="1.3"/></svg>'
+  +'<span class="ssb-file-nm">'+file+'</span>'
+  +'<span class="ssb-file-vw" onclick="da(\''+cb+'\')">查看</span>'
+  +'</div></div>';
+}
+
+/* 文本行HTML（对标Demo） */
+function textRow(label,val){
+ return '<div class="ssb-row"><div class="ssb-lbl">'+label+'</div><div class="ssb-text">'+val+'</div></div>';
+}
+
+/* 文字对并排行HTML（合同客户+签单金额） */
+function pairRow(leftLabel,leftVal,rightLabel,rightVal){
+ return '<div class="ssb-row"><div class="ssb-pair">'
+  +'<div class="ssb-pair-item">'
+  +'<div class="ssb-lbl">'+leftLabel+'</div>'
+  +'<div class="ssb-text">'+leftVal+'</div>'
+  +'</div>'
+  +'<div class="ssb-pair-item">'
+  +'<div class="ssb-lbl">'+rightLabel+'</div>'
+  +'<div class="ssb-text">'+rightVal+'</div>'
+  +'</div></div></div>';
+}
+
+/* 辅助：生成一个区块的HTML */
+function makeBlock(items,title,dotColor,borderColor){
+ var html='<div class="ssb-block-item" style="border-left-color:'+borderColor+'">'
+  +'<div class="ssb-tt"><span class="ssb-dot" style="background:'+dotColor+'"></span>'+title+'</div>';
+ items.forEach(function(it){html+=it});
+ html+='</div>';
+ return [html];
+}
+
+/* 已中标区块 */
+if(sc==='已中标'){
+ var items=[];
+ if(ext.bidNotice) items.push(fileRow('中标通知书',ext.bidNotice,'下载中标通知书'));
+ if(items.length) blocks=blocks.concat(makeBlock(items,'中标信息','#1565C0','#1565C0'));
+}
+
+/* 已签单区块：方案B — 中标信息 + 签单信息 左右并排，浅灰左边线，颜色仅靠标题圆点区分 */
+if(sc==='已签单'){
+ var bidItems=[];
+ if(ext.bidNotice) bidItems.push(fileRow('中标通知书',ext.bidNotice,'下载中标通知书'));
+ if(bidItems.length) blocks=blocks.concat(makeBlock(bidItems,'中标信息','#1565C0','#1565C0'));
+ var s=ext.sign;
+ if(s){
+  var signItems=[];
+  if(s.hasContract && s.contractFile) signItems.push(fileRow('合同附件',s.contractFile,'下载合同附件'));
+  if(s.hasContract===false && s.noContractFile) signItems.push(fileRow('无合同签单证明',s.noContractFile,'下载无合同签单证明'));
+  var hasCust=s.customer && s.customer.length;
+  var hasAmt=s.amount!==null && s.amount!==undefined;
+  if(hasCust && hasAmt){
+   signItems.push(pairRow('合同客户',s.customer,'签单金额','¥'+Number(s.amount).toLocaleString()));
+  }else{
+   if(hasCust) signItems.push(textRow('合同客户',s.customer));
+   if(hasAmt) signItems.push(textRow('签单金额','¥'+Number(s.amount).toLocaleString()));
+  }
+  if(signItems.length) blocks=blocks.concat(makeBlock(signItems,'签单信息','#2E7D32','#2E7D32'));
+ }
+}
+
+/* 已流标区块 */
+if(sc==='已流标'){
+ var items=[];
+ if(ext.failReason) items.push(textRow('丢单原因',ext.failReason));
+ if(ext.failReport) items.push(fileRow('丢单报告',ext.failReport,'下载丢单报告'));
+ if(items.length) blocks=blocks.concat(makeBlock(items,'流标信息','#E65100','#E65100'));
+}
+
+/* 已完结区块 */
+if(sc==='已完结'){
+ var items=[];
+ if(ext.completionReport) items.push(fileRow('验收报告',ext.completionReport,'下载验收报告'));
+ if(ext.acceptanceFile) items.push(fileRow('竣工验收文件',ext.acceptanceFile,'下载竣工验收文件'));
+ if(ext.summary) items.push(textRow('项目总结',ext.summary));
+ if(items.length) blocks=blocks.concat(makeBlock(items,'完结信息','#00695C','#00695C'));
+}
+
+/* 渲染：多区块之间插入浅灰细竖分隔线 */
+if(blocks.length){
+ var inner='';
+ for(var i=0;i<blocks.length;i++){
+  if(i>0) inner+='<div class="ssb-block-sep"></div>';
+  inner+=blocks[i];
+ }
+ el.innerHTML='<div class="state-sub-block"><div class="ssb-blocks">'+inner+'</div></div>';
+}else{
+ el.innerHTML='';
+}
+})();
 
 }
 
