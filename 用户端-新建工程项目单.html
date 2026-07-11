@@ -263,6 +263,24 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .cross-region-tag.inter{background:#FFF3E0;color:#E65100;}
 .cross-region-tag.none{background:#f0f2f5;color:#646a73;}
 
+/* ====== 状态补充卡片（方案B） ====== */
+.state-ext-card{
+  background:#f7f8fa;
+  border:1px solid #e8eaed;
+  border-radius:6px;
+  padding:14px 16px;
+  margin-top:12px;
+}
+.state-ext-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px 20px;
+}
+.state-ext-grid .span2{grid-column:span 2;}
+.state-ext-grid .span3{grid-column:span 3;}
+.state-ext-card .form-item{margin-bottom:0;}
+.state-ext-card .form-hint{font-size:11px;color:#8f959e;margin-top:2px;}
+
 /* ====== 设备清单表格 ====== */
 .equip-table-wrap{overflow-x:auto;max-height:320px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;}
 .equip-table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
@@ -386,6 +404,13 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
 /* ====== btn 按钮扩展 ====== */
 .btn-sm{padding:5px 14px;font-size:12px;}
+
+/* ====== 状态补充信息 ====== */
+.up-zone{display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:.15s;}
+.up-zone:hover{border-color:#3b5998!important;background:#f0f4ff!important;}
+.fl-list{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
+.fl-item{display:flex;align-items:center;gap:6px;padding:4px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#3b5998;}
+.fl-item .fl-del{color:#d32f2f;cursor:pointer;margin-left:auto;font-size:14px;line-height:1;}
 
 html,body{height:100%;margin:0;overflow:hidden;}
 .page-root{display:flex;flex-direction:column;height:100%;background:#f0f2f5;overflow:hidden;}
@@ -698,26 +723,106 @@ html,body{height:100%;margin:0;overflow:hidden;}
         </div>
         <div class="form-hint">由项目地址失焦后系统自动判断</div>
       </div>
-      <!-- 项目状态 → S01-1（直接复用） -->
-      <div class="form-item">
-        <label class="form-label">项目状态 <span class="req">*</span></label>
-        <select class="form-ctrl">
-          <option>请选择</option>
-          <option selected>已中标</option><option>已流标</option><option>已丢单</option><option>已签单</option>
-        </select>
-      </div>
-      <!-- 执行单位 → I01-8+S02-1（近似复用） -->
+      <!-- 执行单位 → S02-1（近似复用：下拉选择） -->
       <div class="form-item">
         <label class="form-label">执行单位 <span class="req">*</span></label>
         <select class="form-ctrl">
-          <option selected>珠海某安装工程队（当前经销商）</option>
-          <option>某分销商A</option><option>某分销商B</option>
+          <option value="">请选择</option>
+          <option value="内部" selected>内部</option>
+          <option value="外部">外部</option>
         </select>
       </div>
+
     </div>
+    <!-- /使用方信息-表单区域 -->
+
+    <!-- ===== 状态补充卡片（方案B：浅灰独立区域） ===== -->
+    <div class="state-ext-card">
+      <div class="state-ext-grid">
+        <!-- 第一行：项目状态（占整行） -->
+        <div class="form-item span3">
+          <label class="form-label">项目状态 <span class="req">*</span></label>
+          <select class="form-ctrl" id="projectStatus" onchange="toggleStateExt(this.value)">
+            <option value="">请选择</option>
+            <option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
+          </select>
+        </div>
+
+        <!-- 已中标：中标通知书上传 -->
+        <div class="form-item" id="stateBidExt" style="display:none;">
+          <label class="form-label">中标通知书 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('bidFileInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="bidFileInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="addStateFile('bid','bidFileInput',this)">
+          <div class="fl-list" id="bidFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx，单个文件不超过20MB</div>
+        </div>
+
+        <!-- 已签单字段组 -->
+        <div class="form-item" id="signHasContract" style="display:none;">
+          <label class="form-label">是否有合同 <span class="req">*</span></label>
+          <select class="form-ctrl" onchange="toggleSignFields(this.value)">
+            <option value="">请选择</option>
+            <option value="yes">是</option>
+            <option value="no">否</option>
+          </select>
+        </div>
+        <div class="form-item" id="signContractItem" style="display:none;">
+          <label class="form-label">合同附件 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('signContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="signContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="addStateFile('signContract','signContractInput',this)">
+          <div class="fl-list" id="signContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="signNoContractItem" style="display:none;">
+          <label class="form-label">无合同签单说明 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('signNoContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="signNoContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="addStateFile('signNoContract','signNoContractInput',this)">
+          <div class="fl-list" id="signNoContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="signCustomerItem" style="display:none;">
+          <label class="form-label">合同客户 <span class="req">*</span></label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" class="form-ctrl" id="signCustomer" placeholder="请输入客户名称" style="flex:1;">
+            <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+          </div>
+        </div>
+        <div class="form-item" id="signAmountItem" style="display:none;">
+          <label class="form-label">签单金额（元）<span class="req">*</span></label>
+          <input type="number" class="form-ctrl" id="signAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <!-- 已流标字段组 -->
+        <div class="form-item" id="stateFailExt" style="display:none;">
+          <label class="form-label">丢单原因 <span class="req">*</span></label>
+          <select class="form-ctrl">
+            <option value="">请选择丢单原因</option>
+            <option value="产品原因">产品原因</option>
+            <option value="技术原因">技术原因</option>
+            <option value="价格原因">价格原因</option>
+          </select>
+        </div>
+        <div class="form-item" id="failReportItem" style="display:none;">
+          <label class="form-label">丢单报告 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('failReportInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="failReportInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="addStateFile('fail','failReportInput',this)">
+          <div class="fl-list" id="failFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+      </div>
+    </div>
+    <!-- /状态补充卡片 -->
+
   </div>
 </div>
-
 <!-- ========================================================================
      区块6：基本信息卡片
      样式推荐决议 → F03-2 分组表单区（近似复用）+ F01-2+I01-8（近似复用）
@@ -1005,6 +1110,86 @@ function confirmImport() {
   closeImportModal();
 }
 
+/* ===== 状态补充信息逻辑 ===== */
+// 状态切换（所有字段在同一个form-grid内）
+function toggleStateExt(val) {
+  var ids = ['stateBidExt','signHasContract','signContractItem','signNoContractItem','signCustomerItem','signAmountItem','stateFailExt','failReportItem'];
+  // 先全部隐藏
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(el) el.style.display='none';
+  }
+  if(val === '已中标') {
+    document.getElementById('stateBidExt').style.display='';
+  } else if(val === '已签单') {
+    document.getElementById('signHasContract').style.display='';
+    // 恢复是否有合同下拉到未选状态
+    var sel=document.querySelector('#signHasContract select');
+    if(sel) sel.value='';
+    document.getElementById('signCustomerItem').style.display='';
+    document.getElementById('signAmountItem').style.display='';
+  } else if(val === '已流标') {
+    document.getElementById('stateFailExt').style.display='';
+    document.getElementById('failReportItem').style.display='';
+  }
+  // else '' → 全部隐藏
+}
+
+// 签单：有/无合同字段切换
+function toggleSignFields(val) {
+  var contractItem = document.getElementById('signContractItem');
+  var noContractItem = document.getElementById('signNoContractItem');
+  var customerItem = document.getElementById('signCustomerItem');
+  var amountItem = document.getElementById('signAmountItem');
+  if(val === 'yes') {
+    contractItem.style.display = ''; noContractItem.style.display = 'none';
+    customerItem.style.display = ''; amountItem.style.display = '';
+  } else if(val === 'no') {
+    contractItem.style.display = 'none'; noContractItem.style.display = '';
+    customerItem.style.display = ''; amountItem.style.display = '';
+  } else {
+    contractItem.style.display = 'none'; noContractItem.style.display = 'none';
+    customerItem.style.display = 'none'; amountItem.style.display = 'none';
+  }
+}
+
+// 文件数据存储
+var stateFiles = {};
+
+// 文件上传处理
+function addStateFile(key, inputId, fileInput) {
+  if(!fileInput.files || !fileInput.files.length) return;
+  var file = fileInput.files[0];
+  if(!stateFiles[key]) stateFiles[key] = [];
+  stateFiles[key].push({name: file.name, size: file.size});
+  fileInput.value = '';
+  renderStateFileList(key);
+}
+
+function delStateFile(key, idx) {
+  if(stateFiles[key]) {
+    stateFiles[key].splice(idx, 1);
+    renderStateFileList(key);
+  }
+}
+
+function renderStateFileList(key) {
+  var listEl;
+  switch(key) {
+    case 'bid': listEl = document.getElementById('bidFileList'); break;
+    case 'signContract': listEl = document.getElementById('signContractFileList'); break;
+    case 'signNoContract': listEl = document.getElementById('signNoContractFileList'); break;
+    case 'fail': listEl = document.getElementById('failFileList'); break;
+    default: return;
+  }
+  var files = stateFiles[key] || [];
+  var html = '';
+  files.forEach(function(f, idx) {
+    var sizeStr = f.size > 1024*1024 ? (f.size/1024/1024).toFixed(1)+'MB' : (f.size/1024).toFixed(1)+'KB';
+    html += '<div class="fl-item">📎 <span>'+f.name+'</span><span style="color:#8f959e;font-size:11px;margin-left:4px;">'+sizeStr+'</span><span class="fl-del" onclick="delStateFile(\''+key+'\','+idx+')">×</span></div>';
+  });
+  listEl.innerHTML = html;
+}
 
 </script>
 
