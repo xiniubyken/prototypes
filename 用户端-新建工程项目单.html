@@ -406,7 +406,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .btn-sm{padding:5px 14px;font-size:12px;}
 
 /* ====== 状态补充信息 ====== */
-.up-zone{display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:.15s;}
+.up-zone{display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:.15s;width:100%;}
 .up-zone:hover{border-color:#3b5998!important;background:#f0f4ff!important;}
 .fl-list{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
 .fl-item{display:flex;align-items:center;gap:6px;padding:4px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#3b5998;}
@@ -744,7 +744,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <label class="form-label">项目状态 <span class="req">*</span></label>
           <select class="form-ctrl" id="projectStatus" onchange="toggleStateExt(this.value)">
             <option value="">请选择</option>
-            <option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
+            <option value="跟进中">跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
           </select>
         </div>
 
