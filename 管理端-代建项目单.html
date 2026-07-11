@@ -427,6 +427,18 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .contact-switch-btn:last-child{border-radius:0 4px 4px 0;border-left:none;}
 .contact-switch-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
 
+/* ====== 状态补充灰卡 ====== */
+.state-ext-card{background:#f7f8fa;border:1px solid #e8eaed;border-radius:6px;padding:14px 16px;margin-top:12px;}
+.state-ext-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 20px;}
+.state-ext-grid .span3{grid-column:span 3;}
+.state-ext-card .form-item{margin-bottom:0;}
+.state-ext-card .form-hint{font-size:11px;color:#8f959e;margin-top:2px;}
+.fl-list{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
+.fl-item{display:flex;align-items:center;gap:6px;padding:4px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#3b5998;}
+.fl-item .fl-del{color:#d32f2f;cursor:pointer;margin-left:auto;font-size:14px;line-height:1;}
+.up-zone{display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:.15s;}
+.up-zone:hover{border-color:#3b5998!important;background:#f0f4ff!important;}
+
 /* 地址选择 */
 .addr-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .addr-row .form-ctrl{height:32px;}
@@ -897,17 +909,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
         </div>
         <div class="form-hint">由项目地址失焦后系统自动判断</div>
       </div>
-      <!-- 项目状态 → S01-1 -->
-      <div class="form-item">
-        <label class="form-label">项目状态 <span class="req">*</span></label>
-        <select class="form-ctrl">
-          <option>请选择</option>
-          <option>已中标</option>
-          <option selected>已流标</option>
-          <option>已丢单</option>
-          <option>已签单</option>
-        </select>
-      </div>
       <!-- 执行单位 → I01-8+S02-1 -->
       <div class="form-item">
         <label class="form-label">执行单位 <span class="req">*</span></label>
@@ -918,9 +919,93 @@ html,body{height:100%;margin:0;overflow:hidden;}
         </select>
       </div>
     </div>
+
+    <!-- ===== 状态补充卡片（在使用方信息卡片内） ===== -->
+    <div class="state-ext-card">
+      <div class="state-ext-grid">
+        <!-- 项目状态（占整行） -->
+        <div class="form-item span3">
+          <label class="form-label">项目状态 <span class="req">*</span></label>
+          <select class="form-ctrl" id="m5ProjectStatus" onchange="m5ToggleStateExt(this.value)">
+            <option value="">请选择</option>
+            <option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
+          </select>
+        </div>
+
+        <!-- 已中标：中标通知书上传 -->
+        <div class="form-item" id="m5StateBidExt" style="display:none;">
+          <label class="form-label">中标通知书 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('m5BidFileInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="m5BidFileInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="m5AddStateFile('bid','m5BidFileInput',this)">
+          <div class="fl-list" id="m5BidFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx，单个文件不超过20MB</div>
+        </div>
+
+        <!-- 已签单字段组 -->
+        <div class="form-item" id="m5SignHasContract" style="display:none;">
+          <label class="form-label">是否有合同 <span class="req">*</span></label>
+          <select class="form-ctrl" onchange="m5ToggleSignFields(this.value)">
+            <option value="">请选择</option>
+            <option value="yes">是</option>
+            <option value="no">否</option>
+          </select>
+        </div>
+        <div class="form-item" id="m5SignContractItem" style="display:none;">
+          <label class="form-label">合同附件 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('m5SignContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="m5SignContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="m5AddStateFile('signContract','m5SignContractInput',this)">
+          <div class="fl-list" id="m5SignContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="m5SignNoContractItem" style="display:none;">
+          <label class="form-label">无合同签单说明 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('m5SignNoContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="m5SignNoContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="m5AddStateFile('signNoContract','m5SignNoContractInput',this)">
+          <div class="fl-list" id="m5SignNoContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="m5SignCustomerItem" style="display:none;">
+          <label class="form-label">合同客户 <span class="req">*</span></label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" class="form-ctrl" id="m5SignCustomer" placeholder="请输入客户名称" style="flex:1;">
+            <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+          </div>
+        </div>
+        <div class="form-item" id="m5SignAmountItem" style="display:none;">
+          <label class="form-label">签单金额（元）<span class="req">*</span></label>
+          <input type="number" class="form-ctrl" id="m5SignAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <!-- 已流标字段组 -->
+        <div class="form-item" id="m5StateFailExt" style="display:none;">
+          <label class="form-label">丢单原因 <span class="req">*</span></label>
+          <select class="form-ctrl">
+            <option value="">请选择丢单原因</option>
+            <option value="产品原因">产品原因</option>
+            <option value="技术原因">技术原因</option>
+            <option value="价格原因">价格原因</option>
+          </select>
+        </div>
+        <div class="form-item" id="m5FailReportItem" style="display:none;">
+          <label class="form-label">丢单报告 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('m5FailReportInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="m5FailReportInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="m5AddStateFile('fail','m5FailReportInput',this)">
+          <div class="fl-list" id="m5FailFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+      </div>
+    </div>
+    <!-- /状态补充卡片 -->
   </div>
 </div>
-
 
 <div class="form-card" id="cardBase">
   <div class="form-card-header">
@@ -1457,6 +1542,75 @@ function m5MockUpload() {
 function m5ConfirmImport() {
   alert('演示：确认导入成功记录');
   m5CloseImportModal();
+}
+
+/* ===== 管理端-状态补充信息逻辑 ===== */
+function m5ToggleStateExt(val) {
+  var ids = ['m5StateBidExt','m5SignHasContract','m5SignContractItem','m5SignNoContractItem','m5SignCustomerItem','m5SignAmountItem','m5StateFailExt','m5FailReportItem'];
+  for(var i=0;i<ids.length;i++){
+    var el=document.getElementById(ids[i]);
+    if(el) el.style.display='none';
+  }
+  if(val === '已中标') {
+    document.getElementById('m5StateBidExt').style.display='';
+  } else if(val === '已签单') {
+    document.getElementById('m5SignHasContract').style.display='';
+    var sel=document.querySelector('#m5SignHasContract select');
+    if(sel) sel.value='';
+    document.getElementById('m5SignCustomerItem').style.display='';
+    document.getElementById('m5SignAmountItem').style.display='';
+  } else if(val === '已流标') {
+    document.getElementById('m5StateFailExt').style.display='';
+    document.getElementById('m5FailReportItem').style.display='';
+  }
+}
+function m5ToggleSignFields(val) {
+  var contractItem = document.getElementById('m5SignContractItem');
+  var noContractItem = document.getElementById('m5SignNoContractItem');
+  var customerItem = document.getElementById('m5SignCustomerItem');
+  var amountItem = document.getElementById('m5SignAmountItem');
+  if(val === 'yes') {
+    contractItem.style.display = ''; noContractItem.style.display = 'none';
+    customerItem.style.display = ''; amountItem.style.display = '';
+  } else if(val === 'no') {
+    contractItem.style.display = 'none'; noContractItem.style.display = '';
+    customerItem.style.display = ''; amountItem.style.display = '';
+  } else {
+    contractItem.style.display = 'none'; noContractItem.style.display = 'none';
+    customerItem.style.display = 'none'; amountItem.style.display = 'none';
+  }
+}
+var m5StateFiles = {};
+function m5AddStateFile(key, inputId, fileInput) {
+  if(!fileInput.files || !fileInput.files.length) return;
+  var file = fileInput.files[0];
+  if(!m5StateFiles[key]) m5StateFiles[key] = [];
+  m5StateFiles[key].push({name: file.name, size: file.size});
+  fileInput.value = '';
+  m5RenderStateFileList(key);
+}
+function m5DelStateFile(key, idx) {
+  if(m5StateFiles[key]) {
+    m5StateFiles[key].splice(idx, 1);
+    m5RenderStateFileList(key);
+  }
+}
+function m5RenderStateFileList(key) {
+  var listEl;
+  switch(key) {
+    case 'bid': listEl = document.getElementById('m5BidFileList'); break;
+    case 'signContract': listEl = document.getElementById('m5SignContractFileList'); break;
+    case 'signNoContract': listEl = document.getElementById('m5SignNoContractFileList'); break;
+    case 'fail': listEl = document.getElementById('m5FailFileList'); break;
+    default: return;
+  }
+  var files = m5StateFiles[key] || [];
+  var html = '';
+  files.forEach(function(f, idx) {
+    var sizeStr = f.size > 1024*1024 ? (f.size/1024/1024).toFixed(1)+'MB' : (f.size/1024).toFixed(1)+'KB';
+    html += '<div class="fl-item">📎 <span>'+f.name+'</span><span style="color:#8f959e;font-size:11px;margin-left:4px;">'+sizeStr+'</span><span class="fl-del" onclick="m5DelStateFile(\''+key+'\','+idx+')">×</span></div>';
+  });
+  listEl.innerHTML = html;
 }
 </script>
 
