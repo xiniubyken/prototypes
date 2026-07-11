@@ -452,6 +452,22 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .af-node-table tr:last-child td{border-bottom:none;}
 .af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
 
+/* ====== 状态补充卡片 ====== */
+.state-ext-card{background:#f7f8fa;border:1px solid #e8eaed;border-radius:6px;padding:14px 16px;margin-top:12px;}
+.state-ext-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px 16px;}
+.state-ext-grid .span3{grid-column:span 3;}
+.state-ext-card .form-item{margin-bottom:0;}
+.state-ext-card .form-hint{font-size:11px;color:#8f959e;margin-top:2px;}
+.up-zone{display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:.15s;width:100%;}
+.up-zone:hover{border-color:#3b5998!important;background:#f0f4ff!important;}
+.fl-list{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
+.fl-item{display:flex;align-items:center;gap:6px;padding:4px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#3b5998;}
+
+/* ====== 工商校验按钮 ====== */
+.business-check-btn{height:32px;padding:0 14px;font-size:12px;font-weight:600;color:#fff;background:#3b5998;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s;}
+.business-check-btn:hover{background:#2e477a;}
+.business-check-btn:active{background:#1f3460;}
+
 </style>
 </head>
 <body>
@@ -695,12 +711,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="field-readonly"><span class="cross-region-tag none">省外跨区</span></div>
       </div>
 
-      <!-- 项目状态 -->
-      <div class="form-item">
-        <label class="form-label">项目状态 <span class="req">*</span></label>
-        <div class="field-readonly">已中标</div>
-      </div>
-
       <!-- 执行单位 -->
       <div class="form-item">
         <label class="form-label">执行单位 <span class="req">*</span></label>
@@ -708,6 +718,91 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
 
     </div><!-- /form-grid -->
+
+    <!-- ===== 状态补充卡片（可编辑） ===== -->
+    <div class="state-ext-card">
+      <div class="state-ext-grid">
+        <!-- 项目状态（占整行） -->
+        <div class="form-item span3">
+          <label class="form-label">项目状态 <span class="req">*</span></label>
+          <select class="form-ctrl" id="spProjectStatus" onchange="spToggleStateExt(this.value)">
+            <option value="">请选择</option>
+            <option value="跟进中">跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
+          </select>
+        </div>
+
+        <!-- 已中标：中标通知书上传 -->
+        <div class="form-item" id="spStateBidExt" style="display:none;">
+          <label class="form-label">中标通知书 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spBidFileInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spBidFileInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('bid','spBidFileInput',this)">
+          <div class="fl-list" id="spBidFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx，单个文件不超过20MB</div>
+        </div>
+
+        <!-- 已签单字段组 -->
+        <div class="form-item" id="spSignHasContract" style="display:none;">
+          <label class="form-label">是否有合同 <span class="req">*</span></label>
+          <select class="form-ctrl" onchange="spToggleSignFields(this.value)">
+            <option value="">请选择</option>
+            <option value="yes">是</option>
+            <option value="no">否</option>
+          </select>
+        </div>
+        <div class="form-item" id="spSignContractItem" style="display:none;">
+          <label class="form-label">合同附件 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spSignContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spSignContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('signContract','spSignContractInput',this)">
+          <div class="fl-list" id="spSignContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="spSignNoContractItem" style="display:none;">
+          <label class="form-label">无合同签单说明 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spSignNoContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spSignNoContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('signNoContract','spSignNoContractInput',this)">
+          <div class="fl-list" id="spSignNoContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="spSignCustomerItem" style="display:none;">
+          <label class="form-label">合同客户 <span class="req">*</span></label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" class="form-ctrl" id="spSignCustomer" placeholder="请输入客户名称" style="flex:1;">
+            <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+          </div>
+        </div>
+        <div class="form-item" id="spSignAmountItem" style="display:none;">
+          <label class="form-label">签单金额（元）<span class="req">*</span></label>
+          <input type="number" class="form-ctrl" id="spSignAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <!-- 已流标字段组 -->
+        <div class="form-item" id="spStateFailExt" style="display:none;">
+          <label class="form-label">丢单原因 <span class="req">*</span></label>
+          <select class="form-ctrl">
+            <option value="">请选择丢单原因</option>
+            <option value="产品原因">产品原因</option>
+            <option value="技术原因">技术原因</option>
+            <option value="价格原因">价格原因</option>
+          </select>
+        </div>
+        <div class="form-item" id="spFailReportItem" style="display:none;">
+          <label class="form-label">丢单报告 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spFailReportInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spFailReportInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('fail','spFailReportInput',this)">
+          <div class="fl-list" id="spFailFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+      </div>
+    </div>
+    <!-- /状态补充卡片 -->
 
   </div><!-- /form-card-body -->
 </div><!-- /cardUserInfo -->
@@ -1594,6 +1689,68 @@ function switchAfTab(tabName,btnEl){
   document.getElementById('afFlowPanel').style.display=tabName==='flow'?'block':'none';
   document.getElementById('afNodePanel').style.display=tabName==='node'?'block':'none';
 }
+
+// ==================== 状态补充字段（可编辑） ====================
+var spStateFiles = {};
+function spToggleStateExt(val) {
+  var groups = ['spStateBidExt','spSignHasContract','spSignContractItem','spSignNoContractItem','spSignCustomerItem','spSignAmountItem','spStateFailExt','spFailReportItem'];
+  groups.forEach(function(id){document.getElementById(id).style.display='none';});
+  if(val==='已中标') {
+    document.getElementById('spStateBidExt').style.display='';
+  } else if(val==='已签单') {
+    document.getElementById('spSignHasContract').style.display='';
+    document.getElementById('spSignContractItem').style.display='';
+    document.getElementById('spSignNoContractItem').style.display='';
+    document.getElementById('spSignCustomerItem').style.display='';
+    document.getElementById('spSignAmountItem').style.display='';
+  } else if(val==='已流标') {
+    document.getElementById('spStateFailExt').style.display='';
+    document.getElementById('spFailReportItem').style.display='';
+  } else if(val==='已丢单') {
+    document.getElementById('spStateFailExt').style.display='';
+    document.getElementById('spFailReportItem').style.display='';
+  }
+  // 跟进中/其他 → 全部隐藏
+}
+function spToggleSignFields(val) {
+  document.getElementById('spSignContractItem').style.display=(val==='yes')?'':'none';
+  document.getElementById('spSignNoContractItem').style.display=(val==='no')?'':'none';
+}
+function spAddStateFile(key, inputId, fileInput) {
+  if(!fileInput.files || !fileInput.files.length) return;
+  var file = fileInput.files[0];
+  if(!spStateFiles[key]) spStateFiles[key] = [];
+  spStateFiles[key].push({name: file.name, size: file.size});
+  fileInput.value = '';
+  spRenderStateFileList(key);
+}
+function spDelStateFile(key, idx) {
+  if(spStateFiles[key]) { spStateFiles[key].splice(idx, 1); spRenderStateFileList(key); }
+}
+function spRenderStateFileList(key) {
+  var listId;
+  if(key==='bid') listId='spBidFileList';
+  else if(key==='signContract') listId='spSignContractFileList';
+  else if(key==='signNoContract') listId='spSignNoContractFileList';
+  else if(key==='fail') listId='spFailFileList';
+  else return;
+  var files = spStateFiles[key] || [];
+  var html = '';
+  files.forEach(function(f, idx) {
+    var sizeStr = f.size >= 1048576 ? (f.size/1048576).toFixed(1)+'MB' : (f.size/1024).toFixed(0)+'KB';
+    html += '<div class="fl-item"><span>📄</span><span style="flex:1;">'+f.name+'</span><span style="color:#8f959e;font-size:11px;">'+sizeStr+'</span><span style="color:#d32f2f;cursor:pointer;font-size:14px;" onclick="spDelStateFile(\''+key+'\','+idx+')">×</span></div>';
+  });
+  document.getElementById(listId).innerHTML = html;
+}
+(function initApprovalExt(){
+  var st = document.getElementById('spProjectStatus');
+  if(st) {
+    st.value = '已中标';
+    spToggleStateExt('已中标');
+  }
+  spStateFiles['bid'] = [{name: '中标通知书_20260711.pdf', size: 1234567}];
+  spRenderStateFileList('bid');
+})();
 
 </script>
 
