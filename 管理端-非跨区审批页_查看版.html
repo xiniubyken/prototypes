@@ -121,7 +121,25 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .addr-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
 .addr-row .form-ctrl{height:28px;font-size:12px;}
 
-/* 跨区说明tag */
+/* ====== 状态补充卡片（只读） ====== */
+.state-ext-card{
+  background:#f7f8fa;
+  border:1px solid #e8eaed;
+  border-radius:6px;
+  padding:14px 16px;
+  margin-top:12px;
+}
+.state-ext-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px 20px;
+}
+.state-ext-grid .span3{grid-column:span 3;}
+.state-ext-card .form-item{margin-bottom:0;}
+.state-ext-card .form-hint{font-size:11px;color:#8f959e;margin-top:2px;}
+.state-file-link{display:inline-flex;align-items:center;gap:4px;color:#3b5998;font-size:12px;cursor:default;}
+.state-file-link:hover{text-decoration:underline;}
+/* ====== 跨区说明tag ====== */
 .cross-region-tag{font-size:12px;padding:4px 10px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
 .cross-region-tag.intra{background:#E8F5E9;color:#2E7D32;}
 .cross-region-tag.inter{background:#FFF3E0;color:#E65100;}
@@ -708,12 +726,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="field-readonly"><span class="cross-region-tag none">非跨区</span></div>
       </div>
 
-      <!-- 项目状态 -->
-      <div class="form-item">
-        <label class="form-label">项目状态 <span class="req">*</span></label>
-        <div class="field-readonly">已中标</div>
-      </div>
-
       <!-- 执行单位 -->
       <div class="form-item">
         <label class="form-label">执行单位 <span class="req">*</span></label>
@@ -721,6 +733,47 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
 
     </div><!-- /form-grid -->
+
+    <!-- ===== 状态补充卡片（只读查看） ===== -->
+    <div class="state-ext-card">
+      <div class="state-ext-grid">
+        <!-- 项目状态（占整行） -->
+        <div class="form-item span3">
+          <label class="form-label">项目状态</label>
+          <div class="field-readonly">已中标</div>
+        </div>
+
+        <!-- 已中标：中标通知书（只读） -->
+        <div class="form-item">
+          <label class="form-label">中标通知书</label>
+          <div class="field-readonly">
+            <span class="state-file-link">📎 中标通知书_20260711.pdf</span>
+            <span style="color:#8f959e;font-size:11px;margin-left:4px;">1.2MB</span>
+          </div>
+        </div>
+
+        <!-- 已签单字段组（当前状态不匹配，隐藏） -->
+        <div class="form-item" style="display:none;">
+          <label class="form-label">是否有合同</label>
+          <div class="field-readonly">是</div>
+        </div>
+        <div class="form-item" style="display:none;">
+          <label class="form-label">合同客户</label>
+          <div class="field-readonly">珠海华邑酒店有限公司</div>
+        </div>
+        <div class="form-item" style="display:none;">
+          <label class="form-label">签单金额（元）</label>
+          <div class="field-readonly">198,500.00</div>
+        </div>
+
+        <!-- 已流标字段组（当前状态不匹配，隐藏） -->
+        <div class="form-item" style="display:none;">
+          <label class="form-label">丢单原因</label>
+          <div class="field-readonly">价格原因</div>
+        </div>
+      </div>
+    </div>
+    <!-- /状态补充卡片 -->
 
   </div><!-- /form-card-body -->
 </div><!-- /cardUserInfo -->

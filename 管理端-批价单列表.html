@@ -469,13 +469,17 @@ a:hover{text-decoration:underline;}
 
           <option value="">全部</option>
 
-          <option value="日常政策">日常政策</option>
+          <option value="常规价">常规价</option>
 
-          <option value="一次性买断">一次性买断</option>
+          <option value="买断价">买断价</option>
 
-          <option value="促销特价">促销特价</option>
+          <option value="特批特价">特批特价</option>
 
           <option value="样机">样机</option>
+
+          <option value="打包价">打包价</option>
+
+          <option value="暂扣价">暂扣价</option>
 
         </select>
 
@@ -571,6 +575,8 @@ a:hover{text-decoration:underline;}
 
             <th>业务线</th>
 
+            <th>销售类型</th>
+
             <th>总套数</th>
 
             <th>提货数量</th>
@@ -615,7 +621,7 @@ a:hover{text-decoration:underline;}
 
           <span style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">左冻结列数：</span>
 
-          <input type="number" id="freezeColsInput" value="0" min="0" max="11" style="width:56px;height:28px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;outline:none;">
+          <input type="number" id="freezeColsInput" value="0" min="0" max="12" style="width:56px;height:28px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;outline:none;">
 
           <span style="font-size:11px;color:var(--text-aux);">（前N个可见列在横向滚动时固定）</span>
 
@@ -1169,6 +1175,7 @@ var sampleRows = [
 
     status:'\u5BA1\u6279\u4E2D',
     businessLine:'\u5546\u7528\u7A7A\u8C03',
+    salesType:'\u5E38\u89C4\u4EF7',
     qty:20, pickedQty:0,
 
     canVoid:false, canApprove:true, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1185,6 +1192,7 @@ var sampleRows = [
 
     status:'\u5DF2\u9A73\u56DE',
     businessLine:'\u5546\u7528\u7A7A\u8C03',
+    salesType:'\u4E70\u65AD\u4EF7',
     qty:15, pickedQty:0,
 
     canVoid:true, canApprove:false, subStatus:'', loginOrder:'-'
@@ -1201,6 +1209,7 @@ var sampleRows = [
 
     status:'\u5F85\u63D0\u8D27',
     businessLine:'\u5546\u7528\u7A7A\u8C03',
+    salesType:'\u7279\u6279\u7279\u4EF7',
     qty:50, pickedQty:0,
 
     canVoid:true, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1217,6 +1226,7 @@ var sampleRows = [
 
     status:'\u90E8\u5206\u63D0\u8D27',
     businessLine:'\u5BB6\u7528\u7A7A\u8C03',
+    salesType:'\u6837\u673A',
     qty:30, pickedQty:12,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1233,6 +1243,7 @@ var sampleRows = [
 
     status:'\u5DF2\u5B8C\u7ED3',
     businessLine:'\u5546\u7528\u7A7A\u8C03',
+    salesType:'\u6253\u5305\u4EF7',
     qty:25, pickedQty:25,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1249,6 +1260,7 @@ var sampleRows = [
 
     status:'\u5DF2\u5173\u95ED',
     businessLine:'\u751F\u6D3B\u7535\u5668',
+    salesType:'\u6682\u6263\u4EF7',
     qty:10, pickedQty:0,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'-'
@@ -1265,6 +1277,7 @@ var sampleRows = [
 
     status:'\u5BA1\u6279\u4E2D',
     businessLine:'\u5546\u7528\u7A7A\u8C03',
+    salesType:'\u5E38\u89C4\u4EF7',
     qty:40, pickedQty:0,
 
     canVoid:false, canApprove:false, subStatus:'', loginOrder:'1-\u767B\u5F55\u6210\u529F'
@@ -1281,6 +1294,7 @@ var sampleRows = [
 
     status:'\u5F85\u63D0\u8D27',
     businessLine:'\u51B0\u7BB1',
+    salesType:'\u7279\u6279\u7279\u4EF7',
     qty:60, pickedQty:0,
 
     canVoid:true, canApprove:false, subStatus:'', loginOrder:'2-\u5019\u8865\u767B\u5F55'
@@ -1310,6 +1324,8 @@ var columnConfig = [
   {key:'status',     name:'\u6279\u4EF7\u5355\u72B6\u6001', visible:true},
 
   {key:'businessLine',name:'\u4E1A\u52A1\u7EBF', visible:true},
+
+  {key:'salesType',   name:'\u9500\u552E\u7C7B\u578B', visible:true},
 
   {key:'qty',        name:'\u603B\u5957\u6570', visible:true},
 
@@ -1373,6 +1389,8 @@ function renderTable() {
       '<td data-col="status">' + statusHtml + '</td>' +
 
       '<td data-col="businessLine">' + (r.businessLine || '--') + '</td>' +
+
+      '<td data-col="salesType">' + (r.salesType || '--') + '</td>' +
 
       '<td data-col="qty">' + r.qty + '</td>' +
 

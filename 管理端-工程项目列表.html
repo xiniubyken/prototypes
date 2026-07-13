@@ -420,7 +420,6 @@ a:hover{text-decoration:underline;}
               <th>业务线</th>
               <th>登录顺序</th>
               <th>关联编号</th>
-              <th>批价类型</th>
               <th>项目状态</th>
             </tr>
           </thead>
@@ -441,7 +440,7 @@ a:hover{text-decoration:underline;}
         <div class="modal-body">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
             <span style="font-size:13px;color:var(--text-secondary);white-space:nowrap;">左冻结列数：</span>
-            <input type="number" id="freezeColsInput" value="0" min="0" max="22" style="width:56px;height:28px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;outline:none;">
+            <input type="number" id="freezeColsInput" value="0" min="0" max="21" style="width:56px;height:28px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:13px;outline:none;">
           </div>
           <table class="cfg-table">
             <thead>
@@ -643,7 +642,7 @@ var sampleRows = [
     executor:'珠海格力电器销售有限公司', crossArea:'非跨区', industry:'学校',
     totalAmount:'¥125,000', address:'广东省珠海市香洲区某路1号', loginTime:'2026-06-25 10:30',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606250001',
-    priceType:'标准批价', projStatus:'跟进中', status:'审批中',
+    projStatus:'跟进中', status:'审批中',
     canVoid:false, canExtend:false
   },
   {
@@ -653,7 +652,7 @@ var sampleRows = [
     executor:'深圳格力贸易有限公司', crossArea:'非跨区', industry:'办公楼',
     totalAmount:'¥290,000', address:'广东省深圳市南山区科技路8号', loginTime:'2026-06-24 14:20',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'-',
-    priceType:'标准批价', projStatus:'跟进中', status:'已驳回',
+    projStatus:'跟进中', status:'已驳回',
     canVoid:false, canExtend:false
   },
   {
@@ -663,7 +662,7 @@ var sampleRows = [
     executor:'广州格力销售服务中心', crossArea:'省外跨区', industry:'酒店',
     totalAmount:'¥80,000', address:'广东省广州市天河区体育路22号', loginTime:'2026-06-22 09:15',
     bizLine:'冷链', loginOrder:'1', relatedNo:'GL202606240003',
-    priceType:'标准批价', projStatus:'跟进中', status:'跟进中',
+    projStatus:'跟进中', status:'跟进中',
     canVoid:true, canExtend:true
   },
   {
@@ -673,7 +672,7 @@ var sampleRows = [
     executor:'东莞格力电器代理商', crossArea:'非跨区', industry:'医院',
     totalAmount:'¥600,000', address:'广东省东莞市松山湖高新区科技路1号', loginTime:'2026-06-20 11:00',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606240004',
-    priceType:'批价审核', projStatus:'已中标', status:'已中标',
+    projStatus:'已中标', status:'已中标',
     canVoid:false, canExtend:true
   },
   {
@@ -683,7 +682,7 @@ var sampleRows = [
     executor:'佛山格力电器经销部', crossArea:'省外跨区', industry:'商超',
     totalAmount:'¥1,050,000', address:'广东省佛山市顺德区大良街道某路5号', loginTime:'2026-06-18 16:45',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606240005',
-    priceType:'批价审核', projStatus:'已签单', status:'已签单',
+    projStatus:'已签单', status:'已签单',
     canVoid:false, canExtend:false
   },
   {
@@ -693,7 +692,7 @@ var sampleRows = [
     executor:'中山格力销售有限公司', crossArea:'非跨区', industry:'学校',
     totalAmount:'¥112,500', address:'广东省中山市火炬开发区康乐路10号', loginTime:'2026-06-15 08:30',
     bizLine:'中央空调', loginOrder:'2', relatedNo:'-',
-    priceType:'标准批价', projStatus:'已流标', status:'已流标',
+    projStatus:'已流标', status:'已流标',
     canVoid:true, canExtend:true
   },
   {
@@ -703,7 +702,7 @@ var sampleRows = [
     executor:'惠州格力电器有限公司', crossArea:'省外跨区', industry:'酒店',
     totalAmount:'¥45,000', address:'广东省惠州市惠城区西湖路18号', loginTime:'2026-06-10 13:20',
     bizLine:'冷链', loginOrder:'2', relatedNo:'-',
-    priceType:'-', projStatus:'已关闭', status:'已关闭',
+    projStatus:'已关闭', status:'已关闭',
     canVoid:false, canExtend:false
   },
   {
@@ -713,7 +712,7 @@ var sampleRows = [
     executor:'江门格力电器服务中心', crossArea:'非跨区', industry:'医院',
     totalAmount:'¥440,000', address:'广东省江门市蓬江区建设路33号', loginTime:'2026-05-28 10:00',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606240008',
-    priceType:'标准批价', projStatus:'已完结', status:'已完结',
+    projStatus:'已完结', status:'已完结',
     canVoid:false, canExtend:false
   }
 ];
@@ -741,7 +740,6 @@ var columnConfig = [
   {key:'bizLine',   name:'业务线',               visible:true},
   {key:'loginOrder',name:'登录顺序',             visible:true},
   {key:'relatedNo', name:'关联编号',             visible:true},
-  {key:'priceType', name:'批价类型',             visible:true},
   {key:'projStatus',name:'项目状态',             visible:true}
 ];
 
@@ -789,7 +787,6 @@ function renderTable() {
       '<td data-col="bizLine">' + r.bizLine + '</td>' +
       '<td data-col="loginOrder">' + loginOrderDisplay + '</td>' +
       '<td data-col="relatedNo">' + r.relatedNo + '</td>' +
-      '<td data-col="priceType">' + r.priceType + '</td>' +
       '<td data-col="projStatus"><span class="status-tag ' + statusClassMap[r.status] + '">' + r.status + '</span></td>' +
       '</tr>';
   }).join('');
