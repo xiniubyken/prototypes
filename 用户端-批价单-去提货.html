@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>用户端-批价单-去提货</title>
+<style>:root{
+--primary:#3b5998;--primary-light:#4a72c3;--danger:#D32F2F;--success:#2E7D32;--warning:#ED6C02;--info:#1565C0;
+--bg:#fff;--bg-card:#fff;--bg-header:#F7F8FA;--bg-hover:#f0f2f5;--border:#e8eaed;--border-light:#f0f0f0;
+--text:#1f2329;--text-secondary:#646a73;--text-aux:#8f959e;
+--radius:4px;--row-h:36px;--fs-xs:11px;--fs-sm:12px;--fs-base:13px;--fs-body:14px;--fs-lg:18px;--fs-2xl:22px;--lg:20px;
+--space-xs:4px;--space-sm:8px;--space-md:12px;--space-lg:16px;--space-xl:24px
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;color:var(--text);background:#f5f6f7;line-height:1.6}
+.app-layout{width:100%;min-height:100vh;display:flex;flex-direction:column}
+.main-content{flex:1;min-width:0;display:flex;flex-direction:column;background:#f5f6f7}
+
+/* 面包屑 */
+.bc{padding:8px 24px;font-size:var(--fs-sm);color:var(--text-aux);background:#fff;border-bottom:1px solid var(--border-light)}
+
+/* 头部栏 */
+.dh-bar{background:#fff;padding:16px 24px 12px}
+.dh-r1{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.dh-l{display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex:1;min-width:0}
+.dh-tl{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.dh-tt{font-size:14px;font-weight:700;color:var(--text)}
+.dh-tc{font-size:13px;font-weight:600;color:var(--text)}
+.dh-tn{font-size:13px;font-weight:500;color:var(--text-aux)}
+.dh-biz{display:inline-block;padding:1px 8px;border-radius:3px;font-size:var(--fs-sm);font-weight:500;background:#FFF8E1;color:#B45309;border:1px solid #FDE68A}
+.dh-sg{display:flex;align-items:center;gap:10px;flex-shrink:0}
+
+/* 有效期+统计 */
+.dh-stat{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:6px;padding-bottom:4px}
+.dh-countdown{display:flex;align-items:center;gap:3px}
+.dh-countdown .cd-lbl{font-size:var(--fs-sm);color:var(--text-aux)}
+.dh-countdown .cd-d{font-size:var(--lg);font-weight:700;line-height:1}
+.dh-countdown .cd-u{font-size:var(--fs-sm);color:var(--text-aux);font-weight:500}
+.dh-st{font-size:var(--fs-sm);color:var(--text-secondary);display:flex;align-items:center;gap:4px}
+.dh-st .st-n{font-weight:600;color:var(--text)}
+
+/* 内容滚动区 */
+.scroll{flex:1;overflow-y:auto}
+.pi{padding:20px 24px 40px}
+
+/* 卡片 */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;margin-bottom:12px;overflow:hidden}
+.ch{padding:8px 16px;font-size:13px;font-weight:500;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;background:var(--bg-header)}
+.cb{padding:8px 16px}
+.cb0{padding:0}
+
+/* 提示条 */
+.warn-bar{display:flex;align-items:flex-start;gap:8px;padding:10px 14px;background:#FFFBE6;border:1px solid #FFE58F;border-radius:6px;margin-bottom:16px;font-size:13px;color:#B45309;line-height:1.55}
+
+/* ===== 商品操作表格 ===== */
+.tw{overflow-x:auto}
+.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:1320px}
+.dt th{background:var(--bg-header);height:36px;padding:6px 8px;text-align:left;font-weight:600;font-size:var(--fs-sm);color:var(--text-secondary);border-bottom:1px solid var(--border);white-space:nowrap}
+.dt td{height:40px;padding:6px 8px;border-bottom:1px solid var(--border-light);font-size:var(--fs-base);vertical-align:middle}
+.dt tr:hover td{background:rgba(59,89,152,.03)}
+
+.col-cb{width:36px;text-align:center}
+.col-name{min-width:140px}
+.col-model{width:120px}
+.col-sku{width:100px}
+.col-qty{width:80px;text-align:right}
+.col-price{width:90px;text-align:right}
+.col-approve{width:90px;text-align:right;color:var(--success);font-weight:600}
+.col-tax{width:110px;text-align:right}
+.col-buy{width:80px;text-align:center}
+.col-pickable{width:90px;text-align:center;font-weight:600}
+.col-input{width:110px}
+.col-action{width:90px;text-align:center}
+
+/* 复选框 */
+.cb-input{width:16px;height:16px;cursor:pointer;accent-color:var(--primary)}
+.cb-head{cursor:pointer}
+
+/* 本次提货输入框 */
+.pick-input{width:76px;height:30px;padding:4px 6px;border:1px solid var(--border);border-radius:4px;font-size:13px;text-align:center;outline:none;transition:.15s}
+.pick-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.15)}
+.pick-input.error{border-color:var(--danger);box-shadow:0 0 0 2px rgba(211,47,47,.12)}
+.pick-input:disabled{background:#f5f5f5;color:var(--text-aux);cursor:not-allowed}
+
+/* 加入购物车链接 */
+.cart-link{color:var(--primary);cursor:pointer;font-size:13px;white-space:nowrap}
+.cart-link:hover{opacity:.8;text-decoration:underline}
+.cart-link.done{color:var(--success);cursor:default}
+.cart-link.done:hover{text-decoration:none}
+
+/* 商品名+品类 */
+.pd-name{display:flex;flex-direction:column;gap:1px}
+.pd-cate{font-size:11px;color:var(--text-aux)}
+.nst-badge{background:#FFF3E0;color:#E65100;padding:1px 5px;border-radius:3px;font-size:var(--fs-sm);font-weight:600;display:inline-block}
+
+/* 底部操作栏 */
+.footer{flex-shrink:0;position:sticky;bottom:0;z-index:10;background:var(--bg);border-top:1px solid var(--border);padding:12px 24px}
+.ft-inner{display:flex;align-items:center;gap:12px}
+.ft-back{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:var(--primary);cursor:pointer;padding:7px 16px;border:1px solid var(--primary);border-radius:4px;background:#fff;transition:.15s;white-space:nowrap}
+.ft-back:hover{background:rgba(59,89,152,.05)}
+.ft-info{flex:1;font-size:13px;color:var(--text-secondary)}
+.ft-info .ft-n{font-weight:600;color:var(--text);margin:0 2px}
+.ft-actions{display:flex;gap:10px}
+.btn{padding:7px 20px;font-size:var(--fs-base);border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:.15s}
+.btn:hover{border-color:var(--primary);color:var(--primary)}
+.bp{background:var(--primary);color:#fff;border-color:var(--primary)}
+.bp:hover{opacity:.88;color:#fff}
+.bp:disabled{opacity:.45;cursor:not-allowed}
+</style>
+</head>
+<body>
+<div class="app-layout">
+<div class="main-content">
+
+<!-- 面包屑 -->
+<div class="bc">商用工程 / 用户端 / 批价单列表 / 去提货</div>
+
+<!-- 头部 -->
+<div class="dh-bar">
+  <div class="dh-r1">
+    <div class="dh-l">
+      <div class="dh-tl">
+        <span class="dh-tt">批价单</span>
+        <span class="dh-tc" id="pjNo">粤东GCDT202606250001-PJ001</span>
+        <span class="dh-tn" id="pjName">（某商业综合体空调项目）</span>
+        <span class="dh-biz" id="hbz">中央空调-批价</span>
+      </div>
+    </div>
+  </div>
+  <div class="dh-stat">
+    <div class="dh-countdown"><span class="cd-lbl">提货有效期</span><span class="cd-d" id="cdd" style="color:#2E7D32">29</span><span class="cd-u">天</span></div>
+    <span class="dh-st">已发货：<span class="st-n" id="shippedCount">0</span></span>
+    <span class="dh-st">未发货：<span class="st-n" id="unshippedCount">0</span></span>
+  </div>
+</div>
+
+<div class="scroll">
+
+<div class="pi">
+
+<!-- 提示条 -->
+<div class="warn-bar">
+  ⚠ 请在输入框中填写本次需提货的商品数量，点击「加入购物车」或「批量加入购物车」后确认提货。
+</div>
+
+<!-- 商品操作表格 -->
+<div class="card">
+  <div class="ch"><span>商品提货清单</span><span style="font-size:12px;color:var(--text-aux)" id="itemSummary">共 5 项</span></div>
+  <div class="cb cb0"><div class="tw"><table class="dt" id="pickTable">
+    <thead id="pickThead"></thead>
+    <tbody id="pickTbody"></tbody>
+  </table></div></div>
+</div>
+
+</div><!-- end pi -->
+</div><!-- end scroll -->
+
+<!-- 底部操作栏 -->
+<div class="footer">
+<div class="ft-inner">
+  <span class="ft-back" onclick="da('返回列表')">← 返回</span>
+  <div class="ft-info">已选 <span class="ft-n" id="selectedCount">0</span> 项，合计可提货 <span class="ft-n" id="totalPickable">0</span> 件</div>
+  <div class="ft-actions">
+    <button class="btn bp" id="batchCartBtn" onclick="batchAddCart()" disabled>批量加入购物车</button>
+  </div>
+</div>
+</div>
+
+</div><!-- end main-content -->
+</div><!-- end app-layout -->
+
+<script>
+function da(m){alert('演示：'+m)}
+
+/* ===== 数据 ===== */
+var PICK_DATA={
+  pjNo:'粤东GCDT202606250001-PJ001',
+  pjName:'某商业综合体空调项目',
+  biz:'中央空调-批价',
+  validDays:29,
+  equip:[
+    {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',qty:5,price:42000,approvePrice:40000,buyQty:0,shipQty:0},
+    {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',qty:3,price:56000,approvePrice:53000,buyQty:0,shipQty:0},
+    {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',qty:8,price:8500,approvePrice:8200,buyQty:0,shipQty:0},
+    {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',qty:6,price:12000,approvePrice:11500,buyQty:0,shipQty:0},
+    {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',qty:1,price:38000,approvePrice:null,buyQty:0,shipQty:0}
+  ]
+};
+
+/* 给每项扩展计算字段 */
+PICK_DATA.equip.forEach(function(e){
+  e.pickableQty=e.qty-e.shipQty;
+  e.thisPick='';
+  e._checked=false;
+});
+
+/* ===== 渲染统计 ===== */
+function updateStats(){
+  var totalShipped=0,totalPickable=0,selected=0;
+  PICK_DATA.equip.forEach(function(e){
+    totalShipped+=e.shipQty;
+    totalPickable+=e.pickableQty;
+    if(e._checked) selected++;
+  });
+  document.getElementById('shippedCount').textContent=totalShipped;
+  document.getElementById('unshippedCount').textContent=totalPickable;
+  document.getElementById('selectedCount').textContent=selected;
+  document.getElementById('totalPickable').textContent=totalPickable;
+  document.getElementById('batchCartBtn').disabled=(selected===0);
+}
+
+/* ===== 渲染商品表格 ===== */
+function renderTable(){
+  var thead=document.getElementById('pickThead');
+  thead.innerHTML='<tr>'+
+    '<th class="col-cb"><input type="checkbox" class="cb-input cb-head" id="cbAll" onchange="toggleAll(this)"></th>'+
+    '<th class="col-name">商品名称</th>'+
+    '<th class="col-model">型号</th>'+
+    '<th class="col-sku">SKU</th>'+
+    '<th class="col-qty">申请数量</th>'+
+    '<th class="col-price">申请价格</th>'+
+    '<th class="col-approve">提货价格</th>'+
+    '<th class="col-tax">税额幅最高限距</th>'+
+    '<th class="col-buy">购买数量</th>'+
+    '<th class="col-pickable">可提货数量</th>'+
+    '<th class="col-input">本次提货数量</th>'+
+    '<th class="col-action">操作</th>'+
+    '</tr>';
+
+  var tbody=document.getElementById('pickTbody');
+  var html='';
+  PICK_DATA.equip.forEach(function(e,i){
+    var taxVal=e.approvePrice!==null && e.approvePrice!==undefined?'¥'+e.approvePrice.toLocaleString():'--';
+    var approveTxt=e.approvePrice!==null && e.approvePrice!==undefined?'¥'+e.approvePrice.toLocaleString():'<span style="color:var(--text-aux)">待定价</span>';
+    var nonstdMark=e.nonstd?'<span class="nst-badge">非标</span>':'';
+    var cartHtml='<span class="cart-link" data-idx="'+i+'" onclick="addToCart('+i+')">加入购物车</span>';
+    var inputDisabled=e.pickableQty<=0?'disabled':'';
+    var inputVal=e.thisPick||'';
+
+    html+='<tr>'+
+      '<td class="col-cb"><input type="checkbox" class="cb-input" data-idx="'+i+'" onchange="onRowCheck('+i+')" '+(e._checked?'checked':'')+'></td>'+
+      '<td class="col-name"><div class="pd-name"><span>'+nonstdMark+' '+e.name+'</span><span class="pd-cate">'+e.cate+'</span></div></td>'+
+      '<td class="col-model">'+e.model+'</td>'+
+      '<td class="col-sku">'+e.sku+'</td>'+
+      '<td class="col-qty">'+e.qty+'</td>'+
+      '<td class="col-price">¥'+e.price.toLocaleString()+'</td>'+
+      '<td class="col-approve">'+approveTxt+'</td>'+
+      '<td class="col-tax">'+taxVal+'</td>'+
+      '<td class="col-buy">'+(e.buyQty!==null&&e.buyQty!==undefined?e.buyQty:'--')+'</td>'+
+      '<td class="col-pickable">'+e.pickableQty+'</td>'+
+      '<td class="col-input"><input class="pick-input" type="number" min="0" max="'+e.pickableQty+'" data-idx="'+i+'" value="'+inputVal+'" placeholder="请输入" '+(e.pickableQty<=0?'disabled title="无可提货数量"':'')+' oninput="onPickInput('+i+',this)" onblur="onPickBlur('+i+',this)"></td>'+
+      '<td class="col-action">'+cartHtml+'</td>'+
+      '</tr>';
+  });
+  tbody.innerHTML=html;
+  updateStats();
+}
+
+/* ===== 全选 ===== */
+function toggleAll(el){
+  var checked=el.checked;
+  PICK_DATA.equip.forEach(function(e,i){
+    e._checked=checked;
+    var cb=document.querySelector('input.cb-input[data-idx="'+i+'"]');
+    if(cb) cb.checked=checked;
+  });
+  updateStats();
+}
+
+/* ===== 单选 ===== */
+function onRowCheck(idx){
+  var cb=document.querySelector('input.cb-input[data-idx="'+idx+'"]');
+  PICK_DATA.equip[idx]._checked=cb.checked;
+  /* 全选联动 */
+  var allCbs=document.querySelectorAll('input.cb-input[data-idx]');
+  var allChecked=true;
+  allCbs.forEach(function(c){if(!c.checked)allChecked=false});
+  document.getElementById('cbAll').checked=allChecked;
+  updateStats();
+}
+
+/* ===== 输入框校验 ===== */
+function onPickInput(idx,inp){
+  var e=PICK_DATA.equip[idx];
+  var val=parseInt(inp.value);
+  inp.classList.remove('error');
+  if(!isNaN(val)){
+    if(val<0){inp.value=0;val=0}
+    if(val>e.pickableQty){
+      inp.value=e.pickableQty;
+      val=e.pickableQty;
+    }
+  }
+  e.thisPick=inp.value;
+}
+
+function onPickBlur(idx,inp){
+  var e=PICK_DATA.equip[idx];
+  var val=inp.value.trim();
+  if(val===''){inp.classList.remove('error');return}
+  var num=parseInt(val);
+  if(isNaN(num)||num<0||num!==parseFloat(val)){
+    inp.classList.add('error');
+    return;
+  }
+  inp.classList.remove('error');
+  if(num>e.pickableQty){
+    inp.value=e.pickableQty;
+    e.thisPick=String(e.pickableQty);
+  }
+}
+
+/* ===== 加入购物车（单行） ===== */
+function addToCart(idx){
+  var e=PICK_DATA.equip[idx];
+  var inp=document.querySelector('input.pick-input[data-idx="'+idx+'"]');
+  var val=inp?inp.value.trim():'';
+  if(!val||parseInt(val)<=0){
+    alert('请先填写本次提货数量');
+    if(inp) inp.focus();
+    return;
+  }
+  var num=parseInt(val);
+  if(num>e.pickableQty){
+    alert('本次提货数量不能超过可提货数量（'+e.pickableQty+'）');
+    inp.value=e.pickableQty;
+    e.thisPick=String(e.pickableQty);
+    return;
+  }
+  /* 标记已加入购物车 */
+  var link=document.querySelector('span.cart-link[data-idx="'+idx+'"]');
+  if(link){
+    link.textContent='✓ 已加入';
+    link.classList.add('done');
+  }
+  da('已加入购物车：'+e.name+' × '+num+' 件');
+}
+
+/* ===== 批量加入购物车 ===== */
+function batchAddCart(){
+  var count=0,totalItems=0;
+  PICK_DATA.equip.forEach(function(e,i){
+    if(!e._checked) return;
+    var inp=document.querySelector('input.pick-input[data-idx="'+i+'"]');
+    var val=inp?inp.value.trim():'';
+    if(val&&parseInt(val)>0){
+      /* 检查上限 */
+      var num=parseInt(val);
+      if(num>e.pickableQty){
+        inp.value=e.pickableQty;
+        e.thisPick=String(e.pickableQty);
+        num=e.pickableQty;
+      }
+      var link=document.querySelector('span.cart-link[data-idx="'+i+'"]');
+      if(link){
+        link.textContent='✓ 已加入';
+        link.classList.add('done');
+      }
+      totalItems+=num;
+      count++;
+    }
+  });
+  if(count===0){
+    alert('请至少勾选一项商品并填写提货数量');
+    return;
+  }
+  da('批量加入购物车：'+count+' 项，共 '+totalItems+' 件');
+}
+
+/* ===== 初始化 ===== */
+document.addEventListener('DOMContentLoaded',function(){
+  /* 填充头部 */
+  document.getElementById('pjNo').textContent=PICK_DATA.pjNo;
+  document.getElementById('pjName').textContent='（'+PICK_DATA.pjName+'）';
+  document.getElementById('hbz').textContent=PICK_DATA.biz;
+  document.getElementById('cdd').textContent=PICK_DATA.validDays;
+  renderTable();
+});
+</script>
+</body>
+</html>
