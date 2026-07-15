@@ -753,8 +753,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <select id="searchStatus">
       <option value="">全部状态</option>
       <option value="approving">审批中</option>
-      <option value="rejected">已驳回</option>
-      <option value="picking">提货中</option>
+      <option value="pending">待商家处理</option>
       <option value="finished">已完结</option>
     </select>
   </div>
@@ -779,9 +778,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 <div class="d2-tabs" id="d2Tabs">
   <div class="d2-tab active" data-tab="all" onclick="switchTab('all')">全部 <span class="tab-count">11</span></div>
   <div class="d2-tab" data-tab="approving" onclick="switchTab('approving')">审批中 <span class="tab-count">2</span></div>
-  <div class="d2-tab" data-tab="rejected" onclick="switchTab('rejected')">已驳回 <span class="tab-count">2</span></div>
-  <div class="d2-tab" data-tab="picking" onclick="switchTab('picking')">提货中 <span class="tab-count">2</span></div>
-  <div class="d2-tab" data-tab="closed" onclick="switchTab('closed')">已关闭 <span class="tab-count">4</span></div>
+  <div class="d2-tab" data-tab="pending" onclick="switchTab('pending')">待商家处理 <span class="tab-count">4</span></div>
   <div class="d2-tab" data-tab="finished" onclick="switchTab('finished')">已完结 <span class="tab-count">1</span></div>
 </div>
 
@@ -930,6 +927,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <span class="status-badge sb-picking">待提货</span>
       </div>
       <div class="d2-card-actions">
+        <a class="d2-btn-primary" onclick="alert('去提货 - 粤东GCDT202606200003-PJ01')">去提货</a>
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606200003-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606200003-PJ01')">复制新建</a>
         <a class="d2-btn-link abandon-btn" onclick="showAbandonModal('粤东GCDT202606200003-PJ01',false)">放弃提货</a>
@@ -959,6 +957,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <span class="status-badge sb-partpick">部分提货</span>
       </div>
       <div class="d2-card-actions">
+        <a class="d2-btn-primary" onclick="alert('去提货 - 粤东GCDT202606180004-PJ01')">去提货</a>
         <a class="d2-btn-link" onclick="alert('查看详情 - 粤东GCDT202606180004-PJ01')">查看</a>
         <a class="d2-btn-link" onclick="alert('复制新建 - 粤东GCDT202606180004-PJ01')">复制新建</a>
       </div>    </div>
@@ -1122,9 +1121,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 var TAB_COUNTS = {
   all: 11,
   approving: 2,
-  rejected: 2,
-  picking: 2,
-  closed: 4,
+  pending: 4,
   finished: 1
 };
 
@@ -1142,12 +1139,8 @@ function switchTab(tabKey) {
       show = true;
     } else if (tabKey === 'approving') {
       show = (status === 'approving');
-    } else if (tabKey === 'rejected') {
-      show = (status === 'rejected');
-    } else if (tabKey === 'picking') {
-      show = (status === 'picking' || status === 'partpick');
-    } else if (tabKey === 'closed') {
-      show = (status === 'closed');
+    } else if (tabKey === 'pending') {
+      show = (status === 'rejected' || status === 'picking' || status === 'partpick');
     } else if (tabKey === 'finished') {
       show = (status === 'finished');
     }
@@ -1157,9 +1150,7 @@ function switchTab(tabKey) {
   // 计数使用固定值
   document.querySelector('[data-tab="all"] .tab-count').textContent = TAB_COUNTS.all;
   document.querySelector('[data-tab="approving"] .tab-count').textContent = TAB_COUNTS.approving;
-  document.querySelector('[data-tab="rejected"] .tab-count').textContent = TAB_COUNTS.rejected;
-  document.querySelector('[data-tab="picking"] .tab-count').textContent = TAB_COUNTS.picking;
-  document.querySelector('[data-tab="closed"] .tab-count').textContent = TAB_COUNTS.closed;
+  document.querySelector('[data-tab="pending"] .tab-count').textContent = TAB_COUNTS.pending;
   document.querySelector('[data-tab="finished"] .tab-count').textContent = TAB_COUNTS.finished;
 }
 
@@ -1181,8 +1172,8 @@ function doSearch() {
 
     var okStatus = true;
     if (status) {
-      if (status === 'picking') {
-        okStatus = (statusAttr === 'picking' || statusAttr === 'partpick');
+      if (status === 'pending') {
+        okStatus = (statusAttr === 'rejected' || statusAttr === 'picking' || statusAttr === 'partpick');
       } else {
         okStatus = (statusAttr === status);
       }
