@@ -194,6 +194,24 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .lo-badge .lo-txt{color:#2E7D32;font-weight:500;}
 .lo-view-btn{color:#3b5998;font-size:12px;cursor:pointer;text-decoration:underline;}
 .lo-view-btn:hover{text-decoration:none;}
+
+/* ====== 右侧抽屉（关联项目参考） ====== */
+.drawer-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:1050;}
+.drawer-overlay.show{display:block;}
+.drawer-panel{position:fixed;top:0;right:-660px;width:640px;height:100vh;background:#fff;z-index:1060;transition:right .25s ease-out;box-shadow:-4px 0 16px rgba(0,0,0,.10);overflow-y:auto;}
+.drawer-panel.open{right:0;}
+.drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8eaed;position:sticky;top:0;background:#fff;z-index:10;}
+.drawer-title{font-size:15px;font-weight:700;color:#1f2329;}
+.drawer-close{font-size:22px;color:#8f959e;cursor:pointer;padding:4px 8px;border-radius:4px;line-height:1;}
+.drawer-close:hover{color:#1f2329;background:#f5f6fa;}
+.drawer-body{padding:16px 20px;}
+/* 右侧浮标触发按钮 */
+.drawer-trigger{position:fixed;top:50%;right:0;transform:translateY(-50%);width:56px;min-height:124px;padding:16px 0;background:#E6F1FB;border:1px solid #185FA5;border-right:none;border-radius:8px 0 0 8px;cursor:pointer;z-index:1040;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:background .15s;user-select:none;}
+.drawer-trigger:hover{background:#D0E4F7;}
+.drawer-trigger-text{writing-mode:vertical-rl;font-size:14px;font-weight:600;color:#185FA5;letter-spacing:1px;}
+.drawer-trigger-arrow{font-size:14px;color:#185FA5;line-height:1;margin-top:4px;}
+.drawer-trigger.open .drawer-trigger-arrow{transform:scaleX(-1);}
+
 /* ====== 非标绑定真实商品 ====== */
 .bind-model-wrap{display:flex;flex-direction:column;gap:2px;}
 .bind-model-real{font-size:13px;color:#1f2329;font-weight:500;}
@@ -737,94 +755,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
     </div>
 
-    <!-- ==================== 三、关联项目参考区（不可折叠） ==================== -->
-    <div style="margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:6px;padding:4px 0;margin-bottom:4px;">
-        <span style="font-size:13px;font-weight:600;color:#1f2329;">关联项目参考</span>
-        <span style="font-size:11px;color:#8f959e;">（以下信息来自所选工程项目单，仅供参考）</span>
-      </div>
-
-      <!-- 3.1 基本信息 -->
-      <div class="ref-card">
-        <div class="ref-card-header">
-          <div class="fct-accent"></div>
-          <span>基本信息</span>
-        </div>
-        <div class="ref-card-body">
-          <div class="info-grid">
-            <div class="info-item"><div class="info-label">项目单号</div><div class="info-value" id="refProjectNo">--</div></div>
-            <div class="info-item"><div class="info-label">经销商名称</div><div class="info-value" id="refDealerName">--</div></div>
-            <div class="info-item"><div class="info-label">经销商电话</div><div class="info-value" id="refDealerPhone">--</div></div>
-            <div class="info-item"><div class="info-label">业务线</div><div class="info-value" id="refBizType">--</div></div>
-            <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">--</div></div>
-            <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">--</div></div>
-            <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">--</div></div>
-            <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">--</div></div>
-            <div class="info-item"><div class="info-label">登录顺序</div><div class="info-value"><span class="lo-badge" id="refLoBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="openLoginOrderModal()">查看</span></div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3.2 使用方信息 -->
-      <div class="ref-card">
-        <div class="ref-card-header">
-          <div class="fct-accent"></div>
-          <span>使用方信息</span>
-        </div>
-        <div class="ref-card-body">
-          <div class="info-grid">
-            <div class="info-item"><div class="info-label">项目名称</div><div class="info-value" id="refProjectName">--</div></div>
-            <div class="info-item"><div class="info-label">客户类型</div><div class="info-value" id="refCustType">--</div></div>
-            <div class="info-item"><div class="info-label">客户名称</div><div class="info-value" id="refCustName">--</div></div>
-            <div class="info-item"><div class="info-label">采购单位</div><div class="info-value" id="refBuyer">--</div></div>
-            <div class="info-item"><div class="info-label">行业大类</div><div class="info-value" id="refIndustry">--</div></div>
-            <div class="info-item"><div class="info-label">使用方负责人</div><div class="info-value" id="refContact">--</div></div>
-            <div class="info-item"><div class="info-label">联系方式</div><div class="info-value" id="refPhone">--</div></div>
-            <div class="info-item"><div class="info-label">项目地址</div><div class="info-value" id="refAddress">--</div></div>
-            <div class="info-item"><div class="info-label">空调面积</div><div class="info-value" id="refArea">--</div></div>
-            <div class="info-item"><div class="info-label">预计设备金额</div><div class="info-value" id="refAmount">--</div></div>
-            <div class="info-item"><div class="info-label">跨区类型</div><div class="info-value" id="refCrossRegion">--</div></div>
-            <div class="info-item"><div class="info-label">跨区编号</div><div class="info-value" id="refCrossCode">--</div></div>
-            <div class="info-item"><div class="info-label">执行单位</div><div class="info-value" id="refExecUnit">--</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 3.3 项目设备清单（参考） -->
-      <div class="ref-card">
-        <div class="ref-card-header">
-          <div class="fct-accent"></div>
-          <span>项目设备清单</span>
-        </div>
-        <div class="ref-card-body" style="padding:8px 16px;">
-          <div class="equip-table-wrap" style="max-height:200px;">
-            <table class="equip-table" style="min-width:900px;">
-              <thead>
-                <tr>
-                  <th style="width:44px;text-align:center;">序号</th>
-                  <th style="width:36px;"></th>
-                  <th>品类</th>
-                  <th>商品名称</th>
-                  <th>SKU编码</th>
-                  <th>商品ID</th>
-                  <th>型号</th>
-                  <th>数量</th>
-                  <th>申请价格</th>
-                  <th>申请点位</th>
-                </tr>
-              </thead>
-              <tbody id="refEquipTbody">
-                <!-- 由JS渲染 -->
-              </tbody>
-            </table>
-          </div>
-          <div class="equip-table-foot" style="border:none;background:transparent;padding:6px 0 0;">
-            <div style="display:flex;align-items:center;gap:16px;">
-              <div class="equip-summary-item">总数量：<span id="refEquipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="refEquipTotalAmt">¥ 0.00</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- ==================== 三、关联项目参考（右侧抽屉触发） ==================== -->
+    <div style="margin-bottom:8px;display:flex;align-items:center;gap:8px;padding:4px 0;">
+      <span style="font-size:13px;font-weight:600;color:#1f2329;">关联项目参考</span>
+      <span style="font-size:11px;color:#3b5998;cursor:pointer;border:1px solid #c5cae9;padding:2px 10px;border-radius:3px;margin-left:auto;" onclick="toggleDrawer()">查看详情 →</span>
     </div>
 
     <div style="height:68px;"></div>
@@ -845,6 +779,106 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 </div>
 
 </div><!-- /page-root -->
+
+<!-- ====== 右侧抽屉触发浮标 ====== -->
+<div class="drawer-trigger" id="drawerTrigger" onclick="toggleDrawer()">
+  <span class="drawer-trigger-text">关联项目</span>
+  <span class="drawer-trigger-arrow">&#9668;</span>
+</div>
+
+<!-- ====== 右侧抽屉（关联项目参考） ====== -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="toggleDrawer()"></div>
+<div class="drawer-panel" id="drawerPanel">
+  <div class="drawer-header">
+    <span class="drawer-title">关联项目参考</span>
+    <span class="drawer-close" onclick="toggleDrawer()">&times;</span>
+  </div>
+  <div class="drawer-body">
+
+    <!-- 3.1 基本信息 -->
+    <div class="ref-card">
+      <div class="ref-card-header">
+        <div class="fct-accent"></div>
+        <span>基本信息</span>
+      </div>
+      <div class="ref-card-body">
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">项目单号</div><div class="info-value" id="refProjectNo">--</div></div>
+          <div class="info-item"><div class="info-label">经销商名称</div><div class="info-value" id="refDealerName">--</div></div>
+          <div class="info-item"><div class="info-label">经销商电话</div><div class="info-value" id="refDealerPhone">--</div></div>
+          <div class="info-item"><div class="info-label">业务线</div><div class="info-value" id="refBizType">--</div></div>
+          <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">--</div></div>
+          <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">--</div></div>
+          <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">--</div></div>
+          <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">--</div></div>
+          <div class="info-item"><div class="info-label">登录顺序</div><div class="info-value"><span class="lo-badge" id="refLoBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="openLoginOrderModal()">查看</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.2 使用方信息 -->
+    <div class="ref-card">
+      <div class="ref-card-header">
+        <div class="fct-accent"></div>
+        <span>使用方信息</span>
+      </div>
+      <div class="ref-card-body">
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">项目名称</div><div class="info-value" id="refProjectName">--</div></div>
+          <div class="info-item"><div class="info-label">客户类型</div><div class="info-value" id="refCustType">--</div></div>
+          <div class="info-item"><div class="info-label">客户名称</div><div class="info-value" id="refCustName">--</div></div>
+          <div class="info-item"><div class="info-label">采购单位</div><div class="info-value" id="refBuyer">--</div></div>
+          <div class="info-item"><div class="info-label">行业大类</div><div class="info-value" id="refIndustry">--</div></div>
+          <div class="info-item"><div class="info-label">使用方负责人</div><div class="info-value" id="refContact">--</div></div>
+          <div class="info-item"><div class="info-label">联系方式</div><div class="info-value" id="refPhone">--</div></div>
+          <div class="info-item"><div class="info-label">项目地址</div><div class="info-value" id="refAddress">--</div></div>
+          <div class="info-item"><div class="info-label">空调面积</div><div class="info-value" id="refArea">--</div></div>
+          <div class="info-item"><div class="info-label">预计设备金额</div><div class="info-value" id="refAmount">--</div></div>
+          <div class="info-item"><div class="info-label">跨区类型</div><div class="info-value" id="refCrossRegion">--</div></div>
+          <div class="info-item"><div class="info-label">跨区编号</div><div class="info-value" id="refCrossCode">--</div></div>
+          <div class="info-item"><div class="info-label">执行单位</div><div class="info-value" id="refExecUnit">--</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.3 项目设备清单（参考） -->
+    <div class="ref-card">
+      <div class="ref-card-header">
+        <div class="fct-accent"></div>
+        <span>项目设备清单</span>
+      </div>
+      <div class="ref-card-body" style="padding:8px 16px;">
+        <div class="equip-table-wrap" style="max-height:200px;">
+          <table class="equip-table" style="min-width:900px;">
+            <thead>
+              <tr>
+                <th style="width:44px;text-align:center;">序号</th>
+                <th style="width:36px;"></th>
+                <th>品类</th>
+                <th>商品名称</th>
+                <th>SKU编码</th>
+                <th>商品ID</th>
+                <th>型号</th>
+                <th>数量</th>
+                <th>申请价格</th>
+                <th>申请点位</th>
+              </tr>
+            </thead>
+            <tbody id="refEquipTbody">
+              <!-- 由JS渲染 -->
+            </tbody>
+          </table>
+        </div>
+        <div class="equip-table-foot" style="border:none;background:transparent;padding:6px 0 0;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="equip-summary-item">总数量：<span id="refEquipTotalQty">0</span> 台&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="refEquipTotalAmt">¥ 0.00</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /drawer-body -->
+</div><!-- /drawer-panel -->
 
 <!-- ========== 审批流程弹窗 ========== -->
 <div class="af-overlay" id="afOverlay" style="display:none;">
@@ -1349,6 +1383,31 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 </div>
 
 <script>
+// ====================== 右侧抽屉控制 ======================
+
+function toggleDrawer() {
+  var overlay = document.getElementById('drawerOverlay');
+  var panel = document.getElementById('drawerPanel');
+  var trigger = document.getElementById('drawerTrigger');
+  var isOpen = overlay.classList.contains('show');
+  if(isOpen) {
+    overlay.classList.remove('show');
+    panel.classList.remove('open');
+    if(trigger) trigger.classList.remove('open');
+  } else {
+    overlay.classList.add('show');
+    panel.classList.add('open');
+    if(trigger) trigger.classList.add('open');
+  }
+}
+// 支持ESC关闭
+document.addEventListener('keydown', function(e) {
+  if(e.key === 'Escape') {
+    var overlay = document.getElementById('drawerOverlay');
+    if(overlay && overlay.classList.contains('show')) toggleDrawer();
+  }
+});
+
 // ====================== 数据 ======================
 
 // 工程项目单列表数据（仅演示活态）
