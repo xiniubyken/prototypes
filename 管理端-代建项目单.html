@@ -807,22 +807,19 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <label class="form-label">项目名称 <span class="req">*</span></label>
         <input type="text" class="form-ctrl" placeholder="请输入项目名称，最多100个字符" maxlength="100" value="广州某写字楼多联机系统改造项目">
       </div>
-      <!-- 客户类型 → S02-1 -->
+      <!-- 客户类型 → S02-1（2026-07-15 改：选项调整为国内/政府单位；政府单位隐藏工商校验） -->
       <div class="form-item">
         <label class="form-label">客户类型 <span class="req">*</span></label>
-        <select class="form-ctrl">
-          <option>请选择</option>
-          <option selected>客户</option>
-          <option>供应商</option>
-          <option>设计院</option>
-          <option>工程商</option>
-          <option>其他</option>
+        <select class="form-ctrl" id="m5CustomerType" onchange="m5ToggleBusinessCheck()">
+          <option value="">请选择</option>
+          <option value="domestic" selected>国内</option>
+          <option value="gov">政府单位</option>
         </select>
       </div>
       <!-- 客户名称 → I01-13（带内嵌操作按钮输入框） -->
       <div class="form-item">
         <label class="form-label">客户名称 <span class="req">*</span></label>
-        <div style="display:flex;gap:6px;">
+        <div style="display:flex;gap:6px;" data-biz-check-wrap="true">
           <input type="text" class="form-ctrl" placeholder="请输入客户名称" value="广州天河某科技集团有限公司" style="flex:1;">
           <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
         </div>
@@ -830,7 +827,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <!-- 采购单位 → I01-13 -->
       <div class="form-item">
         <label class="form-label">采购单位 <span class="req">*</span></label>
-        <div style="display:flex;gap:6px;">
+        <div style="display:flex;gap:6px;" data-biz-check-wrap="true">
           <input type="text" class="form-ctrl" placeholder="请输入采购单位" value="广州天河某科技集团有限公司" style="flex:1;">
           <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
         </div>
@@ -972,7 +969,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         </div>
         <div class="form-item" id="m5SignCustomerItem" style="display:none;">
           <label class="form-label">合同客户 <span class="req">*</span></label>
-          <div style="display:flex;gap:6px;">
+          <div style="display:flex;gap:6px;" data-biz-check-wrap="true">
             <input type="text" class="form-ctrl" id="m5SignCustomer" placeholder="请输入客户名称" style="flex:1;">
             <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
           </div>
@@ -1350,6 +1347,17 @@ html,body{height:100%;margin:0;overflow:hidden;}
 
 <script>
 /* M5 v3 页面脚本 */
+
+/* ------ 客户类型切换：政府单位隐藏工商校验（2026-07-15） ------ */
+function m5ToggleBusinessCheck() {
+  var val = document.getElementById('m5CustomerType').value;
+  var isGov = val === 'gov';
+  var wraps = document.querySelectorAll('[data-biz-check-wrap="true"]');
+  wraps.forEach(function(w) {
+    var btn = w.querySelector('.business-check-btn');
+    if(btn) btn.style.display = isGov ? 'none' : '';
+  });
+}
 
 /* ------ 经销商选择区 ------ */
 var currentDealerRow = null;  // 弹窗中当前选中的行
