@@ -54,23 +54,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 
 /* ===== 商品操作表格 ===== */
 .tw{overflow-x:auto}
-.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:1320px}
+.dt{width:100%;border-collapse:collapse;font-size:13px;min-width:1300px}
 .dt th{background:var(--bg-header);height:36px;padding:6px 8px;text-align:left;font-weight:600;font-size:var(--fs-sm);color:var(--text-secondary);border-bottom:1px solid var(--border);white-space:nowrap}
 .dt td{height:40px;padding:6px 8px;border-bottom:1px solid var(--border-light);font-size:var(--fs-base);vertical-align:middle}
 .dt tr:hover td{background:rgba(59,89,152,.03)}
 
 .col-cb{width:36px;text-align:center}
-.col-name{min-width:140px}
-.col-model{width:120px}
+.col-name{min-width:150px}
+.col-model{width:110px}
 .col-sku{width:100px}
-.col-qty{width:80px;text-align:right}
-.col-price{width:90px;text-align:right}
-.col-approve{width:90px;text-align:right;color:var(--success);font-weight:600}
-.col-tax{width:110px;text-align:right}
-.col-buy{width:80px;text-align:center}
+.col-qty{width:90px;text-align:right}
+.col-price{width:100px;text-align:right}
+.col-approve{width:100px;text-align:right;color:var(--success);font-weight:600}
+.col-buy{width:90px;text-align:center}
 .col-pickable{width:90px;text-align:center;font-weight:600}
-.col-input{width:110px}
-.col-action{width:90px;text-align:center}
+.col-input{width:130px}
+.col-action{width:100px;text-align:center}
 
 /* 复选框 */
 .cb-input{width:16px;height:16px;cursor:pointer;accent-color:var(--primary)}
@@ -219,8 +218,7 @@ function renderTable(){
     '<th class="col-sku">SKU</th>'+
     '<th class="col-qty">申请数量</th>'+
     '<th class="col-price">申请价格</th>'+
-    '<th class="col-approve">提货价格</th>'+
-    '<th class="col-tax">税额幅最高限距</th>'+
+    '<th class="col-approve">批复价格</th>'+
     '<th class="col-buy">购买数量</th>'+
     '<th class="col-pickable">可提货数量</th>'+
     '<th class="col-input">本次提货数量</th>'+
@@ -230,7 +228,6 @@ function renderTable(){
   var tbody=document.getElementById('pickTbody');
   var html='';
   PICK_DATA.equip.forEach(function(e,i){
-    var taxVal=e.approvePrice!==null && e.approvePrice!==undefined?'¥'+e.approvePrice.toLocaleString():'--';
     var approveTxt=e.approvePrice!==null && e.approvePrice!==undefined?'¥'+e.approvePrice.toLocaleString():'<span style="color:var(--text-aux)">待定价</span>';
     var nonstdMark=e.nonstd?'<span class="nst-badge">非标</span>':'';
     var cartHtml='<span class="cart-link" data-idx="'+i+'" onclick="addToCart('+i+')">加入购物车</span>';
@@ -245,7 +242,6 @@ function renderTable(){
       '<td class="col-qty">'+e.qty+'</td>'+
       '<td class="col-price">¥'+e.price.toLocaleString()+'</td>'+
       '<td class="col-approve">'+approveTxt+'</td>'+
-      '<td class="col-tax">'+taxVal+'</td>'+
       '<td class="col-buy">'+(e.buyQty!==null&&e.buyQty!==undefined?e.buyQty:'--')+'</td>'+
       '<td class="col-pickable">'+e.pickableQty+'</td>'+
       '<td class="col-input"><input class="pick-input" type="number" min="0" max="'+e.pickableQty+'" data-idx="'+i+'" value="'+inputVal+'" placeholder="请输入" '+(e.pickableQty<=0?'disabled title="无可提货数量"':'')+' oninput="onPickInput('+i+',this)" onblur="onPickBlur('+i+',this)"></td>'+
@@ -327,13 +323,8 @@ function addToCart(idx){
     e.thisPick=String(e.pickableQty);
     return;
   }
-  /* 标记已加入购物车 */
-  var link=document.querySelector('span.cart-link[data-idx="'+idx+'"]');
-  if(link){
-    link.textContent='✓ 已加入';
-    link.classList.add('done');
-  }
   da('已加入购物车：'+e.name+' × '+num+' 件');
+  resetList();
 }
 
 /* ===== 批量加入购物车 ===== */
@@ -365,6 +356,16 @@ function batchAddCart(){
     return;
   }
   da('批量加入购物车：'+count+' 项，共 '+totalItems+' 件');
+  resetList();
+}
+
+/* ===== 加入成功后重置列表 ===== */
+function resetList(){
+  PICK_DATA.equip.forEach(function(e,i){
+    e.thisPick='';
+    e._checked=false;
+  });
+  renderTable();
 }
 
 /* ===== 初始化 ===== */
