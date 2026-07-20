@@ -1552,15 +1552,6 @@ if(sc==='已丢单'){
  if(items.length) blocks=blocks.concat(makeBlock(items,'丢标信息','#E65100','#E65100'));
 }
 
-/* 已完结区块 */
-if(sc==='已完结'){
- var items=[];
- if(ext.completionReport) items.push(fileRow('验收报告',ext.completionReport,'下载验收报告'));
- if(ext.acceptanceFile) items.push(fileRow('竣工验收文件',ext.acceptanceFile,'下载竣工验收文件'));
- if(ext.summary) items.push(textRow('项目总结',ext.summary));
- if(items.length) blocks=blocks.concat(makeBlock(items,'完结信息','#00695C','#00695C'));
-}
-
 /* 渲染：多区块之间插入浅灰细竖分隔线 */
 if(blocks.length){
  var inner='';
