@@ -365,6 +365,7 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <option value="已中标">已中标</option>
 <option value="已签单">已签单</option>
 <option value="已流标">已流标</option>
+<option value="已丢单">已丢单</option>
 <option value="已关闭">已关闭</option>
 <option value="已完结">已完结</option>
 </select>
@@ -639,7 +640,7 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 </div>
 </div>
 
-<!-- ===== 4. 流标弹窗（补充丢单信息）===== -->
+<!-- ===== 4. 丢标弹窗（补充丢单信息）===== -->
 <div class="modal-overlay" id="failModal" onclick="if(event.target===this)hideFail()">
 <div class="md-box">
 <div class="md-hd"><span class="md-tit">补充丢单信息</span><button class="md-x" onclick="hideFail()">✕</button></div>
@@ -665,6 +666,22 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <div class="md-ft">
 <button class="btn-sm btn-gy" onclick="hideFail()">取消</button>
 <button class="btn-sm btn-bl" onclick="doFailConfirm()">确定</button>
+</div>
+</div>
+</div>
+
+<!-- ===== 4b. 流标二次确认弹窗（无需填写信息） ===== -->
+<div class="modal-overlay" id="flowBidModal" onclick="if(event.target===this)hideFlowBid()">
+<div class="md-box" style="max-width:440px">
+<div class="md-hd"><span class="md-tit">流标确认</span><button class="md-x" onclick="hideFlowBid()">✕</button></div>
+<div class="md-bd">
+<div style="text-align:center;font-size:36px;margin-bottom:10px">⚠️</div>
+<p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:8px">确认流标？</p>
+<p style="font-size:13px;color:var(--text-secondary);line-height:1.6">此操作无需填写任何信息，<br>流标后工程单状态变为「已流标」。</p>
+</div>
+<div class="md-ft">
+<button class="btn-sm btn-gy" onclick="hideFlowBid()">取消</button>
+<button class="btn-sm btn-rd" onclick="doFlowBidConfirm()">确认流标</button>
 </div>
 </div>
 </div>
@@ -879,7 +896,7 @@ const C={
 },
 '跟进中':{
  b:'#E8F5E9/#2E7D32',
- d:{cr:{type:'省外跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',ft:true,a:['签单确认','中标确认','流标','完结确认','作废'],ap:[
+ d:{cr:{type:'省外跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',ft:true,a:['签单确认','中标确认','丢标','流标','完结确认','作废'],ap:[
   {n:'经销商提交',t:'2026-06-24 14:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-24 18:30',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-25 10:00',r:'已通过',st:'d'}
@@ -945,6 +962,22 @@ const C={
   {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-22 10:00',r:'已通过',st:'d'},
   {n:'管理端流标',t:'2026-06-24 16:00',r:'已流标',st:'d'}
+ ],al:[
+  {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']}
+ ],pl:[
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'审批中',
+   equip:[
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:null,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:0,remark:'—'}
+   ]}
+ ],ext:{}
+},
+'已丢单':{
+ b:'#FFF3E0/#E65100',
+ d:{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:null,ft:true,a:['签单确认','中标确认','完结确认','作废'],ap:[
+  {n:'经销商提交',t:'2026-06-20 09:00',r:'已提交',st:'d'},
+  {n:'一级审批人·张经理',t:'2026-06-21 14:00',r:'已通过',st:'d'},
+  {n:'二级审批人·李总',t:'2026-06-22 10:00',r:'已通过',st:'d'},
+  {n:'管理端丢标',t:'2026-06-24 16:00',r:'已丢单',st:'d'}
  ],al:[
   {type:'登录审批',status:'通过',updated:'2026-06-22 10:00:00',created:'2026-06-20 09:00:00',ops:['查看']}
  ],pl:[
@@ -1118,7 +1151,7 @@ function doBidConfirm(){
  hideBid1();da('中标确认 → 已中标（中标通知书已上传）')
 }
 
-/* ---- 4. 流标弹窗（补充丢单信息）---- */
+/* ---- 4. 丢标弹窗（补充丢单信息）---- */
 var failFiles=[]
 function showFail(){
  failFiles=[];document.getElementById('failReason').value='';
@@ -1130,8 +1163,13 @@ function hideFail(){document.getElementById('failModal').classList.remove('mo-sh
 function doFailConfirm(){
  if(!document.getElementById('failReason').value){alert('请选择丢单原因');return}
  if(failFiles.length===0){document.getElementById('failReportErr').textContent='请上传丢单报告';return}
- hideFail();da('流标 → 已流标（原因：'+document.getElementById('failReason').value+'）')
+ hideFail();da('丢标 → 已丢单（原因：'+document.getElementById('failReason').value+'）')
 }
+
+/* ---- 4b. 流标二次确认弹窗（无需填写信息） ---- */
+function showFlowBid(){document.getElementById('flowBidModal').classList.add('mo-show')}
+function hideFlowBid(){document.getElementById('flowBidModal').classList.remove('mo-show')}
+function doFlowBidConfirm(){hideFlowBid();da('流标 → 已流标（无需信息）')}
 
 /* ---- 5. 作废弹窗（审批流） ---- */
 function showVoid(){document.getElementById('voidModal').classList.add('mo-show')}
@@ -1322,7 +1360,8 @@ if(!d.ft){ft.style.display='none'}else{
  (d.a||[]).forEach(function(a){
   if(a==='签单确认') h+='<button class="btn bg" onclick="showSign()">'+a+'</button>';
   else if(a==='中标确认') h+='<button class="btn bg" onclick="showBid1()">'+a+'</button>';
-  else if(a==='流标') h+='<button class="btn br" onclick="showFail()">'+a+'</button>';
+  else if(a==='丢标') h+='<button class="btn br" onclick="showFail()">'+a+'</button>';
+  else if(a==='流标') h+='<button class="btn br" onclick="showFlowBid()">'+a+'</button>';
   else if(a==='完结确认') h+='<button class="btn bg" onclick="showCompleteConfirm()">'+a+'</button>';
   else if(a==='作废') h+='<button class="btn bd" onclick="showVoid()">'+a+'</button>';
   else h+='<button class="btn bp" onclick="da(\''+a+'\')">'+a+'</button>';
@@ -1498,12 +1537,17 @@ if(sc==='已签单'){
  }
 }
 
-/* 已流标区块 */
+/* 已流标区块（已丢单信息已拆分到已丢单状态，已流标无任何信息展示） */
 if(sc==='已流标'){
+ /* 已流标无额外信息展示 */
+}
+
+/* 已丢单区块 */
+if(sc==='已丢单'){
  var items=[];
  if(ext.failReason) items.push(textRow('丢单原因',ext.failReason));
  if(ext.failReport) items.push(fileRow('丢单报告',ext.failReport,'下载丢单报告'));
- if(items.length) blocks=blocks.concat(makeBlock(items,'流标信息','#E65100','#E65100'));
+ if(items.length) blocks=blocks.concat(makeBlock(items,'丢标信息','#E65100','#E65100'));
 }
 
 /* 已完结区块 */
