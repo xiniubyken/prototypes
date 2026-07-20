@@ -653,6 +653,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
               <th style="min-width:100px;">经销商名称</th>
               <th style="width:70px;">业务线</th>
               <th style="width:80px;">状态</th>
+              <th style="width:110px;">登录顺序</th>
               <th style="width:70px;text-align:center;">总套数</th>
             </tr>
           </thead>
@@ -815,11 +816,11 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
 // 工程项目单列表数据（仅演示活态）
 var projectListData = [
-  { id:'粤东GCDT202606250001', name:'某商业综合体空调项目', dealer:'珠海华鸿电器销售有限公司', biz:'中央空调', status:'审批中', pjCount:1 },
-  { id:'粤东GCDT202606250002', name:'天河区写字楼多联机改造', dealer:'广州天河制冷设备有限公司', biz:'多联机', status:'跟进中', pjCount:0 },
-  { id:'粤东GCDT202606150003', name:'佛山某医院中央空调采购', dealer:'佛山南海格力专卖店', biz:'中央空调', status:'已中标', pjCount:2 },
-  { id:'粤东GCDT202606100004', name:'深圳前海办公楼新风系统', dealer:'深圳前海智能空调工程有限公司', biz:'新风', status:'已签单', pjCount:0 },
-  { id:'粤东GCDT202605280005', name:'中山某厂房冷链工程', dealer:'中山小榄格力专营店', biz:'冷链', status:'已流标', pjCount:0 }
+  { id:'粤东GCDT202606250001', name:'某商业综合体空调项目', dealer:'珠海华鸿电器销售有限公司', biz:'中央空调', status:'审批中', pjCount:1, loginOrder:{ seq:1, label:'登录成功' } },
+  { id:'粤东GCDT202606250002', name:'天河区写字楼多联机改造', dealer:'广州天河制冷设备有限公司', biz:'多联机', status:'跟进中', pjCount:0, loginOrder:{ seq:2, label:'候补登录' } },
+  { id:'粤东GCDT202606150003', name:'佛山某医院中央空调采购', dealer:'佛山南海格力专卖店', biz:'中央空调', status:'已中标', pjCount:2, loginOrder:{ seq:3, label:'候补登录' } },
+  { id:'粤东GCDT202606100004', name:'深圳前海办公楼新风系统', dealer:'深圳前海智能空调工程有限公司', biz:'新风', status:'已签单', pjCount:0, loginOrder:{ seq:4, label:'候补登录' } },
+  { id:'粤东GCDT202605280005', name:'中山某厂房冷链工程', dealer:'中山小榄格力专营店', biz:'冷链', status:'已流标', pjCount:0, loginOrder:{ seq:5, label:'候补登录' } }
 ];
 
 // 选中后的完整项目数据（包含设备清单、使用方信息等）
@@ -910,6 +911,7 @@ function renderProjectList() {
       '<td>' + p.dealer + '</td>' +
       '<td>' + p.biz + '</td>' +
       '<td><span class="status-badge ' + statusClass + '">' + p.status + '</span></td>' +
+      '<td>' + (p.loginOrder ? (p.loginOrder.label + '-' + p.loginOrder.seq) : '—') + '</td>' +
       '<td style="text-align:center;"><span class="pj-count">' + (p.pjCount > 0 ? '<span>' + p.pjCount + '</span>' : '0') + '</span></td>';
     tbody.appendChild(tr);
   });
