@@ -83,7 +83,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .proj-no-display{font-size:13px;color:#646a73;background:#f5f6fa;padding:4px 10px;border-radius:4px;}
 /* 业务线标签（头部右侧） */
 .biz-tag{display:inline-block;padding:2px 10px;border-radius:3px;font-size:12px;font-weight:500;background:#FFF8E1;color:#B45309;border:1px solid #FDE68A;}
-/* 销售类型平铺选择器（参考业务线样式—灰底容器+白底选中） */
+/* 价格类型平铺选择器（参考业务线样式—灰底容器+白底选中） */
 .sales-type-selector {
   display: flex;
   gap: 0;
@@ -561,18 +561,20 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     </div>
   </div>
 
-  <!-- ==================== 一·五、销售类型（参考业务线卡片样式） ==================== -->
+  <!-- ==================== 一·五、价格类型（参考业务线卡片样式） ==================== -->
   <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
     <div class="form-card-body" style="padding:12px 16px;">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">销售类型 <span style="color:#d32f2f;">*</span></label>
+        <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">价格类型</label>
         <div class="sales-type-selector">
           <span class="sales-type-tag active" onclick="selectSalesType(this,'normal')">常规价</span>
           <span class="sales-type-tag" onclick="selectSalesType(this,'buyout')">买断价</span>
-          <span class="sales-type-tag" onclick="selectSalesType(this,'special')">特批特价</span>
+          <span class="sales-type-tag" onclick="selectSalesType(this,'special')">特价</span>
           <span class="sales-type-tag" onclick="selectSalesType(this,'sample')">样机</span>
           <span class="sales-type-tag" onclick="selectSalesType(this,'package')">打包价</span>
           <span class="sales-type-tag" onclick="selectSalesType(this,'withhold')">暂扣价</span>
+          <span class="sales-type-tag" onclick="selectSalesType(this,'parts')">配件</span>
+          <span class="sales-type-tag" onclick="selectSalesType(this,'oneprice')">一票价</span>
         </div>
       </div>
     </div>
@@ -1506,7 +1508,7 @@ var selectedProjectData = {
       saleType:'常规价', qty:8, origQty:8, price:7600, origPrice:8000, point:9, remark:'',
       approvePrice:7500, resetPoint:2, depositRate:10, onlinePrice:8500, estimatePrice:7650 },
     { seq:4, isNonStd:false, cate:'新风', name:'格力 FGR5Pd/NhBa1 吊顶式新风', model:'FGR5Pd/NhBa1', sku:'SKU-XF-5NBA1', id:'P100003',
-      saleType:'特批特价', qty:10, origQty:10, price:4200, origPrice:4500, point:11, remark:'',
+      saleType:'特价', qty:10, origQty:10, price:4200, origPrice:4500, point:11, remark:'',
       approvePrice:4000, resetPoint:2.5, depositRate:10, onlinePrice:5000, estimatePrice:4500 },
     { seq:5, isNonStd:false, cate:'多联机', name:'格力 GMV-H224WL/A1 多联机组', model:'GMV-H224WL/A1', sku:'SKU-MLJ-224A1', id:'P100004',
       saleType:'打包价', qty:3, origQty:3, price:19800, origPrice:22000, point:13, remark:'',
@@ -1575,7 +1577,7 @@ function resetProjectSearch() {
   renderProjectList();
 }
 
-// ====================== 销售类型选择 ======================
+// ====================== 价格类型选择 ======================
 var currentSalesType = 'normal'; // 默认选中第一个
 
 function selectSalesType(el, val) {
