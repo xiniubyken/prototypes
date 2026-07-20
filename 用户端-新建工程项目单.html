@@ -436,6 +436,11 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .biz-unmatched{color:#D32F2F;font-size:12px;}
 .biz-confirm-link{color:#3b5998;cursor:pointer;text-decoration:underline;font-weight:500;font-size:12px;}
 .biz-confirm-link:hover{opacity:.8;}
+
+/* ====== 天眼查工商信息弹窗 ====== */
+.tianyan-info{display:flex;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}
+.tianyan-label{width:140px;color:#646a73;flex-shrink:0;}
+.tianyan-val{color:#1f2329;font-weight:500;}
 </style>
 </head>
 <body>
@@ -643,13 +648,17 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <label class="form-label">项目名称 <span class="req">*</span></label>
         <input type="text" class="form-ctrl" placeholder="请输入项目名称，最多100个字符" maxlength="100" value="珠海某酒店中央空调采购项目">
       </div>
-      <!-- 客户类型 → S02-1（2026-07-15 改：选项调整为国内/政府单位；政府单位隐藏工商校验） -->
+      <!-- 客户类型 → 新选项：客户/供应商/设计院/工程商/总包/其他（2026-07-20） -->
       <div class="form-item">
         <label class="form-label">客户类型 <span class="req">*</span></label>
-        <select class="form-ctrl" id="customerType" onchange="toggleBusinessCheck()">
+        <select class="form-ctrl" id="customerType">
           <option value="">请选择</option>
-          <option value="domestic" selected>国内</option>
-          <option value="gov">政府单位</option>
+          <option value="customer" selected>客户</option>
+          <option value="supplier">供应商</option>
+          <option value="design">设计院</option>
+          <option value="engineer">工程商</option>
+          <option value="general">总包</option>
+          <option value="other">其他</option>
         </select>
       </div>
       <!-- 客户名称 → NM-2 + 工商校验手动确认（2026-07-20） -->
@@ -810,7 +819,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <div class="biz-check-wrap" data-biz-name="signCustomer">
             <div style="display:flex;gap:6px;">
               <input type="text" class="form-ctrl biz-check-input" id="signCustomer" placeholder="请输入客户名称" oninput="onBizFieldChange('signCustomer')">
-              <button class="business-check-btn" onclick="doBizCheck('signCustomer')" style="height:32px;">核对工商信息</button>
+              <button class="business-check-btn" onclick="doTianyanCheck('signCustomer')" style="height:32px;">工商校验</button>
             </div>
             <div class="biz-check-status" id="bizStatus_signCustomer"></div>
           </div>
@@ -963,26 +972,6 @@ var bizState = {
   signCustomer: { status: 'idle', originalVal: '' }
 };
 
-/* 客户类型切换：政府单位隐藏工商校验 → 对新的结构也生效 */
-function toggleBusinessCheck() {
-  var val = document.getElementById('customerType').value;
-  var isGov = val === 'gov';
-  document.querySelectorAll('.biz-check-wrap').forEach(function(w) {
-    var btn = w.querySelector('.business-check-btn');
-    if(btn) btn.style.display = isGov ? 'none' : '';
-    /* 政府单位自动置为已验证 */
-    if(isGov) {
-      var name = w.dataset.bizName;
-      if(name && bizState[name]) {
-        bizState[name].status = 'verified';
-        renderBizStatus(name);
-      }
-    } else {
-      /* 切回非政府单位，保留现有状态不变 */
-    }
-  });
-}
-
 /* 字段值变更事件：重置未确认的校验状态 */
 function onBizFieldChange(name) {
   var st = bizState[name];
@@ -1033,7 +1022,81 @@ function confirmBizName(name) {
   da('已手动确认：'+st.originalVal);
 }
 
-/* 删除未命中标签 & 回退 */
+/* 天眼查工商校验（演示）：显示工商信息，仅用于合同客户字段 */
+function doTianyanCheck(name) {
+  var st = bizState[name];
+  if(!st) return;
+  var wrap = document.querySelector('.biz-check-wrap[data-biz-name="'+name+'"]');
+  if(!wrap) return;
+  var input = wrap.querySelector('.biz-check-input');
+  var val = input.value.trim();
+  if(!val) { alert('请先输入企业名称'); return; }
+
+  // 模拟天眼查API调用（演示）
+  var isHit = val.indexOf('华邑') !== -1;
+  if(!isHit) {
+    alert('天眼查检验失败，请重新核对填写信息');
+    st.status = 'unmatched';
+    renderBizStatus(name);
+    return;
+  }
+
+  // 校验命中 → 显示工商信息弹窗
+  var tianyanHtml = '<div style="padding:4px 0;">'
+    + '<div class="tianyan-info"><div class="tianyan-label">企业名称</div><div class="tianyan-val">'+val+'有限公司</div></div>'
+    + '<div class="tianyan-info"><div class="tianyan-label">统一社会信用代码</div><div class="tianyan-val">91440101MA5XXXXXX1K</div></div>'
+    + '<div class="tianyan-info"><div class="tianyan-label">法定代表人</div><div class="tianyan-val">王建国</div></div>'
+    + '<div class="tianyan-info"><div class="tianyan-label">注册资本</div><div class="tianyan-val">5000 万元人民币</div></div>'
+    + '<div class="tianyan-info"><div class="tianyan-label">成立日期</div><div class="tianyan-val">2010-03-15</div></div>'
+    + '<div class="tianyan-info"><div class="tianyan-label">登记机关</div><div class="tianyan-val">广州市天河区市场监督管理局</div></div>'
+    + '<div class="tianyan-info" style="border-bottom:none;"><div class="tianyan-label">注册地址</div><div class="tianyan-val">广州市天河区天河路XXX号</div></div>'
+    + '</div>';
+
+  var modal = document.getElementById('tianyanModal');
+  if(!modal) {
+    // 动态创建弹窗（如不存在）
+    var div = document.createElement('div');
+    div.className = 'modal-overlay';
+    div.id = 'tianyanModal';
+    div.style.display = 'flex';
+    div.onclick = function(e) { if(e.target===this) this.style.display='none'; };
+    div.innerHTML = '<div class="modal-content">'
+      + '<div class="modal-header">'
+      + '<span class="modal-title">天眼查 · 工商信息确认</span>'
+      + '<span class="modal-close" onclick="document.getElementById(\'tianyanModal\').style.display=\'none\'">&times;</span>'
+      + '</div>'
+      + '<div class="modal-body" id="tianyanBody">'+tianyanHtml+'</div>'
+      + '<div class="modal-footer">'
+      + '<button class="btn" onclick="document.getElementById(\'tianyanModal\').style.display=\'none\'">关闭</button>'
+      + '<button class="btn btn-primary" onclick="confirmTianyan(\''+name+'\')">确认无误</button>'
+      + '</div>'
+      + '</div>';
+    document.body.appendChild(div);
+    st._tianyanShown = true;
+  } else {
+    document.getElementById('tianyanBody').innerHTML = tianyanHtml;
+    var footer = modal.querySelector('.modal-footer');
+    var confirmBtn = footer.querySelector('.btn-primary');
+    if(confirmBtn) confirmBtn.setAttribute('onclick',"confirmTianyan('"+name+"')");
+    modal.style.display = 'flex';
+    st._tianyanShown = true;
+  }
+}
+
+/* 天眼查确认无误 */
+function confirmTianyan(name) {
+  var st = bizState[name];
+  if(!st) return;
+  st.status = 'verified';
+  var wrap = document.querySelector('.biz-check-wrap[data-biz-name="'+name+'"]');
+  if(wrap) {
+    var input = wrap.querySelector('.biz-check-input');
+    st.originalVal = input.value.trim();
+  }
+  renderBizStatus(name);
+  document.getElementById('tianyanModal').style.display = 'none';
+  da('天眼查校验通过：'+st.originalVal);
+}
 function removeBizTag(name) {
   var st = bizState[name];
   if(!st) return;
