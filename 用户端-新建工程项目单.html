@@ -420,6 +420,22 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .addr-row .form-ctrl{height:28px;font-size:12px;}
 .addr-detail-compact{height:28px!important;}
 .addr-hint-compact{margin-top:1px;}
+
+/* ====== 工商校验三态（2026-07-20） ====== */
+.biz-check-wrap{display:flex;flex-direction:column;gap:4px;}
+.biz-check-input{flex:1;}
+.biz-check-input.state-verified{border-color:#2E7D32;background:#f1f8f1;}
+.biz-check-input.state-unmatched{border-color:#D32F2F;background:#fff5f5;}
+.biz-check-input.state-confirmed{border-color:#2E7D32;background:#f1f8f1;}
+.biz-check-status{font-size:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:20px;}
+.biz-verified{color:#2E7D32;font-weight:500;}
+.biz-confirmed{color:#2E7D32;font-weight:500;}
+.biz-tag{display:inline-flex;align-items:center;gap:3px;background:#FFE0E0;color:#C62828;padding:1px 6px;border-radius:3px;font-size:12px;font-weight:500;}
+.biz-tag .tag-del{cursor:pointer;font-weight:700;font-size:14px;line-height:1;margin-left:2px;color:#C62828;}
+.biz-tag .tag-del:hover{color:#8B0000;}
+.biz-unmatched{color:#D32F2F;font-size:12px;}
+.biz-confirm-link{color:#3b5998;cursor:pointer;text-decoration:underline;font-weight:500;font-size:12px;}
+.biz-confirm-link:hover{opacity:.8;}
 </style>
 </head>
 <body>
@@ -636,20 +652,26 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <option value="gov">政府单位</option>
         </select>
       </div>
-      <!-- 客户名称 → NM-2（No Match：输入框+内嵌工商校验按钮） -->
+      <!-- 客户名称 → NM-2 + 工商校验手动确认（2026-07-20） -->
       <div class="form-item">
         <label class="form-label">客户名称 <span class="req">*</span></label>
-        <div style="display:flex;gap:6px;" data-biz-check-wrap="true">
-          <input type="text" class="form-ctrl" placeholder="请输入客户名称" value="珠海华邑酒店有限公司" style="flex:1;">
-          <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+        <div class="biz-check-wrap" data-biz-name="customerName">
+          <div style="display:flex;gap:6px;">
+            <input type="text" class="form-ctrl biz-check-input" placeholder="请输入客户名称" value="珠海华邑酒店有限公司" data-init-val="珠海华邑酒店有限公司" oninput="onBizFieldChange('customerName')">
+            <button class="business-check-btn" onclick="doBizCheck('customerName')">核对工商信息</button>
+          </div>
+          <div class="biz-check-status" id="bizStatus_customerName"></div>
         </div>
       </div>
-      <!-- 采购单位 → NM-2（同上） -->
+      <!-- 采购单位 → NM-2 + 工商校验手动确认（2026-07-20） -->
       <div class="form-item">
         <label class="form-label">采购单位 <span class="req">*</span></label>
-        <div style="display:flex;gap:6px;" data-biz-check-wrap="true">
-          <input type="text" class="form-ctrl" placeholder="请输入采购单位" value="珠海华邑酒店有限公司" style="flex:1;">
-          <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+        <div class="biz-check-wrap" data-biz-name="purchaseUnit">
+          <div style="display:flex;gap:6px;">
+            <input type="text" class="form-ctrl biz-check-input" placeholder="请输入采购单位" value="珠海华邑酒店有限公司" data-init-val="珠海华邑酒店有限公司" oninput="onBizFieldChange('purchaseUnit')">
+            <button class="business-check-btn" onclick="doBizCheck('purchaseUnit')">核对工商信息</button>
+          </div>
+          <div class="biz-check-status" id="bizStatus_purchaseUnit"></div>
         </div>
       </div>
       <!-- 行业大类 → S02-1（直接复用） -->
@@ -785,9 +807,12 @@ html,body{height:100%;margin:0;overflow:hidden;}
         </div>
         <div class="form-item" id="signCustomerItem" style="display:none;">
           <label class="form-label">合同客户 <span class="req">*</span></label>
-          <div style="display:flex;gap:6px;" data-biz-check-wrap="true">
-            <input type="text" class="form-ctrl" id="signCustomer" placeholder="请输入客户名称" style="flex:1;">
-            <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+          <div class="biz-check-wrap" data-biz-name="signCustomer">
+            <div style="display:flex;gap:6px;">
+              <input type="text" class="form-ctrl biz-check-input" id="signCustomer" placeholder="请输入客户名称" oninput="onBizFieldChange('signCustomer')">
+              <button class="business-check-btn" onclick="doBizCheck('signCustomer')" style="height:32px;">核对工商信息</button>
+            </div>
+            <div class="biz-check-status" id="bizStatus_signCustomer"></div>
           </div>
         </div>
         <div class="form-item" id="signAmountItem" style="display:none;">
@@ -928,15 +953,131 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div><!-- /page-root -->
 
 <script>
-/* ------ 客户类型切换：政府单位隐藏工商校验（2026-07-15） ------ */
+/* ===== 工商校验手动确认（2026-07-20） ===== */
+
+// 工商状态：'idle' | 'verified' | 'unmatched' | 'confirmed'
+
+var bizState = {
+  customerName: { status: 'idle', originalVal: '珠海华邑酒店有限公司' },
+  purchaseUnit: { status: 'idle', originalVal: '珠海华邑酒店有限公司' },
+  signCustomer: { status: 'idle', originalVal: '' }
+};
+
+/* 客户类型切换：政府单位隐藏工商校验 → 对新的结构也生效 */
 function toggleBusinessCheck() {
   var val = document.getElementById('customerType').value;
   var isGov = val === 'gov';
-  var wraps = document.querySelectorAll('[data-biz-check-wrap="true"]');
-  wraps.forEach(function(w) {
+  document.querySelectorAll('.biz-check-wrap').forEach(function(w) {
     var btn = w.querySelector('.business-check-btn');
     if(btn) btn.style.display = isGov ? 'none' : '';
+    /* 政府单位自动置为已验证 */
+    if(isGov) {
+      var name = w.dataset.bizName;
+      if(name && bizState[name]) {
+        bizState[name].status = 'verified';
+        renderBizStatus(name);
+      }
+    } else {
+      /* 切回非政府单位，保留现有状态不变 */
+    }
   });
+}
+
+/* 字段值变更事件：重置未确认的校验状态 */
+function onBizFieldChange(name) {
+  var st = bizState[name];
+  if(!st) return;
+  var wrap = document.querySelector('.biz-check-wrap[data-biz-name="'+name+'"]');
+  if(!wrap) return;
+  var input = wrap.querySelector('.biz-check-input');
+  var newVal = input.value.trim();
+  if(newVal === st.originalVal) return; // 没改
+  st.status = 'idle';
+  st.originalVal = newVal;
+  renderBizStatus(name);
+}
+
+/* 工商校验（演示） */
+function doBizCheck(name) {
+  var st = bizState[name];
+  if(!st) return;
+  var wrap = document.querySelector('.biz-check-wrap[data-biz-name="'+name+'"]');
+  if(!wrap) return;
+  var input = wrap.querySelector('.biz-check-input');
+  var val = input.value.trim();
+  if(!val) { alert('请先输入企业名称'); return; }
+
+  // 模拟校验结果：演示数据中，含「华邑」的校验通过
+  var isHit = val.indexOf('华邑') !== -1;
+  if(isHit) {
+    st.status = 'verified';
+    st.originalVal = val;
+  } else {
+    st.status = 'unmatched';
+  }
+  renderBizStatus(name);
+
+  if(isHit) {
+    da('工商校验通过：'+val);
+  } else {
+    da('未在工商库中查到「'+val+'」，请确认名称是否正确');
+  }
+}
+
+/* 手动确认名称 */
+function confirmBizName(name) {
+  var st = bizState[name];
+  if(!st) return;
+  st.status = 'confirmed';
+  renderBizStatus(name);
+  da('已手动确认：'+st.originalVal);
+}
+
+/* 删除未命中标签 & 回退 */
+function removeBizTag(name) {
+  var st = bizState[name];
+  if(!st) return;
+  st.status = 'idle';
+  var wrap = document.querySelector('.biz-check-wrap[data-biz-name="'+name+'"]');
+  if(wrap) {
+    var input = wrap.querySelector('.biz-check-input');
+    input.value = st.originalVal;
+    input.className = 'form-ctrl biz-check-input';
+  }
+  renderBizStatus(name);
+}
+
+/* 渲染状态 */
+function renderBizStatus(name) {
+  var st = bizState[name];
+  if(!st) return;
+  var wrap = document.querySelector('.biz-check-wrap[data-biz-name="'+name+'"]');
+  if(!wrap) return;
+  var input = wrap.querySelector('.biz-check-input');
+  var statusEl = document.getElementById('bizStatus_'+name);
+  if(!statusEl) return;
+
+  // 清输入框状态class
+  input.className = 'form-ctrl biz-check-input';
+
+  var s = st.status;
+  if(s === 'idle') {
+    statusEl.innerHTML = '';
+  } else if(s === 'verified') {
+    input.classList.add('state-verified');
+    statusEl.innerHTML = '<span class="biz-verified">✓ 工商校验通过</span>';
+  } else if(s === 'unmatched') {
+    input.classList.add('state-unmatched');
+    statusEl.innerHTML = '<span class="biz-tag">'
+      + st.originalVal
+      + '<span class="tag-del" onclick="removeBizTag(\''+name+'\')">&times;</span>'
+      + '</span>'
+      + '<span class="biz-unmatched">非查找结果，如名称正确</span>'
+      + ' <span class="biz-confirm-link" onclick="confirmBizName(\''+name+'\')">点击确认</span>';
+  } else if(s === 'confirmed') {
+    input.classList.add('state-confirmed');
+    statusEl.innerHTML = '<span class="biz-confirmed">✓ 已手动确认 · '+st.originalVal+'</span>';
+  }
 }
 
 /* D3 页面脚本 */
