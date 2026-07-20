@@ -727,7 +727,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <label class="form-label">项目状态 <span class="req">*</span></label>
           <select class="form-ctrl" id="spProjectStatus" onchange="spToggleStateExt(this.value)">
             <option value="">请选择</option>
-            <option value="跟进中">跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
+            <option value="跟进中">跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已丢单">已丢单</option><option value="已流标">已流标</option>
           </select>
         </div>
 
@@ -781,7 +781,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <input type="number" class="form-ctrl" id="spSignAmount" placeholder="0.00" min="0" step="0.01">
         </div>
 
-        <!-- 已流标字段组 -->
+        <!-- 已丢标字段组 -->
         <div class="form-item" id="spStateFailExt" style="display:none;">
           <label class="form-label">丢单原因 <span class="req">*</span></label>
           <select class="form-ctrl">
@@ -1699,9 +1699,6 @@ function spToggleStateExt(val) {
     document.getElementById('spSignNoContractItem').style.display='';
     document.getElementById('spSignCustomerItem').style.display='';
     document.getElementById('spSignAmountItem').style.display='';
-  } else if(val==='已流标') {
-    document.getElementById('spStateFailExt').style.display='';
-    document.getElementById('spFailReportItem').style.display='';
   } else if(val==='已丢单') {
     document.getElementById('spStateFailExt').style.display='';
     document.getElementById('spFailReportItem').style.display='';

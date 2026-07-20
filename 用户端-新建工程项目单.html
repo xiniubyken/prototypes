@@ -771,7 +771,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="form-item span3">
           <label class="form-label">项目状态 <span class="req">*</span></label>
           <select class="form-ctrl" id="projectStatus" onchange="toggleStateExt(this.value)">
-            <option value="跟进中" selected>跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
+            <option value="跟进中" selected>跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已丢单">已丢单</option><option value="已流标">已流标</option>
           </select>
         </div>
 
@@ -828,7 +828,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <input type="number" class="form-ctrl" id="signAmount" placeholder="0.00" min="0" step="0.01">
         </div>
 
-        <!-- 已流标字段组 -->
+        <!-- 已丢标字段组 -->
         <div class="form-item" id="stateFailExt" style="display:none;">
           <label class="form-label">丢单原因 <span class="req">*</span></label>
           <select class="form-ctrl">
@@ -1348,7 +1348,7 @@ function toggleStateExt(val) {
     if(sel) sel.value='';
     document.getElementById('signCustomerItem').style.display='';
     document.getElementById('signAmountItem').style.display='';
-  } else if(val === '已流标') {
+  } else if(val === '已丢单') {
     document.getElementById('stateFailExt').style.display='';
     document.getElementById('failReportItem').style.display='';
   }

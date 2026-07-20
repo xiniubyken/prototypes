@@ -954,8 +954,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="form-item span3">
           <label class="form-label">项目状态 <span class="req">*</span></label>
           <select class="form-ctrl" id="m5ProjectStatus" onchange="m5ToggleStateExt(this.value)">
-            <option value="">请选择</option>
-            <option value="跟进中">跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已流标">已流标</option><option value="已丢单">已丢单</option>
+            <option value="跟进中" selected>跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已丢单">已丢单</option><option value="已流标">已流标</option>
           </select>
         </div>
 
@@ -1012,7 +1011,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <input type="number" class="form-ctrl" id="m5SignAmount" placeholder="0.00" min="0" step="0.01">
         </div>
 
-        <!-- 已流标字段组 -->
+        <!-- 已丢标字段组 -->
         <div class="form-item" id="m5StateFailExt" style="display:none;">
           <label class="form-label">丢单原因 <span class="req">*</span></label>
           <select class="form-ctrl">
@@ -1592,7 +1591,7 @@ function m5ToggleStateExt(val) {
     if(sel) sel.value='';
     document.getElementById('m5SignCustomerItem').style.display='';
     document.getElementById('m5SignAmountItem').style.display='';
-  } else if(val === '已流标') {
+  } else if(val === '已丢单') {
     document.getElementById('m5StateFailExt').style.display='';
     document.getElementById('m5FailReportItem').style.display='';
   }
@@ -1797,12 +1796,21 @@ function m5RenderBizStatus(name) {
     statusEl.innerHTML = '<span class="biz-verified">✓ 工商校验通过</span>';
   } else if(s === 'unmatched') {
     input.classList.add('state-unmatched');
-    statusEl.innerHTML = '<span class="biz-tag">'
-      + st.originalVal
-      + '<span class="tag-del" onclick="m5RemoveBizTag(\''+name+'\')">&times;</span>'
-      + '</span>'
-      + '<span class="biz-unmatched">非查找结果，如名称正确</span>'
-      + ' <span class="biz-confirm-link" onclick="m5ConfirmBizName(\''+name+'\')">点击确认</span>';
+    if(name === 'm5SignCustomer') {
+      // 合同客户·天眼查：校验失败不提供手动确认
+      statusEl.innerHTML = '<span class="biz-tag">'
+        + st.originalVal
+        + '<span class="tag-del" onclick="m5RemoveBizTag(\''+name+'\')">&times;</span>'
+        + '</span>'
+        + '<span class="biz-unmatched">天眼查校验未通过，请重新核对企业名称</span>';
+    } else {
+      statusEl.innerHTML = '<span class="biz-tag">'
+        + st.originalVal
+        + '<span class="tag-del" onclick="m5RemoveBizTag(\''+name+'\')">&times;</span>'
+        + '</span>'
+        + '<span class="biz-unmatched">非查找结果，如名称正确</span>'
+        + ' <span class="biz-confirm-link" onclick="m5ConfirmBizName(\''+name+'\')">点击确认</span>';
+    }
   } else if(s === 'confirmed') {
     input.classList.add('state-confirmed');
     statusEl.innerHTML = '<span class="biz-confirmed">✓ 已手动确认 · '+st.originalVal+'</span>';
