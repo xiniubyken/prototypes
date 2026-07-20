@@ -1131,12 +1131,21 @@ function renderBizStatus(name) {
     statusEl.innerHTML = '<span class="biz-verified">✓ 工商校验通过</span>';
   } else if(s === 'unmatched') {
     input.classList.add('state-unmatched');
-    statusEl.innerHTML = '<span class="biz-tag">'
-      + st.originalVal
-      + '<span class="tag-del" onclick="removeBizTag(\''+name+'\')">&times;</span>'
-      + '</span>'
-      + '<span class="biz-unmatched">非查找结果，如名称正确</span>'
-      + ' <span class="biz-confirm-link" onclick="confirmBizName(\''+name+'\')">点击确认</span>';
+    if(name === 'signCustomer') {
+      // 合同客户·天眼查：校验失败不提供手动确认
+      statusEl.innerHTML = '<span class="biz-tag">'
+        + st.originalVal
+        + '<span class="tag-del" onclick="removeBizTag(\''+name+'\')">&times;</span>'
+        + '</span>'
+        + '<span class="biz-unmatched">天眼查校验未通过，请重新核对企业名称</span>';
+    } else {
+      statusEl.innerHTML = '<span class="biz-tag">'
+        + st.originalVal
+        + '<span class="tag-del" onclick="removeBizTag(\''+name+'\')">&times;</span>'
+        + '</span>'
+        + '<span class="biz-unmatched">非查找结果，如名称正确</span>'
+        + ' <span class="biz-confirm-link" onclick="confirmBizName(\''+name+'\')">点击确认</span>';
+    }
   } else if(s === 'confirmed') {
     input.classList.add('state-confirmed');
     statusEl.innerHTML = '<span class="biz-confirmed">✓ 已手动确认 · '+st.originalVal+'</span>';
