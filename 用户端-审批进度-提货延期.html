@@ -71,24 +71,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
 /* 审批记录头部（带展示所有信息开关） */
 .approval-record-header{padding:12px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;}
 .approval-record-header .arh-left{display:flex;align-items:center;gap:8px;}
-.arh-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#646a73;user-select:none;}
-.toggle-switch{position:relative;width:44px;height:22px;display:inline-block;vertical-align:middle;}
-.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
-.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#c0c4cc;border-radius:11px;transition:.25s;}
-.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.25s;}
-.toggle-switch input:checked + .toggle-slider{background-color:#3370ff;}
-.toggle-switch input:checked + .toggle-slider:before{transform:translateX(22px);}
-.toggle-label-on{color:#3370ff;font-weight:600;font-size:12px;}
 .record-table-wrap{overflow-x:auto;padding:20px 16px 16px;}
-/* 关状态：隐藏内部备注(6)和内部附件(7)，保持网格对齐 */
-.record-table.compact th:nth-child(6),
-.record-table.compact td:nth-child(6),
-.record-table.compact th:nth-child(7),
-.record-table.compact td:nth-child(7){
-  width:0!important;min-width:0!important;max-width:0!important;
-  padding:0!important;border-left:0!important;border-right:0!important;
-  overflow:hidden;white-space:nowrap;font-size:0;
-}
 
 /* ====== 审批意见弹窗内容 ====== */
 .opinion-content-box{background:#f5f5f5;border-radius:6px;padding:16px;font-size:13px;color:#1f2329;line-height:1.8;white-space:pre-wrap;word-break:break-all;}
@@ -292,21 +275,15 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="fct-accent" style="background:var(--info);"></div>
         <span>审批记录</span>
       </div>
-      <div class="arh-toggle">
-        <span>展示所有信息：</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="toggleShowAll" checked onchange="toggleRecordColumns(this.checked)">
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="toggle-label-on">开</span>
-      </div>
     </div>
     <div class="record-table-wrap">
       <table class="record-table">
         <colgroup>
-          <col span="5">
-          <col class="col-hide" data-col="internal-note">
-          <col class="col-hide" data-col="internal-attach">
+          <col>
+          <col>
+          <col>
+          <col>
+          <col>
           <col>
         </colgroup>
         <thead>
@@ -316,8 +293,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <th>审批状态</th>
             <th>审批意见</th>
             <th>附件</th>
-            <th>内部备注</th>
-            <th>内部附件</th>
             <th>审批时间</th>
           </tr>
         </thead>
@@ -328,8 +303,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <td class="td-center"><span class="st-ok">通过</span></td>
             <td><span class="opinion-truncate" title="施工进度属实，同意延期申请。">施工进度属实，同意延期申请。</span></td>
             <td class="td-center"><span class="no-attach">—</span></td>
-            <td><span class="opinion-truncate" title="请核实客户签字真实性">请核实客户签字真实性</span></td>
-            <td class="td-center"><span class="no-attach">—</span></td>
             <td>2026-06-28 10:30</td>
           </tr>
           <tr>
@@ -338,8 +311,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <td class="td-center"><span class="st-ok">通过</span></td>
             <td><span class="opinion-truncate" title="同意延期至7月15日">同意延期至7月15日</span></td>
             <td class="td-center"><span class="no-attach">—</span></td>
-            <td><span class="opinion-truncate" title="材料完整，可归档">材料完整，可归档</span></td>
-            <td class="td-center"><span class="view-link" onclick="showAttachModal('李四','inner')">查看</span></td>
             <td>2026-06-29 15:22</td>
           </tr>
         </tbody>
@@ -377,15 +348,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div><!-- /page-root -->
 
 <script>
-/* ===== 审批记录：展示所有信息开关 ===== */
-function toggleRecordColumns(showAll){
-  const tbl = document.querySelector('.record-table');
-  if(!tbl) return;
-  tbl.classList.toggle('compact', !showAll);
-  const label = document.querySelector('.toggle-label-on');
-  if(label) label.textContent = showAll ? '开' : '关';
-}
-
 /* ===== Toast ===== */
 function showToast(msg, type) {
   var toast = document.getElementById('toast');
