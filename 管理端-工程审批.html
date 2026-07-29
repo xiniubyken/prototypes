@@ -125,6 +125,7 @@ a:hover{text-decoration:underline;}
 .op-approve{color:var(--primary);cursor:pointer;font-weight:500;}
 .op-process{color:var(--info);cursor:pointer;}
 .op-void{color:var(--danger);cursor:pointer;}
+.op-approve-link{color:var(--primary);cursor:pointer;font-weight:500;}
 
 /* 剩余时间高亮 */
 .time-warn{color:var(--danger);font-weight:600;}
@@ -157,32 +158,6 @@ a:hover{text-decoration:underline;}
 .ms-item:hover{background:var(--bg-hover);}
 .ms-item input[type=checkbox]{width:13px;height:13px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;}
 .ms-item .ms-label{color:var(--text);line-height:1.4;}
-
-/* ====== 审批弹窗 ====== */
-.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:300;align-items:center;justify-content:center;}
-.modal-overlay.open{display:flex;}
-.modal-box{background:#fff;border-radius:var(--radius-card);box-shadow:0 12px 48px rgba(0,0,0,.18);width:480px;max-height:85vh;display:flex;flex-direction:column;}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.modal-header .title{font-size:15px;font-weight:600;color:var(--text);}
-.modal-header .close-btn{font-size:20px;color:var(--text-aux);cursor:pointer;line-height:1;padding:0 4px;border:none;background:transparent;}
-.modal-header .close-btn:hover{color:var(--text);}
-.modal-body{padding:20px;overflow-y:auto;flex:1;}
-.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid var(--border-light);flex-shrink:0;}
-
-/* 警告图标 */
-.modal-icon-warn{width:44px;height:44px;border-radius:50%;background:#FFF3E0;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#ED6C02;font-weight:700;line-height:1;margin-bottom:16px;flex-shrink:0;}
-.modal-icon-check{width:44px;height:44px;border-radius:50%;background:#E8F5E9;display:inline-flex;align-items:center;justify-content:center;font-size:22px;color:#2E7D32;font-weight:700;line-height:1;margin-bottom:16px;flex-shrink:0;}
-
-/* 驳回原因输入框 */
-.reject-reason{width:100%;height:80px;border:1px solid var(--border);border-radius:var(--radius);padding:10px;font-size:13px;color:var(--text);resize:none;outline:none;font-family:inherit;margin-top:8px;}
-.reject-reason:focus{border-color:var(--primary);}
-.reject-reason::placeholder{color:var(--text-aux);}
-
-/* 驳回原因快捷选项 */
-.quick-reasons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
-.quick-reason-tag{padding:3px 10px;border:1px solid var(--border);border-radius:12px;font-size:12px;color:var(--text-secondary);cursor:pointer;transition:.15s;background:#fff;}
-.quick-reason-tag:hover{border-color:var(--primary);color:var(--primary);}
-.quick-reason-tag.selected{border-color:var(--primary);color:var(--primary);background:rgba(59,89,152,.06);}
 
 /* 隐藏列 */
 .col-hidden{display:none!important;}
@@ -304,53 +279,6 @@ a:hover{text-decoration:underline;}
       </div>
     </div>
 
-  </div>
-</div>
-
-<!-- ====== 通过确认弹窗 ====== -->
-<div class="modal-overlay" id="approveModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="title">审批操作</span>
-      <button class="close-btn" onclick="closeModal('approveModal')">&times;</button>
-    </div>
-    <div class="modal-body" style="display:flex;align-items:center;gap:16px;">
-      <div class="modal-icon-check">✓</div>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:600;color:var(--text);" id="approveTitle">确认通过该审批？</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-top:6px;" id="approveSubTitle">工程单号：GCD1202111300001</div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeModal('approveModal')">取消</button>
-      <button class="btn btn-primary" onclick="confirmApprove()">确 认 通 过</button>
-    </div>
-  </div>
-</div>
-
-<!-- ====== 驳回弹窗 ====== -->
-<div class="modal-overlay" id="rejectModal">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="title">驳回审批</span>
-      <button class="close-btn" onclick="closeModal('rejectModal')">&times;</button>
-    </div>
-    <div class="modal-body">
-      <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;" id="rejectTitle">请填写驳回原因</div>
-      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;" id="rejectSubTitle">工程单号：GCD1202111300001</div>
-      <textarea class="reject-reason" id="rejectReason" placeholder="请输入驳回原因（选填）"></textarea>
-      <div class="quick-reasons">
-        <span class="quick-reason-tag" onclick="pickQuickReason(this)">资料不齐全</span>
-        <span class="quick-reason-tag" onclick="pickQuickReason(this)">信息有误需修改</span>
-        <span class="quick-reason-tag" onclick="pickQuickReason(this)">不符合业务规则</span>
-        <span class="quick-reason-tag" onclick="pickQuickReason(this)">需要补充合同信息</span>
-        <span class="quick-reason-tag" onclick="pickQuickReason(this)">其他原因</span>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-default" onclick="closeModal('rejectModal')">取消</button>
-      <button class="btn btn-default" style="color:var(--danger);border-color:var(--danger)" onclick="confirmReject()" onmouseover="this.style.background='#ffebee'" onmouseout="this.style.background='#fff'">确认驳回</button>
-    </div>
   </div>
 </div>
 
@@ -599,9 +527,6 @@ var sampleData = {
   ]
 };
 
-/* 当前正在操作的行 */
-var currentRowData = null;
-
 /* ================================================================
    核心渲染逻辑
    ================================================================ */
@@ -704,9 +629,9 @@ function renderTable() {
       if (c.key === 'ops') {
         var ops = '';
         if (r.canApprove && r.status === '审批中') {
-          ops += '<a class="op-approve" onclick="openApproveModal(\'' + r.no + '\')">审核</a>';
+          ops += '<a class="op-approve-link" onclick="gotoApprovePage(\'' + r.no + '\')">审核</a>';
         }
-        ops += '<a class="op-view" onclick="alert(\'演示：查看详情 ' + r.no + '\')">查看</a>';
+        ops += '<a class="op-view" onclick="gotoApprovePage(\'' + r.no + '\')">查看</a>';
         ops += '<a class="op-process" onclick="alert(\'演示：查看审批流程 ' + r.no + '\')">审批流程</a>';
         tbodyHtml += '<td class="op-cell">' + ops + '</td>';
         return;
@@ -771,52 +696,14 @@ function doReset() {
 }
 
 /* ================================================================
-   审批弹窗交互
+   跳转审批详情页
    ================================================================ */
 
-function openApproveModal(projectNo) {
-  currentRowData = {no: projectNo};
-  document.getElementById('approveSubTitle').textContent = '工程单号：' + projectNo;
-  document.getElementById('approveModal').classList.add('open');
+function gotoApprovePage(projectNo) {
+  location.href = '管理端-审批进度页.html?no=' + projectNo;
 }
 
-function openRejectModal(projectNo) {
-  currentRowData = {no: projectNo};
-  document.getElementById('rejectSubTitle').textContent = '工程单号：' + projectNo;
-  document.getElementById('rejectReason').value = '';
-  document.querySelectorAll('.quick-reason-tag').forEach(function(t){t.classList.remove('selected');});
-  document.getElementById('rejectModal').classList.add('open');
-}
-
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
-}
-
-function confirmApprove() {
-  closeModal('approveModal');
-  alert('演示：审批通过 → 工程单 ' + (currentRowData?currentRowData.no:'') + ' 状态变更为「通过」');
-}
-
-function confirmReject() {
-  var reason = document.getElementById('rejectReason').value.trim();
-  closeModal('rejectModal');
-  alert('演示：审批驳回 → 工程单 ' + (currentRowData?currentRowData.no:'') + ' 状态变更为「驳回」\n驳回原因：' + (reason || '(未填写)'));
-}
-
-function pickQuickReason(el) {
-  document.querySelectorAll('.quick-reason-tag').forEach(function(t){t.classList.remove('selected');});
-  el.classList.add('selected');
-  document.getElementById('rejectReason').value = el.textContent;
-}
-
-/* 点击遮罩关闭弹窗 */
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('modal-overlay')) {
-    e.target.classList.remove('open');
-  }
-});
-
-/* 全局输入规则 */
+/* 点击全局输入规则 */
 document.querySelectorAll('.global-input').forEach(function(el){
   el.addEventListener('input', function(){
     this.value=this.value.replace(/[\uFF01-\uFF5E\u3000-\u303F]/g,'');
