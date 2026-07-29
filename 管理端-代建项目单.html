@@ -408,7 +408,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .form-item.span3{grid-column:span 3;}
 .form-item.span4{grid-column:span 4;}
 .form-label{font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
-.form-label .req{color:#d32f2f;font-size:12px;}
+.form-label .req,
+.req{color:#d32f2f;font-size:12px;}
 .form-label .label-tip{color:#8f959e;font-size:11px;font-weight:400;}
 .form-ctrl{height:32px;border:1px solid #e0e3ea;border-radius:4px;padding:0 10px;font-size:13px;color:#1f2329;outline:none;transition:.15s;background:#fff;width:100%;}
 .form-ctrl:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
@@ -754,9 +755,9 @@ html,body{height:100%;margin:0;overflow:hidden;}
             <th style="min-width:160px;">商品名称</th>
             <th style="min-width:100px;">型号</th>
             <th style="min-width:110px;">SKU编码</th>
-            <th style="min-width:80px;">申请数量</th>
-            <th style="min-width:100px;">申请价格</th>
-            <th style="min-width:80px;">申请点位</th>
+            <th style="min-width:80px;"><span class="req">*</span>申请数量</th>
+            <th style="min-width:100px;"><span class="req">*</span>申请价格</th>
+            <th style="min-width:80px;"><span class="req">*</span>申请点位</th>
             <th style="min-width:120px;">商品行备注</th>
             <th style="width:64px;text-align:center;">操作</th>
           </tr>
