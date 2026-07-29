@@ -197,30 +197,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .approval-record-header{padding:12px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;}
 .approval-record-header .arh-left{display:flex;align-items:center;gap:8px;}
 .approval-record-header .fct-accent{width:4px;height:16px;background:#3b5998;border-radius:2px;}
-/* 展示所有信息 - 开关 */
-.arh-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#646a73;user-select:none;}
-.toggle-switch{position:relative;width:44px;height:22px;display:inline-block;vertical-align:middle;}
-.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
-.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#c0c4cc;border-radius:11px;transition:.25s;}
-.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.25s;}
-.toggle-switch input:checked + .toggle-slider{background-color:#3370ff;}
-.toggle-switch input:checked + .toggle-slider:before{transform:translateX(22px);}
-.toggle-label-on{color:#3370ff;font-weight:600;font-size:12px;}
 .record-table-wrap{overflow-x:auto;padding:20px 16px 16px;}
 .record-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;}
 .record-table th{background:#fafbfc;height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:1px solid #e8eaed;white-space:nowrap;}
 .record-table td{height:42px;padding:6px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;color:#1f2329;vertical-align:middle;}
 .record-table tr:last-child td{border-bottom:none;}
 .record-table tr:hover td{background:rgba(59,89,152,.02);}
-/* 关状态：隐藏内部备注(6)和内部附件(7)，保持网格对齐 */
-.record-table.compact th:nth-child(6),
-.record-table.compact td:nth-child(6),
-.record-table.compact th:nth-child(7),
-.record-table.compact td:nth-child(7){
-  width:0!important;min-width:0!important;max-width:0!important;
-  padding:0!important;border-left:0!important;border-right:0!important;
-  overflow:hidden;white-space:nowrap;font-size:0;
-}
 /* 数据列强制左对齐（覆盖 td-center） */
 .record-table .td-center{text-align:left;}
 
@@ -952,22 +934,16 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="fct-accent"></div>
       <span>审批记录</span>
     </div>
-    <div class="arh-toggle">
-      <span>展示所有信息：</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="toggleShowAll" checked onchange="toggleRecordColumns(this.checked)">
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="toggle-label-on">开</span>
-    </div>
   </div>
   <div class="record-table-wrap">
     <table class="record-table">
       <colgroup>
-        <col span="5"><!-- 序号/审批人/审批状态/审批意见/附件 -->
-        <col class="col-hide" data-col="internal-note"><!-- 内部备注 -->
-        <col class="col-hide" data-col="internal-attach"><!-- 内部附件 -->
-        <col><!-- 审批时间 -->
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
+        <col>
       </colgroup>
       <thead>
         <tr>
@@ -976,8 +952,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <th>审批状态</th>
           <th>审批意见</th>
           <th>附件</th>
-          <th>内部备注</th>
-          <th>内部附件</th>
           <th>审批时间</th>
         </tr>
       </thead>
@@ -988,8 +962,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <td class="td-center"><span class="status-pass">已通过</span></td>
           <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
           <td class="td-center">-</td>
-          <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
-          <td class="td-center">-</td>
           <td>2026-06-25 09:30</td>
         </tr>
         <tr>
@@ -998,8 +970,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <td class="td-center"><span class="status-pass">已通过</span></td>
           <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
           <td class="td-center"><span class="view-link" onclick="showAttachModal('张富贵','file')">查看</span></td>
-          <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
-          <td class="td-center"><span class="view-link" onclick="showAttachModal('张富贵','inner')">查看</span></td>
           <td>2026-06-25 10:15</td>
         </tr>
         <tr>
@@ -1008,8 +978,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <td class="td-center"><span class="status-pass">已通过</span></td>
           <td><span class="opinion-truncate" title="项目资料齐全，设备配置合理，同意登录">项目资料齐全，设备配置合理，同意登录</span></td>
           <td class="td-center"><span class="view-link" onclick="showAttachModal('李明辉','file')">查看</span></td>
-          <td><span class="opinion-truncate" title="该经销商信用良好，历史合作无违约记录">该经销商信用良好，历史合作无违约记录</span></td>
-          <td class="td-center"><span class="view-link" onclick="showAttachModal('李明辉','inner')">查看</span></td>
           <td>2026-06-26 11:20</td>
         </tr>
         <tr>
@@ -1018,8 +986,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <td class="td-center"><span class="status-pass">已通过</span></td>
           <td><span class="opinion-truncate" title="现场勘察确认完毕，与申报内容一致">现场勘察确认完毕，与申报内容一致</span></td>
           <td class="td-center"><span class="view-link" onclick="showAttachModal('王芳','file')">查看</span></td>
-          <td><span class="opinion-truncate" title="建议关注后续安装进度">建议关注后续安装进度</span></td>
-          <td class="td-center">-</td>
           <td>2026-06-27 14:45</td>
         </tr>
         <tr>
@@ -1028,8 +994,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <td class="td-center"><span class="status-reject">已驳回</span></td>
           <td><span class="opinion-truncate" title="缺少消防验收报告，请补充后重新提交">缺少消防验收报告，请补充后重新提交</span></td>
           <td class="td-center"><span class="view-link" onclick="showAttachModal('陈建国','file')">查看</span></td>
-          <td><span class="opinion-truncate" title="驳回后需重新走流程">驳回后需重新走流程</span></td>
-          <td class="td-center"><span class="view-link" onclick="showAttachModal('陈建国','inner')">查看</span></td>
           <td>2026-06-28 16:00</td>
         </tr>
       </tbody>
@@ -1606,15 +1570,6 @@ function mockUpload() {
 function confirmImport() {
   alert('演示：确认导入成功记录');
   closeImportModal();
-}
-
-// ==================== 审批记录：展示所有信息开关 ====================
-function toggleRecordColumns(showAll){
-  const tbl = document.querySelector('.record-table');
-  if(!tbl) return;
-  tbl.classList.toggle('compact', !showAll);
-  const label = document.querySelector('.toggle-label-on');
-  if(label) label.textContent = showAll ? '开' : '关';
 }
 
 // ==================== 审批操作（弹窗模式） ====================
