@@ -616,9 +616,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
                 <th style="min-width:100px;" data-col="sku">SKU编码</th>
                 <th style="min-width:85px;" data-col="id">商品ID</th>
                 <th style="min-width:75px;color:#D32F2F;" data-col="qty">*申请数量</th>
-                <th style="min-width:85px;" data-col="origQty">原申请数量</th>
                 <th style="min-width:80px;color:#D32F2F;" data-col="price">*申请价格</th>
-                <th style="min-width:85px;" data-col="origPrice">原申请价格</th>
                 <th style="min-width:72px;" data-col="point">申请点位%</th>
                 <th style="min-width:80px;" data-col="approvePrice">批复价格</th>
                 <th style="min-width:70px;" data-col="resetPoint">批复点位%</th>
@@ -1413,7 +1411,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   <div class="export-body">
     <table class="export-table">
       <thead><tr>
-        <th>序号</th><th>非标</th><th>*品类</th><th>商品名称</th><th>型号</th><th>SKU编码</th><th>商品ID</th><th>*申请数量</th><th>原申请数量</th><th>*申请价格</th><th>原申请价格</th><th>申请点位%</th><th>批复价格</th><th>批复点位%</th><th>*定金比例</th><th>*网批挂网价</th><th>预估价</th><th>备注</th>
+        <th>序号</th><th>非标</th><th>*品类</th><th>商品名称</th><th>型号</th><th>SKU编码</th><th>商品ID</th><th>*申请数量</th><th>*申请价格</th><th>申请点位%</th><th>批复价格</th><th>批复点位%</th><th>*定金比例</th><th>*网批挂网价</th><th>预估价</th><th>备注</th>
       </tr></thead>
       <tbody id="exportEquipTbody">
       </tbody>
@@ -1690,7 +1688,6 @@ function renderEquipList() {
     tr.setAttribute('data-seq', eq.seq);
     tr.setAttribute('data-saletype', eq.saleType || '常规价');
     // 金额格式化
-    var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     // 非标行特殊渲染：品类下拉、名称固定、型号输入框
     var cateHtml, nameHtml, modelHtml, estimateHtml;
@@ -1718,9 +1715,7 @@ function renderEquipList() {
       '<td style="color:#1f2329;" data-col="sku">' + eq.sku + '</td>' +
       '<td style="color:#1f2329;" data-col="id">' + (eq.isNonStd ? eq.id : '--') + '</td>' +
       '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="' + eq.qty + '" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
-      '<td style="color:#1f2329;" data-col="origQty">' + (eq.origQty || '--') + '</td>' +
       '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="' + eq.price + '" min="0" step="0.01" style="width:78px;" data-origprice="' + eq.origPrice + '" data-onlineprice="' + eq.onlinePrice + '" onchange="recalcSummary()"></td>' +
-      '<td style="color:#1f2329;" data-col="origPrice">' + origPriceFmt + '</td>' +
       '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="' + eq.point + '" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
       '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="' + eq.approvePrice + '" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
       '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '--') + '</td>' +
@@ -1798,9 +1793,7 @@ function addNonStdRow() {
     '<td data-col="sku"><input class="td-input" style="width:90px;" value=""></td>' +
     '<td style="color:#8f959e;" data-col="id"></td>' +
     '<td data-col="qty"><input class="td-input td-num equip-qty" type="number" value="1" min="1" max="9999999" style="width:65px;" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="origQty">--</td>' +
     '<td data-col="price"><input class="td-input td-num equip-price" type="number" value="0" min="0" step="0.01" style="width:78px;" data-origprice="0" data-onlineprice="0" onchange="recalcSummary()"></td>' +
-    '<td style="color:#1f2329;" data-col="origPrice">--</td>' +
     '<td data-col="point"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" type="number" value="0" min="0" max="100" step="0.1" style="width:45px;" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
     '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="0" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>' +
     '<td style="color:#1f2329;" data-col="resetPoint">--</td>' +
@@ -1884,9 +1877,7 @@ var columnConfig = [
   {key:'sku',        name:'SKU编码',              visible:true},
   {key:'id',         name:'商品ID',               visible:true},
   {key:'qty',        name:'*申请数量',            visible:true},
-  {key:'origQty',    name:'原申请数量',            visible:true},
   {key:'price',      name:'*申请价格',            visible:true},
-  {key:'origPrice',  name:'原申请价格',            visible:true},
   {key:'point',      name:'申请点位%',            visible:true},
   {key:'approvePrice',name:'批复价格',            visible:true},
   {key:'resetPoint',  name:'批复点位%',           visible:true},
@@ -2419,7 +2410,6 @@ function renderExportTable() {
   list.forEach(function(eq, i){
     var tr = document.createElement('tr');
     var priceFmt = eq.price ? '¥' + eq.price.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '';
-    var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '';
     var approvePriceFmt = eq.approvePrice ? '¥' + eq.approvePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '';
     var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '';
     var estimatePriceFmt = eq.estimatePrice ? '¥' + eq.estimatePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '';
@@ -2432,9 +2422,7 @@ function renderExportTable() {
       '<td>' + eq.sku + '</td>' +
       '<td>' + (eq.isNonStd ? eq.id : '') + '</td>' +
       '<td>' + eq.qty + '</td>' +
-      '<td>' + (eq.origQty || '--') + '</td>' +
       '<td>' + priceFmt + '</td>' +
-      '<td>' + origPriceFmt + '</td>' +
       '<td>' + (eq.point !== undefined ? eq.point + '%' : '') + '</td>' +
       '<td>' + approvePriceFmt + '</td>' +
       '<td>' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '') + '</td>' +
