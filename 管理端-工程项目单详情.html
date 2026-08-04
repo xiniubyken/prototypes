@@ -404,6 +404,11 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <!-- T1 工程单详情 -->
 <div class="tp on pi" id="t1">
 
+<!-- 1.1 驳回原因（仅已驳回，红色底条，与批价单详情一致） -->
+<div id="cardRejectReason" style="display:none;margin-bottom:12px;">
+  <div style="background:#FFEBEE;border:1px solid #EF9A9A;border-radius:6px;padding:12px 16px;font-size:13px;color:#D32F2F;line-height:1.7;" id="rejectReasonContent"></div>
+</div>
+
 <!-- 设备清单 -->
 <div class="card">
 <div class="ch"><span>设备清单</span><span style="font-size:12px;color:var(--text-aux)">总套数：25 | 总申请金额：¥248,000</span></div>
@@ -892,7 +897,7 @@ const C={
   {n:'一级审批人·张经理',t:'2026-06-24 16:00',r:'已驳回',st:'d',rk:'项目信息不完整，请补充使用方资质材料'}
  ],al:[
   {type:'登录审批',status:'驳回',updated:'2026-06-24 16:00:00',created:'2026-06-24 14:30:00',ops:['查看','重新提交']}
- ],pl:[]}
+ ],pl:[],rejectReason:'项目信息不完整，缺少合同扫描件及使用方资质材料，请补充完整后重新提交。\n\n驳回人：一级审批人·张经理\n驳回时间：2026-06-24 16:00'}
 },
 '跟进中':{
  b:'#E8F5E9/#2E7D32',
@@ -1355,6 +1360,16 @@ if(d.v){
    vh.style.display='';
   }
  }
+}
+
+/* 驳回原因卡片（已驳回，t1内红色底条） */
+var rejCard=document.getElementById('cardRejectReason');
+var rejContent=document.getElementById('rejectReasonContent');
+if(curM==='已驳回' && d.rejectReason){
+ rejCard.style.display='';
+ rejContent.textContent=d.rejectReason;
+}else{
+ rejCard.style.display='none';
 }
 
 /* 底部操作栏 + 卡片灰度 */
