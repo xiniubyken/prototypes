@@ -612,7 +612,7 @@ const C={
  ],rd:'empty',al:[
   {type:'登录审批',status:'驳回',updated:'2026-06-24 16:00:00',created:'2026-06-24 14:30:00',ops:['查看','重新提交']},
   {type:'登录延期',status:'驳回',updated:'2026-06-23 15:00:00',created:'2026-06-23 10:00:00',ops:['查看','重新提交']}
- ],pl:[],rejectReason:'项目信息不完整，缺少合同扫描件及使用方资质材料，请补充完整后重新提交。\n\n驳回人：一级审批人·张经理\n驳回时间：2026-06-24 16:00'}
+ ],pl:[],rejectReason:'项目信息不完整，缺少合同扫描件及使用方资质材料，请补充完整后重新提交。\n\n2026-06-24 16:00'}
 },
 
 /* ====== 3.跟进中（无子状态）====== */
@@ -948,7 +948,7 @@ function render(){
  var rejContent=document.getElementById('rejectReasonContent');
  if(curM==='已驳回' && d.rejectReason){
   rejCard.style.display='';
-  rejContent.textContent=d.rejectReason;
+  rejContent.innerHTML=d.rejectReason.replace(/\n/g,'<br>');
  }else{
   rejCard.style.display='none';
  }
