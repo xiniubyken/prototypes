@@ -370,8 +370,9 @@ html,body{height:100%;margin:0;overflow:hidden;}
 </div><!-- /form-page-scroll -->
 
 <!-- ===== 底部操作栏 ===== -->
-<div class="approval-footer">
+<div class="approval-footer" style="justify-content:center;gap:16px;">
     <button class="btn-quick-view" onclick="openApprovalFlowModal()" style="color:#1976D2;border-color:#1976D2;padding:10px 40px;font-size:15px;" onmouseover="this.style.background='#E3F2FD'" onmouseout="this.style.background='#fff'">审批流程</button>
+    <button class="btn-quick-view" id="btnResubmit" style="display:none;color:#D32F2F;border-color:#D32F2F;padding:10px 40px;font-size:15px;" onmouseover="this.style.background='#FFEBEE'" onmouseout="this.style.background='#fff'" onclick="alert('跳转重新提交页')">重新提交</button>
 </div>
 
 </div><!-- /page-root -->
@@ -651,6 +652,8 @@ function switchPjStatus(val){
     document.getElementById('docStatusTime').textContent=s.time;
     var closeEl=document.getElementById('docStatusClose');
     closeEl.style.display=s.closeShow?'':'none';
+    var resubmitBtn=document.getElementById('btnResubmit');
+    if(resubmitBtn) resubmitBtn.style.display=(s.status==='已驳回')?'':'none';
     switchPjStatus(s.status);
   });
   document.getElementById('docStatusClose').addEventListener('click',function(e){
