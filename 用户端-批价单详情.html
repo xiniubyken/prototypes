@@ -605,7 +605,7 @@ const C={
   d:{
     pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
     status:'已驳回',certNote:'批价申请已被驳回。\n\n驳回原因：\n1. 项目凭证不完整，缺少合同扫描件\n2. 申请价格与市场价差异较大\n3. 请补充完整材料后重新提交',
-    remark:'驳回原因：申请价格偏离市场价格过多，请重新核算后再次提交。\n\n驳回人：工程科内勤·王科长\n驳回时间：2026-06-26 16:45',
+    remark:'驳回原因：申请价格偏离市场价格过多，请重新核算后再次提交。',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'驳回通知书.pdf',size:'0.3MB'}],
 
     equip:EQIP_PENDING,
@@ -618,7 +618,7 @@ const C={
     al:[
       {type:'工程批价',status:'已驳回',updated:'2026-06-26 16:45:00',created:'2026-06-25 10:30:00',ops:['查看']}
     ],
-    rejectReason:'申请价格偏离市场价格过多，GMV5系列申请价高于网批挂网价5%以上，不符合批价政策要求。请重新核算成本后再次提交。',
+    rejectReason:'申请价格偏离市场价格过多，GMV5系列申请价高于网批挂网价5%以上，不符合批价政策要求。请重新核算成本后再次提交。\n\n2026-06-26 16:45',
     lt:'2026-06-26 16:45',v:{d:30,c:'#E65100'},
   }
 },
@@ -845,7 +845,7 @@ function render(data){
   var rejContent=document.getElementById('rejectReasonContent');
   if(mainStatus==='已驳回' && d.rejectReason){
     rejCard.style.display='';
-    rejContent.textContent=d.rejectReason;
+    rejContent.innerHTML=d.rejectReason.replace(/\n/g,'<br>');
   }else{
     rejCard.style.display='none';
   }
