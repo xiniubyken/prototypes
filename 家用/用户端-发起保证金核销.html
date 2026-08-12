@@ -253,27 +253,27 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
       <div class="summary-grid">
         <div class="sum-row">
           <div class="sum-card">
-            <div><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumReceived">¥6,000.00</div></div>
+            <div><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumReceived">¥5,800.00</div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">方案已返还保证金金额</div><div class="sum-value money" id="sumRefunded">¥600.00</div></div>
+            <div><div class="sum-label">方案已返还保证金金额</div><div class="sum-value money" id="sumRefunded">¥1,150.00</div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">方案已收差保证金金额</div><div class="sum-value money" id="sumDeducted">¥200.00</div></div>
+            <div><div class="sum-label">方案已收差保证金金额</div><div class="sum-value money" id="sumDeducted">¥700.00</div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumPending">¥5,200.00</div></div>
+            <div><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumPending">¥3,950.00</div></div>
           </div>
         </div>
         <div class="sum-row">
           <div class="sum-card">
-            <div><div class="sum-label">方案需核销总数</div><div class="sum-value" id="sumNeed">50<span class="sum-unit">台</span></div></div>
+            <div><div class="sum-label">方案需核销总数</div><div class="sum-value" id="sumNeed">90<span class="sum-unit">台</span></div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">本次提交核销总数</div><div class="sum-value" id="sumSubmited">22<span class="sum-unit">台</span></div></div>
+            <div><div class="sum-label">本次提交核销总数</div><div class="sum-value" id="sumSubmited">15<span class="sum-unit">台</span></div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">方案待核销总数</div><div class="sum-value" id="sumLeft">28<span class="sum-unit">台</span></div></div>
+            <div><div class="sum-label">方案待核销总数</div><div class="sum-value" id="sumLeft">75<span class="sum-unit">台</span></div></div>
           </div>
         </div>
       </div>
@@ -328,7 +328,7 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 
     <!-- ====== 开票信息（只读，来源管理端销售公司） ====== -->
     <div class="form-card">
-      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">开票信息</span><span class="fc-tag">只读 · 来源管理端销售公司</span></div>
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">开票信息</span><span class="fc-tag">只读</span></div>
       <div class="inv-grid" id="invGrid"><div class="inv-loading" id="invLoading">⏳ 正在从管理端获取开票信息…</div></div>
     </div>
 
@@ -337,10 +337,10 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
   <!-- ====== 底部固定操作栏 ====== -->
   <div class="form-footer">
     <div class="foot-summary">
-      <span>本次合格合计：<b id="footQual">14</b> 台</span>
-      <span>本次不合格合计：<b class="red" id="footUnqual">8</b> 台</span>
-      <span>返还保证金：<b id="footRefund">¥1,220.00</b></span>
-      <span>收差扣款：<b class="red" id="footDeduct">¥680.00</b></span>
+      <span>本次合格合计：<b id="footQual">4</b> 台</span>
+      <span>本次不合格合计：<b class="red" id="footUnqual">11</b> 台</span>
+      <span>返还保证金：<b id="footRefund">¥160.00</b></span>
+      <span>收差扣款：<b class="red" id="footDeduct">¥440.00</b></span>
     </div>
     <button class="btn" onclick="window.close()">取消</button>
     <button class="btn btn-primary" id="submitBtn" onclick="openConfirm()">提交核销</button>
@@ -803,7 +803,7 @@ function toast(msg, type){
 }
 
 /* ==================== 开票信息（只读展示，模拟从管理端销售公司获取） ==================== */
-/* 字段定义：req=true 表示管理端必填项，页面展示标红* */
+/* 字段定义：req=true 表示管理端必填项，页面不显示必填标记，文档保留必填语义 */
 const INVOICE_FIELDS = [
   {key:'taxpayerType', label:'纳税人类型',                 req:true},
   {key:'invoiceType',  label:'发票类型',                   req:true},
