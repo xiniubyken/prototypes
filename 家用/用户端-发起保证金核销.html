@@ -725,14 +725,14 @@ function openConfirm(){
       <div class="ct-item"><div class="ct-label">涉及保证金</div><div class="ct-value blue">${fmt(refund+deduct)}</div></div>
     </div>
     <div class="confirm-block">
-      <div class="cb-title"><span class="cb-step s1">1</span> 第一步 · 返还保证金明细 <span class="cb-tip">先抵扣合格数量</span></div>
+      <div class="cb-title">返还保证金明细</div>
       ${refundRows.length?`<table class="confirm-table"><thead><tr><th>商品名称</th><th>订单号</th><th>订单行号</th><th>合格数量</th><th>返还金额</th></tr></thead><tbody>${refundRows.map(r=>`<tr><td class="td-left">${r.name} ${r.model}</td><td>${r.orderNo}</td><td>${r.lineNo}</td><td class="td-green">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table>`:'<div class="og-empty">本次无合格数量，无返还</div>'}
     </div>
     <div class="confirm-block">
-      <div class="cb-title"><span class="cb-step s2">2</span> 第二步 · 收差扣款明细 <span class="cb-tip">后抵扣不合格数量</span></div>
+      <div class="cb-title">收差扣款明细</div>
       ${deductRows.length?`<table class="confirm-table"><thead><tr><th>商品名称</th><th>订单号</th><th>订单行号</th><th>不合格数量</th><th>扣款金额</th></tr></thead><tbody>${deductRows.map(r=>`<tr><td class="td-left">${r.name} ${r.model}</td><td>${r.orderNo}</td><td>${r.lineNo}</td><td class="td-red">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table>`:'<div class="og-empty">本次无不合格数量，无扣款</div>'}
     </div>
-    <div class="confirm-warn">⚠️ 提交后将按以上顺序生成核销单据并传送财务系统（含订单号、订单行、数量、金额），不可撤回。同一订单行支持多次提交，历史记录完整留痕。</div>`;
+    <div class="confirm-warn">⚠️ 提交后将生成核销单据并进入审批流程。</div>`;
   document.getElementById('confirmMask').classList.add('show');
 }
 function closeConfirm(){ document.getElementById('confirmMask').classList.remove('show'); }
@@ -743,7 +743,7 @@ function doSubmit(){
     btn.disabled = false; btn.textContent = '确认提交';
     closeConfirm();
     toast('提交成功！单据 BHHX2026080600'+Math.ceil(Math.random()*9)+' 已生成','success');
-    // 清空本次输入，模拟额度已被占用（真实场景由后端结算累计）
+    // 提交成功，本页核销任务完结（审批由独立审批页处理）；清空输入便于再次发起
     SKUS.forEach(k=>{ k.q=0; k.uq=0; });
     renderAll();
   }, 900);
