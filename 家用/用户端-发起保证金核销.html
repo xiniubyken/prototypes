@@ -228,6 +228,11 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.success .t-icon{color:var(--success);}
 .toast.error .t-icon{color:var(--danger);}
+/* 关联特批方案编号 顶部只读条 */
+.plan-banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(90deg,#EAF2FF,#F5F9FF);border:1px solid #c9ddff;border-radius:8px;padding:10px 16px;margin-bottom:12px;}
+.plan-banner .pb-label{font-size:12px;color:#5a6b8c;font-weight:600;}
+.plan-banner .pb-no{font-size:14px;color:#1f3a8a;font-weight:700;letter-spacing:.5px;font-family:'Consolas',monospace;}
+.plan-banner .pb-note{font-size:12px;color:#7a8aa8;margin-left:auto;}
 </style>
 </head>
 <body>
@@ -239,6 +244,13 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
       <button class="ph-back" title="返回">←</button>
       <span class="ph-title">发起保证金核销</span>
     </div>
+  </div>
+
+  <!-- ====== 关联特批方案编号（只读，来自工程单上下文） ====== -->
+  <div class="plan-banner">
+    <span class="pb-label">关联特批方案编号</span>
+    <span class="pb-no" id="planNo">GCTP2620260723001</span>
+    <span class="pb-note">本次核销基于该特批方案发起，核销单号自动生成</span>
   </div>
 
   <!-- ====== 滚动内容 ====== -->
@@ -701,6 +713,23 @@ function renderAttach(){
 }
 function delAttach(i){ files.splice(i,1); renderAttach(); }
 
+/* ==================== 关联特批方案编号 + 核销单号生成 ==================== */
+/* 关联特批方案编号：来自工程单上下文，页面顶部只读展示；核销单号依此延伸生成
+   规则：特批方案编号 = (GCTP|GCZY) + 销司2位 + yyyymmdd8位 + 3位流水（共17位）
+        核销单号     = BHX + 特批方案编号第5位起数字段(13位) + 2位核销流水（同方案每次提交+1）
+        例：GCTP2620260723001 → BHX262026072300101 */
+const RELATED_PLAN_NO = 'GCTP2620260723001';
+document.getElementById('planNo').textContent = RELATED_PLAN_NO; // 单一数据源，页面顶部只读展示
+let writeOffSeq = 0; // 演示用自增；真实环境由服务端按特批方案持久化
+function genWriteOffNo(){
+  const plan = RELATED_PLAN_NO || '';
+  if(!/^(GCTP|GCZY)\d{13}$/.test(plan)) return null;   // 前缀合法 + 第5位起13位数字
+  const digits = plan.substring(4);                     // 第5位(index4)起：销司2+年月日8+方案流水3
+  writeOffSeq += 1;
+  const seq = String(writeOffSeq).padStart(2,'0');      // 01,02,...99
+  return 'BHX' + digits + seq;                          // 总长18位：BHX(3)+13+2
+}
+
 /* ==================== 二次确认弹窗 ==================== */
 function openConfirm(){
   const {q, uq, refund, deduct, over} = allocateAll();
@@ -738,11 +767,20 @@ function openConfirm(){
 function closeConfirm(){ document.getElementById('confirmMask').classList.remove('show'); }
 function doSubmit(){
   const btn = document.getElementById('confirmSubmitBtn');
+  // 全量必填项校验（确认提交前最后一道拦截）
+  const {q, uq, over} = allocateAll();
+  if(!RELATED_PLAN_NO || !/^(GCTP|GCZY)\d{13}$/.test(RELATED_PLAN_NO)){
+    toast('关联特批方案编号缺失或格式错误，无法生成核销单号','error'); return;
+  }
+  if(q+uq===0){ toast('请至少填写一个SKU的合格或不合格数量','error'); return; }
+  if(over){ toast('存在超出剩余可维护的输入，请先修正','error'); return; }
+  const no = genWriteOffNo();
+  if(!no){ toast('核销单号生成失败，请检查关联特批方案编号','error'); return; }
   btn.disabled = true; btn.textContent = '提交中…';
   setTimeout(()=>{
     btn.disabled = false; btn.textContent = '确认提交';
     closeConfirm();
-    toast('提交成功！单据 BHHX2026080600'+Math.ceil(Math.random()*9)+' 已生成','success');
+    toast('提交成功！核销单号 '+no+' 已生成，已进入审批流程','success');
     // 提交成功，本页核销任务完结（审批由独立审批页处理）；清空输入便于再次发起
     SKUS.forEach(k=>{ k.q=0; k.uq=0; });
     renderAll();
