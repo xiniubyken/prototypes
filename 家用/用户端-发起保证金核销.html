@@ -233,6 +233,7 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 .plan-banner .pb-label{font-size:12px;color:#5a6b8c;font-weight:600;}
 .plan-banner .pb-no{font-size:14px;color:#1f3a8a;font-weight:700;letter-spacing:.5px;font-family:'Consolas',monospace;}
 .plan-banner .pb-note{font-size:12px;color:#7a8aa8;margin-left:auto;}
+.plan-banner .pb-sep{font-size:12px;color:#c3cede;margin:0 2px;}
 </style>
 </head>
 <body>
@@ -246,11 +247,14 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
     </div>
   </div>
 
-  <!-- ====== 关联特批方案编号（只读，来自工程单上下文） ====== -->
+  <!-- ====== 关联特批方案编号（只读，来自工程单上下文）+ 核销单号预览 ====== -->
   <div class="plan-banner">
     <span class="pb-label">关联特批方案编号</span>
     <span class="pb-no" id="planNo">GCTP2620260723001</span>
-    <span class="pb-note">本次核销基于该特批方案发起，核销单号自动生成</span>
+    <span class="pb-sep">｜</span>
+    <span class="pb-label">核销单号</span>
+    <span class="pb-no" id="writeOffPreview">BHX262026072300101</span>
+    <span class="pb-note">本次提交将生成</span>
   </div>
 
   <!-- ====== 滚动内容 ====== -->
@@ -721,6 +725,18 @@ function delAttach(i){ files.splice(i,1); renderAttach(); }
 const RELATED_PLAN_NO = 'GCTP2620260723001';
 document.getElementById('planNo').textContent = RELATED_PLAN_NO; // 单一数据源，页面顶部只读展示
 let writeOffSeq = 0; // 演示用自增；真实环境由服务端按特批方案持久化
+function peekWriteOffNo(){ // 预览下一次将生成的核销单号（不递增流水）
+  const plan = RELATED_PLAN_NO || '';
+  if(!/^(GCTP|GCZY)\d{13}$/.test(plan)) return null;
+  return 'BHX' + plan.substring(4) + String(writeOffSeq+1).padStart(2,'0');
+}
+function refreshWriteOffPreview(){ // 横幅+弹窗的单号预览统一刷新（单一数据源）
+  const no = peekWriteOffNo();
+  if(!no) return;
+  document.getElementById('writeOffPreview').textContent = no;
+  const el = document.getElementById('confirmNoPreview');
+  if(el) el.textContent = no;
+}
 function genWriteOffNo(){
   const plan = RELATED_PLAN_NO || '';
   if(!/^(GCTP|GCZY)\d{13}$/.test(plan)) return null;   // 前缀合法 + 第5位起13位数字
@@ -729,6 +745,7 @@ function genWriteOffNo(){
   const seq = String(writeOffSeq).padStart(2,'0');      // 01,02,...99
   return 'BHX' + digits + seq;                          // 总长18位：BHX(3)+13+2
 }
+refreshWriteOffPreview(); // 页面加载即显示首次单号预览
 
 /* ==================== 二次确认弹窗 ==================== */
 function openConfirm(){
@@ -761,7 +778,7 @@ function openConfirm(){
       <div class="cb-title">收差扣款明细</div>
       ${deductRows.length?`<table class="confirm-table"><thead><tr><th>商品名称</th><th>订单号</th><th>订单行号</th><th>不合格数量</th><th>扣款金额</th></tr></thead><tbody>${deductRows.map(r=>`<tr><td class="td-left">${r.name} ${r.model}</td><td>${r.orderNo}</td><td>${r.lineNo}</td><td class="td-red">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table>`:'<div class="og-empty">本次无不合格数量，无扣款</div>'}
     </div>
-    <div class="confirm-warn">⚠️ 提交后将生成核销单据并进入审批流程。</div>`;
+    <div class="confirm-warn">⚠️ 提交后将生成核销单号 <span id="confirmNoPreview" style="font-family:'Consolas',monospace;font-weight:700;color:#1f3a8a;">BHX262026072300101</span> 并进入审批流程。</div>`;
   document.getElementById('confirmMask').classList.add('show');
 }
 function closeConfirm(){ document.getElementById('confirmMask').classList.remove('show'); }
@@ -784,6 +801,7 @@ function doSubmit(){
     // 提交成功，本页核销任务完结（审批由独立审批页处理）；清空输入便于再次发起
     SKUS.forEach(k=>{ k.q=0; k.uq=0; });
     renderAll();
+    refreshWriteOffPreview(); // 横幅+弹窗预览刷新为下一次将生成的单号
   }, 900);
 }
 
