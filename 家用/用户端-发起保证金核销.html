@@ -20,6 +20,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .page{display:flex;flex-direction:column;height:100vh;min-width:1200px;}
 .page-header{height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fff;border-bottom:1px solid var(--border);}
 .ph-left{display:flex;align-items:center;gap:12px;}
+.ph-right{display:flex;align-items:center;gap:10px;}
 .ph-back{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);border:none;background:transparent;font-size:16px;transition:.15s;}
 .ph-back:hover{background:var(--bg-hover);color:var(--primary);}
 .ph-title{font-size:15px;font-weight:700;color:var(--text);}
@@ -175,6 +176,7 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;}
 .modal-mask.show{display:flex;}
 .modal{width:640px;max-width:92vw;max-height:86vh;background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+#histMask .modal{width:780px;}
 .modal-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .mh-title{font-size:14px;font-weight:700;}
 .mh-close{width:28px;height:28px;border-radius:50%;border:none;background:transparent;color:var(--text-aux);cursor:pointer;font-size:15px;}
@@ -228,12 +230,6 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.success .t-icon{color:var(--success);}
 .toast.error .t-icon{color:var(--danger);}
-/* 关联特批方案编号 顶部只读条 */
-.plan-banner{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(90deg,#EAF2FF,#F5F9FF);border:1px solid #c9ddff;border-radius:8px;padding:10px 16px;margin-bottom:12px;}
-.plan-banner .pb-label{font-size:12px;color:#5a6b8c;font-weight:600;}
-.plan-banner .pb-no{font-size:14px;color:#1f3a8a;font-weight:700;letter-spacing:.5px;font-family:'Consolas',monospace;}
-.plan-banner .pb-note{font-size:12px;color:#7a8aa8;margin-left:auto;}
-.plan-banner .pb-sep{font-size:12px;color:#c3cede;margin:0 2px;}
 </style>
 </head>
 <body>
@@ -243,25 +239,18 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
   <div class="page-header">
     <div class="ph-left">
       <button class="ph-back" title="返回">←</button>
-      <span class="ph-title">发起保证金核销</span>
+      <span class="ph-title">关联特批方案编号 <span id="planNo" style="color:#1f3a8a;font-family:'Consolas',monospace;">GCTP2620260723001</span> 发起保证金核销</span>
     </div>
-  </div>
-
-  <!-- ====== 关联特批方案编号（只读，来自工程单上下文）+ 核销单号预览 ====== -->
-  <div class="plan-banner">
-    <span class="pb-label">关联特批方案编号</span>
-    <span class="pb-no" id="planNo">GCTP2620260723001</span>
-    <span class="pb-sep">｜</span>
-    <span class="pb-label">核销单号</span>
-    <span class="pb-no" id="writeOffPreview">BHX262026072300101</span>
-    <span class="pb-note">本次提交将生成</span>
+    <div class="ph-right">
+      <button class="btn btn-mini" onclick="openHistory()">🕘 历史提交记录</button>
+    </div>
   </div>
 
   <!-- ====== 滚动内容 ====== -->
   <div class="page-scroll">
 
     <!-- ====== 演示提示条 ====== -->
-    <div class="demo-tip">💡 <b>演示引导：</b>SKU「天行IT资质单元机」已预填 <b>合格4台 + 不合格11台</b>（合计15=剩余可维护），看下方订单行如何<b>跨行递扣分配</b>（合格→001分2、002分2；不合格→002分3、003分8）。所有数字可修改，试试超限输入：<b>输入过程标红提示，失焦自动修正到上限</b>。</div>
+    <div class="demo-tip">💡 <b>演示引导：</b>SKU「天行IT资质单元机」已预填 <b>合格4台 + 不合格11台</b>（合计15=剩余可核销数量），看下方订单行如何<b>跨行递扣分配</b>（合格→订单行1分2、订单行2分2；不合格→订单行2分3、订单行3分8）。所有数字可修改，试试超限输入：<b>输入过程标红提示，失焦自动修正到上限</b>。</div>
 
     <!-- ====== 汇总信息栏 ====== -->
     <div class="form-card">
@@ -297,7 +286,7 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 
     <!-- ====== SKU核销列表 ====== -->
     <div class="form-card">
-      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">SKU核销列表</span><span class="fc-tag">合格+不合格 ≤ 剩余可维护</span></div>
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">SKU核销列表</span><span class="fc-tag">合格+不合格 ≤ 剩余可核销数量</span></div>
       <div class="fc-body pad0">
         <div class="table-wrap">
           <table class="tbl" id="skuTable">
@@ -386,13 +375,15 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
       <button class="mh-close" onclick="closeHistory()">✕</button>
     </div>
     <div class="modal-body">
+      <div class="table-wrap">
       <table class="hist-table">
         <thead><tr>
           <th>单据号</th><th>提交时间</th><th>提交人</th><th>合格数量</th><th>不合格数量</th>
-          <th>返还金额</th><th>扣款金额</th><th>状态</th><th>明细</th>
+          <th>返还金额</th><th>收差金额</th><th>状态</th><th>明细</th>
         </tr></thead>
         <tbody id="histBody"></tbody>
       </table>
+      </div>
     </div>
   </div>
 </div>
@@ -411,7 +402,7 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 
 <script>
 /* ==================== 演示数据 ==================== */
-// SKU数据：price=保证金单价(元/台)，剩余可维护=已开单-累计合格-累计收差
+// SKU数据：price=保证金单价(元/台)，剩余可核销数量=已开单-累计合格-累计收差
 // 演示模型（自洽）：已收取5800 = 50×80+40×30+30×20+0×10
 //                已返还1150 = 15×50+10×40；已收差700 = 10×50+5×40；待处理3950 = 5800-1150-700
 //                需核销90 = 55+15+20（单价0的SKU4不计）；本次15（预填4+11）；待核销75
@@ -423,22 +414,23 @@ const SKUS = [
 ];
 
 // 订单行数据：qty=追溯订单下单数量, hQual=历史累计合格(已完结), hDeduct=历史累计收差(已完结)
-// SKU2三行：剩余额度2/5/8（合计15=SKU剩余可维护）→ 合格4跨行递扣(001分2/002分2)，不合格11跨行递扣(002分3/003分8)
+// 说明：只展示订单行号 = 订单号 + 流水号（如 DD2026071000101 = 订单 DD20260710001 + 流水 01），全局唯一
+// SKU2三行：剩余额度2/5/8（合计15=SKU剩余可核销数量）→ 合格4跨行递扣(行01分2/行02分2)，不合格11跨行递扣(行02分3/行03分8)
 const ORDERS = {
   1: [
-    {orderNo:'DD20260701001', lineNo:'001', date:'2026-06-15', qty:50, hQual:15, hDeduct:10},
-    {orderNo:'DD20260701001', lineNo:'002', date:'2026-06-20', qty:30, hQual:0,  hDeduct:0},
+    {lineNo:'DD2026061500101', date:'2026-06-15', qty:50, hQual:15, hDeduct:10},
+    {lineNo:'DD2026062000101', date:'2026-06-20', qty:30, hQual:0,  hDeduct:0},
   ],
   2: [
-    {orderNo:'DD20260715002', lineNo:'001', date:'2026-07-10', qty:12, hQual:10, hDeduct:0},
-    {orderNo:'DD20260715002', lineNo:'002', date:'2026-07-18', qty:10, hQual:0,  hDeduct:5},
-    {orderNo:'DD20260715002', lineNo:'003', date:'2026-07-22', qty:8,  hQual:0,  hDeduct:0},
+    {lineNo:'DD2026071000101', date:'2026-07-10', qty:12, hQual:10, hDeduct:0},
+    {lineNo:'DD2026071000102', date:'2026-07-10', qty:10, hQual:0,  hDeduct:5},
+    {lineNo:'DD2026072200101', date:'2026-07-22', qty:8,  hQual:0,  hDeduct:0},
   ],
   3: [
-    {orderNo:'DD20260730003', lineNo:'001', date:'2026-07-25', qty:20, hQual:0, hDeduct:0},
+    {lineNo:'DD2026072500101', date:'2026-07-25', qty:20, hQual:0, hDeduct:0},
   ],
   4: [
-    {orderNo:'DD20260730004', lineNo:'001', date:'2026-07-28', qty:10, hQual:0, hDeduct:0},
+    {lineNo:'DD2026072800101', date:'2026-07-28', qty:10, hQual:0, hDeduct:0},
   ],
 };
 
@@ -446,14 +438,14 @@ const ORDERS = {
 // 已驳回1条：额度已释放，可「重新提交」改原单
 const HIST = [
   {no:'BHHX20260720001', time:'2026-07-20 14:32', user:'钟日健', q:15, uq:10, refund:750, deduct:500, status:'已完结', detail:[
-    {name:'清悉贝茨空调螺机', model:'KFR-35GW', orderNo:'DD20260701001', lineNo:'001', q:15, uq:10, refund:750, deduct:500},
+    {name:'清悉贝茨空调螺机', model:'KFR-35GW', lineNo:'DD2026061500101', q:15, uq:10, refund:750, deduct:500},
   ]},
   {no:'BHHX20260725002', time:'2026-07-25 09:15', user:'钟日健', q:10, uq:5, refund:400, deduct:200, status:'已完结', detail:[
-    {name:'天行IT资质单元机', model:'KFR-455W', orderNo:'DD20260715002', lineNo:'001', q:10, uq:0, refund:400, deduct:0},
-    {name:'天行IT资质单元机', model:'KFR-455W', orderNo:'DD20260715002', lineNo:'002', q:0,  uq:5, refund:0,   deduct:200},
+    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026071000101', q:10, uq:0, refund:400, deduct:0},
+    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026071000102', q:0,  uq:5, refund:0,   deduct:200},
   ]},
   {no:'BHHX20260728003', time:'2026-07-28 16:40', user:'钟日健', q:5, uq:0, refund:200, deduct:0, status:'已驳回', reason:'合格数量与质检报告不符，请核对后重新提交', detail:[
-    {name:'天行IT资质单元机', model:'KFR-455W', orderNo:'DD20260715002', lineNo:'003', q:5, uq:0, refund:200, deduct:0},
+    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026072200101', q:5, uq:0, refund:200, deduct:0},
   ]},
 ];
 
@@ -471,7 +463,7 @@ const remain = sku => sku.ordered - sku.cumQual - sku.cumDeduct;
   document.getElementById('sumPending').textContent = fmt(received-refunded-deducted);
 })();
 function renderSummary(){
-  // 需核销 = Σ剩余可维护（单价0的SKU不计）
+  // 需核销 = Σ剩余可核销数量（单价0的SKU不计）
   const need = SKUS.reduce((s,k)=>s+(k.price>0?remain(k):0),0);
   const a = allocateAll();
   const sum = a.q + a.uq;
@@ -493,7 +485,7 @@ function allocateAll(){
 }
 
 /* ==================== SKU核销列表 ==================== */
-const HEAD = ['序号','商品名称','产品型号','SKU编号','特批/资源机/配提','项目已采购数量','项目已开单数量','工程单已购买数量','项目剩余可分散数量','保证金单价(元/台)','保证金金额','累计合格数量','累计收差数量','剩余可维护数量','合格数量','不合格数量'];
+const HEAD = ['序号','商品名称','产品型号','SKU编号','特批/资源机/配提','项目已采购数量','项目已开单数量','工程单已购买数量','项目剩余可分配数量','保证金单价(元/台)','保证金金额','累计合格数量','累计收差数量','剩余可核销数量','合格数量','不合格数量'];
 
 function renderSkuTable(){
   document.getElementById('skuHead').innerHTML = HEAD.map((h,i)=>
@@ -553,7 +545,7 @@ function onBlur(el){
     const exceeded = k[field] - capped;
     k[field] = capped;
     fixMsg[k.id+'_'+field] = '超'+exceeded+'台，已自动修正为'+capped+'台';
-    toast('SKU「'+k.name+'」'+(field==='q'?'合格':'不合格')+'超出剩余可维护，已自动修正为 '+capped+' 台','success');
+    toast('SKU「'+k.name+'」'+(field==='q'?'合格':'不合格')+'超出剩余可核销数量，已自动修正为 '+capped+' 台','success');
   }
   renderAll();
 }
@@ -606,21 +598,22 @@ function renderOrderGroups(){
       <div class="og-head">
         <span class="og-sku">${idx+1}. ${k.name}</span>
         <span class="og-model">${k.model} / ${k.sku}</span>
-        <span class="og-info">保证金单价 ${k.price}元/台 · 剩余可维护 ${r}台</span>
+        <span class="og-info">保证金单价 ${k.price}元/台 · 剩余可核销数量 ${r}台</span>
         <span class="og-badge">本次核销 ${hasAlloc ? (q+uq)+'台' : '无'}</span>
       </div>
+      <div class="table-wrap">
       <table class="og-table">
         <thead><tr>
-          <th>订单号</th><th>订单行号</th><th>下单时间</th><th>追溯订单下单数量</th>
-          <th>历史累计合格</th><th>历史累计收差</th><th>剩余核销数量</th>
+          <th>订单行号</th><th>下单时间</th><th>追溯订单下单数量</th>
+          <th>历史累计合格</th><th>历史累计收差</th><th>订单行剩余可核销数量</th>
           <th class="alloc-col">本次合格（系统分配）</th><th class="alloc-col">本次不合格（系统分配）</th>
-          <th class="money-col">本次返还金额</th><th class="money-col">本次扣款金额</th>
+          <th class="money-col">本次返还金额</th><th class="money-col">本次收差金额</th>
         </tr></thead>
         <tbody>${lines.map(l=>{
           const avail = Math.max(0, l.qty - l.hQual - l.hDeduct);
           const zero = avail===0;   // P2-1：剩余0整行置灰
           return `<tr${zero?' class="line-zero"':''}>
-            <td>${l.orderNo}</td><td>${l.lineNo}</td><td>${l.date}</td><td>${l.qty}</td>
+            <td>${l.lineNo}</td><td>${l.date}</td><td>${l.qty}</td>
             <td>${l.hQual}</td><td>${l.hDeduct}</td><td>${avail}</td>
             <td class="alloc-col${l.allocQ?' q-alloc':''}">${l.allocQ?`<span class="alloc-num">${l.allocQ}</span>`:'-'}</td>
             <td class="alloc-col${l.allocUQ?' u-alloc':''}">${l.allocUQ?`<span class="alloc-num">${l.allocUQ}</span>`:'-'}</td>
@@ -629,12 +622,13 @@ function renderOrderGroups(){
           </tr>`;
         }).join('')}</tbody>
       </table>
+      </div>
       <div class="og-foot">
         <span class="ft-item">合格小计：<span class="ft-val">${q}</span> 台</span>
         <span class="ft-item">不合格小计：<span class="ft-val red">${uq}</span> 台</span>
         <span class="ft-item">返还金额：<span class="ft-val">${fmt(refund)}</span></span>
-        <span class="ft-item">扣款金额：<span class="ft-val red">${fmt(deduct)}</span></span>
-        ${over?'<span class="ft-item" style="color:var(--danger);font-weight:700;">⚠️ 超出剩余可维护，无法提交</span>':''}
+        <span class="ft-item">收差金额：<span class="ft-val red">${fmt(deduct)}</span></span>
+        ${over?'<span class="ft-item" style="color:var(--danger);font-weight:700;">⚠️ 超出剩余可核销数量，无法提交</span>':''}
       </div>
     </div>`;
   });
@@ -649,13 +643,13 @@ function openDeduct(){
       <div class="deduct-card">
         <div class="dc-step">
           <div class="dc-title"><span class="dc-num green">1</span> 先抵扣合格数量 → 返还保证金</div>
-          <div class="dc-desc">本次填写的<b>合格数量</b>，按订单行<b>下单时间先后</b>依次抵扣，每行抵扣上限为<b>该行剩余核销数量</b>；每台合格按<b>保证金单价</b>计算返还金额。</div>
+          <div class="dc-desc">本次填写的<b>合格数量</b>，按订单行<b>下单时间先后</b>依次抵扣，每行抵扣上限为<b>该行订单行剩余可核销数量</b>；每台合格按<b>保证金单价</b>计算返还金额。</div>
           <div class="dc-rule">返还金额 = 合格数量 × 保证金单价（元/台）</div>
         </div>
         <div class="dc-step">
           <div class="dc-title"><span class="dc-num red">2</span> 再抵扣不合格数量 → 收差扣款</div>
-          <div class="dc-desc">合格数量抵扣完毕后，本次填写的<b>不合格数量</b>继续按订单行顺序依次抵扣，仅占用<b>未被合格占用的剩余额度</b>；每台不合格按<b>保证金单价</b>计算收差扣款金额。</div>
-          <div class="dc-rule">扣款金额 = 不合格数量 × 保证金单价（元/台）</div>
+          <div class="dc-desc">合格数量抵扣完毕后，本次填写的<b>不合格数量</b>继续按订单行顺序依次抵扣，仅占用<b>未被合格占用的剩余额度</b>；每台不合格按<b>保证金单价</b>计算收差金额。</div>
+          <div class="dc-rule">收差金额 = 不合格数量 × 保证金单价（元/台）</div>
         </div>
       </div>`;
   }
@@ -677,7 +671,7 @@ function renderFooter(){
   // P0-2：超限禁止提交
   const btn = document.getElementById('submitBtn');
   btn.disabled = (q+uq)===0 || over;
-  btn.title = over ? '存在超出剩余可维护的输入，请修正' : '';
+  btn.title = over ? '存在超出剩余可核销数量的输入，请修正' : '';
 }
 
 function renderAll(){ renderSkuTable(); renderOrderGroups(); renderFooter(); renderSummary(); }
@@ -725,18 +719,6 @@ function delAttach(i){ files.splice(i,1); renderAttach(); }
 const RELATED_PLAN_NO = 'GCTP2620260723001';
 document.getElementById('planNo').textContent = RELATED_PLAN_NO; // 单一数据源，页面顶部只读展示
 let writeOffSeq = 0; // 演示用自增；真实环境由服务端按特批方案持久化
-function peekWriteOffNo(){ // 预览下一次将生成的核销单号（不递增流水）
-  const plan = RELATED_PLAN_NO || '';
-  if(!/^(GCTP|GCZY)\d{13}$/.test(plan)) return null;
-  return 'BHX' + plan.substring(4) + String(writeOffSeq+1).padStart(2,'0');
-}
-function refreshWriteOffPreview(){ // 横幅+弹窗的单号预览统一刷新（单一数据源）
-  const no = peekWriteOffNo();
-  if(!no) return;
-  document.getElementById('writeOffPreview').textContent = no;
-  const el = document.getElementById('confirmNoPreview');
-  if(el) el.textContent = no;
-}
 function genWriteOffNo(){
   const plan = RELATED_PLAN_NO || '';
   if(!/^(GCTP|GCZY)\d{13}$/.test(plan)) return null;   // 前缀合法 + 第5位起13位数字
@@ -745,7 +727,6 @@ function genWriteOffNo(){
   const seq = String(writeOffSeq).padStart(2,'0');      // 01,02,...99
   return 'BHX' + digits + seq;                          // 总长18位：BHX(3)+13+2
 }
-refreshWriteOffPreview(); // 页面加载即显示首次单号预览
 
 /* ==================== 二次确认弹窗 ==================== */
 function openConfirm(){
@@ -756,29 +737,29 @@ function openConfirm(){
     const {lines} = allocate(k);
     if(lines.some(l=>l.allocQ||l.allocUQ)) skuCnt++;
     lines.forEach(l=>{
-      if(l.allocQ){ refundRows.push({name:k.name, model:k.model, orderNo:l.orderNo, lineNo:l.lineNo, n:l.allocQ, amt:l.allocQ*k.price}); }
-      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, orderNo:l.orderNo, lineNo:l.lineNo, n:l.allocUQ, amt:l.allocUQ*k.price}); }
+      if(l.allocQ){ refundRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.lineNo, n:l.allocQ, amt:l.allocQ*k.price}); }
+      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.lineNo, n:l.allocUQ, amt:l.allocUQ*k.price}); }
     });
   });
   // P0-2：超限拦截，不给打开确认弹窗
-  if(over){ toast('存在超出剩余可维护的输入，金额无法确认，请先修正','error'); return; }
+  if(over){ toast('存在超出剩余可核销数量的输入，金额无法确认，请先修正','error'); return; }
   if(q+uq===0){ toast('请至少填写一个SKU的合格或不合格数量','error'); return; }
   document.getElementById('confirmBody').innerHTML = `
     <div class="confirm-total">
       <div class="ct-item"><div class="ct-label">核销SKU数</div><div class="ct-value blue">${skuCnt} 个</div></div>
       <div class="ct-item"><div class="ct-label">合格数量合计（返还）</div><div class="ct-value green">${q} 台</div></div>
-      <div class="ct-item"><div class="ct-label">不合格数量合计（扣款）</div><div class="ct-value red">${uq} 台</div></div>
+      <div class="ct-item"><div class="ct-label">不合格数量合计（收差）</div><div class="ct-value red">${uq} 台</div></div>
       <div class="ct-item"><div class="ct-label">涉及保证金</div><div class="ct-value blue">${fmt(refund+deduct)}</div></div>
     </div>
     <div class="confirm-block">
       <div class="cb-title">返还保证金明细</div>
-      ${refundRows.length?`<table class="confirm-table"><thead><tr><th>商品名称</th><th>订单号</th><th>订单行号</th><th>合格数量</th><th>返还金额</th></tr></thead><tbody>${refundRows.map(r=>`<tr><td class="td-left">${r.name} ${r.model}</td><td>${r.orderNo}</td><td>${r.lineNo}</td><td class="td-green">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table>`:'<div class="og-empty">本次无合格数量，无返还</div>'}
+      ${refundRows.length?`<div class="table-wrap"><table class="confirm-table"><thead><tr><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>合格数量</th><th>返还金额</th></tr></thead><tbody>${refundRows.map(r=>`<tr><td>${r.lineNo}</td><td class="td-left">${r.name} ${r.model}</td><td>${r.sku}</td><td class="td-green">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="og-empty">本次无合格数量，无返还</div>'}
     </div>
     <div class="confirm-block">
       <div class="cb-title">收差扣款明细</div>
-      ${deductRows.length?`<table class="confirm-table"><thead><tr><th>商品名称</th><th>订单号</th><th>订单行号</th><th>不合格数量</th><th>扣款金额</th></tr></thead><tbody>${deductRows.map(r=>`<tr><td class="td-left">${r.name} ${r.model}</td><td>${r.orderNo}</td><td>${r.lineNo}</td><td class="td-red">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table>`:'<div class="og-empty">本次无不合格数量，无扣款</div>'}
+      ${deductRows.length?`<div class="table-wrap"><table class="confirm-table"><thead><tr><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>不合格数量</th><th>收差金额</th></tr></thead><tbody>${deductRows.map(r=>`<tr><td>${r.lineNo}</td><td class="td-left">${r.name} ${r.model}</td><td>${r.sku}</td><td class="td-red">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="og-empty">本次无不合格数量，无收差</div>'}
     </div>
-    <div class="confirm-warn">⚠️ 提交后将生成核销单号 <span id="confirmNoPreview" style="font-family:'Consolas',monospace;font-weight:700;color:#1f3a8a;">BHX262026072300101</span> 并进入审批流程。</div>`;
+    <div class="confirm-warn">⚠️ 提交后将生成核销单号并进入审批流程。</div>`;
   document.getElementById('confirmMask').classList.add('show');
 }
 function closeConfirm(){ document.getElementById('confirmMask').classList.remove('show'); }
@@ -790,7 +771,7 @@ function doSubmit(){
     toast('关联特批方案编号缺失或格式错误，无法生成核销单号','error'); return;
   }
   if(q+uq===0){ toast('请至少填写一个SKU的合格或不合格数量','error'); return; }
-  if(over){ toast('存在超出剩余可维护的输入，请先修正','error'); return; }
+  if(over){ toast('存在超出剩余可核销数量的输入，请先修正','error'); return; }
   const no = genWriteOffNo();
   if(!no){ toast('核销单号生成失败，请检查关联特批方案编号','error'); return; }
   btn.disabled = true; btn.textContent = '提交中…';
@@ -801,7 +782,6 @@ function doSubmit(){
     // 提交成功，本页核销任务完结（审批由独立审批页处理）；清空输入便于再次发起
     SKUS.forEach(k=>{ k.q=0; k.uq=0; });
     renderAll();
-    refreshWriteOffPreview(); // 横幅+弹窗预览刷新为下一次将生成的单号
   }, 900);
 }
 
@@ -818,9 +798,9 @@ function openHistory(){
     <tr class="hist-detail" id="histDetail${i}">
       <td colspan="9"><div class="hd-inner">
         <div class="hd-title">单据明细 · 按订单行展示合格/不合格数量与金额</div>
-        <table class="hd-detail-table"><thead><tr><th>商品名称/型号</th><th>订单号</th><th>订单行号</th><th>合格数量</th><th>不合格数量</th><th>返还金额</th><th>扣款金额</th></tr></thead><tbody>
-        ${h.detail.map(d=>`<tr><td class="td-left">${d.name} ${d.model}</td><td>${d.orderNo}</td><td>${d.lineNo}</td><td class="td-green">${d.q}</td><td class="td-red">${d.uq}</td><td>${fmt(d.refund)}</td><td>${fmt(d.deduct)}</td></tr>`).join('')}
-        </tbody></table>
+        <div class="table-wrap"><table class="hd-detail-table"><thead><tr><th>商品名称/型号</th><th>订单行号</th><th>合格数量</th><th>不合格数量</th><th>返还金额</th><th>收差金额</th></tr></thead><tbody>
+        ${h.detail.map(d=>`<tr><td class="td-left">${d.name} ${d.model}</td><td>${d.lineNo}</td><td class="td-green">${d.q}</td><td class="td-red">${d.uq}</td><td>${fmt(d.refund)}</td><td>${fmt(d.deduct)}</td></tr>`).join('')}
+        </tbody></table></div>
         ${h.status==='已驳回'
           ? `<div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;background:#FDECEC;border:1px solid #f5c6c6;border-radius:4px;font-size:12px;color:#c0392b;flex-wrap:wrap;">
               <span>⚠️ 驳回原因：${h.reason||'未填写'}</span>
