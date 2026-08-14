@@ -397,7 +397,7 @@ function renderSku(){
 function renderOrders(){
   let html='';
   SKUS.forEach((k,idx)=>{
-    if(k.q+k.uq===0){ return; } // 无返还/扣款金额的 SKU 不展示
+    if(k.q+k.uq===0){ return; } // 无返还/收差金额的 SKU 不展示
     const {q, uq, lines} = allocate(k);
     const refund = lines.reduce((s,l)=>s+l.allocQ*k.price,0);
     const deduct = lines.reduce((s,l)=>s+l.allocUQ*k.price,0);
@@ -406,15 +406,15 @@ function renderOrders(){
       <div class="og-head">
         <span class="og-sku">${idx+1}. ${k.name}</span>
         <span class="og-model">${k.model} / ${k.sku}</span>
-        <span class="og-info">保证金单价 ${k.price}元/台 · 剩余可维护 ${k.remain}台</span>
+        <span class="og-info">保证金单价 ${k.price}元/台 · 剩余可核销数量 ${k.remain}台</span>
         <span class="og-badge">本次核销 ${hasAlloc ? (q+uq)+'台' : '无'}</span>
       </div>
       <table class="og-table">
         <thead><tr>
           <th>订单行号</th><th>下单时间</th><th>追溯订单下单数量</th>
-          <th>历史累计合格</th><th>历史累计收差</th><th>剩余核销数量</th>
+          <th>历史累计合格</th><th>历史累计收差</th><th>订单行剩余可核销数量</th>
           <th class="alloc-col">本次合格（系统分配）</th><th class="alloc-col">本次不合格（系统分配）</th>
-          <th class="money-col">本次返还金额</th><th class="money-col">本次扣款金额</th>
+          <th class="money-col">本次返还金额</th><th class="money-col">本次收差金额</th>
         </tr></thead>
         <tbody>${lines.map(l=>{
           const avail=Math.max(0,l.qty-l.hQual-l.hDeduct);
@@ -432,7 +432,7 @@ function renderOrders(){
         <span class="ft-item">合格小计：<span class="ft-val">${q}</span> 台</span>
         <span class="ft-item">不合格小计：<span class="ft-val red">${uq}</span> 台</span>
         <span class="ft-item">返还金额：<span class="ft-val">${fmt(refund)}</span></span>
-        <span class="ft-item">扣款金额：<span class="ft-val red">${fmt(deduct)}</span></span>
+        <span class="ft-item">收差金额：<span class="ft-val red">${fmt(deduct)}</span></span>
       </div>
     </div>`;
   });
