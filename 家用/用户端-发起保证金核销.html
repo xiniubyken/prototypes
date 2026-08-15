@@ -30,6 +30,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 /* ====== 演示提示条 ====== */
 .demo-tip{display:flex;align-items:center;gap:8px;background:#E8F0FE;border:1px solid #c8d8f5;border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:12px;color:#3b5998;line-height:1.6;}
 .demo-tip b{color:#2a4780;}
+.copy-tip{display:none;align-items:center;gap:8px;background:#FFF7E6;border:1px solid #FFE58F;border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:12px;color:#8a6d1a;line-height:1.6;}
 
 /* ====== 通用卡片 ====== */
 .form-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
@@ -249,6 +250,9 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
   <!-- ====== 滚动内容 ====== -->
   <div class="page-scroll">
 
+    <!-- ====== 复制并新建提示条（从汇总页复制入口进入，标 col-new） ====== -->
+    <div class="copy-tip" id="copyTip">📋 <b>复制并新建：</b>已按原单带入填写信息/附件/备注，订单数据按当前额度重算，可修改后提交；原单保持「已驳回」。</div>
+
     <!-- ====== 演示提示条 ====== -->
     <div class="demo-tip">💡 <b>演示引导：</b>SKU「天行IT资质单元机」已预填 <b>合格4台 + 不合格11台</b>（合计15=剩余可核销数量），看下方订单行如何<b>跨行递扣分配</b>（合格→订单行1分2、订单行2分2；不合格→订单行2分3、订单行3分8）。所有数字可修改，试试超限输入：<b>输入过程标红提示，失焦自动修正到上限</b>。</div>
 
@@ -284,9 +288,9 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
       </div>
     </div>
 
-    <!-- ====== SKU核销列表 ====== -->
+    <!-- ====== SKU核销明细 ====== -->
     <div class="form-card">
-      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">SKU核销列表</span><span class="fc-tag">合格+不合格 ≤ 剩余可核销数量</span></div>
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">SKU核销明细</span><span class="fc-tag">合格+不合格 ≤ 剩余可核销数量</span></div>
       <div class="fc-body pad0">
         <div class="table-wrap">
           <table class="tbl" id="skuTable">
@@ -402,15 +406,15 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 
 <script>
 /* ==================== 演示数据 ==================== */
-// SKU数据：price=保证金单价(元/台)，剩余可核销数量=已开单-累计合格-累计收差
+// SKU数据：price=保证金单价(元/台)，剩余可核销数量=已开单-累计合格-累计收差-审批中数量
 // 演示模型（自洽）：已收取5800 = 50×80+40×30+30×20+0×10
 //                已返还1150 = 15×50+10×40；已收差700 = 10×50+5×40；待处理3950 = 5800-1150-700
 //                需核销90 = 55+15+20（单价0的SKU4不计）；本次15（预填4+11）；待核销75
 const SKUS = [
-  {id:1, name:'清悉贝茨空调螺机',  model:'KFR-35GW', sku:'KB5410019000', type:'特价机', purchased:500, ordered:80, bought:80, spreadable:0,   price:50, cumQual:15, cumDeduct:10, q:0,  uq:0},
-  {id:2, name:'天行IT资质单元机',  model:'KFR-455W', sku:'KB5410019001', type:'资源机', purchased:300, ordered:30, bought:20, spreadable:10, price:40, cumQual:10, cumDeduct:5,  q:4,  uq:11},
-  {id:3, name:'安顿组织器多联机',  model:'KFR-380W', sku:'KB5410019002', type:'配提机', purchased:200, ordered:20, bought:15, spreadable:5,  price:30, cumQual:0,  cumDeduct:0,  q:0,  uq:0},
-  {id:4, name:'清悉贝茨标准分体机', model:'KFR-05GW', sku:'KB5410019003', type:'配提机', purchased:100, ordered:10, bought:10, spreadable:0,  price:0,  cumQual:0,  cumDeduct:0,  q:0,  uq:0},
+  {id:1, name:'清悉贝茨空调螺机',  model:'KFR-35GW', sku:'KB5410019000', type:'特价机', purchased:500, ordered:80, bought:80, spreadable:0,   price:50, cumQual:15, cumDeduct:10, pending:0, q:0,  uq:0},
+  {id:2, name:'天行IT资质单元机',  model:'KFR-455W', sku:'KB5410019001', type:'资源机', purchased:300, ordered:30, bought:20, spreadable:10, price:40, cumQual:10, cumDeduct:5,  pending:0, q:4,  uq:11},
+  {id:3, name:'安顿组织器多联机',  model:'KFR-380W', sku:'KB5410019002', type:'配提机', purchased:200, ordered:20, bought:15, spreadable:5,  price:30, cumQual:0,  cumDeduct:0,  pending:0, q:0,  uq:0},
+  {id:4, name:'清悉贝茨标准分体机', model:'KFR-05GW', sku:'KB5410019003', type:'配提机', purchased:100, ordered:10, bought:10, spreadable:0,  price:0,  cumQual:0,  cumDeduct:0,  pending:0, q:0,  uq:0},
 ];
 
 // 订单行数据：qty=追溯订单下单数量, hQual=历史累计合格(已完结), hDeduct=历史累计收差(已完结)
@@ -450,7 +454,7 @@ const HIST = [
 ];
 
 const fmt = n => '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-const remain = sku => sku.ordered - sku.cumQual - sku.cumDeduct;
+const remain = sku => sku.ordered - sku.cumQual - sku.cumDeduct - (sku.pending||0);
 
 /* ==================== 汇总卡片（静态自洽 + 本次/待核销动态联动） ==================== */
 (function initSummary(){
@@ -484,7 +488,7 @@ function allocateAll(){
   return {q, uq, refund, deduct, over};
 }
 
-/* ==================== SKU核销列表 ==================== */
+/* ==================== SKU核销明细 ==================== */
 const HEAD = ['序号','商品名称','产品型号','SKU编号','特批/资源机/配提','项目已采购数量','项目已开单数量','工程单已购买数量','项目剩余可分配数量','保证金单价(元/台)','保证金金额','累计合格数量','累计收差数量','剩余可核销数量','合格数量','不合格数量'];
 
 function renderSkuTable(){
@@ -883,6 +887,11 @@ function fetchInvoice(){
 }
 
 /* ==================== 初始化 ==================== */
+function getParam(name){
+  const m = new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+if(getParam('copy')){ document.getElementById('copyTip').style.display = 'flex'; }
 renderAll();
 fetchInvoice();
 </script>
