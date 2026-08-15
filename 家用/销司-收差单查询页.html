@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收差单查询（销司）</title>
+<style>
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --text:#333; --text-secondary:#666; --text-aux:#999;
+  --bg:#f5f6fa; --bg-header:#f8f9fb; --bg-hover:#f2f4f9;
+  --border:#e0e3ea; --border-light:#eef0f4;
+  --success:#52c41a; --warning:#faad14; --danger:#f5222d;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.page{display:flex;flex-direction:column;height:100vh;min-width:1280px;}
+.page-scroll{flex:1;overflow-y:auto;padding:16px 20px 40px;}
+
+.form-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.fc-header{height:44px;display:flex;align-items:center;gap:8px;padding:0 16px;background:var(--bg-header);border-bottom:1px solid var(--border-light);}
+.fc-dot{width:4px;height:14px;border-radius:2px;background:var(--primary);}
+.fc-title{font-size:13px;font-weight:700;color:var(--text);}
+.fc-body{padding:14px 16px;}
+
+.filter-grid{display:flex;flex-wrap:wrap;gap:14px 24px;align-items:flex-end;}
+.f-item{display:flex;flex-direction:column;gap:6px;}
+.f-item label{font-size:12px;color:var(--text-secondary);}
+.f-item input,.f-item select{height:30px;padding:0 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text);outline:none;background:#fff;min-width:200px;}
+.f-item input:focus,.f-item select:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.12);}
+.f-btns{display:flex;flex-direction:row;align-items:center;gap:10px;}
+.btn{height:32px;padding:0 22px;border-radius:4px;font-size:13px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:#fff;color:var(--text-secondary);}
+.btn:hover{border-color:var(--primary);color:var(--primary);}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+.btn-primary:hover{background:var(--primary-light);color:#fff;}
+
+.table-wrap{overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:1180px;}
+.tbl th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
+.tbl tbody tr:hover{background:var(--bg-hover);}
+.td-left{text-align:left!important;}
+.td-strong{font-weight:600;color:var(--text);}
+.td-money{color:var(--primary);font-weight:600;}
+.td-red{color:var(--danger);font-weight:600;}
+.st{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
+.st-wait{background:#E8F0FE;color:#3b5998;}
+.st-run{background:#FFF7E6;color:#B45309;}
+.st-done{background:#E6F7EC;color:#52a24b;}
+.st-void{background:#f2f4f9;color:#999;}
+.op-link{color:var(--primary);cursor:pointer;font-size:12px;}
+.op-link:hover{text-decoration:underline;}
+.page-info{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font-size:12px;color:var(--text-secondary);border-top:1px solid var(--border-light);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-content{width:1080px;max-width:94vw;max-height:88vh;background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+.modal-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.modal-title{font-size:14px;font-weight:700;}
+.modal-close{width:28px;height:28px;border-radius:50%;border:none;background:transparent;color:var(--text-aux);cursor:pointer;font-size:15px;}
+.modal-close:hover{background:var(--bg-hover);color:var(--text);}
+.modal-body{flex:1;overflow-y:auto;padding:16px 20px;}
+.modal-footer{display:flex;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+.detail-block{margin-bottom:16px;}
+.detail-block h4{font-size:12px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;}
+.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 20px;}
+.info-item{display:flex;gap:8px;align-items:baseline;}
+.info-label{color:var(--text-secondary);white-space:nowrap;font-size:12px;}
+.info-value{font-weight:600;color:var(--text);font-size:12px;}
+.detail-table{width:100%;border-collapse:collapse;font-size:12px;}
+.detail-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;}
+.detail-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);white-space:nowrap;text-align:center;color:var(--text);}
+.empty-cell{height:120px;color:var(--text-aux);}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="page-scroll">
+
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">筛选条件</span></div>
+      <div class="fc-body">
+        <div class="filter-grid">
+          <div class="f-item"><label>收差单号</label><input id="fNo" placeholder="请输入"></div>
+          <div class="f-item"><label>特批方案编号</label><input id="fPlan" placeholder="请输入"></div>
+          <div class="f-item"><label>收差状态</label><select id="fStatus"><option value="">全部</option><option>待执行</option><option>执行中</option><option>已收差</option><option>已作废</option></select></div>
+          <div class="f-item"><label>销售公司</label><select id="fDept"><option value="">全部</option><option>珠海销售公司</option><option>广州销售公司</option><option>东莞销售公司</option></select></div>
+          <div class="f-item f-btns"><button class="btn btn-primary" onclick="doQuery()">查询</button><button class="btn" onclick="doReset()">重置</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">收差单列表</span></div>
+      <div class="fc-body pad0">
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th>特批方案编号</th><th>收差单号</th><th>销售公司</th><th>收差金额</th><th>已收差金额</th>
+              <th>收差状态</th><th>收差原因</th><th>创建时间</th><th>操作</th>
+            </tr></thead>
+            <tbody id="listBody"></tbody>
+          </table>
+        </div>
+        <div class="page-info"><span id="countInfo"></span><span id="pageInfo"></span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeDetail()">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">收差单详情</span><button class="modal-close" onclick="closeDetail()">✕</button></div>
+    <div class="modal-body">
+      <div class="detail-block">
+        <h4>基本信息</h4>
+        <div class="info-grid" id="basicInfo"></div>
+      </div>
+      <div class="detail-block">
+        <h4>SKU核销明细</h4>
+        <div class="table-wrap"><table class="detail-table" id="skuTbl"></table></div>
+      </div>
+      <div class="detail-block">
+        <h4>核销订单行明细</h4>
+        <div class="table-wrap"><table class="detail-table" id="orderTbl"></table></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeDetail()">关闭</button></div>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  {plan:'GCTP2620260723001', no:'SC0120260814001', billNo:'BHX262026072300101', dept:'珠海销售公司', amount:5000, paid:0, status:'待执行', reason:'正常收差', time:'2026-08-14 10:20:00', inv:'—', sku:[
+    {name:'清柔风变频壁挂机', model:'KFR-35GW', sku:'KB541001600', type:'特批', price:1000, uq:3, amt:3000},
+    {name:'天井机变频1',     model:'KFR-65GW', sku:'KB541001601', type:'特批', price:2000, uq:1, amt:2000},
+  ], orders:[
+    {line:'DD2026071000101', name:'清柔风变频壁挂机', sku:'KB541001600', uq:1, amt:1000, lineNo:'SC012026081400101', inv:'—'},
+    {line:'DD2026071000102', name:'清柔风变频壁挂机', sku:'KB541001600', uq:2, amt:2000, lineNo:'SC012026081400102', inv:'—'},
+    {line:'DD2026072200101', name:'天井机变频1',     sku:'KB541001601', uq:1, amt:2000, lineNo:'SC012026081400103', inv:'—'},
+  ]},
+  {plan:'GCTP2620260723001', no:'SC0120260814002', billNo:'BHX262026072300102', dept:'珠海销售公司', amount:4300, paid:0, status:'执行中', reason:'正常收差', time:'2026-08-14 11:05:00', inv:'—', sku:[
+    {name:'清柔风变频壁挂机', model:'KFR-35GW', sku:'KB541001600', type:'特批', price:1000, uq:2, amt:2000},
+    {name:'变频柜机2级280',  model:'KFR-38GW', sku:'KB541001602', type:'特批', price:1500, uq:1, amt:1500},
+    {name:'清柔风变频壁挂机', model:'KFR-05GW', sku:'KB541001603', type:'特批', price:800,  uq:1, amt:800},
+  ], orders:[
+    {line:'DD2026071000102', name:'清柔风变频壁挂机', sku:'KB541001600', uq:2, amt:2000, lineNo:'SC012026081400201', inv:'—'},
+    {line:'DD2026072500101', name:'变频柜机2级280',  sku:'KB541001602', uq:1, amt:1500, lineNo:'SC012026081400202', inv:'—'},
+    {line:'DD2026072800101', name:'清柔风变频壁挂机', sku:'KB541001603', uq:1, amt:800,  lineNo:'SC012026081400203', inv:'—'},
+  ]},
+  {plan:'GCTP2620260723001', no:'SC0120260814003', billNo:'BHX262026072300103', dept:'珠海销售公司', amount:1000, paid:1000, status:'已收差', reason:'正常收差', time:'2026-08-13 15:30:00', inv:'回推中', sku:[
+    {name:'清柔风变频壁挂机', model:'KFR-35GW', sku:'KB541001600', type:'特批', price:1000, uq:1, amt:1000},
+  ], orders:[
+    {line:'DD2026071000101', name:'清柔风变频壁挂机', sku:'KB541001600', uq:1, amt:1000, lineNo:'SC012026081400301', inv:'回推中'},
+  ]},
+  {plan:'GCTP2620260723002', no:'SC0120260814004', billNo:'BHX262026072300104', dept:'广州销售公司', amount:5500, paid:5500, status:'已收差', reason:'正常收差', time:'2026-08-13 09:40:00', inv:'FP202608140001', sku:[
+    {name:'清柔风变频壁挂机', model:'KFR-35GW', sku:'KB541001600', type:'特批', price:1000, uq:2, amt:2000},
+    {name:'天井机变频1',     model:'KFR-65GW', sku:'KB541001601', type:'特批', price:2000, uq:1, amt:2000},
+    {name:'变频柜机2级280',  model:'KFR-38GW', sku:'KB541001602', type:'特批', price:1500, uq:1, amt:1500},
+  ], orders:[
+    {line:'DD2026071000101', name:'清柔风变频壁挂机', sku:'KB541001600', uq:2, amt:2000, lineNo:'SC012026081400401', inv:'FP202608140001'},
+    {line:'DD2026072200101', name:'天井机变频1',     sku:'KB541001601', uq:1, amt:2000, lineNo:'SC012026081400402', inv:'FP202608140001'},
+    {line:'DD2026072500101', name:'变频柜机2级280',  sku:'KB541001602', uq:1, amt:1500, lineNo:'SC012026081400403', inv:'FP202608140001'},
+  ]},
+  {plan:'GCTP2620260723001', no:'SC0120260814005', billNo:'BHX262026072300105', dept:'珠海销售公司', amount:2000, paid:0, status:'已作废', reason:'核销单驳回', time:'2026-08-12 16:10:00', inv:'—', sku:[
+    {name:'天井机变频1', model:'KFR-65GW', sku:'KB541001601', type:'特批', price:2000, uq:1, amt:2000},
+  ], orders:[
+    {line:'DD2026072200101', name:'天井机变频1', sku:'KB541001601', uq:1, amt:2000, lineNo:'SC012026081400501', inv:'—'},
+  ]},
+];
+const fmt = n => '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const stCls = {'待执行':'st-wait','执行中':'st-run','已收差':'st-done','已作废':'st-void'};
+
+function renderList(rows){
+  if(!rows.length){
+    document.getElementById('listBody').innerHTML = '<tr><td class="empty-cell" colspan="9">暂无收差单数据</td></tr>';
+  } else {
+    document.getElementById('listBody').innerHTML = rows.map((r,i)=>`
+      <tr>
+        <td class="td-strong">${r.plan}</td>
+        <td class="td-strong">${r.no}</td>
+        <td>${r.dept}</td>
+        <td class="td-money">${fmt(r.amount)}</td>
+        <td class="td-red">${fmt(r.paid)}</td>
+        <td><span class="st ${stCls[r.status]}">${r.status}</span></td>
+        <td>${r.reason}</td>
+        <td>${r.time}</td>
+        <td><span class="op-link" onclick="openDetail(${i})">查看</span></td>
+      </tr>`).join('');
+  }
+  document.getElementById('countInfo').textContent = '共 ' + rows.length + ' 条记录';
+  document.getElementById('pageInfo').textContent = '第 1 / 1 页 · 每页 10 条';
+}
+
+function doQuery(){
+  const no = document.getElementById('fNo').value.trim();
+  const plan = document.getElementById('fPlan').value.trim();
+  const status = document.getElementById('fStatus').value;
+  const dept = document.getElementById('fDept').value;
+  const rows = DATA.filter(r =>
+    (!no || r.no.includes(no)) &&
+    (!plan || r.plan.includes(plan)) &&
+    (!status || r.status === status) &&
+    (!dept || r.dept === dept)
+  );
+  renderList(rows);
+}
+function doReset(){
+  document.getElementById('fNo').value = '';
+  document.getElementById('fPlan').value = '';
+  document.getElementById('fStatus').value = '';
+  document.getElementById('fDept').value = '';
+  renderList(DATA);
+}
+
+function openDetail(i){
+  const r = DATA[i];
+  const st = '<span class="st '+stCls[r.status]+'">'+r.status+'</span>';
+  document.getElementById('basicInfo').innerHTML =
+    '<div class="info-item"><span class="info-label">特批方案编号</span><span class="info-value">'+r.plan+'</span></div>'+
+    '<div class="info-item"><span class="info-label">收差单号</span><span class="info-value">'+r.no+'</span></div>'+
+    '<div class="info-item"><span class="info-label">关联核销单号</span><span class="info-value">'+r.billNo+'</span></div>'+
+    '<div class="info-item"><span class="info-label">销售公司</span><span class="info-value">'+r.dept+'</span></div>'+
+    '<div class="info-item"><span class="info-label">创建时间</span><span class="info-value">'+r.time+'</span></div>'+
+    '<div class="info-item"><span class="info-label">收差金额</span><span class="info-value">'+fmt(r.amount)+'</span></div>'+
+    '<div class="info-item"><span class="info-label">已收差金额</span><span class="info-value">'+fmt(r.paid)+'</span></div>'+
+    '<div class="info-item"><span class="info-label">收差状态</span><span class="info-value">'+st+'</span></div>'+
+    '<div class="info-item"><span class="info-label">收差原因</span><span class="info-value">'+r.reason+'</span></div>'+
+    '';
+  document.getElementById('skuTbl').innerHTML = '<thead><tr><th>序号</th><th>商品名称</th><th>型号</th><th>SKU编码</th><th>特批/配提</th><th>保证金单价</th><th>本次不合格数量</th><th>本次收差金额</th></tr></thead><tbody>' +
+    r.sku.map((s,j)=>'<tr><td>'+(j+1)+'</td><td class="td-left">'+s.name+'</td><td>'+s.model+'</td><td>'+s.sku+'</td><td>'+s.type+'</td><td>¥'+s.price.toLocaleString()+'</td><td>'+s.uq+'</td><td class="td-money">'+fmt(s.amt)+'</td></tr>').join('') + '</tbody>';
+  document.getElementById('orderTbl').innerHTML = '<thead><tr><th>收差单行号</th><th>订单行号</th><th>商品名称</th><th>SKU编码</th><th>本次不合格数量</th><th>本次收差金额</th><th>发票单号</th></tr></thead><tbody>' +
+    r.orders.map(o=>'<tr><td>'+o.lineNo+'</td><td>'+o.line+'</td><td class="td-left">'+o.name+'</td><td>'+o.sku+'</td><td>'+o.uq+'</td><td class="td-money">'+fmt(o.amt)+'</td><td>'+o.inv+'</td></tr>').join('') + '</tbody>';
+  document.getElementById('detailModal').classList.add('show');
+}
+function closeDetail(){ document.getElementById('detailModal').classList.remove('show'); }
+
+renderList(DATA);
+</script>
+</body>
+</html>
