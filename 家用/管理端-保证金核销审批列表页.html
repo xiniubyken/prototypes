@@ -57,10 +57,11 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .td-strong{font-weight:600;}
 .td-gray{color:var(--text-aux);}
 .td-no{font-family:'Consolas',monospace;color:var(--primary);font-weight:600;}
-/* 状态标签：沿用用户端 status 体系，主状态仅两态 */
+/* 状态标签：沿用总部管理端 status 体系，主状态仅两态 */
 .status{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
 .status-待审核{background:#E8F0FE;color:#3b5998;}
 .status-已驳回{background:#FDECEC;color:#d9534f;}
+.status-fms{background:#EDE9FE;color:#6d28d9;}
 
 /* 操作列文字按钮 */
 .op-link{color:var(--primary);cursor:pointer;margin:0 4px;font-size:12px;transition:.15s;}
@@ -139,7 +140,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
           <select id="fProjType"><option value="">全部</option><option>特批项目</option><option>常规项目</option></select>
         </div>
         <div class="filter-item"><label>特批方案类型</label>
-          <select id="fSpecial"><option value="">全部</option><option>配提</option><option>非配提</option></select>
+          <select id="fSpecial"><option value="">全部</option><option>特价机</option><option>资源机</option><option>配提机</option></select>
         </div>
         <div class="filter-item"><label>价格审批编号</label><input id="fPriceNo" placeholder="请输入"></div>
         <div class="filter-item"><label>SKU编码</label><input id="fSku" placeholder="请输入"></div>
@@ -187,7 +188,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 <div class="toast" id="toastBox"><span class="t-icon" id="toastIcon">✓</span><span id="toastMsg"></span></div>
 
 <script>
-/* ==================== 演示数据（快照，承接用户端提交数据） ====================
+/* ==================== 演示数据（快照，承接总部管理端提交数据） ====================
    注：通过态单据不在此列表（用户确认：通过后移出列表）。
    演示覆盖：待审核 ×3 + 已驳回 ×1，共 4 条。 */
 
@@ -195,13 +196,13 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 const HAS_APPROVE_PERMISSION = true;
 
 const DATA = [
-  {no:'BHX262026072300101', planNo:'GCTP2620260723001', dept:'珠海销售公司', planName:'珠海·华发水郡工程特批方案', projType:'特批项目', special:'配提', priceNo:'PJ2026081001', sku:'SKU100234', status:'待审核', creator:'陈晓明', time:'2026-08-10 14:20',
+  {no:'BHX262026072300101', planNo:'GCTP2620260723001', dept:'珠海销售公司', planName:'珠海·华发水郡工程特批方案', projType:'特批项目', special:'配提机', priceNo:'PJ2026081001', sku:'SKU100234', status:'待审核', sub:'FMS', creator:'陈晓明', time:'2026-08-10 14:20',
    flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX262026072300102', planNo:'GCTP2620260723002', dept:'广州销售公司', planName:'广州·敏捷广场工程特批方案', projType:'特批项目', special:'非配提', priceNo:'PJ2026081102', sku:'SKU200187', status:'待审核', creator:'张磊', time:'2026-08-11 09:30',
+  {no:'BHX262026072300102', planNo:'GCTP2620260723002', dept:'广州销售公司', planName:'广州·敏捷广场工程特批方案', projType:'特批项目', special:'资源机', priceNo:'PJ2026081102', sku:'SKU200187', status:'待审核', creator:'张磊', time:'2026-08-11 09:30',
    flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX262026072300103', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'特批项目', special:'非配提', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', creator:'李伟', time:'2026-08-12 11:05',
+  {no:'BHX262026072300103', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'特批项目', special:'特价机', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', creator:'李伟', time:'2026-08-12 11:05',
    flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX262026072300104', planNo:'GCTP2620260723004', dept:'佛山销售公司', planName:'佛山·岭南工程特批方案', projType:'特批项目', special:'配提', priceNo:'PJ2026080904', sku:'SKU100998', status:'已驳回', creator:'王芳', time:'2026-08-09 16:10',
+  {no:'BHX262026072300104', planNo:'GCTP2620260723004', dept:'佛山销售公司', planName:'佛山·岭南工程特批方案', projType:'特批项目', special:'配提机', priceNo:'PJ2026080904', sku:'SKU100998', status:'已驳回', creator:'王芳', time:'2026-08-09 16:10',
    reason:'合格数量与质检报告不符，请核对后重新提交',
    flow:[{stage:'1',role:'区域经理',result:'reject',name:'王强',time:'2026-08-09 17:02',opinion:'合格数量与质检报告不符，请核对后重新提交'},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
 ];
@@ -229,10 +230,10 @@ function renderList(){
       <td class="td-left td-strong">${d.planName}</td>
       <td>${d.projType}</td>
       <td>${d.special}</td>
-      <td><span class="status status-${d.status}">${d.status}</span></td>
+      <td>${d.sub==='FMS' ? '<span class="status status-fms">审批中（FMS）</span>' : '<span class="status status-'+d.status+'">'+d.status+'</span>'}</td>
       <td>${d.creator}</td>
       <td class="td-gray">${d.time}</td>
-      <td>${HAS_APPROVE_PERMISSION ? `<span class="op-link" onclick="goApprove('${d.no}')">审核</span><span class="op-link" onclick="goView('${d.no}')">查看</span><span class="op-link" onclick="openFlow('${d.no}')">审批流程</span>` : '<span class="td-gray">—</span>'}</td>
+      <td>${HAS_APPROVE_PERMISSION ? (d.sub==='FMS' ? '' : `<span class="op-link" onclick="goApprove('${d.no}')">审核</span>`) + `<span class="op-link" onclick="goView('${d.no}'${d.sub==='FMS' ? ",'FMS'" : ''})">查看</span><span class="op-link" onclick="openFlow('${d.no}')">审批流程</span>` : '<span class="td-gray">—</span>'}</td>
     </tr>`;
   }).join('');
   renderPager(Math.ceil(filtered.length/PAGE_SIZE));
@@ -293,7 +294,7 @@ function resetFilter(){
 
 /* ==================== 操作跳转 ==================== */
 function goApprove(no){ location.href = '管理端-保证金核销审批页.html?no=' + encodeURIComponent(no); }
-function goView(no){ location.href = '管理端-保证金核销审批页_查看版.html?no=' + encodeURIComponent(no); }
+function goView(no, sub){ location.href = '管理端-保证金核销审批页_查看版.html?no=' + encodeURIComponent(no) + (sub==='FMS' ? '&stage=fms' : ''); }
 
 /* ==================== 审批流程弹窗 ==================== */
 function openFlow(no){
