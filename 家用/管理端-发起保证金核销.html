@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>总部管理端-发起保证金核销（返还保证金+收差扣款）</title>
+<style>
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --text:#333; --text-secondary:#666; --text-aux:#999;
+  --bg:#f5f6fa; --bg-header:#f8f9fb; --bg-hover:#f2f4f9;
+  --border:#e0e3ea; --border-light:#eef0f4;
+  --success:#52c41a; --warning:#faad14; --danger:#f5222d;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+
+/* ====== 页面框架 ====== */
+.page{display:flex;flex-direction:column;height:100vh;min-width:1200px;}
+.page-header{height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fff;border-bottom:1px solid var(--border);}
+.ph-left{display:flex;align-items:center;gap:12px;}
+.ph-right{display:flex;align-items:center;gap:10px;}
+.ph-back{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);border:none;background:transparent;font-size:16px;transition:.15s;}
+.ph-back:hover{background:var(--bg-hover);color:var(--primary);}
+.ph-title{font-size:15px;font-weight:700;color:var(--text);}
+
+.page-scroll{flex:1;overflow-y:auto;padding:16px 20px 80px;}
+
+/* ====== 演示提示条 ====== */
+.demo-tip{display:flex;align-items:center;gap:8px;background:#E8F0FE;border:1px solid #c8d8f5;border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:12px;color:#3b5998;line-height:1.6;}
+.demo-tip b{color:#2a4780;}
+.copy-tip{display:none;align-items:center;gap:8px;background:#FFF7E6;border:1px solid #FFE58F;border-radius:6px;padding:8px 14px;margin-bottom:14px;font-size:12px;color:#8a6d1a;line-height:1.6;}
+
+/* ====== 通用卡片 ====== */
+.form-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.fc-header{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;background:var(--bg-header);border-bottom:1px solid var(--border-light);}
+.fc-dot{width:4px;height:14px;border-radius:2px;background:var(--primary);}
+.fc-title{font-size:13px;font-weight:700;color:var(--text);}
+.fc-tag{margin-left:8px;font-size:11px;color:var(--text-aux);background:var(--bg-hover);padding:1px 8px;border-radius:10px;}
+.fc-body{padding:14px 16px;}
+.fc-body.pad0{padding:0;}
+
+/* ====== 汇总信息栏（两行） ====== */
+.summary-grid{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+.sum-row{display:flex;gap:12px;}
+.sum-card{flex:1;background:var(--bg);border:1px solid var(--border-light);border-radius:6px;padding:10px 14px;display:flex;align-items:center;gap:12px;min-width:0;}
+.sum-label{font-size:12px;color:var(--text-secondary);white-space:nowrap;}
+.sum-value{font-size:17px;font-weight:700;color:var(--text);line-height:1.2;white-space:nowrap;}
+.sum-value.money{color:var(--primary);}
+.sum-unit{font-size:11px;color:var(--text-aux);font-weight:400;margin-left:2px;}
+.sum-extra{font-size:11px;color:var(--text-aux);margin-top:2px;}
+
+/* ====== 表格通用 ====== */
+.table-wrap{overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:1320px;}
+.tbl th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1;}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tbody tr:hover{background:var(--bg-hover);}
+.td-left{text-align:left!important;}
+.td-strong{font-weight:600;color:var(--text);}
+.td-gray{color:var(--text-aux);}
+.td-money{color:var(--primary);font-weight:600;}
+.td-red{color:var(--danger);font-weight:600;}
+.td-green{color:#52a24b;font-weight:600;}
+.td-input{width:74px;height:26px;border:1px solid var(--border);border-radius:4px;text-align:center;font-size:12px;color:var(--text);outline:none;transition:.15s;padding:0 4px;}
+.td-input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.12);}
+.td-input:disabled{background:var(--bg-hover);color:var(--text-aux);cursor:not-allowed;}
+.td-input.over{border-color:var(--danger);background:#FFF5F5;}
+/* 输入超限提示文字（P0-2：不静默截断，标红提示） */
+.input-warn{display:block;font-size:10px;color:var(--danger);font-weight:600;margin-top:2px;white-space:nowrap;}
+/* 失焦自动修正提示文字（超出上限自动写入上限值，避免用户重算） */
+.input-fix{display:block;font-size:10px;color:var(--warning);font-weight:600;margin-top:2px;white-space:nowrap;}
+.col-new{background:#FFF9E8;}
+.col-new th{background:#FDF3D7;color:#8a6d1a;}
+
+/* 类型标签 */
+.tag{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
+.tag-特价机{background:#E8F0FE;color:#3b5998;}
+.tag-资源机{background:#F3ECFA;color:#7b5bb8;}
+.tag-配提机{background:#E6F7EC;color:#52a24b;}
+
+/* ====== 订单行分组 ====== */
+.order-group{border:1px solid var(--border-light);border-radius:6px;margin-bottom:10px;overflow:hidden;}
+.order-group:last-child{margin-bottom:0;}
+.og-head{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-header);border-bottom:1px solid var(--border-light);font-size:12px;flex-wrap:wrap;}
+.og-sku{font-weight:700;color:var(--text);}
+.og-model{color:var(--text-secondary);}
+.og-info{color:var(--text-aux);}
+.og-badge{margin-left:auto;font-size:11px;color:var(--primary);background:#E8F0FE;padding:1px 10px;border-radius:10px;font-weight:600;}
+.og-table{width:100%;border-collapse:collapse;font-size:12px;}
+.og-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.og-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;}
+.og-table tr:last-child td{border-bottom:none;}
+.og-table .alloc-col{background:#F0F7FF;color:var(--primary);font-weight:600;}
+.og-table .alloc-col.q-alloc{background:#E6F7EC;color:#2e7d32;}
+.og-table .alloc-col.u-alloc{background:#FDECEC;color:#d9534f;}
+.og-table .alloc-col .alloc-num{font-weight:700;font-size:13px;}
+.og-table tr.line-zero td{background:#FAFAFB;color:#bbb;}
+.og-table tr.line-zero .alloc-col{color:#ccc;}
+.og-table .money-col{background:#FFF9E8;color:#8a6d1a;font-weight:600;}
+.og-foot{display:flex;justify-content:flex-end;gap:24px;padding:7px 12px;background:var(--bg-header);border-top:1px solid var(--border-light);font-size:12px;}
+.og-foot .ft-item{color:var(--text-secondary);}
+.og-foot .ft-val{font-weight:700;color:var(--primary);margin-left:4px;}
+.og-foot .ft-val.red{color:var(--danger);}
+.og-empty{padding:20px;text-align:center;color:var(--text-aux);font-size:12px;}
+
+/* ====== 抵扣顺序说明 ====== */
+.deduct-card{display:flex;gap:0;padding:14px 16px;align-items:stretch;}
+.dc-step{flex:1;background:var(--bg);border:1px solid var(--border-light);border-radius:6px;padding:10px 14px;position:relative;}
+.dc-step + .dc-step{margin-left:10px;}
+.dc-title{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.dc-num{width:16px;height:16px;border-radius:50%;font-size:10px;color:#fff;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.dc-num.green{background:#52a24b;}
+.dc-num.red{background:#d9534f;}
+.dc-desc{font-size:12px;color:var(--text-secondary);line-height:1.7;}
+.dc-desc b{color:var(--text);}
+.dc-rule{margin-top:6px;padding-top:6px;border-top:1px dashed var(--border);font-size:11px;color:var(--text-aux);}
+
+/* ====== 备注+附件 ====== */
+.remark-area{padding:14px 16px 0;}
+.remark-label{font-size:12px;color:var(--text-secondary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.remark-count{font-size:11px;color:var(--text-aux);}
+.remark-count.warn{color:var(--warning);font-weight:600;}
+textarea.form-ctrl{width:100%;height:96px;padding:10px 12px;border:1px solid #e0e3ea;border-radius:4px;font-size:13px;font-family:inherit;color:var(--text);resize:vertical;outline:none;transition:.15s;line-height:1.7;background:#fff;}
+textarea.form-ctrl:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.12);}
+textarea.form-ctrl::placeholder{color:#c0c4cc;}
+.attach-zone{padding:14px 16px;border-top:1px solid var(--border-light);}
+.attach-drop{height:70px;border:1px dashed var(--border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:.15s;background:var(--bg);color:var(--text-aux);font-size:12px;}
+.attach-drop:hover{border-color:var(--primary);color:var(--primary);background:#F7F9FF;}
+.attach-drop .ad-icon{font-size:20px;margin-bottom:2px;}
+.attach-drop .ad-tip{color:var(--text-aux);font-size:11px;margin-top:2px;}
+.attach-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+.attach-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border:1px solid var(--border-light);border-radius:4px;font-size:12px;}
+.ai-icon{width:24px;height:24px;border-radius:4px;background:#E8F0FE;color:#3b5998;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.ai-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ai-size{color:var(--text-aux);font-size:11px;}
+.ai-del{width:20px;height:20px;border:none;background:transparent;color:var(--text-aux);cursor:pointer;border-radius:4px;font-size:14px;}
+.ai-del:hover{color:var(--danger);background:#FDECEC;}
+
+/* ====== 开票信息（只读展示，来源管理端销售公司） ====== */
+.inv-grid{padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px 36px;}
+.inv-item{display:flex;align-items:baseline;gap:10px;min-width:0;}
+.inv-label{font-size:12px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;}
+.inv-label .req{color:var(--danger);margin-left:2px;font-weight:700;}
+.inv-value{font-size:13px;color:var(--text);font-weight:600;word-break:break-all;}
+.inv-value.empty{color:var(--text-aux);font-weight:400;}
+.inv-source{font-size:11px;color:var(--text-aux);background:var(--bg);padding:8px 12px;margin:0 16px 14px;border-radius:4px;display:flex;align-items:center;gap:6px;}
+.inv-loading{color:var(--text-aux);font-size:12px;padding:6px 0;}
+
+/* ====== 底部操作栏 ====== */
+.form-footer{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px;background:#fff;border-top:1px solid var(--border);position:relative;z-index:10;}
+.btn{height:32px;padding:0 22px;border-radius:4px;font-size:13px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:#fff;color:var(--text-secondary);}
+.btn:hover{border-color:var(--primary);color:var(--primary);}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+.btn-primary:hover{background:var(--primary-light);color:#fff;}
+.btn-primary:disabled{background:#a9b8d6;border-color:#a9b8d6;cursor:not-allowed;}
+.foot-summary{margin-right:auto;display:flex;gap:20px;font-size:12px;color:var(--text-secondary);}
+.foot-summary b{font-size:14px;color:var(--primary);margin-left:3px;}
+.foot-summary b.red{color:var(--danger);}
+
+/* ====== 抵扣顺序说明抽屉 ====== */
+.fc-help{margin-left:auto;height:24px;padding:0 10px;border-radius:3px;border:1px solid var(--border);background:#fff;color:var(--text-secondary);font-size:11px;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:4px;}
+.fc-help:hover{border-color:var(--primary);color:var(--primary);}
+.drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;}
+.drawer-mask.show{display:block;}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:440px;max-width:92vw;background:#fff;box-shadow:-4px 0 24px rgba(0,0,0,.14);z-index:301;transform:translateX(105%);transition:transform .28s ease;display:flex;flex-direction:column;}
+.drawer.show{transform:translateX(0);}
+.drawer-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.drawer-title{font-size:14px;font-weight:700;}
+.drawer-body{flex:1;overflow-y:auto;padding:16px;}
+.drawer-body .deduct-card{flex-direction:column;align-items:stretch;}
+.drawer-body .dc-step + .dc-step{margin-left:0;margin-top:10px;}
+
+/* ====== 弹窗 ====== */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;}
+.modal-mask.show{display:flex;}
+.modal{width:640px;max-width:92vw;max-height:86vh;background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+#histMask .modal{width:780px;}
+.modal-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.mh-title{font-size:14px;font-weight:700;}
+.mh-close{width:28px;height:28px;border-radius:50%;border:none;background:transparent;color:var(--text-aux);cursor:pointer;font-size:15px;}
+.mh-close:hover{background:var(--bg-hover);color:var(--text);}
+.modal-body{flex:1;overflow-y:auto;padding:16px;}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+
+/* 确认弹窗 */
+.confirm-total{display:flex;gap:10px;margin-bottom:14px;}
+.ct-item{flex:1;background:var(--bg);border:1px solid var(--border-light);border-radius:6px;padding:10px;text-align:center;}
+.ct-label{font-size:11px;color:var(--text-aux);}
+.ct-value{font-size:16px;font-weight:700;margin-top:4px;}
+.ct-value.blue{color:var(--primary);}
+.ct-value.green{color:#52a24b;}
+.ct-value.red{color:var(--danger);}
+.confirm-block{margin-bottom:12px;}
+.cb-title{font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.cb-step{width:16px;height:16px;border-radius:50%;font-size:10px;color:#fff;display:inline-flex;align-items:center;justify-content:center;}
+.cb-step.s1{background:#52a24b;}
+.cb-step.s2{background:#d9534f;}
+.cb-tip{font-size:11px;color:var(--text-aux);font-weight:400;margin-left:auto;}
+.confirm-table{width:100%;border-collapse:collapse;font-size:12px;}
+.confirm-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--border);}
+.confirm-table td{padding:6px 8px;border-bottom:1px solid var(--border-light);text-align:center;}
+.confirm-warn{display:flex;gap:8px;background:#FFF7E6;border:1px solid #FFE58F;border-radius:6px;padding:8px 12px;font-size:12px;color:#8a6d1a;line-height:1.6;}
+
+/* 历史记录 */
+.hist-table{width:100%;border-collapse:collapse;font-size:12px;}
+.hist-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.hist-table td{padding:8px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;}
+.hist-table tbody tr{cursor:pointer;}
+.hist-table tbody tr:hover{background:var(--bg-hover);}
+.hist-detail{display:none;background:#FBFBFC;}
+.hist-detail.open{display:table-row;}
+.hd-inner{padding:10px 16px 14px;background:#FBFBFC;}
+.hd-title{font-size:12px;font-weight:700;color:var(--text-secondary);margin-bottom:6px;}
+.hd-detail-table{width:100%;border-collapse:collapse;font-size:11px;background:#fff;}
+.hd-detail-table th{background:var(--bg-header);color:var(--text-aux);font-weight:600;padding:5px 8px;border-bottom:1px solid var(--border);}
+.hd-detail-table td{padding:5px 8px;border-bottom:1px solid var(--border-light);text-align:center;}
+.status{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
+.status-已完结{background:#E6F7EC;color:#52a24b;}
+.status-审批中{background:#E8F0FE;color:#3b5998;}
+.status-已驳回{background:#FDECEC;color:#d9534f;}
+/* 历史弹窗：重新提交按钮（P0-3：驳回释放额度，改原单重提） */
+.btn-mini{height:24px;padding:0 10px;border-radius:3px;font-size:11px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:#fff;color:var(--text-secondary);}
+.btn-mini:hover{border-color:var(--primary);color:var(--primary);}
+.hist-rep{display:inline-flex;align-items:center;gap:4px;}
+
+/* Toast */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.14);padding:10px 22px;font-size:13px;display:flex;align-items:center;gap:8px;opacity:0;transition:.25s;z-index:500;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success .t-icon{color:var(--success);}
+.toast.error .t-icon{color:var(--danger);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ====== 页面头部 ====== -->
+  <div class="page-header">
+    <div class="ph-left">
+      <button class="ph-back" title="返回">←</button>
+      <span class="ph-title">关联特批方案编号 <span id="planNo" style="color:#1f3a8a;font-family:'Consolas',monospace;">GCTP2620260723001</span> 发起保证金核销</span>
+    </div>
+    <div class="ph-right">
+      <!-- 历史提交记录弹窗已移除，无入口 -->
+    </div>
+  </div>
+
+  <!-- ====== 滚动内容 ====== -->
+  <div class="page-scroll">
+
+    <!-- ====== 复制并新建提示条（从汇总页复制入口进入，标 col-new） ====== -->
+    <div class="copy-tip" id="copyTip">📋 <b>复制并新建：</b>已按原单带入填写信息/附件/备注，订单数据按当前额度重算，可修改后提交；原单保持「已驳回」。</div>
+
+    <!-- ====== 演示提示条 ====== -->
+    <div class="demo-tip">💡 <b>演示引导：</b>SKU「天行IT资质单元机」已预填 <b>合格4台 + 不合格11台</b>（合计15=剩余可核销数量），看下方订单行如何<b>跨行递扣分配</b>（合格→订单行1分2、订单行2分2；不合格→订单行2分3、订单行3分8）。所有数字可修改，试试超限输入：<b>输入过程标红提示，失焦自动修正到上限</b>。</div>
+
+    <!-- ====== 汇总信息栏 ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">方案保证金汇总</span></div>
+      <div class="summary-grid">
+        <div class="sum-row">
+          <div class="sum-card">
+            <div><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumReceived">¥5,800.00</div></div>
+          </div>
+          <div class="sum-card">
+            <div><div class="sum-label">方案已返还保证金金额</div><div class="sum-value money" id="sumRefunded">¥1,150.00</div></div>
+          </div>
+          <div class="sum-card">
+            <div><div class="sum-label">方案已收差保证金金额</div><div class="sum-value money" id="sumDeducted">¥700.00</div></div>
+          </div>
+          <div class="sum-card">
+            <div><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumPending">¥3,950.00</div></div>
+          </div>
+        </div>
+        <div class="sum-row">
+          <div class="sum-card">
+            <div><div class="sum-label">方案剩余可核销总数</div><div class="sum-value" id="sumNeed">90<span class="sum-unit">台</span></div></div>
+          </div>
+          <div class="sum-card">
+            <div><div class="sum-label">本次提交核销总数</div><div class="sum-value" id="sumSubmited">15<span class="sum-unit">台</span></div></div>
+          </div>
+          <div class="sum-card">
+            <div><div class="sum-label">提交后剩余可核销总数</div><div class="sum-value" id="sumLeft">75<span class="sum-unit">台</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SKU核销明细 ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">SKU核销明细</span><span class="fc-tag">合格+不合格 ≤ 剩余可核销数量</span></div>
+      <div class="fc-body pad0">
+        <div class="table-wrap">
+          <table class="tbl" id="skuTable">
+            <thead><tr id="skuHead"></tr></thead>
+            <tbody id="skuBody"></tbody>
+            <tfoot id="skuFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 核销订单行明细 ====== -->
+    <div class="form-card">
+      <div class="fc-header">
+        <span class="fc-dot"></span><span class="fc-title">核销订单行明细</span>
+        <span class="fc-tag">系统按订单行自动分配，先合格后不合格</span>
+        <button class="fc-help" onclick="openDeduct()">📖 抵扣顺序</button>
+      </div>
+      <div class="fc-body">
+        <div id="orderGroups"></div>
+      </div>
+    </div>
+
+    <!-- ====== 备注与附件 ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">备注与附件</span></div>
+      <div class="remark-area">
+        <div class="remark-label">
+          <span>备注信息</span>
+          <span class="remark-count" id="remarkCount">0/1000</span>
+        </div>
+        <textarea class="form-ctrl" id="remarkInput" maxlength="1000" placeholder="请输入本次核销补充说明（选填），如质量异常原因、收差情况说明等…"></textarea>
+      </div>
+      <div class="attach-zone">
+        <div class="attach-drop" id="attachDrop" onclick="document.getElementById('attachFile').click()">
+          <div class="ad-icon">📎</div>
+          <div>点击上传或拖拽文件到此处</div>
+          <div class="ad-tip">支持 png / jpg / pdf / excel / word / dwg / zip / rar，单个≤20M，最多20个</div>
+        </div>
+        <input type="file" id="attachFile" multiple style="display:none" onchange="handleFiles(this.files)">
+        <div class="attach-list" id="attachList"></div>
+      </div>
+    </div>
+
+    <!-- ====== 开票信息（只读，来源管理端销售公司） ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">开票信息</span><span class="fc-tag">只读</span></div>
+      <div class="inv-grid" id="invGrid"><div class="inv-loading" id="invLoading">⏳ 正在从管理端获取开票信息…</div></div>
+    </div>
+
+  </div>
+
+  <!-- ====== 底部固定操作栏 ====== -->
+  <div class="form-footer">
+    <div class="foot-summary">
+      <span>本次合格合计：<b id="footQual">4</b> 台</span>
+      <span>本次不合格合计：<b class="red" id="footUnqual">11</b> 台</span>
+      <span>返还保证金：<b id="footRefund">¥160.00</b></span>
+      <span>收差扣款：<b class="red" id="footDeduct">¥440.00</b></span>
+    </div>
+    <button class="btn" onclick="window.close()">取消</button>
+    <button class="btn btn-primary" id="submitBtn" onclick="openConfirm()">提交核销</button>
+  </div>
+</div>
+
+<!-- ====== 二次确认弹窗 ====== -->
+<div class="modal-mask" id="confirmMask">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="mh-title">确认提交核销</span>
+      <button class="mh-close" onclick="closeConfirm()">✕</button>
+    </div>
+    <div class="modal-body" id="confirmBody"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-primary" id="confirmSubmitBtn" onclick="doSubmit()">确认提交</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 历史提交记录弹窗 ====== -->
+<div class="modal-mask" id="histMask">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="mh-title">历史提交记录</span>
+      <button class="mh-close" onclick="closeHistory()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="table-wrap">
+      <table class="hist-table">
+        <thead><tr>
+          <th>单据号</th><th>提交时间</th><th>提交人</th><th>合格数量</th><th>不合格数量</th>
+          <th>返还金额</th><th>收差金额</th><th>状态</th><th>明细</th>
+        </tr></thead>
+        <tbody id="histBody"></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastBox"><span class="t-icon" id="toastIcon">✓</span><span id="toastMsg"></span></div>
+
+<!-- ====== 抵扣顺序说明侧边抽屉 ====== -->
+<div class="drawer-mask" id="deductMask" onclick="closeDeduct()"></div>
+<div class="drawer" id="deductDrawer">
+  <div class="drawer-header">
+    <span class="drawer-title">📖 抵扣顺序说明</span>
+    <button class="mh-close" onclick="closeDeduct()">✕</button>
+  </div>
+  <div class="drawer-body" id="deductBody"></div>
+</div>
+
+<script>
+/* ==================== 演示数据 ==================== */
+// SKU数据：price=保证金单价(元/台)，剩余可核销数量=已开单-累计合格-累计收差-审批中数量
+// 演示模型（自洽）：已收取5800 = 50×80+40×30+30×20+0×10
+//                已返还1150 = 15×50+10×40；已收差700 = 10×50+5×40；待处理3950 = 5800-1150-700
+//                剩余可核销90 = 55+15+20（单价0的SKU4不计）；本次15（预填4+11）；提交后剩余75
+const SKUS = [
+  {id:1, name:'清悉贝茨空调螺机',  model:'KFR-35GW', sku:'KB5410019000', type:'特价机', purchased:500, ordered:80, bought:80, spreadable:0,   price:50, cumQual:15, cumDeduct:10, pending:0, q:0,  uq:0},
+  {id:2, name:'天行IT资质单元机',  model:'KFR-455W', sku:'KB5410019001', type:'资源机', purchased:300, ordered:30, bought:20, spreadable:10, price:40, cumQual:10, cumDeduct:5,  pending:0, q:4,  uq:11},
+  {id:3, name:'安顿组织器多联机',  model:'KFR-380W', sku:'KB5410019002', type:'配提机', purchased:200, ordered:20, bought:15, spreadable:5,  price:30, cumQual:0,  cumDeduct:0,  pending:0, q:0,  uq:0},
+  {id:4, name:'清悉贝茨标准分体机', model:'KFR-05GW', sku:'KB5410019003', type:'配提机', purchased:100, ordered:10, bought:10, spreadable:0,  price:0,  cumQual:0,  cumDeduct:0,  pending:0, q:0,  uq:0},
+];
+
+// 订单行数据：qty=追溯订单下单数量, hQual=历史累计合格(已完结), hDeduct=历史累计收差(已完结)
+// 说明：只展示订单行号 = 订单号 + 流水号（如 DD2026071000101 = 订单 DD20260710001 + 流水 01），全局唯一
+// SKU2三行：剩余额度2/5/8（合计15=SKU剩余可核销数量）→ 合格4跨行递扣(行01分2/行02分2)，不合格11跨行递扣(行02分3/行03分8)
+const ORDERS = {
+  1: [
+    {lineNo:'DD2026061500101', date:'2026-06-15', qty:50, hQual:15, hDeduct:10},
+    {lineNo:'DD2026062000101', date:'2026-06-20', qty:30, hQual:0,  hDeduct:0},
+  ],
+  2: [
+    {lineNo:'DD2026071000101', date:'2026-07-10', qty:12, hQual:10, hDeduct:0},
+    {lineNo:'DD2026071000102', date:'2026-07-10', qty:10, hQual:0,  hDeduct:5},
+    {lineNo:'DD2026072200101', date:'2026-07-22', qty:8,  hQual:0,  hDeduct:0},
+  ],
+  3: [
+    {lineNo:'DD2026072500101', date:'2026-07-25', qty:20, hQual:0, hDeduct:0},
+  ],
+  4: [
+    {lineNo:'DD2026072800101', date:'2026-07-28', qty:10, hQual:0, hDeduct:0},
+  ],
+};
+
+// 历史单据：已完结2条合计 返还1150=750+400 / 收差700=500+200（与汇总卡已返还/已收差对平）
+// 已驳回1条：额度已释放，可「重新提交」改原单
+const HIST = [
+  {no:'BHHX20260720001', time:'2026-07-20 14:32', user:'钟日健', q:15, uq:10, refund:750, deduct:500, status:'已完结', detail:[
+    {name:'清悉贝茨空调螺机', model:'KFR-35GW', lineNo:'DD2026061500101', q:15, uq:10, refund:750, deduct:500},
+  ]},
+  {no:'BHHX20260725002', time:'2026-07-25 09:15', user:'钟日健', q:10, uq:5, refund:400, deduct:200, status:'已完结', detail:[
+    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026071000101', q:10, uq:0, refund:400, deduct:0},
+    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026071000102', q:0,  uq:5, refund:0,   deduct:200},
+  ]},
+  {no:'BHHX20260728003', time:'2026-07-28 16:40', user:'钟日健', q:5, uq:0, refund:200, deduct:0, status:'已驳回', reason:'合格数量与质检报告不符，请核对后重新提交', detail:[
+    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026072200101', q:5, uq:0, refund:200, deduct:0},
+  ]},
+];
+
+const fmt = n => '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const remain = sku => sku.ordered - sku.cumQual - sku.cumDeduct - (sku.pending||0);
+
+/* ==================== 汇总卡片（静态自洽 + 本次/待核销动态联动） ==================== */
+(function initSummary(){
+  const received = SKUS.reduce((s,k)=>s+k.price*k.ordered,0);
+  const refunded = SKUS.reduce((s,k)=>s+k.price*k.cumQual,0);
+  const deducted = SKUS.reduce((s,k)=>s+k.price*k.cumDeduct,0);
+  document.getElementById('sumReceived').textContent = fmt(received);
+  document.getElementById('sumRefunded').textContent = fmt(refunded);
+  document.getElementById('sumDeducted').textContent = fmt(deducted);
+  document.getElementById('sumPending').textContent = fmt(received-refunded-deducted);
+})();
+function renderSummary(){
+  // 方案剩余可核销总数 = Σ剩余可核销数量（单价0的SKU不计）
+  const need = SKUS.reduce((s,k)=>s+(k.price>0?remain(k):0),0);
+  const a = allocateAll();
+  const sum = a.q + a.uq;
+  document.getElementById('sumNeed').innerHTML = need + '<span class="sum-unit">台</span>';
+  document.getElementById('sumSubmited').innerHTML = sum + '<span class="sum-unit">台</span>';
+  document.getElementById('sumLeft').innerHTML = (need - sum) + '<span class="sum-unit">台</span>';
+}
+/* 全SKU分配汇总（供footer/summary/confirm共用） */
+function allocateAll(){
+  let q=0, uq=0, refund=0, deduct=0, over=false;
+  SKUS.forEach(k=>{
+    const a = allocate(k);
+    if(a.over) over = true;
+    q += a.q; uq += a.uq;
+    refund += a.lines.reduce((s,l)=>s+l.allocQ*k.price,0);
+    deduct += a.lines.reduce((s,l)=>s+l.allocUQ*k.price,0);
+  });
+  return {q, uq, refund, deduct, over};
+}
+
+/* ==================== SKU核销明细 ==================== */
+const HEAD = ['序号','商品名称','产品型号','SKU编号','特批/资源机/配提','项目已采购数量','项目已开单数量','工程单已购买数量','项目剩余可分配数量','保证金单价(元/台)','保证金金额','累计合格数量','累计收差数量','剩余可核销数量','合格数量','不合格数量'];
+
+function renderSkuTable(){
+  document.getElementById('skuHead').innerHTML = HEAD.map((h,i)=>
+    (i===9||i===10) ? '<th class="col-new">'+h+'</th>' : '<th>'+h+'</th>'
+  ).join('');
+  document.getElementById('skuBody').innerHTML = SKUS.map((k,i)=>{
+    const r = remain(k);
+    const over = (k.q + k.uq) > r;
+    const noInput = k.price===0;   // P2-5：单价0无需提交资料，禁用输入
+    const warnQ = over && k.q>r ? '超'+(k.q-r)+'台' : '';
+    const warnUQ = over && k.uq>r ? '超'+(k.uq-r)+'台' : '';
+    const fixQ = fixMsg[k.id+'_q'] || '';
+    const fixUQ = fixMsg[k.id+'_uq'] || '';
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="td-left td-strong">${k.name}</td>
+      <td>${k.model}</td>
+      <td class="td-gray">${k.sku}</td>
+      <td><span class="tag tag-${k.type}">${k.type}</span></td>
+      <td>${k.purchased}</td>
+      <td>${k.ordered}</td>
+      <td>${k.bought}</td>
+      <td>${k.spreadable}</td>
+      <td class="col-new td-strong">${k.price}</td>
+      <td class="col-new td-money">${fmt(k.price*k.ordered)}</td>
+      <td class="td-green">${k.cumQual}</td>
+      <td class="td-red">${k.cumDeduct}</td>
+      <td class="td-strong">${r}</td>
+      <td>${noInput
+        ? '<span class="td-gray">—</span>'
+        : `<input class="td-input${warnQ?' over':''}" type="number" min="0" value="${k.q}" data-id="${k.id}" data-field="q" onchange="onInput(this)" onblur="onBlur(this)">${warnQ?'<span class="input-warn">'+warnQ+'</span>':fixQ?'<span class="input-fix">'+fixQ+'</span>':''}`}</td>
+      <td>${noInput
+        ? '<span class="td-gray">—</span>'
+        : `<input class="td-input${warnUQ?' over':''}" type="number" min="0" value="${k.uq}" data-id="${k.id}" data-field="uq" onchange="onInput(this)" onblur="onBlur(this)">${warnUQ?'<span class="input-warn">'+warnUQ+'</span>':fixUQ?'<span class="input-fix">'+fixUQ+'</span>':''}`}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ==================== 输入校验 + 联动（P0-2：超限标红提示 + 失焦自动修正到上限） ==================== */
+let fixMsg = {};   // 本次修正提示 {skuId_field: '超…台，已自动修正'}
+function onInput(el){
+  const k = SKUS.find(x=>x.id==el.dataset.id);
+  const v = Math.max(0, parseInt(el.value)||0);
+  k[el.dataset.field] = v;
+  delete fixMsg[k.id+'_'+el.dataset.field];   // 重新编辑时清除上次的修正提示
+  renderAll();
+}
+function onBlur(el){
+  const k = SKUS.find(x=>x.id==el.dataset.id);
+  const r = remain(k);
+  const field = el.dataset.field;
+  const other = field==='q' ? 'uq' : 'q';
+  if(k.q + k.uq > r){
+    // 失焦自动修正：当前字段写入剩余上限（另一字段优先保留），免用户重算
+    const otherV = k[other];
+    const capped = Math.max(0, r - otherV);
+    const exceeded = k[field] - capped;
+    k[field] = capped;
+    fixMsg[k.id+'_'+field] = '超'+exceeded+'台，已自动修正为'+capped+'台';
+    toast('SKU「'+k.name+'」'+(field==='q'?'合格':'不合格')+'超出剩余可核销数量，已自动修正为 '+capped+' 台','success');
+  }
+  renderAll();
+}
+
+/* ==================== 订单行自动分配（先合格→后不合格，按时间递扣） ==================== */
+function allocate(k){
+  const r = remain(k);
+  const over = (k.q + k.uq) > r;              // 超限标记：页面标红，提交拦截
+  const q = Math.max(0, Math.min(k.q, r));    // 物理分配上限截断（但页面仍标红提示）
+  const uq = Math.max(0, Math.min(k.uq, r - q));
+  const lines = ORDERS[k.id].map(l=>({...l, allocQ:0, allocUQ:0}));
+  let qLeft = q;
+  for(const l of lines){
+    const avail = Math.max(0, l.qty - l.hQual - l.hDeduct);
+    const take = Math.min(qLeft, avail);
+    l.allocQ = take; qLeft -= take;
+  }
+  let uLeft = uq;
+  for(const l of lines){
+    const avail = Math.max(0, (l.qty - l.hQual - l.hDeduct) - l.allocQ);
+    const take = Math.min(uLeft, avail);
+    l.allocUQ = take; uLeft -= take;
+  }
+  return {q, uq, lines, over};
+}
+
+function renderOrderGroups(){
+  const wrap = document.getElementById('orderGroups');
+  let html = '';
+  SKUS.forEach((k,idx)=>{
+    const r = remain(k);
+    if(k.price===0){
+      // P2-5：单价0无需核销，订单行区显示空态
+      html += `<div class="order-group">
+        <div class="og-head">
+          <span class="og-sku">${idx+1}. ${k.name}</span>
+          <span class="og-model">${k.model} / ${k.sku}</span>
+          <span class="og-info">保证金单价 0元/台</span>
+          <span class="og-badge" style="background:#F0F0F0;color:#999;">无需核销</span>
+        </div>
+        <div class="og-empty">该SKU保证金单价为0，无需提交核销资料</div>
+      </div>`;
+      return;
+    }
+    const {q, uq, lines, over} = allocate(k);
+    const refund = lines.reduce((s,l)=>s+l.allocQ*k.price,0);
+    const deduct = lines.reduce((s,l)=>s+l.allocUQ*k.price,0);
+    const hasAlloc = (q+uq)>0;
+    html += `<div class="order-group">
+      <div class="og-head">
+        <span class="og-sku">${idx+1}. ${k.name}</span>
+        <span class="og-model">${k.model} / ${k.sku}</span>
+        <span class="og-info">保证金单价 ${k.price}元/台 · 剩余可核销数量 ${r}台</span>
+        <span class="og-badge">本次核销 ${hasAlloc ? (q+uq)+'台' : '无'}</span>
+      </div>
+      <div class="table-wrap">
+      <table class="og-table">
+        <thead><tr>
+          <th>订单行号</th><th>下单时间</th><th>追溯订单下单数量</th>
+          <th>历史累计合格</th><th>历史累计收差</th><th>订单行剩余可核销数量</th>
+          <th class="alloc-col">本次合格（系统分配）</th><th class="alloc-col">本次不合格（系统分配）</th>
+          <th class="money-col">本次返还金额</th><th class="money-col">本次收差金额</th>
+        </tr></thead>
+        <tbody>${lines.map(l=>{
+          const avail = Math.max(0, l.qty - l.hQual - l.hDeduct);
+          const zero = avail===0;   // P2-1：剩余0整行置灰
+          return `<tr${zero?' class="line-zero"':''}>
+            <td>${l.lineNo}</td><td>${l.date}</td><td>${l.qty}</td>
+            <td>${l.hQual}</td><td>${l.hDeduct}</td><td>${avail}</td>
+            <td class="alloc-col${l.allocQ?' q-alloc':''}">${l.allocQ?`<span class="alloc-num">${l.allocQ}</span>`:'-'}</td>
+            <td class="alloc-col${l.allocUQ?' u-alloc':''}">${l.allocUQ?`<span class="alloc-num">${l.allocUQ}</span>`:'-'}</td>
+            <td class="money-col">${l.allocQ?fmt(l.allocQ*k.price):'¥0.00'}</td>
+            <td class="money-col">${l.allocUQ?fmt(l.allocUQ*k.price):'¥0.00'}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+      </div>
+      <div class="og-foot">
+        <span class="ft-item">合格小计：<span class="ft-val">${q}</span> 台</span>
+        <span class="ft-item">不合格小计：<span class="ft-val red">${uq}</span> 台</span>
+        <span class="ft-item">返还金额：<span class="ft-val">${fmt(refund)}</span></span>
+        <span class="ft-item">收差金额：<span class="ft-val red">${fmt(deduct)}</span></span>
+        ${over?'<span class="ft-item" style="color:var(--danger);font-weight:700;">⚠️ 超出剩余可核销数量，无法提交</span>':''}
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+/* ==================== 抵扣顺序说明抽屉 ==================== */
+function openDeduct(){
+  const b = document.getElementById('deductBody');
+  if(!b.innerHTML){
+    b.innerHTML = `
+      <div class="deduct-card">
+        <div class="dc-step">
+          <div class="dc-title"><span class="dc-num green">1</span> 先抵扣合格数量 → 返还保证金</div>
+          <div class="dc-desc">本次填写的<b>合格数量</b>，按订单行<b>下单时间先后</b>依次抵扣，每行抵扣上限为<b>该行订单行剩余可核销数量</b>；每台合格按<b>保证金单价</b>计算返还金额。</div>
+          <div class="dc-rule">返还金额 = 合格数量 × 保证金单价（元/台）</div>
+        </div>
+        <div class="dc-step">
+          <div class="dc-title"><span class="dc-num red">2</span> 再抵扣不合格数量 → 收差扣款</div>
+          <div class="dc-desc">合格数量抵扣完毕后，本次填写的<b>不合格数量</b>继续按订单行顺序依次抵扣，仅占用<b>未被合格占用的剩余额度</b>；每台不合格按<b>保证金单价</b>计算收差金额。</div>
+          <div class="dc-rule">收差金额 = 不合格数量 × 保证金单价（元/台）</div>
+        </div>
+      </div>`;
+  }
+  document.getElementById('deductMask').classList.add('show');
+  document.getElementById('deductDrawer').classList.add('show');
+}
+function closeDeduct(){
+  document.getElementById('deductMask').classList.remove('show');
+  document.getElementById('deductDrawer').classList.remove('show');
+}
+
+/* ==================== 底部合计 + 提交按钮 ==================== */
+function renderFooter(){
+  const {q, uq, refund, deduct, over} = allocateAll();
+  document.getElementById('footQual').textContent = q;
+  document.getElementById('footUnqual').textContent = uq;
+  document.getElementById('footRefund').textContent = fmt(refund);
+  document.getElementById('footDeduct').textContent = fmt(deduct);
+  // P0-2：超限禁止提交
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = (q+uq)===0 || over;
+  btn.title = over ? '存在超出剩余可核销数量的输入，请修正' : '';
+}
+
+function renderAll(){ renderSkuTable(); renderOrderGroups(); renderFooter(); renderSummary(); }
+
+/* ==================== 备注 ==================== */
+const remarkInput = document.getElementById('remarkInput');
+remarkInput.addEventListener('input', ()=>{
+  const n = remarkInput.value.length;
+  const el = document.getElementById('remarkCount');
+  el.textContent = n + '/1000';
+  el.classList.toggle('warn', n>900);
+});
+
+/* ==================== 附件 ==================== */
+const FILES_MAX=20, SIZE_MAX=20*1024*1024;
+const ALLOW = ['png','jpg','jpeg','pdf','xls','xlsx','doc','docx','dwg','zip','rar'];
+let files = [];
+function handleFiles(list){
+  for(const f of list){
+    if(files.length>=FILES_MAX){ toast('已达上传上限20个','error'); break; }
+    const ext = (f.name.split('.').pop()||'').toLowerCase();
+    if(!ALLOW.includes(ext)){ toast('不支持格式：'+f.name+'（仅支持 '+ALLOW.join('/')+'）','error'); continue; }
+    if(f.size>SIZE_MAX){ toast('文件超过20M：'+f.name,'error'); continue; }
+    files.push(f);
+  }
+  renderAttach();
+}
+function renderAttach(){
+  const el = document.getElementById('attachList');
+  el.innerHTML = files.map((f,i)=>`
+    <div class="attach-item">
+      <span class="ai-icon">📄</span>
+      <span class="ai-name">${f.name}</span>
+      <span class="ai-size">${(f.size/1024/1024).toFixed(2)}MB</span>
+      <button class="ai-del" onclick="delAttach(${i})">✕</button>
+    </div>`).join('');
+}
+function delAttach(i){ files.splice(i,1); renderAttach(); }
+
+/* ==================== 关联特批方案编号 + 核销单号生成 ==================== */
+/* 关联特批方案编号：来自工程单上下文，页面顶部只读展示；核销单号依此延伸生成
+   规则：特批方案编号 = (GCTP|GCZY) + 销司2位 + yyyymmdd8位 + 3位流水（共17位）
+        核销单号     = BHX + 特批方案编号第5位起数字段(13位) + 2位核销流水（同方案每次提交+1）
+        例：GCTP2620260723001 → BHX262026072300101 */
+const RELATED_PLAN_NO = 'GCTP2620260723001';
+document.getElementById('planNo').textContent = RELATED_PLAN_NO; // 单一数据源，页面顶部只读展示
+let writeOffSeq = 0; // 演示用自增；真实环境由服务端按特批方案持久化
+const HAS_PENDING = false; // 同类型单据审批中禁止提交；演示无审批中，真实环境由入口和接口共同拦截
+let INVOICE_COMPLETE = true; // 开票信息缺失时提交拦截；演示数据完整
+function genWriteOffNo(){
+  const plan = RELATED_PLAN_NO || '';
+  if(!/^(GCTP|GCZY)\d{13}$/.test(plan)) return null;   // 前缀合法 + 第5位起13位数字
+  const digits = plan.substring(4);                     // 第5位(index4)起：销司2+年月日8+方案流水3
+  writeOffSeq += 1;
+  const seq = String(writeOffSeq).padStart(2,'0');      // 01,02,...99
+  return 'BHX' + digits + seq;                          // 总长18位：BHX(3)+13+2
+}
+
+/* ==================== 二次确认弹窗 ==================== */
+function openConfirm(){
+  if(HAS_PENDING){ toast('存在同类型审批中的核销单，暂不允许提交','error'); return; }
+  if(!INVOICE_COMPLETE){ toast('开票信息不完整，请联系销售公司维护','error'); return; }
+  const {q, uq, refund, deduct, over} = allocateAll();
+  let skuCnt = 0;
+  const refundRows=[], deductRows=[];
+  SKUS.forEach(k=>{
+    const {lines} = allocate(k);
+    if(lines.some(l=>l.allocQ||l.allocUQ)) skuCnt++;
+    lines.forEach(l=>{
+      if(l.allocQ){ refundRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.lineNo, n:l.allocQ, amt:l.allocQ*k.price}); }
+      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.lineNo, n:l.allocUQ, amt:l.allocUQ*k.price}); }
+    });
+  });
+  // P0-2：超限拦截，不给打开确认弹窗
+  if(over){ toast('存在超出剩余可核销数量的输入，金额无法确认，请先修正','error'); return; }
+  if(q+uq===0){ toast('请至少填写一个SKU的合格或不合格数量','error'); return; }
+  document.getElementById('confirmBody').innerHTML = `
+    <div class="confirm-total">
+      <div class="ct-item"><div class="ct-label">核销SKU数</div><div class="ct-value blue">${skuCnt} 个</div></div>
+      <div class="ct-item"><div class="ct-label">合格数量合计（返还）</div><div class="ct-value green">${q} 台</div></div>
+      <div class="ct-item"><div class="ct-label">不合格数量合计（收差）</div><div class="ct-value red">${uq} 台</div></div>
+      <div class="ct-item"><div class="ct-label">涉及保证金</div><div class="ct-value blue">${fmt(refund+deduct)}</div></div>
+    </div>
+    <div class="confirm-block">
+      <div class="cb-title">返还保证金明细</div>
+      ${refundRows.length?`<div class="table-wrap"><table class="confirm-table"><thead><tr><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>合格数量</th><th>返还金额</th></tr></thead><tbody>${refundRows.map(r=>`<tr><td>${r.lineNo}</td><td class="td-left">${r.name} ${r.model}</td><td>${r.sku}</td><td class="td-green">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="og-empty">本次无合格数量，无返还</div>'}
+    </div>
+    <div class="confirm-block">
+      <div class="cb-title">收差扣款明细</div>
+      ${deductRows.length?`<div class="table-wrap"><table class="confirm-table"><thead><tr><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>不合格数量</th><th>收差金额</th></tr></thead><tbody>${deductRows.map(r=>`<tr><td>${r.lineNo}</td><td class="td-left">${r.name} ${r.model}</td><td>${r.sku}</td><td class="td-red">${r.n}</td><td class="td-money">${fmt(r.amt)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="og-empty">本次无不合格数量，无收差</div>'}
+    </div>
+    <div class="confirm-warn">⚠️ 提交后将生成核销单号并进入审批流程。</div>`;
+  document.getElementById('confirmMask').classList.add('show');
+}
+function closeConfirm(){ document.getElementById('confirmMask').classList.remove('show'); }
+function doSubmit(){
+  const btn = document.getElementById('confirmSubmitBtn');
+  // 全量必填项校验（确认提交前最后一道拦截）
+  if(HAS_PENDING){ toast('存在同类型审批中的核销单，暂不允许提交','error'); return; }
+  if(!INVOICE_COMPLETE){ toast('开票信息不完整，请联系销售公司维护','error'); return; }
+  const {q, uq, over} = allocateAll();
+  if(!RELATED_PLAN_NO || !/^(GCTP|GCZY)\d{13}$/.test(RELATED_PLAN_NO)){
+    toast('关联特批方案编号缺失或格式错误，无法生成核销单号','error'); return;
+  }
+  if(q+uq===0){ toast('请至少填写一个SKU的合格或不合格数量','error'); return; }
+  if(over){ toast('存在超出剩余可核销数量的输入，请先修正','error'); return; }
+  const no = genWriteOffNo();
+  if(!no){ toast('核销单号生成失败，请检查关联特批方案编号','error'); return; }
+  btn.disabled = true; btn.textContent = '提交中…';
+  setTimeout(()=>{
+    btn.disabled = false; btn.textContent = '确认提交';
+    closeConfirm();
+    toast('提交成功！核销单号 '+no+' 已生成，已进入审批流程','success');
+    // 提交成功，本页核销任务完结（审批由独立审批页处理）；清空输入便于再次发起
+    SKUS.forEach(k=>{ k.q=0; k.uq=0; });
+    renderAll();
+  }, 900);
+}
+
+/* ==================== 历史提交记录 ==================== */
+function openHistory(){
+  document.getElementById('histBody').innerHTML = HIST.map((h,i)=>`
+    <tr onclick="toggleHist(${i})">
+      <td class="td-strong">${h.no}</td><td>${h.time}</td><td>${h.user}</td>
+      <td class="td-green">${h.q}</td><td class="td-red">${h.uq}</td>
+      <td class="td-money">${fmt(h.refund)}</td><td class="td-money">${fmt(h.deduct)}</td>
+      <td><span class="status status-${h.status}">${h.status}</span></td>
+      <td class="td-gray">展开明细 ▾</td>
+    </tr>
+    <tr class="hist-detail" id="histDetail${i}">
+      <td colspan="9"><div class="hd-inner">
+        <div class="hd-title">单据明细 · 按订单行展示合格/不合格数量与金额</div>
+        <div class="table-wrap"><table class="hd-detail-table"><thead><tr><th>商品名称/型号</th><th>订单行号</th><th>合格数量</th><th>不合格数量</th><th>返还金额</th><th>收差金额</th></tr></thead><tbody>
+        ${h.detail.map(d=>`<tr><td class="td-left">${d.name} ${d.model}</td><td>${d.lineNo}</td><td class="td-green">${d.q}</td><td class="td-red">${d.uq}</td><td>${fmt(d.refund)}</td><td>${fmt(d.deduct)}</td></tr>`).join('')}
+        </tbody></table></div>
+        ${h.status==='已驳回'
+          ? `<div style="display:flex;align-items:center;gap:10px;margin-top:10px;padding:8px 12px;background:#FDECEC;border:1px solid #f5c6c6;border-radius:4px;font-size:12px;color:#c0392b;flex-wrap:wrap;">
+              <span>⚠️ 驳回原因：${h.reason||'未填写'}</span>
+              <span style="margin-left:auto;">额度已释放，可修改后重新提交（沿用原单据号）：</span>
+              <button class="btn-mini hist-rep" onclick="reSubmit(${i})">↻ 重新提交</button>
+            </div>`
+          : ''}
+      </div></td>
+    </tr>`).join('');
+  document.getElementById('histMask').classList.add('show');
+}
+function toggleHist(i){ document.getElementById('histDetail'+i).classList.toggle('open'); }
+function closeHistory(){ document.getElementById('histMask').classList.remove('show'); }
+/* P0-3：驳回单据重新提交 → 关历史弹窗，按原单据明细预填SKU输入 */
+function reSubmit(i){
+  const h = HIST[i];
+  closeHistory();
+  h.detail.forEach(d=>{
+    const k = SKUS.find(x=>x.name===d.name && x.model===d.model);
+    if(k){ k.q = d.q; k.uq = d.uq; }
+  });
+  renderAll();
+  toast('已按原单据 BHHX'+h.no.slice(5)+' 预填数量，可修改后重新提交（沿用原单据号）','success');
+  const el = document.querySelector('.page-scroll');
+  if(el) el.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ==================== Toast ==================== */
+function toast(msg, type){
+  const box = document.getElementById('toastBox');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = type==='error' ? '✕' : '✓';
+  box.className = 'toast show ' + (type||'success');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>box.classList.remove('show'), 2600);
+}
+
+/* ==================== 开票信息（只读展示，模拟从管理端销售公司获取） ==================== */
+/* 字段定义：req=true 表示管理端必填项，页面不显示必填标记，文档保留必填语义 */
+const INVOICE_FIELDS = [
+  {key:'taxpayerType', label:'纳税人类型',                 req:true},
+  {key:'invoiceType',  label:'发票类型',                   req:true},
+  {key:'companyName',  label:'销售公司名称',               req:true},
+  {key:'taxNo',        label:'纳税人识别号/税务登记号',     req:true},
+  {key:'bankName',     label:'开户银行',                   req:true},
+  {key:'bankAccount',  label:'银行对公账户',               req:true},
+  {key:'address',      label:'单位地址',                   req:true},
+  {key:'phone',        label:'注册电话',                   req:true},
+  {key:'email',        label:'收票邮箱',                   req:false},
+];
+/* 开票信息数据来源路径：管理端-客户管理-销售公司-查看-开票信息（演示用静态数据，按路径读取对应销售公司开票资料） */
+const INVOICE_DATA = {
+  taxpayerType:'一般纳税人',
+  invoiceType:'数电电子专票',
+  companyName:'电器销售有限公司（珠海）分公司',
+  taxNo:'12345678901234',
+  bankName:'开户银行',
+  bankAccount:'1336000607601',
+  address:'粤中杭测试大厦',
+  phone:'13672708298',
+  email:'123456abc1234516@qq.com',
+};
+function renderInvoice(data){
+  const grid = document.getElementById('invGrid');
+  if(!grid) return;
+  if(!data || Object.keys(data).length===0){
+    grid.innerHTML = '<div class="inv-loading">⚠️ 该销售公司暂无开票信息</div>';
+    return;
+  }
+  grid.innerHTML = INVOICE_FIELDS.map(f=>{
+    const v = data[f.key];
+    const empty = (v===undefined || v===null || v==='');
+    const star = '';
+    return `<div class="inv-item"><span class="inv-label">${f.label}${star}</span><span class="inv-value ${empty?'empty':''}">${empty?'—':v}</span></div>`;
+  }).join('');
+}
+/* 模拟从管理端拉取：600ms 延迟，成功后渲染 */
+function fetchInvoice(){
+  setTimeout(()=>{ renderInvoice(INVOICE_DATA); }, 600);
+}
+
+/* ==================== 初始化 ==================== */
+function getParam(name){
+  const m = new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+if(getParam('copy')){ document.getElementById('copyTip').style.display = 'flex'; }
+renderAll();
+fetchInvoice();
+</script>
+</body>
+</html>
