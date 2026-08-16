@@ -789,9 +789,8 @@ function doSubmit(){
     btn.disabled = false; btn.textContent = '确认提交';
     closeConfirm();
     toast('提交成功！核销单号 '+no+' 已生成，已进入审批流程','success');
-    // 提交成功，本页核销任务完结（审批由独立审批页处理）；清空输入便于再次发起
-    SKUS.forEach(k=>{ k.q=0; k.uq=0; });
-    renderAll();
+    // 提交成功后返回汇总页并模拟审批中状态，新建入口因审批中禁用
+    setTimeout(()=>{ location.href = '管理端-保证金核销汇总页.html?pending=1'; }, 900);
   }, 900);
 }
 
