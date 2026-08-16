@@ -27,7 +27,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 /* 头部当前节点（新增，标 col-new） */
 .ph-right.col-new .ph-node{font-size:12px;color:var(--text-secondary);}
 .ph-right.col-new .ph-node b{color:var(--primary);font-weight:600;}
-/* 头部标题内联方案编号（参照用户端备份头部，标 col-new） */
+/* 头部标题内联方案编号（参照总部管理端备份头部，标 col-new） */
 .ph-left.col-new .ph-title .ph-no{color:#1f3a8a;font-family:'Consolas',monospace;}
 .page-scroll{flex:1;overflow-y:auto;padding:16px 20px 80px;}
 
@@ -62,7 +62,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .td-red{color:var(--danger);font-weight:600;}
 .td-green{color:#52a24b;font-weight:600;}
 
-/* ====== 订单行分组（复用用户端） ====== */
+/* ====== 订单行分组（复用总部管理端发起页） ====== */
 .order-group{border:1px solid var(--border-light);border-radius:6px;margin-bottom:10px;overflow:hidden;}
 .order-group:last-child{margin-bottom:0;}
 .og-head{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-header);border-bottom:1px solid var(--border-light);font-size:12px;flex-wrap:wrap;}
@@ -123,6 +123,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .status{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
 .status-待审核{background:#E8F0FE;color:#3b5998;}
 .status-已驳回{background:#FDECEC;color:#d9534f;}
+.status-fms{background:#EDE9FE;color:#6d28d9;}
 </style>
 </head>
 <body>
@@ -187,7 +188,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
       </div>
     </div>
 
-    <!-- ====== 核销订单行明细（快照只读，承接用户端分配） ====== -->
+    <!-- ====== 核销订单行明细（快照只读，承接总部管理端分配） ====== -->
     <div class="form-card">
       <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">核销订单行明细</span><span class="fc-tag">系统按订单行自动分配，先合格后不合格</span></div>
       <div class="fc-body">
@@ -226,7 +227,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 </div>
 
 <script>
-/* ==================== 快照数据（承接用户端提交，审批中不可改） ====================
+/* ==================== 快照数据（承接总部管理端提交，审批中不可改） ====================
    演示模型（自洽）：SKU2 预填 合格4 + 不合格11 → 返还 4×40=160 / 收差 11×40=440 */
 const SKUS = [
   {id:1, name:'清悉贝茨空调螺机',  model:'KFR-35GW', sku:'KB5410019000', type:'特价机', price:50, remain:55, q:0,  uq:0},
@@ -235,10 +236,10 @@ const SKUS = [
   {id:4, name:'清悉贝茨标准分体机', model:'KFR-05GW', sku:'KB5410019003', type:'配提机', price:0,  remain:10, q:0,  uq:0},
 ];
 const ORDERS = {
-  1:[{line:'DD2026061500101',date:'2026-06-15',qty:50,hQual:15,hDeduct:10},{line:'DD2026061500102',date:'2026-06-20',qty:30,hQual:0,hDeduct:0}],
-  2:[{line:'DD2026071000101',date:'2026-07-10',qty:12,hQual:10,hDeduct:0},{line:'DD2026071000102',date:'2026-07-18',qty:10,hQual:0,hDeduct:5},{line:'DD2026072200101',date:'2026-07-22',qty:8,hQual:0,hDeduct:0}],
-  3:[{line:'DD2026072500101',date:'2026-07-25',qty:20,hQual:0,hDeduct:0}],
-  4:[{line:'DD2026072800101',date:'2026-07-28',qty:10,hQual:0,hDeduct:0}],
+  1:[{line:'DD2026061500101',date:'2026-06-15',qty:50,hQual:15,hDeduct:10,hPending:0},{line:'DD2026061500102',date:'2026-06-20',qty:30,hQual:0,hDeduct:0,hPending:0}],
+  2:[{line:'DD2026071000101',date:'2026-07-10',qty:12,hQual:10,hDeduct:0,hPending:0},{line:'DD2026071000102',date:'2026-07-18',qty:10,hQual:0,hDeduct:5,hPending:0},{line:'DD2026072200101',date:'2026-07-22',qty:8,hQual:0,hDeduct:0,hPending:0}],
+  3:[{line:'DD2026072500101',date:'2026-07-25',qty:20,hQual:0,hDeduct:0,hPending:0}],
+  4:[{line:'DD2026072800101',date:'2026-07-28',qty:10,hQual:0,hDeduct:0,hPending:0}],
 };
 const ATTACH = [
   {name:'SKU2质检报告.pdf', size:'1.8MB'},
@@ -267,9 +268,9 @@ function allocate(k){
   const uq = Math.max(0, Math.min(k.uq, r - q));
   const lines = ORDERS[k.id].map(l=>({...l, allocQ:0, allocUQ:0}));
   let qLeft = q;
-  for(const l of lines){ const avail=Math.max(0,l.qty-l.hQual-l.hDeduct); const take=Math.min(qLeft,avail); l.allocQ=take; qLeft-=take; }
+  for(const l of lines){ const avail=Math.max(0,l.qty-l.hQual-l.hDeduct-l.hPending); const take=Math.min(qLeft,avail); l.allocQ=take; qLeft-=take; }
   let uLeft = uq;
-  for(const l of lines){ const avail=Math.max(0,(l.qty-l.hQual-l.hDeduct)-l.allocQ); const take=Math.min(uLeft,avail); l.allocUQ=take; uLeft-=take; }
+  for(const l of lines){ const avail=Math.max(0,(l.qty-l.hQual-l.hDeduct-l.hPending)-l.allocQ); const take=Math.min(uLeft,avail); l.allocUQ=take; uLeft-=take; }
   return {q, uq, lines};
 }
 
@@ -322,15 +323,15 @@ function renderOrders(){
       <table class="og-table">
         <thead><tr>
           <th>订单行号</th><th>下单时间</th><th>追溯订单下单数量</th>
-          <th>历史累计合格</th><th>历史累计收差</th><th>订单行剩余可核销数量</th>
+          <th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>订单行剩余可核销数量</th>
           <th class="alloc-col">本次合格（系统分配）</th><th class="alloc-col">本次不合格（系统分配）</th>
           <th class="money-col">本次返还金额</th><th class="money-col">本次收差金额</th>
         </tr></thead>
         <tbody>${lines.map(l=>{
-          const avail=Math.max(0,l.qty-l.hQual-l.hDeduct);
+          const avail=Math.max(0,l.qty-l.hQual-l.hDeduct-l.hPending);
           return `<tr>
             <td class="td-strong">${l.line}</td><td>${l.date}</td><td>${l.qty}</td>
-            <td>${l.hQual}</td><td>${l.hDeduct}</td><td>${avail}</td>
+            <td>${l.hQual}</td><td>${l.hDeduct}</td><td>${l.hPending||0}</td><td>${avail}</td>
             <td class="alloc-col${l.allocQ?' q-alloc':''}">${l.allocQ?`<span class="alloc-num">${l.allocQ}</span>`:'-'}</td>
             <td class="alloc-col${l.allocUQ?' u-alloc':''}">${l.allocUQ?`<span class="alloc-num">${l.allocUQ}</span>`:'-'}</td>
             <td class="money-col">${l.allocQ?fmt(l.allocQ*k.price):'¥0.00'}</td>
@@ -390,6 +391,17 @@ function renderRecord(){
   const no = getParam('no');
   if(no){ // 列表页带单号进入，更新单据信息单号
     document.getElementById('iNo').textContent = no;
+  }
+  if(getParam('stage')==='fms'){
+    FLOW = [
+      {stage:'总部业务组长', name:'张伟', result:'pass', time:'2026-08-13 10:20', opinion:'同意，质检报告与数量一致', system:'网批'},
+      {stage:'总部业务主管', name:'李娜', result:'pass', time:'2026-08-13 11:05', opinion:'同意，数量核对无误', system:'网批'},
+      {stage:'销司确认', name:'王芳（珠海销售公司）', result:'pass', time:'2026-08-13 12:30', opinion:'确认通过', system:'网批'},
+      {stage:'FMS财务审批', name:'财务系统（FMS）', result:'wait', time:'', opinion:'', system:'FMS'},
+    ];
+    const el = document.getElementById('headStatus');
+    el.textContent = '审批中（FMS）';
+    el.className = 'status status-fms';
   }
   const t = renderSku();
   renderOrders();
