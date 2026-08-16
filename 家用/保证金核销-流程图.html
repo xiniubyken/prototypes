@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保证金核销 · 流程图</title>
+<style>
+:root{
+  --primary:#3b5998; --text:#333; --text2:#666; --text3:#999;
+  --bg:#f5f6fa; --border:#e0e3ea; --border2:#eef0f4;
+  --green:#52a24b; --red:#d9534f; --orange:#B45309;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.page{min-height:100vh;padding:14px 20px;}
+.wrap{max-width:1880px;margin:0 auto;}
+h1{font-size:20px;margin-bottom:4px;}
+.sub{font-size:12px;color:var(--text2);margin-bottom:20px;}
+
+.lane-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+.lane{background:#fff;border:1px solid var(--border2);border-radius:8px;overflow:hidden;}
+.lane-head{height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:700;border-bottom:1px solid var(--border2);}
+.lane-head .dot{width:4px;height:14px;border-radius:2px;}
+.lane-head.lane-new .dot{background:var(--primary);}
+.lane-head.lane-appr .dot{background:var(--orange);}
+.lane-head.lane-fms .dot{background:var(--green);}
+.lane-body{padding:14px;display:flex;flex-direction:column;gap:8px;}
+
+.step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;}
+.node{width:100%;padding:10px 12px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:600;font-size:12px;line-height:1.5;}
+.node .small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:3px;}
+.node-blue{background:#E8F0FE;border-color:#b4d2ff;color:#2a4780;}
+.node-green{background:#E6F7EC;border-color:#a5d6a7;color:#2E7D32;}
+.node-red{background:#FDECEC;border-color:#ef9a9a;color:#c0392b;}
+.node-orange{background:#FFF7E6;border-color:#ffe58f;color:#8a6d1a;}
+.node-gray{background:#f2f4f9;border-color:#d8dce5;color:#666;}
+.v-arrow{color:var(--text3);font-size:14px;font-weight:700;line-height:1;}
+
+.branch{display:flex;gap:10px;}
+.branch-box{flex:1;border:1px dashed var(--border);border-radius:6px;padding:10px;background:#fbfbfc;}
+.branch-box h4{font-size:12px;color:var(--text2);margin-bottom:8px;text-align:center;}
+.branch-box .flow{display:flex;flex-direction:column;align-items:center;gap:6px;}
+.branch-box .mini{width:100%;padding:8px 10px;border-radius:5px;border:1px solid var(--border);background:#fff;font-size:11px;text-align:center;line-height:1.4;}
+.branch-box .mini.g{background:#E6F7EC;border-color:#a5d6a7;}
+.branch-box .mini.r{background:#FDECEC;border-color:#ef9a9a;}
+.branch-box .mini.o{background:#FFF7E6;border-color:#ffe58f;}
+.branch-box .mini.gray{background:#f2f4f9;border-color:#d8dce5;}
+
+.back-bar{background:#fff;border:1px solid var(--border2);border-radius:8px;padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+.back-bar .node{width:auto;flex:1;min-width:180px;}
+
+.sec{background:#fff;border:1px solid var(--border2);border-radius:8px;margin-bottom:18px;overflow:hidden;}
+.sec-head{height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--border2);font-weight:700;}
+.sec-head .no{width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+.sec-body{padding:16px 18px;}
+.state-list{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.state{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;}
+.state b{display:block;font-size:12px;margin-bottom:4px;}
+.state span{font-size:11px;color:var(--text2);line-height:1.6;}
+.rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.rule{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;font-size:12px;}
+.rule b{display:block;margin-bottom:4px;}
+.rule code{font-family:Consolas,monospace;color:var(--primary);font-size:12px;}
+.note{font-size:11px;color:var(--text3);margin-top:14px;line-height:1.7;}
+.nav-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px;}
+.nav-card{background:#fff;border:1px solid var(--border2);border-radius:8px;padding:12px;text-align:center;}
+.nav-card a{display:block;font-size:13px;font-weight:700;color:var(--primary);text-decoration:none;padding:10px 6px;border-radius:6px;}
+.nav-card a:hover{background:#E8F0FE;}
+.nav-card span{display:block;font-size:11px;color:var(--text3);margin-top:4px;}
+
+
+:root{--primary:#3b5998;--text:#333;--text2:#666;--text3:#999;--bg:#f5f6fa;--border:#e0e3ea;--border2:#eef0f4;--green:#52a24b;--red:#d9534f;--orange:#B45309;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.page{min-height:100vh;padding:24px;}
+.wrap{max-width:1100px;margin:0 auto;}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.top a{color:var(--primary);font-size:12px;text-decoration:none;}
+.top a:hover{text-decoration:underline;}
+.top h1{font-size:19px;}
+.sec{background:#fff;border:1px solid var(--border2);border-radius:8px;margin-bottom:18px;overflow:hidden;}
+.sec-head{height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--border2);font-weight:700;}
+.sec-head .no{width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+.sec-body{padding:16px 18px;}
+.flow{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.node{width:100%;max-width:720px;padding:10px 14px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:600;font-size:12px;line-height:1.5;text-align:center;}
+.node .small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:3px;}
+.n-blue{background:#E8F0FE;border-color:#b4d2ff;color:#2a4780;}
+.n-green{background:#E6F7EC;border-color:#a5d6a7;color:#2E7D32;}
+.n-red{background:#FDECEC;border-color:#ef9a9a;color:#c0392b;}
+.n-orange{background:#FFF7E6;border-color:#ffe58f;color:#8a6d1a;}
+.arrow{color:var(--text3);font-size:14px;font-weight:700;}
+.branch{display:flex;gap:12px;width:100%;max-width:860px;}
+.branch-box{flex:1;border:1px dashed var(--border);border-radius:6px;padding:10px;background:#fbfbfc;}
+.branch-box h4{font-size:12px;color:var(--text2);margin-bottom:8px;text-align:center;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;}
+.tbl th{background:#f8f9fb;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--border2);text-align:center;}
+.note{font-size:11px;color:var(--text3);margin-top:12px;line-height:1.7;}
+
+
+:root{--primary:#3b5998;--text:#333;--text2:#666;--text3:#999;--bg:#f5f6fa;--border:#e0e3ea;--border2:#eef0f4;--green:#52a24b;--red:#d9534f;--orange:#B45309;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.page{min-height:100vh;padding:24px;}
+.wrap{max-width:1100px;margin:0 auto;}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.top a{color:var(--primary);font-size:12px;text-decoration:none;}
+.top a:hover{text-decoration:underline;}
+.top h1{font-size:19px;}
+.sec{background:#fff;border:1px solid var(--border2);border-radius:8px;margin-bottom:18px;overflow:hidden;}
+.sec-head{height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--border2);font-weight:700;}
+.sec-head .no{width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+.sec-body{padding:16px 18px;}
+.flow{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.node{width:100%;max-width:760px;padding:10px 14px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:600;font-size:12px;line-height:1.5;text-align:center;}
+.node .small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:3px;}
+.n-blue{background:#E8F0FE;border-color:#b4d2ff;color:#2a4780;}
+.n-green{background:#E6F7EC;border-color:#a5d6a7;color:#2E7D32;}
+.n-red{background:#FDECEC;border-color:#ef9a9a;color:#c0392b;}
+.n-orange{background:#FFF7E6;border-color:#ffe58f;color:#8a6d1a;}
+.arrow{color:var(--text3);font-size:14px;font-weight:700;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;}
+.tbl th{background:#f8f9fb;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--border2);text-align:center;}
+.note{font-size:11px;color:var(--text3);margin-top:12px;line-height:1.7;}
+
+
+:root{--primary:#3b5998;--text:#333;--text2:#666;--text3:#999;--bg:#f5f6fa;--border:#e0e3ea;--border2:#eef0f4;--green:#52a24b;--red:#d9534f;--orange:#B45309;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.page{min-height:100vh;padding:24px;}
+.wrap{max-width:1100px;margin:0 auto;}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.top a{color:var(--primary);font-size:12px;text-decoration:none;}
+.top a:hover{text-decoration:underline;}
+.top h1{font-size:19px;}
+.sec{background:#fff;border:1px solid var(--border2);border-radius:8px;margin-bottom:18px;overflow:hidden;}
+.sec-head{height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--border2);font-weight:700;}
+.sec-head .no{width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+.sec-body{padding:16px 18px;}
+.flow{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.node{width:100%;max-width:760px;padding:10px 14px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:600;font-size:12px;line-height:1.5;text-align:center;}
+.node .small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:3px;}
+.n-blue{background:#E8F0FE;border-color:#b4d2ff;color:#2a4780;}
+.n-green{background:#E6F7EC;border-color:#a5d6a7;color:#2E7D32;}
+.n-red{background:#FDECEC;border-color:#ef9a9a;color:#c0392b;}
+.n-orange{background:#FFF7E6;border-color:#ffe58f;color:#8a6d1a;}
+.n-gray{background:#f2f4f9;border-color:#d8dce5;color:#666;}
+.arrow{color:var(--text3);font-size:14px;font-weight:700;}
+.branch{display:flex;gap:12px;width:100%;max-width:860px;}
+.branch-box{flex:1;border:1px dashed var(--border);border-radius:6px;padding:10px;background:#fbfbfc;}
+.branch-box h4{font-size:12px;color:var(--text2);margin-bottom:8px;text-align:center;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;}
+.tbl th{background:#f8f9fb;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--border2);text-align:center;}
+.note{font-size:11px;color:var(--text3);margin-top:12px;line-height:1.7;}
+
+
+:root{--primary:#3b5998;--text:#333;--text2:#666;--text3:#999;--bg:#f5f6fa;--border:#e0e3ea;--border2:#eef0f4;--green:#52a24b;--red:#d9534f;--orange:#B45309;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.page{min-height:100vh;padding:24px;}
+.wrap{max-width:1100px;margin:0 auto;}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.top a{color:var(--primary);font-size:12px;text-decoration:none;}
+.top a:hover{text-decoration:underline;}
+.top h1{font-size:19px;}
+.sec{background:#fff;border:1px solid var(--border2);border-radius:8px;margin-bottom:18px;overflow:hidden;}
+.sec-head{height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--border2);font-weight:700;}
+.sec-head .no{width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+.sec-body{padding:16px 18px;}
+.flow{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.node{width:100%;max-width:820px;padding:10px 14px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:600;font-size:12px;line-height:1.5;text-align:center;}
+.node .small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:3px;}
+.n-blue{background:#E8F0FE;border-color:#b4d2ff;color:#2a4780;}
+.n-green{background:#E6F7EC;border-color:#a5d6a7;color:#2E7D32;}
+.n-red{background:#FDECEC;border-color:#ef9a9a;color:#c0392b;}
+.n-orange{background:#FFF7E6;border-color:#ffe58f;color:#8a6d1a;}
+.n-gray{background:#f2f4f9;border-color:#d8dce5;color:#666;}
+.arrow{color:var(--text3);font-size:14px;font-weight:700;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;}
+.tbl th{background:#f8f9fb;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--border2);text-align:center;}
+.note{font-size:11px;color:var(--text3);margin-top:12px;line-height:1.7;}
+
+
+:root{--primary:#3b5998;--text:#333;--text2:#666;--text3:#999;--bg:#f5f6fa;--border:#e0e3ea;--border2:#eef0f4;--green:#52a24b;--red:#d9534f;--orange:#B45309;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+.page{min-height:100vh;padding:24px;}
+.wrap{max-width:1100px;margin:0 auto;}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.top a{color:var(--primary);font-size:12px;text-decoration:none;}
+.top a:hover{text-decoration:underline;}
+.top h1{font-size:19px;}
+.sec{background:#fff;border:1px solid var(--border2);border-radius:8px;margin-bottom:18px;overflow:hidden;}
+.sec-head{height:42px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--border2);font-weight:700;}
+.sec-head .no{width:20px;height:20px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;display:inline-flex;align-items:center;justify-content:center;}
+.sec-body{padding:16px 18px;}
+.flow{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.node{width:100%;max-width:820px;padding:10px 14px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:600;font-size:12px;line-height:1.5;text-align:center;}
+.node .small{display:block;font-weight:400;color:var(--text2);font-size:11px;margin-top:3px;}
+.n-blue{background:#E8F0FE;border-color:#b4d2ff;color:#2a4780;}
+.n-green{background:#E6F7EC;border-color:#a5d6a7;color:#2E7D32;}
+.n-red{background:#FDECEC;border-color:#ef9a9a;color:#c0392b;}
+.n-orange{background:#FFF7E6;border-color:#ffe58f;color:#8a6d1a;}
+.arrow{color:var(--text3);font-size:14px;font-weight:700;}
+.state-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.state{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:10px 12px;}
+.state b{display:block;font-size:12px;margin-bottom:4px;}
+.state span{font-size:11px;color:var(--text2);line-height:1.6;}
+.note{font-size:11px;color:var(--text3);margin-top:12px;line-height:1.7;}
+
+.app{display:flex;align-items:flex-start;gap:16px;}
+.sidebar{width:190px;flex-shrink:0;background:#fff;border:1px solid #eef0f4;border-radius:8px;padding:10px;position:sticky;top:16px;}
+.sidebar .brand{font-size:13px;font-weight:700;padding:8px 10px 12px;border-bottom:1px solid #eef0f4;margin-bottom:8px;color:#3b5998;}
+.nav-btn{display:block;width:100%;text-align:left;padding:9px 10px;margin-bottom:4px;border:none;background:#fff;color:#333;font-size:12px;border-radius:5px;cursor:pointer;}
+.nav-btn:hover{background:#f2f4f9;}
+.nav-btn.active{background:#E8F0FE;color:#2a4780;font-weight:600;}
+.main{flex:1;min-width:0;}
+.view{display:none;}
+.view.active{display:block;}.wrap{max-width:1880px;margin:0 auto;}
+.page{padding:14px 20px;}
+.scene-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.scene{background:#fbfbfc;border:1px solid #eef0f4;border-radius:6px;padding:12px;}
+.scene-title{font-weight:700;font-size:12px;margin-bottom:8px;}
+.scene ul{list-style:none;padding:0;margin:0;}
+.scene li{font-size:11px;color:#666;line-height:1.6;margin-bottom:6px;}
+.tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:3px;margin-right:4px;font-weight:700;}
+.tag-common{background:#E8F0FE;color:#2a4780;}
+.tag-biz{background:#E6F7EC;color:#2E7D32;}
+.tag-pm{background:#F3E8FF;color:#6a3fa0;}
+.tag-dev{background:#FFF7E6;color:#8a6d1a;}
+.tag-qa{background:#FDECEC;color:#c0392b;}
+.legend{margin-top:12px;font-size:11px;color:#666;line-height:1.8;}
+.legend .tag{margin-right:8px;}
+/* col-new 新增设计系统 */
+:root{
+  --bg:#f6f7f9; --panel:#ffffff; --border:#e2e8f0; --border-strong:#cbd5e1;
+  --ink:#1e293b; --muted:#64748b; --faint:#94a3b8;
+  --blue:#2563eb; --blue-bg:#eff6ff; --blue-border:#bfdbfe;
+  --green:#16a34a; --green-bg:#f0fdf4; --green-border:#bbf7d0;
+  --red:#dc2626; --red-bg:#fef2f2; --red-border:#fecaca;
+  --orange:#b45309; --orange-bg:#fffbeb; --orange-border:#fde68a;
+  --gray-bg:#f1f5f9; --gray-border:#e2e8f0;
+  --radius:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:var(--bg);}
+body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;font-size:13px;color:var(--ink);}
+.page{min-height:100vh;padding:14px 20px;}
+.wrap{max-width:1880px;margin:0 auto;}
+h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
+.sub{font-size:12px;color:var(--muted);margin:4px 0 16px;line-height:1.6;}
+
+/* App shell: sidebar + main */
+.app{display:flex;align-items:flex-start;gap:16px;}
+.sidebar{width:208px;flex-shrink:0;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:10px;position:sticky;top:16px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+.sidebar .brand{font-size:13px;font-weight:700;color:var(--blue);padding:10px 8px 12px;border-bottom:1px solid var(--border);margin-bottom:8px;line-height:1.5;}
+.nav-btn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:8px;margin-bottom:4px;border:none;background:transparent;color:var(--muted);font-size:12px;border-radius:6px;cursor:pointer;transition:background .12s,color .12s;}
+.nav-btn:hover{background:var(--gray-bg);color:var(--ink);}
+.nav-btn.active{background:var(--blue-bg);color:var(--blue);font-weight:600;}
+.nav-btn .idx{width:20px;height:20px;border-radius:6px;background:var(--gray-bg);color:var(--muted);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-btn.active .idx{background:var(--blue);color:#fff;}
+.main{flex:1;min-width:0;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* Sections */
+.sec{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+.sec-head{height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--border);background:#fbfcfe;font-weight:700;font-size:13px;color:var(--ink);}
+.sec-head .no{width:22px;height:22px;border-radius:6px;background:var(--blue);color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sec-body{padding:18px 20px;}
+
+/* Main flow */
+.flow-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+.branch{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;}
+.branch-col{flex:1;min-width:300px;border:1px dashed var(--border-strong);border-radius:var(--radius);padding:12px 14px;background:#fbfcfe;}
+.branch-col h4{font-size:12px;color:var(--muted);margin-bottom:10px;font-weight:600;}
+
+/* Nodes */
+.node{min-width:132px;max-width:220px;padding:11px 14px;border-radius:var(--radius);border:1px solid var(--border-strong);background:var(--panel);text-align:center;font-weight:600;font-size:12px;line-height:1.5;color:var(--ink);}
+.node .small{display:block;font-weight:400;color:var(--muted);font-size:11px;margin-top:4px;line-height:1.5;}
+.node-blue,.n-blue{background:var(--blue-bg);border-color:var(--blue-border);color:#1e40af;}
+.node-blue .small,.n-blue .small{color:#5b7bb8;}
+.node-green,.n-green{background:var(--green-bg);border-color:var(--green-border);color:#166534;}
+.node-green .small,.n-green .small{color:#6aa877;}
+.node-red,.n-red{background:var(--red-bg);border-color:var(--red-border);color:#991b1b;}
+.node-red .small,.n-red .small{color:#b47373;}
+.node-orange,.n-orange{background:var(--orange-bg);border-color:var(--orange-border);color:#92400e;}
+.node-orange .small,.n-orange .small{color:#a8866a;}
+.node-gray,.n-gray{background:var(--gray-bg);border-color:var(--gray-border);color:#475569;}
+.node-gray .small,.n-gray .small{color:#94a3b8;}
+
+/* Connectors */
+.arrow{display:inline-block;width:30px;height:2px;background:var(--border-strong);position:relative;flex-shrink:0;color:transparent;font-size:0;}
+.arrow::after{content:'';position:absolute;right:-1px;top:-4px;border-left:8px solid var(--border-strong);border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.v-arrow{width:2px;height:22px;background:var(--border-strong);position:relative;flex-shrink:0;color:transparent;font-size:0;}
+.v-arrow::after{content:'';position:absolute;left:-4px;bottom:-1px;border-top:8px solid var(--border-strong);border-left:5px solid transparent;border-right:5px solid transparent;}
+
+/* Lanes */
+.lane-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+.lane{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+.lane-head{height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:700;font-size:13px;border-bottom:1px solid var(--border);background:#fbfcfe;}
+.lane-head .dot{width:8px;height:8px;border-radius:50%;}
+.lane-head.lane-new .dot{background:var(--blue);}
+.lane-head.lane-appr .dot{background:var(--orange);}
+.lane-head.lane-fms .dot{background:var(--green);}
+.lane-body{padding:14px;}
+.step{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;}
+.step .node{width:100%;max-width:none;}
+
+/* Key scenarios */
+.scene-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.scene{background:#fbfcfe;border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;transition:box-shadow .15s,border-color .15s;}
+.scene:hover{box-shadow:0 4px 12px rgba(15,23,42,.06);border-color:var(--border-strong);}
+.scene-title{font-weight:700;font-size:12px;margin-bottom:8px;color:var(--ink);}
+.scene ul{list-style:none;padding:0;margin:0;}
+.scene li{font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:7px;}
+.scene li:last-child{margin-bottom:0;}
+
+/* Stage: flow + key scenarios in one block */
+.stage{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+.stage-head{height:44px;display:flex;align-items:center;gap:10px;padding:0 16px;border-bottom:1px solid var(--border);background:#fbfcfe;font-weight:700;font-size:13px;color:var(--ink);}
+.stage-head .dot{width:8px;height:8px;border-radius:50%;}
+.stage-head .dot-blue{background:var(--blue);}
+.stage-head .dot-orange{background:var(--orange);}
+.stage-head .dot-gray{background:#64748b;}
+.stage-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;padding:16px 18px;}
+.stage-flow{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px;border:1px solid var(--border);border-radius:var(--radius);background:#fbfcfe;}
+.stage-flow .node{width:100%;max-width:none;}
+.stage-scenes{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;align-content:start;}
+.stage-scenes .scene{margin:0;}
+
+/* Role tags */
+.tag{display:inline-block;font-size:10px;padding:1px 7px;border-radius:999px;margin-right:6px;font-weight:700;letter-spacing:0;vertical-align:1px;}
+.tag-common{background:var(--blue-bg);color:#1e40af;border:1px solid var(--blue-border);}
+.tag-biz{background:var(--green-bg);color:#166534;border:1px solid var(--green-border);}
+.tag-pm{background:#faf5ff;color:#6d28d9;border:1px solid #e9d5ff;}
+.tag-dev{background:var(--orange-bg);color:#92400e;border:1px solid var(--orange-border);}
+.tag-qa{background:var(--red-bg);color:#991b1b;border:1px solid var(--red-border);}
+.legend{margin-top:14px;font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;}
+.legend .tag{margin-right:0;}
+
+/* Scene pages */
+.flow{display:flex;flex-direction:column;align-items:center;gap:8px;}
+.flow .node{width:100%;max-width:820px;}
+.branch-box .node{width:100%;max-width:100%;}
+.branch-box{flex:1;min-width:280px;border:1px dashed var(--border-strong);border-radius:var(--radius);padding:12px;background:#fbfcfe;}
+.branch-box h4{font-size:12px;color:var(--muted);margin-bottom:10px;text-align:center;font-weight:600;}
+.branch-box .mini{width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--border);background:var(--panel);font-size:11px;text-align:center;line-height:1.5;color:var(--muted);}
+.branch-box .mini.g{background:var(--green-bg);border-color:var(--green-border);color:#166534;}
+.branch-box .mini.r{background:var(--red-bg);border-color:var(--red-border);color:#991b1b;}
+.branch-box .mini.o{background:var(--orange-bg);border-color:var(--orange-border);color:#92400e;}
+.branch-box .mini.gray{background:var(--gray-bg);border-color:var(--gray-border);color:#475569;}
+
+/* Tables */
+.tbl{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+.tbl th{background:#f8fafc;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;color:var(--ink);}
+.tbl tr:last-child td{border-bottom:none;}
+
+/* State and rules */
+.state-list{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.state{background:#fbfcfe;border:1px solid var(--border);border-radius:var(--radius);padding:11px 12px;}
+.state b{display:block;font-size:12px;margin-bottom:5px;color:var(--ink);}
+.state span{font-size:11px;color:var(--muted);line-height:1.7;}
+.rule-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.rule{background:#fbfcfe;border:1px solid var(--border);border-radius:var(--radius);padding:11px 12px;font-size:12px;color:var(--ink);line-height:1.8;}
+.rule b{display:block;margin-bottom:4px;}
+.rule code{font-family:Consolas,"SF Mono",monospace;color:var(--blue);font-size:12px;background:var(--blue-bg);padding:1px 5px;border-radius:4px;}
+.note{font-size:11px;color:var(--faint);margin-top:12px;line-height:1.7;}
+.top{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.top a{color:var(--blue);font-size:12px;text-decoration:none;font-weight:600;}
+.top a:hover{text-decoration:underline;}
+
+/* col-new 宽画布全景流程 */
+.map-wrap{max-width:none;}
+.map{position:relative;width:3900px;height:3100px;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 2px 10px rgba(15,23,42,.05);overflow:visible;}
+.map-route{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:9px 14px;background:#fff;border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;font-size:12px;color:#475569;width:max-content;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+.map-route .route-label{font-weight:700;color:var(--blue);margin-right:4px;}
+.map-route .route-node{font-weight:600;color:#1e293b;}
+.map-route .route-arrow{color:#94a3b8;font-weight:700;}
+.map .lane{position:absolute;top:70px;background:#fbfcfe;border:1px solid #edf0f4;border-top:1px solid #e2e8f0;border-radius:0;box-shadow:none;}
+.lane-label{position:absolute;height:38px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;letter-spacing:0;color:#1e293b;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+.lane-biz .lane-label{color:var(--blue);}
+.lane-net .lane-label{color:var(--orange);}
+.lane-fms .lane-label{color:var(--green);}
+.lane-sum .lane-label{color:#6d28d9;}
+.map-node{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 10px;background:#fff;border:1px solid #94a3b8;border-radius:6px;font-size:13px;font-weight:600;color:#1e293b;line-height:1.45;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+.map-node .small{font-weight:400;font-size:11px;color:#64748b;margin-top:3px;line-height:1.5;}
+.map-node.blue{background:#f0f7ff;border-color:#7eb3ff;color:#1d4ed8;}
+.map-node.blue .small{color:#3b6fbd;}
+.map-node.orange{background:#fff8ed;border-color:#f6c177;color:#b45309;}
+.map-node.orange .small{color:#a06a35;}
+.map-node.green{background:#f2fbf5;border-color:#86d3a3;color:#15803d;}
+.map-node.green .small{color:#4c8d67;}
+.map-node.gray{background:#f8fafc;border-color:#cbd5e1;color:#475569;}
+.map-node.gray .small{color:#8296ab;}
+.map-node.start,.map-node.end{border-radius:50%;background:#eef2ff;border:2px solid #4f6ef7;color:#1e3a8a;font-weight:700;}
+.map-node.start .small,.map-node.end .small{color:#526bd8;}
+.map-decision{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:12px;color:#475569;background:transparent;border:none;clip-path:none;padding:0;}
+.map-decision .map-decision-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+.map-decision > span{position:relative;z-index:1;line-height:1.5;}
+.map-doc{display:inline-block;font-size:10px;font-weight:700;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;border-radius:999px;padding:1px 7px;margin:1px 2px;white-space:nowrap;}
+.map-note{position:absolute;background:#fffdf5;border:1px solid #fde68a;border-left:4px solid #d97706;border-radius:6px;padding:10px 12px;font-size:11px;color:#78350f;line-height:1.6;box-shadow:0 1px 2px rgba(15,23,42,.03);}
+.map-note.red{background:#fff5f5;border-color:#fecaca;border-left-color:#dc2626;color:#7f1d1d;}
+.map-panel{position:absolute;background:#fbfcfe;border:1px solid #e2e8f0;border-radius:8px;padding:12px 14px;font-size:11px;color:#475569;line-height:1.75;box-shadow:0 1px 2px rgba(15,23,42,.03);}
+.map-panel.panel-biz{border-left:4px solid var(--blue);}
+.map-panel.panel-net{border-left:4px solid var(--orange);}
+.map-panel.panel-fms{border-left:4px solid var(--green);}
+.map-panel.panel-sum{border-left:4px solid #7c3aed;}
+.map-panel h4{display:flex;align-items:center;gap:6px;font-size:12px;color:#1e293b;margin:18px 0 10px;border-bottom:1px solid #e2e8f0;padding-bottom:6px;}
+.map-panel h4:first-child{margin-top:0;}
+.map-panel h4::before{content:'';width:4px;height:14px;border-radius:2px;background:var(--blue);}
+.map-panel ul{list-style:none;padding:0;margin:0;}
+.map-panel li{position:relative;margin-bottom:6px;padding-left:10px;}
+.map-panel li::before{content:'';position:absolute;left:0;top:7px;width:4px;height:4px;border-radius:50%;background:#94a3b8;}
+.map-panel li.red{color:#b91c1c;font-weight:600;}
+.map-panel li.red::before{background:#dc2626;}
+.map-table{width:100%;border-collapse:collapse;font-size:10px;margin:8px 0 14px;background:#fff;}
+.map-table th{background:#f1f5f9;color:#64748b;padding:4px 5px;border:1px solid #e2e8f0;font-weight:700;white-space:nowrap;}
+.map-table td{padding:4px 5px;border:1px solid #e2e8f0;text-align:center;color:#334155;line-height:1.45;}
+.map-table tr:nth-child(even):not(.tot) td{background:#f8fafc;}
+.map-table tr.sku-a td{background:#f0f7ff;}
+.map-table tr.sku-b td{background:#fff8ed;}
+.map-table .tot td{font-weight:700;background:#f8fafc;color:#1e293b;}
+.map-table .row-h2 td:first-child{padding-left:20px;}
+.map-table .row-h3 td:first-child{padding-left:38px;}
+.map-table .row-fh{background:#fff8ed;}
+.map-table .row-sc{background:#fff5f5;}
+.map-note-inline{font-size:10px;color:#64748b;margin:4px 0 14px;line-height:1.6;}
+.map-story{background:#eff6ff;border:1px solid #bfdbfe;border-left:4px solid var(--blue);border-radius:6px;padding:8px 10px;font-size:11px;color:#1e3a8a;line-height:1.6;margin-bottom:12px;}
+.map-story.story-orange{background:#fff8ed;border-color:#fde68a;border-left-color:#d97706;color:#78350f;}
+.map-story.story-green{background:#f0fdf4;border-color:#bbf7d0;border-left-color:#16a34a;color:#14532d;}
+.map-story.story-purple{background:#faf5ff;border-color:#e9d5ff;border-left-color:#7c3aed;color:#4c1d95;}
+.map-read{font-size:10px;color:#64748b;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:5px;padding:5px 8px;margin:0 0 8px;line-height:1.6;}
+.map-formula{background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:6px;padding:6px 10px;font-size:10px;color:#14532d;line-height:1.6;margin:0 0 10px;}
+.map-total{display:flex;gap:8px;margin:6px 0 10px;}
+.map-total .mt{flex:1;background:#fff;border:1px solid #e2e8f0;border-top:3px solid #cbd5e1;border-radius:6px;padding:8px 4px 6px;text-align:center;}
+.map-total .mt.mt-blue{border-top-color:var(--blue);}
+.map-total .mt.mt-green{border-top-color:var(--green);}
+.map-total .mt.mt-red{border-top-color:var(--red);}
+.map-total .mt span{display:block;font-size:10px;color:#64748b;line-height:1.4;}
+.map-total .mt b{display:block;font-size:13px;color:#1e293b;margin-top:2px;}
+.map-subtitle{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#334155;margin:16px 0 6px;}
+.step-dot{width:16px;height:16px;border-radius:50%;color:#fff;font-size:10px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.step-dot.step-fh{background:#16a34a;}
+.step-dot.step-sc{background:#dc2626;}
+.map-warn{display:flex;align-items:center;gap:8px;background:#fff7e6;border:1px solid #ffe58f;border-radius:6px;padding:6px 10px;font-size:10px;color:#8a6d1a;line-height:1.6;margin-top:16px;}
+.map-mini{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.mini-node{background:#fff;border:1px solid #e2e8f0;border-radius:5px;padding:5px 8px;font-size:10px;color:#475569;font-weight:600;line-height:1.5;}
+.mini-node.red{background:#fff5f5;border-color:#fecaca;color:#991b1b;}
+.map-arrow-sm{color:#94a3b8;font-size:12px;font-weight:700;}
+.branch-label{position:absolute;font-size:11px;font-weight:700;color:#475569;}
+.branch-label.label-y{color:#15803d;}
+.branch-label.label-n{color:#b91c1c;}
+.v-arrow{position:absolute;width:2px;background:#8a94a6;color:transparent;font-size:0;}
+.v-arrow::after{content:'';position:absolute;left:-4px;bottom:-1px;border-top:8px solid #8a94a6;border-left:5px solid transparent;border-right:5px solid transparent;}
+.h-arrow{position:absolute;height:2px;background:#8a94a6;color:transparent;font-size:0;}
+.h-arrow::after{content:'';position:absolute;right:-1px;top:-4px;border-left:8px solid #8a94a6;border-top:5px solid transparent;border-bottom:5px solid transparent;}
+.h-arrow.left::after{left:-1px;right:auto;border-right:8px solid #8a94a6;border-left:0;border-top:5px solid transparent;border-bottom:5px solid transparent;}
+
+/* col-new 固定可折叠侧栏 */
+.sidebar{position:fixed;left:20px;top:16px;bottom:16px;width:208px;z-index:60;transition:width .16s ease,height .16s ease;overflow:hidden;}
+.main{margin-left:244px;}
+.app.collapsed .sidebar{width:40px;height:40px;top:16px;bottom:auto;padding:0;background:var(--panel);border:1px solid var(--border);box-shadow:0 2px 8px rgba(15,23,42,.08);}
+.app.collapsed .main{margin-left:76px;}
+.app.collapsed .brand,.app.collapsed .nav-btn{display:none;}
+.side-toggle{display:flex;align-items:center;justify-content:center;width:100%;height:32px;margin-bottom:8px;border:1px solid var(--border);border-radius:6px;background:var(--gray-bg);color:var(--muted);font-size:15px;font-weight:700;cursor:pointer;}
+.side-toggle:hover{background:var(--blue-bg);color:var(--blue);}
+.app.collapsed .side-toggle{width:40px;height:40px;margin:0;border-radius:8px;background:var(--blue-bg);border:1px solid var(--blue-border);color:var(--blue);font-size:17px;}
+.app.collapsed .side-toggle:hover{background:var(--blue);color:#fff;}
+.expand-only{display:none;}
+.app.collapsed .collapse-only{display:none;}
+.app.collapsed .expand-only{display:inline;}
+
+/* 研发详图视图 */
+.detail-badge{display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;background:var(--blue-bg);border:1px solid var(--blue-border);color:#1d4ed8;font-size:10px;font-weight:700;margin-left:8px;vertical-align:2px;}
+.sec-body h4{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink);margin:18px 0 8px;}
+.sec-body h4::before{content:'';width:4px;height:14px;border-radius:2px;background:var(--blue);}
+.sec-body h4:first-child{margin-top:0;}
+.code-block{font-family:Consolas,"SF Mono",monospace;background:#0f172a;color:#e2e8f0;padding:12px 14px;border-radius:8px;font-size:12px;line-height:1.7;overflow-x:auto;white-space:pre;margin:10px 0;border:1px solid #1e293b;}
+.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+.detail-grid .rule{height:100%;}
+.flow-note{font-size:11px;color:var(--muted);background:#f8fafc;border:1px dashed var(--border-strong);border-radius:6px;padding:8px 10px;margin-top:10px;line-height:1.7;}
+.impl-note{font-size:11px;color:#92400e;background:#fff7ed;border:1px solid #fed7aa;border-left:4px solid #f59e0b;border-radius:6px;padding:8px 10px;margin-top:10px;line-height:1.7;}
+</style>
+</head>
+<body><div class="page"><div class="wrap app map-wrap col-new"><div class="sidebar"><button class="side-toggle" onclick="toggleSidebar()"><span class="collapse-only">‹</span><span class="expand-only">›</span></button><div class="brand">保证金核销 · 流程图</div><button class="nav-btn active" data-view="view-index" onclick="switchView(&apos;view-index&apos;)">全景总览</button><button class="nav-btn" data-view="view-1" onclick="switchView(&apos;view-1&apos;)">新建页</button><button class="nav-btn" data-view="view-2" onclick="switchView(&apos;view-2&apos;)">订单行分配</button><button class="nav-btn" data-view="view-3" onclick="switchView(&apos;view-3&apos;)">审批流程</button><button class="nav-btn" data-view="view-4" onclick="switchView(&apos;view-4&apos;)">FMS接口与数据包</button><button class="nav-btn" data-view="view-5" onclick="switchView(&apos;view-5&apos;)">状态回写</button></div><div class="main"><div class="view active" id="view-index">
+<h1>保证金核销 · 全景流程</h1>
+<div class="sub">宽画布泳道图：网批业务操作发起、网批审批、FMS 审批与执行、汇总回写；规则、单据和边界条件直接写在流程里。</div>
+<div class="map-route"><span class="route-label">阅读路径</span><span class="route-node">开始</span><span class="route-arrow">→</span><span class="route-node">业务发起</span><span class="route-arrow">→</span><span class="route-node">网批审批</span><span class="route-arrow">→</span><span class="route-node">FMS</span><span class="route-arrow">→</span><span class="route-node">汇总回写</span><span class="route-arrow">→</span><span class="route-node">END</span></div>
+
+<div class="map">
+  <div class="lane" style="left:20px;top:70px;width:1120px;height:3000px;"></div>
+  <div class="lane" style="left:1180px;top:70px;width:830px;height:3000px;"></div>
+  <div class="lane" style="left:2050px;top:70px;width:940px;height:3000px;"></div>
+  <div class="lane" style="left:3030px;top:70px;width:840px;height:3000px;"></div>
+
+  <div class="lane-label lane-biz" style="left:20px;top:34px;width:1120px;">网批 · 业务操作</div>
+  <div class="lane-label lane-net" style="left:1180px;top:34px;width:830px;">网批</div>
+  <div class="lane-label lane-fms" style="left:2050px;top:34px;width:940px;">FMS</div>
+  <div class="lane-label lane-sum" style="left:3030px;top:34px;width:840px;">汇总与回写</div>
+
+  <div class="map-node start" style="left:330px;top:100px;width:210px;height:52px;">开始<span class="small">网批管理端入口</span></div>
+  <div class="v-arrow" style="left:433px;top:154px;height:24px;"></div>
+
+  <div class="map-node blue" style="left:250px;top:180px;width:370px;height:60px;">【发起核销】入口<span class="small">存在审批中单则禁用；驳回后显示“复制并新建”</span></div>
+  <div class="v-arrow" style="left:433px;top:242px;height:36px;"></div>
+
+  <div class="map-node blue" style="left:180px;top:280px;width:510px;height:72px;">新建核销单：选择 SKU 合格/不合格数量<span class="small">每行 0~剩余可核销数量；合格+不合格 ≤ 剩余可核销数量；单价 0 SKU 不可输入</span></div>
+  <div class="v-arrow" style="left:433px;top:354px;height:44px;"></div>
+
+  <div class="map-node blue" style="left:170px;top:400px;width:530px;height:72px;">订单行自动分配<span class="small">先合格后不合格；按下单时间递扣；不合格只占未被合格占用的额度</span></div>
+  <div class="v-arrow" style="left:433px;top:474px;height:44px;"></div>
+
+  <div class="map-node orange" style="left:170px;top:520px;width:530px;height:100px;">金额计算 / 确认明细<span class="small"><span class="map-doc">返还金额</span><span class="map-doc">收差金额</span><br>返还金额=合格×单价；收差金额=不合格×单价；确认后提交才生成 FH单/SC单</span></div>
+  <div class="v-arrow" style="left:433px;top:622px;height:46px;"></div>
+
+  <div class="map-node green" style="left:250px;top:670px;width:360px;height:66px;">提交：生成单据并进入审批<span class="small">提交时生成 BHX单/FH单/SC单 单号及行号；行号映射原订单行</span></div>
+
+  <div class="h-arrow" style="left:610px;top:702px;width:850px;"></div>
+
+  <div class="map-node orange" style="left:1460px;top:670px;width:270px;height:60px;">总部业务组长<span class="small">通过 / 驳回；驳回原因必填</span></div>
+  <div class="v-arrow" style="left:1594px;top:732px;height:56px;"></div>
+
+  <div class="map-node orange" style="left:1460px;top:790px;width:270px;height:60px;">总部业务主管<span class="small">通过 / 驳回；驳回原因必填</span></div>
+  <div class="v-arrow" style="left:1594px;top:852px;height:56px;"></div>
+
+  <div class="map-node orange" style="left:1450px;top:910px;width:290px;height:60px;">销司确认<span class="small">仅通过；7 天未审批由定时任务自动通过；不展示权限标识文案</span></div>
+  <div class="v-arrow" style="left:1594px;top:972px;height:56px;"></div>
+
+  <div class="map-node gray" style="left:1430px;top:1030px;width:330px;height:60px;">已推送 FMS（责任已移交）<span class="small">提交什么审批什么，不允许修改；等待 FMS 回传</span></div>
+
+  <div class="h-arrow" style="left:1760px;top:1089px;width:630px;"></div>
+
+  <div class="map-node blue" style="left:2390px;top:1060px;width:260px;height:60px;">已提交 FMS（等待 FMS 审批）<span class="small">已推送：BHX单号 · FH单号/行号 · SC单号/行号 · 发票信息</span></div>
+  <div class="v-arrow" style="left:2519px;top:1122px;height:56px;"></div>
+
+  <div class="map-node gray" style="left:2370px;top:1180px;width:300px;height:60px;">FMS 财务审批<span class="small">网批不可进入、不可操作；一直等待 FMS 回传</span></div>
+  <div class="v-arrow" style="left:2519px;top:1242px;height:56px;"></div>
+
+  <div class="map-decision" style="left:2430px;top:1300px;width:220px;height:100px;">
+    <svg class="map-decision-svg" viewBox="0 0 220 100" preserveAspectRatio="none" aria-hidden="true">
+      <polygon points="110,0 220,50 110,100 0,50" fill="#ffffff" stroke="#64748b" stroke-width="2"/>
+    </svg>
+    <span>FMS 审批结果</span>
+  </div>
+  <div class="map-note red" style="left:2080px;top:1290px;width:290px;height:120px;">驳回 → 回传网批 → 整单终态；FH单/SC单作废；可复制并新建</div>
+  <div class="branch-label label-n" style="left:2300px;top:1360px;">N 驳回</div>
+  <div class="h-arrow left" style="left:2370px;top:1349px;width:58px;"></div>
+  <div class="v-arrow" style="left:2519px;top:1402px;height:46px;"></div>
+  <div class="branch-label label-y" style="left:2550px;top:1410px;">Y 通过</div>
+
+  <div class="map-node green" style="left:2380px;top:1450px;width:300px;height:60px;">FMS 自行发起返还与收差<span class="small">返还完成返回结果 → 触发第一段回写</span></div>
+
+  <div class="h-arrow" style="left:2680px;top:1479px;width:590px;"></div>
+
+  <div class="map-node green" style="left:3270px;top:1450px;width:340px;height:60px;">第一段回写<span class="small">审批中数量 − 本次；累计合格 +；已返还 +；核销单完结</span></div>
+  <div class="v-arrow" style="left:3439px;top:1512px;height:56px;"></div>
+
+  <div class="map-node orange" style="left:3270px;top:1570px;width:340px;height:60px;">收差执行<span class="small">待执行 → 执行中 → 已收差</span></div>
+  <div class="v-arrow" style="left:3439px;top:1632px;height:56px;"></div>
+
+  <div class="map-node green" style="left:3270px;top:1690px;width:340px;height:60px;">收差完成 / 第二段回写<span class="small">累计收差 +；已收差金额 +；待处理金额 −；收差状态 → 已收差</span></div>
+  <div class="v-arrow" style="left:3439px;top:1752px;height:56px;"></div>
+
+  <div class="map-node orange" style="left:3270px;top:1810px;width:340px;height:60px;">发票单号按收差单行号回推<span class="small">异步回推；回推前显示“回推中”</span></div>
+  <div class="v-arrow" style="left:3439px;top:1872px;height:56px;"></div>
+
+  <div class="map-node blue" style="left:3270px;top:1930px;width:340px;height:60px;">汇总页展示最新值<span class="small">需核销 / 已核销 / 待核销 / 已返还 / 已收差 / 待处理</span></div>
+  <div class="v-arrow" style="left:3439px;top:1992px;height:56px;"></div>
+
+  <div class="map-node end" style="left:3350px;top:2050px;width:180px;height:52px;">END</div>
+
+  <div class="map-panel panel-biz" style="left:30px;top:790px;width:1080px;height:1140px;">
+    <div class="map-story">大白话：业务填好合格/不合格数量，系统自动从订单行余量里扣，算出返还/收差金额；提交后才生成核销单、FH单、SC单。</div>
+    <h4>业务发起 · 流程要点</h4>
+    <ul>
+      <li class="red">存在审批中单时不允许发起新建；全部完结/驳回后恢复。</li>
+      <li>提交时生成单据并进入审批；有返还生成 FH单，有收差生成 SC单。</li>
+      <li class="red">无返还不生成 FH单；无收差不生成 SC单；单价 0 SKU 不参与核销。</li>
+      <li class="red">同一订单行可分批核销；每批生成独立 BHX单/FH单/SC单 与行号，已提交数量从剩余可核销数量扣除。</li>
+      <li>金额=数量×单价；需核销总数不含单价 0 SKU。</li>
+    </ul>
+    <h4>填写与计算演示</h4>
+    <div class="map-read">读法：先看每个 SKU 填了什么数量，再看系统自动算出的返还/收差金额。</div>
+    <table class="map-table">
+      <tr><th>商品名称</th><th>SKU</th><th>合格数量</th><th>不合格数量</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr><td>冷静王变频柜机 A</td><td>SP1123654001</td><td>4</td><td>0</td><td>¥160</td><td>¥0</td></tr>
+      <tr><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
+      <tr class="tot"><td colspan="2">合计</td><td>6</td><td>3</td><td>¥240</td><td>¥120</td></tr>
+    </table>
+    <div class="map-note-inline">返还金额=合格数量×保证金单价（40）；收差金额=不合格数量×保证金单价（40）。</div>
+    <h4>关联核销订单行分配（同SKU可跨订单行）</h4>
+    <div class="map-read">读法：订单行总数量 − 历史已核销 − 审批中 = 还能核销；本次从“剩余可核销”里扣。</div>
+    <table class="map-table">
+      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr class="sku-a"><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
+      <tr class="sku-a"><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>8</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
+      <tr class="sku-b"><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>5</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
+      <tr class="tot"><td colspan="2">合计</td><td></td><td>30</td><td>10</td><td>5</td><td>0</td><td>15</td><td>6</td><td>3</td><td>¥240</td><td>¥120</td></tr>
+    </table>
+    <div class="map-note-inline">剩余可核销 = 追溯下单数量 − 历史累计合格 − 历史累计收差 − 审批中数量；订单行按“先合格后不合格、按下单时间递扣”分配。SKU A 本次跨 0101/2201 两行共核销 4 台。</div>
+    <h4>提交确认演示（对齐二次确认弹窗）</h4>
+    <div class="map-read">读法：提交前再确认一次，哪些订单行返还、哪些订单行收差。</div>
+    <div class="map-total">
+      <div class="mt mt-blue"><span>核销SKU数</span><b>2 个</b></div>
+      <div class="mt mt-green"><span>合格数量合计（返还）</span><b>6 台</b></div>
+      <div class="mt mt-red"><span>不合格数量合计（收差）</span><b>3 台</b></div>
+      <div class="mt mt-blue"><span>涉及保证金</span><b>¥360</b></div>
+    </div>
+    <div class="map-subtitle"><span class="step-dot step-fh">1</span>返还保证金明细</div>
+    <table class="map-table">
+      <tr><th>返还单号</th><th>返还单行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>合格数量</th><th>返还金额</th></tr>
+      <tr class="sku-a"><td rowspan="3">FH0120260723001</td><td>FH012026072300101</td><td>DD2026071000101</td><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>2</td><td>¥80</td></tr>
+      <tr class="sku-a"><td>FH012026072300103</td><td>DD2026072200101</td><td>2</td><td>¥80</td></tr>
+      <tr class="sku-b"><td>FH012026072300102</td><td>DD2026071000102</td><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>2</td><td>¥80</td></tr>
+    </table>
+    <div class="map-subtitle"><span class="step-dot step-sc">2</span>收差扣款明细</div>
+    <table class="map-table">
+      <tr><th>收差单号</th><th>收差单行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>不合格数量</th><th>收差金额</th></tr>
+      <tr><td>SC0120260723001</td><td>SC012026072300101</td><td>DD2026071000102</td><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>3</td><td>¥120</td></tr>
+    </table>
+    <div class="map-warn">提交后将生成核销单号 BHX262026072300101 并进入审批流程；FH单/SC单 随核销单一起提交。</div>
+  </div>
+
+  <div class="map-panel panel-net" style="left:1190px;top:1150px;width:810px;height:350px;">
+    <div class="map-story story-orange">大白话：业务提交后，按组长 → 主管 → 销司顺序审；谁驳回就整单终态，销司只能通过，7 天不审自动通过。</div>
+    <h4>网批 · 审批规则</h4>
+    <ul>
+      <li class="red">审批中不可修改，提交什么审批什么。</li>
+      <li class="red">总部业务组长、总部业务主管：通过 / 驳回，驳回原因必填。</li>
+      <li class="red">销司确认：仅通过，无驳回按钮；7 天未审批由定时任务自动通过。</li>
+      <li class="red">销司确认后推送 FMS；网批显示“已提交 FMS”，等待 FMS 回传，责任归属 FMS。</li>
+    </ul>
+    <h4>驳回终态</h4>
+    <div class="map-mini">
+      <span class="mini-node red">任一节点驳回</span>
+      <span class="map-arrow-sm">→</span>
+      <span class="mini-node red">核销单终态</span>
+      <span class="map-arrow-sm">→</span>
+      <span class="mini-node red">FH单/SC单 作废</span>
+      <span class="map-arrow-sm">→</span>
+      <span class="mini-node">复制并新建</span>
+    </div>
+    <ul>
+      <li>驳回后审批中数量释放回剩余可核销数量；原单保持已驳回。</li>
+      <li>复制并新建跳转新建页带 copy 参数，原单信息预填，订单数据重算。</li>
+    </ul>
+  </div>
+
+  <div class="map-panel panel-fms" style="left:2080px;top:1580px;width:900px;height:430px;">
+    <div class="map-story story-green">大白话：网批推给 FMS 等审批；FMS 通过后自己返还和收差，再分多段把结果回传；驳回就整单终态。</div>
+    <h4>FMS · 多段回传</h4>
+    <table class="map-table">
+      <tr><th>段次</th><th>触发时机</th><th>回传内容</th><th>网批处理</th></tr>
+      <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>状态“已提交 FMS”（等待）；通过 → 进入返还执行；驳回 → 整单终态</td></tr>
+      <tr><td>2 返还结果</td><td>返还完成</td><td>返还完成状态 / 时间</td><td>第一段回写：累计合格 +、已返还金额 +</td></tr>
+      <tr><td>3 收差结果</td><td>收差完成</td><td>收差完成状态 / 时间</td><td>第二段回写：累计收差 +、已收差金额 +</td></tr>
+      <tr><td>4 发票单号</td><td>按 SC单行号异步回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
+    </table>
+    <div class="map-note-inline">详细字段和时序见左侧“FMS接口与数据包”视图；接口草稿待对方提供后更新。</div>
+    <h4>关键边界</h4>
+    <ul>
+      <li class="red">FMS 不回传就一直等待；“已提交 FMS”状态责任归属 FMS。</li>
+      <li class="red">FMS 驳回：回传网批后整单终态；SC单/FH单作废；可复制并新建。</li>
+      <li class="red">发票单号按收差单行号异步回推；回推前显示“回推中”。</li>
+      <li>收差状态：待执行 → 执行中 → 已收差。</li>
+    </ul>
+  </div>
+
+  <div class="map-panel panel-sum" style="left:3040px;top:2160px;width:820px;height:600px;">
+    <div class="map-story story-purple">大白话：这是网批系统的汇总页。FMS 把审批和执行结果回传给网批，由网批更新页面数据。</div>
+    <h4>回写前后对比（整单通过，分两段回写）</h4>
+    <div class="map-formula">单价口径：保证金单价 ¥40/台；返还金额 = 合格 6 × 40 = ¥240；收差金额 = 不合格 3 × 40 = ¥120。</div>
+    <table class="map-table">
+      <tr><th>指标</th><th>提交前</th><th>提交后</th><th>FMS通过后（第一段）</th><th>收差完成后（第二段）</th></tr>
+      <tr><td>本次提交合格数量</td><td>0</td><td>6</td><td>6（已完结）</td><td>6（已完结）</td></tr>
+      <tr><td>本次提交不合格数量</td><td>0</td><td>3</td><td>3（待收差）</td><td>0（已完结）</td></tr>
+      <tr><td>审批中数量</td><td>0</td><td>9</td><td>3</td><td>0</td></tr>
+      <tr><td>累计合格</td><td>10</td><td>10</td><td>16</td><td>16</td></tr>
+      <tr><td>累计收差</td><td>5</td><td>5</td><td>5</td><td>8</td></tr>
+      <tr><td>剩余可核销</td><td>15</td><td>6</td><td>6</td><td>6</td></tr>
+      <tr><td>已返还金额</td><td>历史值</td><td>不变</td><td>本单新增 ¥240</td><td>本单新增 ¥240</td></tr>
+      <tr><td>已收差金额</td><td>历史值</td><td>不变</td><td>不变</td><td>本单新增 ¥120</td></tr>
+    </table>
+    <div class="map-note-inline">FMS 对整张核销单只给一个结论：通过或驳回，不存在按合格/不合格拆分审批。整单通过后，合格数量随返还完成先回写，不合格数量等收差完成后再回写。剩余可核销：提交前 15 → 提交后 6 → FMS通过后 6 → 收差完成后 6。已返还/已收差金额为本单新增额，页面累计 = 历史值 + 本单新增。</div>
+    <h4>回写规则</h4>
+    <ul>
+      <li class="red">FMS 整单通过后：合格数量移出审批中数量并计入累计合格；不合格数量保留在审批中数量，待收差完成后再移出并计入累计收差。</li>
+      <li class="red">FMS 回传结果 → 网批系统更新汇总页；不是 FMS 直接改网批页面。</li>
+      <li class="red">发票单号允许按 SC单行号批量回推网批。</li>
+      <li>剩余可核销 = 追溯下单数量 − 历史累计合格 − 历史累计收差 − 审批中数量。</li>
+      <li>方案待核销总数 = 需核销总数 − 已核销总数（含审批中）。</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+
+
+
+
+<div class="view" id="view-1"><h1>新建页 · 研发详图<span class="detail-badge">研发视角</span></h1>
+<div class="sub">用途：业务在网批管理端选择 SKU 合格/不合格数量，系统按订单行扣减余量并计算返还/收差。数据来源：汇总页入口携带关联特批方案、方案 SKU 与订单行。</div>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">1</span>选择 SKU 合格 / 不合格数量</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>商品名称</th><th>SKU</th><th>保证金单价</th><th>剩余可核销</th><th>合格数量</th><th>不合格数量</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr><td>冷静王变频柜机 A</td><td>SP1123654001</td><td>¥40</td><td>15</td><td>4</td><td>0</td><td>¥160</td><td>¥0</td></tr>
+      <tr><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>¥40</td><td>5</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
+      <tr><td colspan="4">合计</td><td>6</td><td>3</td><td>¥240</td><td>¥120</td></tr>
+    </table>
+    <div class="flow-note">输入规则：合格+不合格 ≤ 剩余可核销；单价 0 的 SKU 不可输入；超限标红，失焦自动修正到上限。</div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">2</span>关联核销订单行分配（数量怎么扣）</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
+      <tr><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>8</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
+      <tr><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>5</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
+      <tr><td colspan="4">合计</td><td>30</td><td>10</td><td>5</td><td>0</td><td>15</td><td>6</td><td>3</td><td>¥240</td><td>¥120</td></tr>
+    </table>
+    <div class="flow-note">分配顺序：先合格后不合格，按下单时间递扣；不合格只占未被合格占用的额度；同一 SKU 可跨订单行累计核销。</div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">3</span>校验与提交</div>
+  <div class="sec-body">
+    <div class="rule-grid">
+      <div class="rule"><b>存在审批中单</b><br>不允许发起新建；全部完结/驳回后恢复</div>
+      <div class="rule"><b>无输入</b><br>至少填写一个 SKU 的合格或不合格数量</div>
+      <div class="rule"><b>超限拦截</b><br>合格+不合格超过剩余可核销时不能提交确认</div>
+      <div class="rule"><b>提交生成单据</b><br>确认后生成 BHX单/FH单/SC单 及行号，行号映射原订单行</div>
+    </div>
+    <table class="tbl">
+      <tr><th>单据</th><th>规则</th><th>示例</th></tr>
+      <tr><td>BHX单</td><td>BHX + 方案编号第 5 位起 13 位 + 2 位流水</td><td>BHX262026072300101</td></tr>
+      <tr><td>FH单</td><td>FH + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>FH0120260723001</td></tr>
+      <tr><td>SC单</td><td>SC + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>SC0120260723001</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">4</span>字段规格与提交失败处理</div>
+  <div class="sec-body">
+    <div class="impl-note">以下为建议实现方案，实际以开发实现为准。</div>
+    <table class="tbl">
+      <tr><th>字段</th><th>类型</th><th>必填</th><th>约束</th><th>示例</th></tr>
+      <tr><td>关联特批方案编号</td><td>string</td><td>是</td><td>匹配 `^(GCTP|GCZY)\d{13}$`</td><td>GCTP2620260723001</td></tr>
+      <tr><td>合格数量</td><td>int</td><td>否</td><td>≥ 0；合格+不合格 ≤ 剩余可核销</td><td>6</td></tr>
+      <tr><td>不合格数量</td><td>int</td><td>否</td><td>≥ 0</td><td>3</td></tr>
+      <tr><td>保证金单价</td><td>decimal(2)</td><td>是</td><td>单价 0 不可输入；金额单位：元</td><td>40.00</td></tr>
+      <tr><td>剩余可核销</td><td>int</td><td>是</td><td>只读；由后端计算返回</td><td>15</td></tr>
+      <tr><td>返还/收差金额</td><td>decimal(2)</td><td>计算</td><td>数量 × 单价；保留 2 位小数</td><td>¥240.00 / ¥120.00</td></tr>
+    </table>
+    <div class="rule-grid">
+      <div class="rule"><b>单号生成失败</b><br>提示“核销单号生成失败，请检查关联特批方案编号”，不进入审批</div>
+      <div class="rule"><b>后端防绕过</b><br>提交时后端再次校验是否存在审批中单，前端禁用不能替代服务端校验</div>
+      <div class="rule"><b>防重复提交</b><br>提交按钮进入 loading；生成单号前按方案+单号查重，避免并发生成重复单据</div>
+      <div class="rule"><b>金额精度</b><br>数量为整数，金额按 decimal(2) 存储；对账时金额四舍五入规则统一</div>
+    </div>
+  </div>
+</section></div>
+
+<div class="view" id="view-2">
+<h1>订单行分配 · 算法详图<span class="detail-badge">研发视角</span></h1>
+<div class="sub">用途：说明合格/不合格数量如何按订单行递扣，研发可直接按此实现分配算法。</div>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">1</span>输入数据</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>SKU</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>本次合格</th><th>本次不合格</th></tr>
+      <tr><td rowspan="2">冷静王变频柜机 A</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>0</td></tr>
+      <tr><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>2</td><td>0</td></tr>
+      <tr><td>冷静王变频柜机 B</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>2</td><td>3</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">2</span>分配算法</div>
+  <div class="sec-body">
+    <div class="code-block">for line in lines sorted by 下单时间:
+  line.available = line.qty - line.hQual - line.hDeduct - line.pending
+
+# 第一轮：合格数量
+for line in lines sorted by 下单时间:
+  take = min(qLeft, line.available)
+  line.allocQ = take
+  qLeft -= take
+
+# 第二轮：不合格数量
+for line in lines sorted by 下单时间:
+  take = min(uqLeft, max(0, line.available - line.allocQ))
+  line.allocUQ = take
+  uqLeft -= take
+
+# 校验
+assert 合格分配量之和 == 本次合格输入
+assert 不合格分配量之和 == 本次不合格输入</div>
+    <div class="impl-note">以下为建议实现方案，实际以开发实现为准；排序规则沿用新建页/PRD 的“按下单时间先后递扣”。</div>
+    <div class="flow-note">不合格只占未被合格占用的剩余额度；同一 SKU 可跨订单行累计核销。</div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">3</span>完整分配演示</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
+      <tr><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>8</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
+      <tr><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>5</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
+      <tr><td colspan="4">合计</td><td>30</td><td>10</td><td>5</td><td>0</td><td>15</td><td>6</td><td>3</td><td>¥240</td><td>¥120</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">4</span>不变量与边界</div>
+  <div class="sec-body">
+    <div class="detail-grid">
+      <div class="rule"><b>剩余可核销</b><br>追溯下单数量 − 历史累计合格 − 历史累计收差 − 审批中数量</div>
+      <div class="rule"><b>同 SKU 跨行</b><br>SKU A 本次跨 0101/2201 两行共核销 4 台</div>
+      <div class="rule"><b>超限处理</b><br>输入超限标红，失焦自动修正到上限</div>
+      <div class="rule"><b>审批中拦截</b><br>存在审批中单时不允许发起新建</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">5</span>数据模型与排序键</div>
+  <div class="sec-body">
+    <div class="code-block">OrderLine {
+  orderLineNo: string      # 订单行号
+  orderTime: datetime      # 排序键：按下单时间
+  qty: int                 # 追溯下单数量
+  hQual: int               # 历史累计合格
+  hDeduct: int             # 历史累计收差
+  pending: int             # 审批中数量
+  allocQ: int = 0          # 本次合格分配
+  allocUQ: int = 0         # 本次不合格分配
+}
+
+AllocationResult {
+  skuId: string
+  orderLineNo: string
+  allocQ: int
+  allocUQ: int
+  refundAmount: decimal(2)
+  deductAmount: decimal(2)
+}
+
+排序规则：
+1. orderTime ASC
+2. orderLineNo ASC（同时间稳定排序）</div>
+    <div class="impl-note">以上为建议数据模型；实际字段、排序键和实现方式以开发实现为准。</div>
+    <div class="rule-grid">
+      <div class="rule"><b>并发分配</b><br>同一 SKU 的订单行余量需要行级锁或版本号，防止两个提交同时占用同一余量</div>
+      <div class="rule"><b>提交前重算</b><br>打开确认弹窗后，提交时再次按当前余量重算，避免页面与后端不一致</div>
+    </div>
+  </div>
+</section></div>
+
+<div class="view" id="view-3"><h1>审批流程 · 状态与权限详图<span class="detail-badge">研发视角</span></h1>
+<div class="sub">用途：说明网批审批节点、权限、状态流转、审批记录追加与 FMS 交接；FMS 审批依据见“FMS接口与数据包”页。</div>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">1</span>节点权限</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>节点</th><th>系统</th><th>操作</th><th>边界</th></tr>
+      <tr><td>总部业务组长</td><td>网批</td><td>通过 / 驳回</td><td>驳回原因必填；驳回即终态</td></tr>
+      <tr><td>总部业务主管</td><td>网批</td><td>通过 / 驳回</td><td>驳回原因必填；驳回即终态</td></tr>
+      <tr><td>销司确认</td><td>网批</td><td>仅通过</td><td>流程引擎配置无驳回能力；7 天未审批定时任务自动通过</td></tr>
+      <tr><td>FMS 财务审批</td><td>FMS</td><td>无操作</td><td>网批不可进入；已推送后子状态“审批中（FMS）”，责任归属 FMS</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">2</span>状态流转</div>
+  <div class="sec-body">
+    <div class="state-list">
+      <div class="state"><b>待审核</b><span>网批审批中；子状态“审批中（FMS）”用于已推送 FMS、等待回传</span></div>
+      <div class="state"><b>已通过</b><span>FMS 整单通过即审批完成；收差完成并完成第二段回写后视为已完结</span></div>
+      <div class="state"><b>已驳回</b><span>网批任一节点驳回或 FMS 驳回回传；整单终态</span></div>
+      <div class="state"><b>审批中（FMS）</b><span>非独立主状态；责任归属 FMS，审批页不可进入</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">3</span>审批记录追加</div>
+  <div class="sec-body">
+    <div class="flow">
+      <div class="node n-blue">组长通过<span class="small">追加记录</span></div>
+      <div class="arrow">↓</div>
+      <div class="node n-blue">主管通过<span class="small">追加记录</span></div>
+      <div class="arrow">↓</div>
+      <div class="node n-orange">销司确认<span class="small">7 天未审批自动通过</span></div>
+      <div class="arrow">↓</div>
+      <div class="node n-gray">已提交 FMS · 等待回传<span class="small">审批记录显示 FMS 节点待审批（FMS）</span></div>
+    </div>
+    <div class="flow-note">审批记录只追加已处理节点和当前节点，不预渲染未来节点；审批流固定，但不同场景可能由不同审批人处理。</div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">4</span>驳回与复制</div>
+  <div class="sec-body">
+    <div class="branch">
+      <div class="branch-box">
+        <h4>任一节点驳回</h4>
+        <div class="mini red">核销单终态</div>
+        <div class="mini red">FH单/SC单作废</div>
+        <div class="mini">审批中数量释放回剩余可核销</div>
+      </div>
+      <div class="branch-box">
+        <h4>复制并新建</h4>
+        <div class="mini">仅已驳回单显示</div>
+        <div class="mini">跳新建页带 copy 参数</div>
+        <div class="mini">原单保持已驳回</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">5</span>并发与幂等</div>
+  <div class="sec-body">
+    <div class="impl-note">以下为建议实现方案，实际并发控制、锁策略和幂等实现以开发为准。</div>
+    <div class="detail-grid">
+      <div class="rule"><b>并发审批</b><br>操作前校验当前节点 result=wait；通过/驳回使用版本号或行锁；已被处理时提示“该单据已被处理”</div>
+      <div class="rule"><b>自动通过幂等</b><br>定时任务扫描节点进入时间满 7 天且 result=wait；使用任务幂等键，人工通过后必须跳过</div>
+      <div class="rule"><b>FMS 回传幂等</b><br>按 writeOffNo + 段次唯一处理；重复回传不重复推进状态、不重复回写</div>
+      <div class="rule"><b>事务边界</b><br>审批记录、核销单状态、节点结果必须同一事务提交</div>
+    </div>
+  </div>
+</section></div>
+
+<div class="view" id="view-4"><h1>FMS接口与数据包 · 研发详图<span class="detail-badge">研发视角</span></h1>
+<div class="sub">用途：定义网批推送给 FMS 的审批数据包、FMS 多段回传结果与发票批量回推；字段为“目的草稿”，对方提供后更新。</div>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">1</span>推送 FMS 数据包</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>字段</th><th>示例</th><th>说明</th></tr>
+      <tr><td>核销单号</td><td>BHX262026072300101</td><td>本次审批主键</td></tr>
+      <tr><td>关联特批方案编号</td><td>GCTP2620260723001</td><td>财务核对方案上下文</td></tr>
+      <tr><td>销售公司</td><td>珠海销售公司</td><td>部门编码前 2 位：01</td></tr>
+      <tr><td>FH单号</td><td>FH0120260723001</td><td>返还单主键</td></tr>
+      <tr><td>FH单行号</td><td>FH012026072300101 / 102 / 103</td><td>按订单行映射</td></tr>
+      <tr><td>SC单号</td><td>SC0120260723001</td><td>收差单主键</td></tr>
+      <tr><td>SC单行号</td><td>SC012026072300101</td><td>按订单行映射；发票按此行回推</td></tr>
+      <tr><td>商品/SKU/数量/金额</td><td>6 合格 / 3 不合格；¥240 / ¥120</td><td>与全景图演示数据一致</td></tr>
+      <tr><td>发票信息</td><td>按网批现有推送为准</td><td>字段待对方提供后更新</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">2</span>推送 JSON 示例</div>
+  <div class="sec-body">
+    <div class="code-block">{
+  "writeOffNo": "BHX262026072300101",
+  "planNo": "GCTP2620260723001",
+  "salesCompany": "珠海销售公司",
+  "deptCode": "01",
+  "refund": {
+    "refundOrderNo": "FH0120260723001",
+    "lines": [
+      {"refundLineNo":"FH012026072300101","orderLineNo":"DD2026071000101","qty":2,"amount":80},
+      {"refundLineNo":"FH012026072300102","orderLineNo":"DD2026071000102","qty":2,"amount":80},
+      {"refundLineNo":"FH012026072300103","orderLineNo":"DD2026072200101","qty":2,"amount":80}
+    ]
+  },
+  "deduct": {
+    "deductOrderNo": "SC0120260723001",
+    "lines": [
+      {"deductLineNo":"SC012026072300101","orderLineNo":"DD2026071000102","qty":3,"amount":120}
+    ]
+  },
+  "invoiceInfo": "按网批现有推送为准"
+}</div>
+    <div class="impl-note">JSON 为建议数据包示例，实际字段、命名和结构以开发及 FMS 接口实现为准。</div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">3</span>多段回传</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>段次</th><th>触发时机</th><th>回传内容</th><th>网批处理</th></tr>
+      <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>状态“审批中（FMS）”；通过进入执行，驳回整单终态</td></tr>
+      <tr><td>2 返还结果</td><td>返还完成</td><td>完成状态 / 时间</td><td>第一段回写：累计合格 +、已返还金额 +</td></tr>
+      <tr><td>3 收差结果</td><td>收差完成</td><td>完成状态 / 时间</td><td>第二段回写：累计收差 +、已收差金额 +</td></tr>
+      <tr><td>4 发票单号</td><td>按 SC单行号批量回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">4</span>返回 JSON 示例</div>
+  <div class="sec-body">
+    <div class="code-block">{
+  "writeOffNo": "BHX262026072300101",
+  "approval": {"result":"pass","reason":""},
+  "refundResult": {"status":"completed","time":"2026-08-16 10:00:00"},
+  "deductResult": {"status":"completed","time":"2026-08-16 12:00:00"},
+  "invoices": [
+    {"deductLineNo":"SC012026072300101","invoiceNo":"FPL202608160001"}
+  ]
+}</div>
+    <div class="impl-note">JSON 为建议返回示例，实际字段、命名和结构以开发及 FMS 接口实现为准。</div>
+    <div class="flow-note">FMS 不回传就一直等待；字段以对方接口文档为准，本示例用于研发预研。</div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">5</span>字段规格</div>
+  <div class="sec-body">
+    <div class="impl-note">以下为建议字段规格，实际字段类型、必填与约束以开发实现及 FMS 接口文档为准。</div>
+    <table class="tbl">
+      <tr><th>字段</th><th>类型</th><th>必填</th><th>约束</th><th>示例</th></tr>
+      <tr><td>writeOffNo</td><td>string</td><td>是</td><td>18 位，^BHX\d{15}$</td><td>BHX262026072300101</td></tr>
+      <tr><td>planNo</td><td>string</td><td>是</td><td>^(GCTP|GCZY)\d{13}$</td><td>GCTP2620260723001</td></tr>
+      <tr><td>salesCompany / deptCode</td><td>string</td><td>是</td><td>deptCode 取部门编码前 2 位</td><td>珠海销售公司 / 01</td></tr>
+      <tr><td>refund.refundOrderNo</td><td>string</td><td>条件</td><td>有合格数量时必填</td><td>FH0120260723001</td></tr>
+      <tr><td>refund.lines[].refundLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水</td><td>FH012026072300101</td></tr>
+      <tr><td>refund.lines[].orderLineNo / qty / amount</td><td>string / int / decimal(2)</td><td>是</td><td>amount = qty × 单价</td><td>DD2026071000101 / 2 / 80</td></tr>
+      <tr><td>deduct.deductOrderNo</td><td>string</td><td>条件</td><td>有不合格数量时必填</td><td>SC0120260723001</td></tr>
+      <tr><td>deduct.lines[].deductLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水；发票按此行回推</td><td>SC012026072300101</td></tr>
+      <tr><td>approval.result</td><td>enum</td><td>是</td><td>pass / reject</td><td>pass</td></tr>
+      <tr><td>refundResult / deductResult.status</td><td>enum</td><td>条件</td><td>completed；按段回传</td><td>completed</td></tr>
+      <tr><td>invoices[]</td><td>array</td><td>否</td><td>按 SC单行号批量回推；未回推行保持“回推中”</td><td>FPL202608160001</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">6</span>异常与重试</div>
+  <div class="sec-body">
+    <div class="impl-note">以下为建议处理策略，实际重试、超时和错误处理以开发实现为准。</div>
+    <div class="detail-grid">
+      <div class="rule"><b>不回传</b><br>状态保持“审批中（FMS）”，一直等待；无超时自动结束</div>
+      <div class="rule"><b>重复回传</b><br>幂等键 = writeOffNo + 段次；重复消息忽略，不重复推进</div>
+      <div class="rule"><b>接口报错</b><br>记录错误日志，状态不变；可人工重新推送</div>
+      <div class="rule"><b>发票部分回推</b><br>invoices 数组按 SC单行号更新；未返回的行继续显示“回推中”</div>
+      <div class="rule"><b>字段校验失败</b><br>返回错误，不更新核销单状态，避免脏数据</div>
+    </div>
+  </div>
+</section></div>
+
+<div class="view" id="view-5"><h1>状态回写 · 数据变更详图<span class="detail-badge">研发视角</span></h1>
+<div class="sub">用途：说明 FMS 通过后两段回写、发票回推与汇总页数据变化，保证研发实现时数量金额对平。</div>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">1</span>回写状态机</div>
+  <div class="sec-body">
+    <div class="flow">
+      <div class="node n-blue">提交新建<span class="small">审批中数量 +9；剩余可核销 −9</span></div>
+      <div class="arrow">↓</div>
+      <div class="node n-gray">FMS 整单通过<span class="small">合格 6 移出审批中并计入累计合格；不合格 3 保留在审批中</span></div>
+      <div class="arrow">↓</div>
+      <div class="node n-orange">收差执行<span class="small">待执行 → 执行中 → 已收差</span></div>
+      <div class="arrow">↓</div>
+      <div class="node n-green">收差完成<span class="small">不合格 3 移出审批中并计入累计收差</span></div>
+      <div class="arrow">↓</div>
+      <div class="node n-orange">发票单号按 SC单行号批量回推<span class="small">回推前显示“回推中”</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">2</span>回写前后对比</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>指标</th><th>提交前</th><th>提交后</th><th>FMS通过后（第一段）</th><th>收差完成后（第二段）</th></tr>
+      <tr><td>本次提交合格数量</td><td>0</td><td>6</td><td>6（已完结）</td><td>6（已完结）</td></tr>
+      <tr><td>本次提交不合格数量</td><td>0</td><td>3</td><td>3（待收差）</td><td>0（已完结）</td></tr>
+      <tr><td>审批中数量</td><td>0</td><td>9</td><td>3</td><td>0</td></tr>
+      <tr><td>累计合格</td><td>10</td><td>10</td><td>16</td><td>16</td></tr>
+      <tr><td>累计收差</td><td>5</td><td>5</td><td>5</td><td>8</td></tr>
+      <tr><td>剩余可核销</td><td>15</td><td>6</td><td>6</td><td>6</td></tr>
+      <tr><td>已返还金额</td><td>历史值</td><td>不变</td><td>本单新增 ¥240</td><td>本单新增 ¥240</td></tr>
+      <tr><td>已收差金额</td><td>历史值</td><td>不变</td><td>不变</td><td>本单新增 ¥120</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">3</span>触发与效果</div>
+  <div class="sec-body">
+    <table class="tbl">
+      <tr><th>场景</th><th>触发</th><th>数据变化</th></tr>
+      <tr><td>提交新建</td><td>提交成功</td><td>审批中 +9；剩余 −9；方案待核销不变</td></tr>
+      <tr><td>FMS 通过（第一段）</td><td>返还完成回传</td><td>合格 6 移出审批中；累计合格 +6；已返还 +¥240；剩余不变</td></tr>
+      <tr><td>收差完成（第二段）</td><td>收差完成回传</td><td>不合格 3 移出审批中；累计收差 +3；已收差 +¥120；剩余不变</td></tr>
+      <tr><td>发票回推</td><td>按 SC单行号批量回推</td><td>更新发票单号；回推前显示“回推中”</td></tr>
+      <tr><td>驳回</td><td>任一节点驳回 / FMS 驳回</td><td>审批中释放全部；累计与金额不变</td></tr>
+    </table>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">4</span>核心不变量</div>
+  <div class="sec-body">
+    <div class="state-list">
+      <div class="state"><b>方案待核销</b><span>需核销总数 − 已核销总数（含审批中）</span></div>
+      <div class="state"><b>剩余可核销</b><span>追溯下单数量 − 累计合格 − 累计收差 − 审批中数量</span></div>
+      <div class="state"><b>整单审批</b><span>FMS 只给通过/驳回，不存在部分通过</span></div>
+      <div class="state"><b>回写归属</b><span>FMS 回传结果 → 网批更新汇总页</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec col-new">
+  <div class="sec-head"><span class="no">5</span>幂等、事务与并发</div>
+  <div class="sec-body">
+    <div class="impl-note">以下为建议实现方案，实际事务、锁和幂等机制以开发实现为准。</div>
+    <div class="detail-grid">
+      <div class="rule"><b>两段回写幂等</b><br>第一段/第二段必须支持重复回传；同一段重复到达时直接忽略，不能重复加数</div>
+      <div class="rule"><b>事务边界</b><br>审批中数量、累计合格、累计收差、已返还/已收差金额必须同一事务提交</div>
+      <div class="rule"><b>并发回传</b><br>返还结果与收差结果同时到达时，按段次串行处理，先第一段再第二段</div>
+      <div class="rule"><b>对平校验</b><br>回写后校验：方案待核销 = 需核销 − 已核销；不平则回滚并告警</div>
+    </div>
+  </div>
+</section></div>
+</div></div></div></div><script>function toggleSidebar(){
+  document.querySelector('.app').classList.toggle('collapsed');
+}
+function switchView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector('.nav-btn[data-view="'+id+'"]').classList.add('active');
+}</script></body></html>
