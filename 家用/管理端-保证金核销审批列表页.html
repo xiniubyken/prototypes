@@ -122,7 +122,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 
   <div class="page-scroll">
 
-    <!-- ====== 筛选区（9 字段：方案编号/核销单号/所属部门/方案名称/项目类型/特批方案类型/价格审批编号/SKU编码/核销状态；创建人、创建时间搜索已移除） ====== -->
+    <!-- ====== 筛选区（8 字段：方案编号/核销单号/所属部门/方案名称/项目类型/价格审批编号/SKU编码/核销状态；创建人、创建时间搜索已移除） ====== -->
     <div class="filter-card">
       <div class="filter-grid">
         <div class="filter-item"><label>方案编号</label><input id="fPlanNo" placeholder="如 GCTP2620260723001"></div>
@@ -137,10 +137,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
         </div>
         <div class="filter-item"><label>方案名称</label><input id="fPlanName" placeholder="请输入"></div>
         <div class="filter-item"><label>项目类型</label>
-          <select id="fProjType"><option value="">全部</option><option>特批项目</option><option>常规项目</option></select>
-        </div>
-        <div class="filter-item"><label>特批方案类型</label>
-          <select id="fSpecial"><option value="">全部</option><option>特价机</option><option>资源机</option><option>配提机</option></select>
+          <select id="fProjType"><option value="">全部</option><option>特批项目</option><option>资源机项目</option></select>
         </div>
         <div class="filter-item"><label>价格审批编号</label><input id="fPriceNo" placeholder="请输入"></div>
         <div class="filter-item"><label>SKU编码</label><input id="fSku" placeholder="请输入"></div>
@@ -200,7 +197,7 @@ const DATA = [
    flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
   {no:'BHX262026072300102', planNo:'GCTP2620260723002', dept:'广州销售公司', planName:'广州·敏捷广场工程特批方案', projType:'特批项目', special:'资源机', priceNo:'PJ2026081102', sku:'SKU200187', status:'待审核', creator:'张磊', time:'2026-08-11 09:30',
    flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX262026072300103', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'特批项目', special:'特价机', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', creator:'李伟', time:'2026-08-12 11:05',
+  {no:'BHX262026072300103', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'资源机项目', special:'特价机', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', creator:'李伟', time:'2026-08-12 11:05',
    flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
   {no:'BHX262026072300104', planNo:'GCTP2620260723004', dept:'佛山销售公司', planName:'佛山·岭南工程特批方案', projType:'特批项目', special:'配提机', priceNo:'PJ2026080904', sku:'SKU100998', status:'已驳回', creator:'王芳', time:'2026-08-09 16:10',
    reason:'合格数量与质检报告不符，请核对后重新提交',
@@ -263,7 +260,6 @@ function doFilter(){
     no:document.getElementById('fNo').value.trim().toLowerCase(),
     planName:document.getElementById('fPlanName').value.trim().toLowerCase(),
     projType:document.getElementById('fProjType').value,
-    special:document.getElementById('fSpecial').value,
     priceNo:document.getElementById('fPriceNo').value.trim().toLowerCase(),
     sku:document.getElementById('fSku').value.trim().toLowerCase(),
     status:document.getElementById('fStatus').value,
@@ -274,7 +270,6 @@ function doFilter(){
     if(selectedDepts.length && !selectedDepts.includes(d.dept)) return false;
     if(kw.planName && !d.planName.toLowerCase().includes(kw.planName)) return false;
     if(kw.projType && d.projType!==kw.projType) return false;
-    if(kw.special && d.special!==kw.special) return false;
     if(kw.priceNo && !(d.priceNo||'').toLowerCase().includes(kw.priceNo)) return false;
     if(kw.sku && !(d.sku||'').toLowerCase().includes(kw.sku)) return false;
     if(kw.status && d.status!==kw.status) return false;
@@ -288,7 +283,7 @@ function resetFilter(){
   selectedDepts = [];
   document.getElementById('msDeptLabel').textContent = '全部';
   msRenderDept();
-  ['fProjType','fSpecial','fStatus'].forEach(id=>document.getElementById(id).value='');
+  ['fProjType','fStatus'].forEach(id=>document.getElementById(id).value='');
   filtered = DATA.slice(); curPage = 1; renderList();
 }
 
