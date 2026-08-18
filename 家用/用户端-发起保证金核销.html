@@ -417,7 +417,7 @@ const SKUS = [
   {id:4, name:'清悉贝茨标准分体机', model:'KFR-05GW', sku:'KB5410019003', type:'配提机', purchased:100, ordered:10, bought:10, spreadable:0,  price:0,  cumQual:0,  cumDeduct:0,  pending:0, q:0,  uq:0},
 ];
 
-// 订单行数据：qty=追溯订单下单数量, hQual=历史累计合格(已完结), hDeduct=历史累计收差(已完结)
+// 订单行数据：qty=已开单数量, hQual=历史累计合格(审批通过即计入), hDeduct=历史累计收差(审批通过即计入)；金额由执行完成回写
 // 说明：只展示订单行号 = 订单号 + 流水号（如 DD2026071000101 = 订单 DD20260710001 + 流水 01），全局唯一
 // SKU2三行：剩余额度2/5/8（合计15=SKU剩余可核销数量）→ 合格4跨行递扣(行01分2/行02分2)，不合格11跨行递扣(行02分3/行03分8)
 const ORDERS = {
@@ -608,7 +608,7 @@ function renderOrderGroups(){
       <div class="table-wrap">
       <table class="og-table">
         <thead><tr>
-          <th>订单行号</th><th>下单时间</th><th>追溯订单下单数量</th>
+          <th>订单行号</th><th>下单时间</th><th>已开单数量</th>
           <th>历史累计合格</th><th>历史累计收差</th><th>订单行剩余可核销数量</th>
           <th class="alloc-col">本次合格（系统分配）</th><th class="alloc-col">本次不合格（系统分配）</th>
           <th class="money-col">本次返还金额</th><th class="money-col">本次收差金额</th>
