@@ -554,20 +554,20 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
   <div class="v-arrow" style="left:2519px;top:1402px;height:46px;"></div>
   <div class="branch-label label-y" style="left:2550px;top:1410px;">Y 通过</div>
 
-  <div class="map-node green" style="left:2380px;top:1450px;width:300px;height:60px;">FMS 自行发起返还与收差<span class="small">返还完成返回结果 → 触发第一段回写</span></div>
+  <div class="map-node green" style="left:2380px;top:1450px;width:300px;height:60px;">FMS 自行发起返还与收差<span class="small">返还/收差结果经闲时队列处理，每日 12:00 开始</span></div>
 
   <div class="h-arrow" style="left:2680px;top:1479px;width:590px;"></div>
 
-  <div class="map-node green" style="left:3270px;top:1450px;width:340px;height:60px;">第一段回写<span class="small">审批中数量 − 本次；累计合格 +；已返还 +；核销单完结</span></div>
+  <div class="map-node green" style="left:3270px;top:1450px;width:340px;height:60px;">审批通过 · 数量回写<span class="small">审批中数量 − 本次全部；累计合格 + 合格量；累计收差数量 + 不合格量；可继续发起</span></div>
   <div class="v-arrow" style="left:3439px;top:1512px;height:56px;"></div>
 
   <div class="map-node orange" style="left:3270px;top:1570px;width:340px;height:60px;">收差执行<span class="small">待执行 → 执行中 → 已收差</span></div>
   <div class="v-arrow" style="left:3439px;top:1632px;height:56px;"></div>
 
-  <div class="map-node green" style="left:3270px;top:1690px;width:340px;height:60px;">收差完成 / 第二段回写<span class="small">累计收差 +；已收差金额 +；待处理金额 −；收差状态 → 已收差</span></div>
+  <div class="map-node green" style="left:3270px;top:1690px;width:340px;height:60px;">执行完成 · 金额回写<span class="small">已返还金额 +；已收差金额 +；收差状态 → 已收差；发票按行回推</span></div>
   <div class="v-arrow" style="left:3439px;top:1752px;height:56px;"></div>
 
-  <div class="map-node orange" style="left:3270px;top:1810px;width:340px;height:60px;">发票单号按收差单行号回推<span class="small">异步回推；回推前显示“等待开票”</span></div>
+  <div class="map-node orange" style="left:3270px;top:1810px;width:340px;height:60px;">发票单号按收差单行号回推<span class="small">异步回推；回推前显示“回推中”</span></div>
   <div class="v-arrow" style="left:3439px;top:1872px;height:56px;"></div>
 
   <div class="map-node blue" style="left:3270px;top:1930px;width:340px;height:60px;">汇总页展示最新值<span class="small">需核销 / 已核销 / 待核销 / 已返还 / 已收差 / 待处理</span></div>
@@ -597,13 +597,13 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
     <h4>关联核销订单行分配（同SKU可跨订单行）</h4>
     <div class="map-read">读法：订单行总数量 − 历史已核销 − 审批中 = 还能核销；本次从“剩余可核销”里扣。</div>
     <table class="map-table">
-      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>已开单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
       <tr class="sku-a"><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
       <tr class="sku-a"><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>8</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
       <tr class="sku-b"><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>5</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
       <tr class="tot"><td colspan="2">合计</td><td></td><td>30</td><td>10</td><td>5</td><td>0</td><td>15</td><td>6</td><td>3</td><td>¥240</td><td>¥120</td></tr>
     </table>
-    <div class="map-note-inline">剩余可核销 = 追溯下单数量 − 历史累计合格 − 历史累计收差 − 审批中数量；订单行按“先合格后不合格、按下单时间递扣”分配。SKU A 本次跨 0101/2201 两行共核销 4 台。</div>
+    <div class="map-note-inline">剩余可核销 = 已开单数量 − 历史累计合格 − 历史累计收差 − 审批中数量；订单行按“先合格后不合格、按下单时间递扣”分配。SKU A 本次跨 0101/2201 两行共核销 4 台。</div>
     <h4>提交确认演示（对齐二次确认弹窗）</h4>
     <div class="map-read">读法：提交前再确认一次，哪些订单行返还、哪些订单行收差。</div>
     <div class="map-total">
@@ -658,51 +658,46 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
     <table class="map-table">
       <tr><th>段次</th><th>触发时机</th><th>回传内容</th><th>网批处理</th></tr>
       <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>状态“已提交 FMS”（等待）；通过 → 进入返还执行；驳回 → 整单终态</td></tr>
-      <tr><td>2 返还结果</td><td>返还完成</td><td>返还完成状态 / 时间</td><td>第一段回写：累计合格 +、已返还金额 +</td></tr>
-      <tr><td>3 收差结果</td><td>收差完成</td><td>收差完成状态 / 时间</td><td>第二段回写：累计收差 +、已收差金额 +</td></tr>
-      <tr><td>4 发票单号</td><td>按 SC单行号异步回推</td><td>发票单号</td><td>更新数据；回推前显示“等待开票”</td></tr>
+      <tr><td>2 返还结果</td><td>返还完成</td><td>返还完成状态 / 时间</td><td>金额回写：已返还金额 +；返还状态 → 已返还；经闲时队列处理</td></tr>
+      <tr><td>3 收差结果</td><td>收差完成</td><td>收差完成状态 / 时间</td><td>金额回写：已收差金额 +；收差状态 → 已收差；经闲时队列处理</td></tr>
+      <tr><td>4 发票单号</td><td>按 SC单行号异步回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
     </table>
-    <div class="map-note-inline">详细字段和时序见左侧“FMS接口与数据包”视图；接口草稿待对方提供后更新。</div>
+    <div class="map-note-inline">FMS 返回的返还/收差/发票结果进入网批闲时队列，每日 12:00 开始消费；处理前金额不回写，状态保持执行中。详细字段和时序见左侧“FMS接口与数据包”视图；接口草稿待对方提供后更新。</div>
     <h4>关键边界</h4>
     <ul>
       <li class="red">FMS 不回传就一直等待；“已提交 FMS”状态责任归属 FMS。</li>
       <li class="red">FMS 驳回：回传网批后整单终态；SC单/FH单作废；可复制并新建。</li>
-      <li class="red">发票单号按收差单行号异步回推；回推前显示“等待开票”。</li>
+      <li class="red">发票单号按收差单行号异步回推；回推前显示“回推中”。</li>
       <li>收差状态：待执行 → 执行中 → 已收差。</li>
     </ul>
   </div>
 
   <div class="map-panel panel-sum" style="left:3040px;top:2160px;width:820px;height:600px;">
     <div class="map-story story-purple">大白话：这是网批系统的汇总页。FMS 把审批和执行结果回传给网批，由网批更新页面数据。</div>
-    <h4>回写前后对比（整单通过，分两段回写）</h4>
+    <h4>回写前后对比（数量审批通过即核销，金额执行完成回写）</h4>
     <div class="map-formula">单价口径：保证金单价 ¥40/台；返还金额 = 合格 6 × 40 = ¥240；收差金额 = 不合格 3 × 40 = ¥120。</div>
     <table class="map-table">
-      <tr><th>指标</th><th>提交前</th><th>提交后</th><th>FMS通过后（第一段）</th><th>收差完成后（第二段）</th></tr>
-      <tr><td>本次提交合格数量</td><td>0</td><td>6</td><td>6（已完结）</td><td>6（已完结）</td></tr>
-      <tr><td>本次提交不合格数量</td><td>0</td><td>3</td><td>3（待收差）</td><td>0（已完结）</td></tr>
-      <tr><td>审批中数量</td><td>0</td><td>9</td><td>3</td><td>0</td></tr>
+      <tr><th>指标</th><th>提交前</th><th>提交后</th><th>FMS审批通过后</th><th>执行完成后</th></tr>
+      <tr><td>本次提交合格数量</td><td>0</td><td>6</td><td>6（已核销）</td><td>6（已核销）</td></tr>
+      <tr><td>本次提交不合格数量</td><td>0</td><td>3</td><td>3（已核销）</td><td>3（已核销）</td></tr>
+      <tr><td>审批中数量</td><td>0</td><td>9</td><td>0</td><td>0</td></tr>
       <tr><td>累计合格</td><td>10</td><td>10</td><td>16</td><td>16</td></tr>
-      <tr><td>累计收差</td><td>5</td><td>5</td><td>5</td><td>8</td></tr>
+      <tr><td>累计收差</td><td>5</td><td>5</td><td>8</td><td>8</td></tr>
       <tr><td>剩余可核销</td><td>15</td><td>6</td><td>6</td><td>6</td></tr>
-      <tr><td>已返还金额</td><td>历史值</td><td>不变</td><td>本单新增 ¥240</td><td>本单新增 ¥240</td></tr>
+      <tr><td>已返还金额</td><td>历史值</td><td>不变</td><td>不变</td><td>本单新增 ¥240</td></tr>
       <tr><td>已收差金额</td><td>历史值</td><td>不变</td><td>不变</td><td>本单新增 ¥120</td></tr>
     </table>
-    <div class="map-note-inline">FMS 对整张核销单只给一个结论：通过或驳回，不存在按合格/不合格拆分审批。整单通过后，合格数量随返还完成先回写，不合格数量等收差完成后再回写。剩余可核销：提交前 15 → 提交后 6 → FMS通过后 6 → 收差完成后 6。已返还/已收差金额为本单新增额，页面累计 = 历史值 + 本单新增。</div>
+    <div class="map-note-inline">FMS 对整张核销单只给一个结论：通过或驳回。审批通过即数量已核销：合格/不合格立即计入累计合格/累计收差数量，审批中数量释放，可继续发起新核销；已返还/已收差金额等 FMS 执行完成回写，结果经闲时队列处理，每日 12:00 开始。剩余可核销：提交前 15 → 提交后 6 → FMS审批通过后 6 → 执行完成后 6。</div>
     <h4>回写规则</h4>
     <ul>
-      <li class="red">FMS 整单通过后：合格数量移出审批中数量并计入累计合格；不合格数量保留在审批中数量，待收差完成后再移出并计入累计收差。</li>
+      <li class="red">FMS 整单通过即数量已核销：合格/不合格立即计入累计合格/累计收差数量；已返还/已收差金额按执行完成回写，结果经闲时队列处理，每日 12:00 开始。</li>
       <li class="red">FMS 回传结果 → 网批系统更新汇总页；不是 FMS 直接改网批页面。</li>
       <li class="red">发票单号允许按 SC单行号批量回推网批。</li>
-      <li>剩余可核销 = 追溯下单数量 − 历史累计合格 − 历史累计收差 − 审批中数量。</li>
+      <li>剩余可核销 = 已开单数量 − 历史累计合格 − 历史累计收差 − 审批中数量。</li>
       <li>方案待核销总数 = 需核销总数 − 已核销总数（含审批中）。</li>
     </ul>
   </div>
 </div>
-</div>
-
-
-
-
 
 <div class="view" id="view-1"><h1>新建页 · 研发详图<span class="detail-badge">研发视角</span></h1>
 <div class="sub">用途：业务在网批管理端选择 SKU 合格/不合格数量，系统按订单行扣减余量并计算返还/收差。数据来源：汇总页入口携带关联特批方案、方案 SKU 与订单行。</div>
@@ -724,7 +719,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
   <div class="sec-head"><span class="no">2</span>关联核销订单行分配（数量怎么扣）</div>
   <div class="sec-body">
     <table class="tbl">
-      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>已开单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
       <tr><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
       <tr><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>8</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
       <tr><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>5</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
@@ -782,7 +777,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
   <div class="sec-head"><span class="no">1</span>输入数据</div>
   <div class="sec-body">
     <table class="tbl">
-      <tr><th>SKU</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>本次合格</th><th>本次不合格</th></tr>
+      <tr><th>SKU</th><th>订单行号</th><th>已开单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>本次合格</th><th>本次不合格</th></tr>
       <tr><td rowspan="2">冷静王变频柜机 A</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>0</td></tr>
       <tr><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>2</td><td>0</td></tr>
       <tr><td>冷静王变频柜机 B</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>2</td><td>3</td></tr>
@@ -820,7 +815,7 @@ assert 不合格分配量之和 == 本次不合格输入</div>
   <div class="sec-head"><span class="no">3</span>完整分配演示</div>
   <div class="sec-body">
     <table class="tbl">
-      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>追溯下单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
+      <tr><th>商品名称</th><th>SKU编号</th><th>订单行号</th><th>已开单数量</th><th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>剩余可核销</th><th>本次合格</th><th>本次不合格</th><th>返还金额</th><th>收差金额</th></tr>
       <tr><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>DD2026071000101</td><td>12</td><td>10</td><td>0</td><td>0</td><td>2</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
       <tr><td>DD2026072200101</td><td>8</td><td>0</td><td>0</td><td>0</td><td>8</td><td>2</td><td>0</td><td>¥80</td><td>¥0</td></tr>
       <tr><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>DD2026071000102</td><td>10</td><td>0</td><td>5</td><td>0</td><td>5</td><td>2</td><td>3</td><td>¥80</td><td>¥120</td></tr>
@@ -833,7 +828,7 @@ assert 不合格分配量之和 == 本次不合格输入</div>
   <div class="sec-head"><span class="no">4</span>不变量与边界</div>
   <div class="sec-body">
     <div class="detail-grid">
-      <div class="rule"><b>剩余可核销</b><br>追溯下单数量 − 历史累计合格 − 历史累计收差 − 审批中数量</div>
+      <div class="rule"><b>剩余可核销</b><br>已开单数量 − 历史累计合格 − 历史累计收差 − 审批中数量</div>
       <div class="rule"><b>同 SKU 跨行</b><br>SKU A 本次跨 0101/2201 两行共核销 4 台</div>
       <div class="rule"><b>超限处理</b><br>输入超限标红，失焦自动修正到上限</div>
       <div class="rule"><b>审批中拦截</b><br>存在审批中单时不允许发起新建</div>
@@ -847,7 +842,7 @@ assert 不合格分配量之和 == 本次不合格输入</div>
     <div class="code-block">OrderLine {
   orderLineNo: string      # 订单行号
   orderTime: datetime      # 排序键：按下单时间
-  qty: int                 # 追溯下单数量
+  qty: int                 # 已开单数量
   hQual: int               # 历史累计合格
   hDeduct: int             # 历史累计收差
   pending: int             # 审批中数量
@@ -896,7 +891,7 @@ AllocationResult {
   <div class="sec-body">
     <div class="state-list">
       <div class="state"><b>待审核</b><span>网批审批中；子状态“审批中（FMS）”用于已推送 FMS、等待回传</span></div>
-      <div class="state"><b>已通过</b><span>FMS 整单通过即审批完成；收差完成并完成第二段回写后视为已完结</span></div>
+      <div class="state"><b>已通过</b><span>FMS 整单通过即数量已核销；执行完成金额回写后完结</span></div>
       <div class="state"><b>已驳回</b><span>网批任一节点驳回或 FMS 驳回回传；整单终态</span></div>
       <div class="state"><b>审批中（FMS）</b><span>非独立主状态；责任归属 FMS，审批页不可进入</span></div>
     </div>
@@ -1006,11 +1001,12 @@ AllocationResult {
   <div class="sec-body">
     <table class="tbl">
       <tr><th>段次</th><th>触发时机</th><th>回传内容</th><th>网批处理</th></tr>
-      <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>状态“审批中（FMS）”；通过进入执行，驳回整单终态</td></tr>
-      <tr><td>2 返还结果</td><td>返还完成</td><td>完成状态 / 时间</td><td>第一段回写：累计合格 +、已返还金额 +</td></tr>
-      <tr><td>3 收差结果</td><td>收差完成</td><td>完成状态 / 时间</td><td>第二段回写：累计收差 +、已收差金额 +</td></tr>
-      <tr><td>4 发票单号</td><td>按 SC单行号批量回推</td><td>发票单号</td><td>更新数据；回推前显示“等待开票”</td></tr>
+      <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>通过即数量已核销：累计合格 +、累计收差数量 +；金额待执行回写；驳回整单终态</td></tr>
+      <tr><td>2 返还结果</td><td>返还完成</td><td>完成状态 / 时间</td><td>金额回写：已返还金额 +；返还状态 → 已返还；经闲时队列处理</td></tr>
+      <tr><td>3 收差结果</td><td>收差完成</td><td>完成状态 / 时间</td><td>金额回写：已收差金额 +；收差状态 → 已收差；经闲时队列处理</td></tr>
+      <tr><td>4 发票单号</td><td>按 SC单行号批量回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
     </table>
+    <div class="impl-note">FMS 返回的返还/收差/发票结果进入网批闲时队列，每日 12:00 开始消费；处理前金额不回写。</div>
   </div>
 </section>
 
@@ -1047,7 +1043,7 @@ AllocationResult {
       <tr><td>deduct.lines[].deductLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水；发票按此行回推</td><td>SC012026072300101</td></tr>
       <tr><td>approval.result</td><td>enum</td><td>是</td><td>pass / reject</td><td>pass</td></tr>
       <tr><td>refundResult / deductResult.status</td><td>enum</td><td>条件</td><td>completed；按段回传</td><td>completed</td></tr>
-      <tr><td>invoices[]</td><td>array</td><td>否</td><td>按 SC单行号批量回推；未回推行保持“等待开票”</td><td>FPL202608160001</td></tr>
+      <tr><td>invoices[]</td><td>array</td><td>否</td><td>按 SC单行号批量回推；未回推行保持“回推中”</td><td>FPL202608160001</td></tr>
     </table>
   </div>
 </section>
@@ -1060,14 +1056,14 @@ AllocationResult {
       <div class="rule"><b>不回传</b><br>状态保持“审批中（FMS）”，一直等待；无超时自动结束</div>
       <div class="rule"><b>重复回传</b><br>幂等键 = writeOffNo + 段次；重复消息忽略，不重复推进</div>
       <div class="rule"><b>接口报错</b><br>记录错误日志，状态不变；可人工重新推送</div>
-      <div class="rule"><b>发票部分回推</b><br>invoices 数组按 SC单行号更新；未返回的行继续显示“等待开票”</div>
+      <div class="rule"><b>发票部分回推</b><br>invoices 数组按 SC单行号更新；未返回的行继续显示“回推中”</div>
       <div class="rule"><b>字段校验失败</b><br>返回错误，不更新核销单状态，避免脏数据</div>
     </div>
   </div>
 </section></div>
 
 <div class="view" id="view-5"><h1>状态回写 · 数据变更详图<span class="detail-badge">研发视角</span></h1>
-<div class="sub">用途：说明 FMS 通过后两段回写、发票回推与汇总页数据变化，保证研发实现时数量金额对平。</div>
+<div class="sub">用途：说明 FMS 通过后数量回写、执行完成金额回写、发票回推与汇总页数据变化，保证研发实现时数量金额对平。</div>
 
 <section class="sec col-new">
   <div class="sec-head"><span class="no">1</span>回写状态机</div>
@@ -1075,13 +1071,13 @@ AllocationResult {
     <div class="flow">
       <div class="node n-blue">提交新建<span class="small">审批中数量 +9；剩余可核销 −9</span></div>
       <div class="arrow">↓</div>
-      <div class="node n-gray">FMS 整单通过<span class="small">合格 6 移出审批中并计入累计合格；不合格 3 保留在审批中</span></div>
+      <div class="node n-gray">FMS 整单通过<span class="small">合格 6、不合格 3 立即计入累计合格/累计收差数量；审批中 −9；金额待执行回写</span></div>
       <div class="arrow">↓</div>
-      <div class="node n-orange">收差执行<span class="small">待执行 → 执行中 → 已收差</span></div>
+      <div class="node n-orange">返还/收差执行<span class="small">闲时队列每日 12:00 处理；待执行 → 执行中 → 完成</span></div>
       <div class="arrow">↓</div>
-      <div class="node n-green">收差完成<span class="small">不合格 3 移出审批中并计入累计收差</span></div>
+      <div class="node n-green">执行完成 · 金额回写<span class="small">已返还 +¥240；已收差 +¥120；收差状态 → 已收差</span></div>
       <div class="arrow">↓</div>
-      <div class="node n-orange">发票单号按 SC单行号批量回推<span class="small">回推前显示“等待开票”</span></div>
+      <div class="node n-orange">发票单号按 SC单行号批量回推<span class="small">回推前显示“回推中”</span></div>
     </div>
   </div>
 </section>
@@ -1090,16 +1086,17 @@ AllocationResult {
   <div class="sec-head"><span class="no">2</span>回写前后对比</div>
   <div class="sec-body">
     <table class="tbl">
-      <tr><th>指标</th><th>提交前</th><th>提交后</th><th>FMS通过后（第一段）</th><th>收差完成后（第二段）</th></tr>
-      <tr><td>本次提交合格数量</td><td>0</td><td>6</td><td>6（已完结）</td><td>6（已完结）</td></tr>
-      <tr><td>本次提交不合格数量</td><td>0</td><td>3</td><td>3（待收差）</td><td>0（已完结）</td></tr>
-      <tr><td>审批中数量</td><td>0</td><td>9</td><td>3</td><td>0</td></tr>
+      <tr><th>指标</th><th>提交前</th><th>提交后</th><th>FMS审批通过后</th><th>执行完成后</th></tr>
+      <tr><td>本次提交合格数量</td><td>0</td><td>6</td><td>6（已核销）</td><td>6（已核销）</td></tr>
+      <tr><td>本次提交不合格数量</td><td>0</td><td>3</td><td>3（已核销）</td><td>3（已核销）</td></tr>
+      <tr><td>审批中数量</td><td>0</td><td>9</td><td>0</td><td>0</td></tr>
       <tr><td>累计合格</td><td>10</td><td>10</td><td>16</td><td>16</td></tr>
-      <tr><td>累计收差</td><td>5</td><td>5</td><td>5</td><td>8</td></tr>
+      <tr><td>累计收差</td><td>5</td><td>5</td><td>8</td><td>8</td></tr>
       <tr><td>剩余可核销</td><td>15</td><td>6</td><td>6</td><td>6</td></tr>
-      <tr><td>已返还金额</td><td>历史值</td><td>不变</td><td>本单新增 ¥240</td><td>本单新增 ¥240</td></tr>
+      <tr><td>已返还金额</td><td>历史值</td><td>不变</td><td>不变</td><td>本单新增 ¥240</td></tr>
       <tr><td>已收差金额</td><td>历史值</td><td>不变</td><td>不变</td><td>本单新增 ¥120</td></tr>
     </table>
+    <div class="impl-note">数量口径：FMS 审批通过即已核销；金额口径：已返还/已收差金额等 FMS 执行完成回写，结果经闲时队列处理，每日 12:00 开始。</div>
   </div>
 </section>
 
@@ -1109,9 +1106,10 @@ AllocationResult {
     <table class="tbl">
       <tr><th>场景</th><th>触发</th><th>数据变化</th></tr>
       <tr><td>提交新建</td><td>提交成功</td><td>审批中 +9；剩余 −9；方案待核销不变</td></tr>
-      <tr><td>FMS 通过（第一段）</td><td>返还完成回传</td><td>合格 6 移出审批中；累计合格 +6；已返还 +¥240；剩余不变</td></tr>
-      <tr><td>收差完成（第二段）</td><td>收差完成回传</td><td>不合格 3 移出审批中；累计收差 +3；已收差 +¥120；剩余不变</td></tr>
-      <tr><td>发票回推</td><td>按 SC单行号批量回推</td><td>更新发票单号；回推前显示“等待开票”</td></tr>
+      <tr><td>FMS 审批通过（数量回写）</td><td>FMS 审批完成</td><td>累计合格 +6；累计收差 +3；审批中 −9；金额不变；剩余不变</td></tr>
+      <tr><td>返还完成（金额回写）</td><td>返还完成回传</td><td>已返还 +¥240；返还状态 → 已返还；经闲时队列处理</td></tr>
+      <tr><td>收差完成（金额回写）</td><td>收差完成回传</td><td>已收差 +¥120；收差状态 → 已收差；经闲时队列处理</td></tr>
+      <tr><td>发票回推</td><td>按 SC单行号批量回推</td><td>更新发票单号；回推前显示“回推中”</td></tr>
       <tr><td>驳回</td><td>任一节点驳回 / FMS 驳回</td><td>审批中释放全部；累计与金额不变</td></tr>
     </table>
   </div>
@@ -1122,7 +1120,7 @@ AllocationResult {
   <div class="sec-body">
     <div class="state-list">
       <div class="state"><b>方案待核销</b><span>需核销总数 − 已核销总数（含审批中）</span></div>
-      <div class="state"><b>剩余可核销</b><span>追溯下单数量 − 累计合格 − 累计收差 − 审批中数量</span></div>
+      <div class="state"><b>剩余可核销</b><span>已开单数量 − 累计合格 − 累计收差 − 审批中数量</span></div>
       <div class="state"><b>整单审批</b><span>FMS 只给通过/驳回，不存在部分通过</span></div>
       <div class="state"><b>回写归属</b><span>FMS 回传结果 → 网批更新汇总页</span></div>
     </div>
@@ -1134,9 +1132,9 @@ AllocationResult {
   <div class="sec-body">
     <div class="impl-note">以下为建议实现方案，实际事务、锁和幂等机制以开发实现为准。</div>
     <div class="detail-grid">
-      <div class="rule"><b>两段回写幂等</b><br>第一段/第二段必须支持重复回传；同一段重复到达时直接忽略，不能重复加数</div>
+      <div class="rule"><b>数量/金额回写幂等</b><br>审批通过数量回写与执行完成金额回写必须支持重复回传；同一回写重复到达时直接忽略，不能重复加数</div>
       <div class="rule"><b>事务边界</b><br>审批中数量、累计合格、累计收差、已返还/已收差金额必须同一事务提交</div>
-      <div class="rule"><b>并发回传</b><br>返还结果与收差结果同时到达时，按段次串行处理，先第一段再第二段</div>
+      <div class="rule"><b>并发回传</b><br>返还结果与收差结果同时到达时，按闲时队列串行处理，分别回写对应金额</div>
       <div class="rule"><b>对平校验</b><br>回写后校验：方案待核销 = 需核销 − 已核销；不平则回滚并告警</div>
     </div>
   </div>
