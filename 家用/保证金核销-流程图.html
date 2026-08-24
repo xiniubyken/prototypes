@@ -516,10 +516,10 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
   <div class="map-node blue" style="left:170px;top:400px;width:530px;height:72px;">订单行自动分配<span class="small">先合格后不合格；按下单时间递扣；不合格只占未被合格占用的额度</span></div>
   <div class="v-arrow" style="left:433px;top:474px;height:44px;"></div>
 
-  <div class="map-node orange" style="left:170px;top:520px;width:530px;height:100px;">金额计算 / 确认明细<span class="small"><span class="map-doc">返还金额</span><span class="map-doc">收差金额</span><br>返还金额=合格×单价；收差金额=不合格×单价；确认后提交才生成 FH单/SC单</span></div>
+  <div class="map-node orange" style="left:170px;top:520px;width:530px;height:100px;">金额计算 / 确认明细<span class="small"><span class="map-doc">返还金额</span><span class="map-doc">收差金额</span><br>返还金额=合格×单价；收差金额=不合格×单价；确认后提交才生成 BFH单/BSC单</span></div>
   <div class="v-arrow" style="left:433px;top:622px;height:46px;"></div>
 
-  <div class="map-node green" style="left:250px;top:670px;width:360px;height:66px;">提交：生成单据并进入审批<span class="small">提交时生成 BHX单/FH单/SC单 单号及行号；行号映射原订单行</span></div>
+  <div class="map-node green" style="left:250px;top:670px;width:360px;height:66px;">提交：生成单据并进入审批<span class="small">提交时生成 BHX单/BFH单/BSC单 单号及行号；行号映射原订单行</span></div>
 
   <div class="h-arrow" style="left:610px;top:702px;width:850px;"></div>
 
@@ -536,7 +536,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
 
   <div class="h-arrow" style="left:1760px;top:1089px;width:630px;"></div>
 
-  <div class="map-node blue" style="left:2390px;top:1060px;width:260px;height:60px;">已提交 FMS（等待 FMS 审批）<span class="small">已推送：BHX单号 · FH单号/行号 · SC单号/行号 · 发票信息</span></div>
+  <div class="map-node blue" style="left:2390px;top:1060px;width:260px;height:60px;">已提交 FMS（等待 FMS 审批）<span class="small">已推送：BHX单号 · BFH单号/行号 · BSC单号/行号 · 发票信息</span></div>
   <div class="v-arrow" style="left:2519px;top:1122px;height:56px;"></div>
 
   <div class="map-node gray" style="left:2370px;top:1180px;width:300px;height:60px;">FMS 财务审批<span class="small">网批不可进入、不可操作；一直等待 FMS 回传</span></div>
@@ -548,7 +548,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
     </svg>
     <span>FMS 审批结果</span>
   </div>
-  <div class="map-note red" style="left:2080px;top:1290px;width:290px;height:120px;">驳回 → 回传网批 → 整单终态；FH单/SC单作废；可复制并新建</div>
+  <div class="map-note red" style="left:2080px;top:1290px;width:290px;height:120px;">驳回 → 回传网批 → 整单终态；BFH单/BSC单作废；可复制并新建</div>
   <div class="branch-label label-n" style="left:2300px;top:1360px;">N 驳回</div>
   <div class="h-arrow left" style="left:2370px;top:1349px;width:58px;"></div>
   <div class="v-arrow" style="left:2519px;top:1402px;height:46px;"></div>
@@ -576,13 +576,13 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
   <div class="map-node end" style="left:3350px;top:2050px;width:180px;height:52px;">END</div>
 
   <div class="map-panel panel-biz" style="left:30px;top:790px;width:1080px;height:1140px;">
-    <div class="map-story">大白话：业务填好合格/不合格数量，系统自动从订单行余量里扣，算出返还/收差金额；提交后才生成核销单、FH单、SC单。</div>
+    <div class="map-story">大白话：业务填好合格/不合格数量，系统自动从订单行余量里扣，算出返还/收差金额；提交后才生成核销单、BFH单、BSC单。</div>
     <h4>业务发起 · 流程要点</h4>
     <ul>
       <li class="red">存在审批中单时不允许发起新建；全部完结/驳回后恢复。</li>
-      <li>提交时生成单据并进入审批；有返还生成 FH单，有收差生成 SC单。</li>
-      <li class="red">无返还不生成 FH单；无收差不生成 SC单；单价 0 SKU 不参与核销。</li>
-      <li class="red">同一订单行可分批核销；每批生成独立 BHX单/FH单/SC单 与行号，已提交数量从剩余可核销数量扣除。</li>
+      <li>提交时生成单据并进入审批；有返还生成 BFH单，有收差生成 BSC单。</li>
+      <li class="red">无返还不生成 BFH单；无收差不生成 BSC单；单价 0 SKU 不参与核销。</li>
+      <li class="red">同一订单行可分批核销；每批生成独立 BHX单/BFH单/BSC单 与行号，已提交数量从剩余可核销数量扣除。</li>
       <li>金额=数量×单价；需核销总数不含单价 0 SKU。</li>
     </ul>
     <h4>填写与计算演示</h4>
@@ -615,16 +615,16 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
     <div class="map-subtitle"><span class="step-dot step-fh">1</span>返还保证金明细</div>
     <table class="map-table">
       <tr><th>返还单号</th><th>返还单行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>合格数量</th><th>返还金额</th></tr>
-      <tr class="sku-a"><td rowspan="3">FH0120260723001</td><td>FH012026072300101</td><td>DD2026071000101</td><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>2</td><td>¥80</td></tr>
-      <tr class="sku-a"><td>FH012026072300103</td><td>DD2026072200101</td><td>2</td><td>¥80</td></tr>
-      <tr class="sku-b"><td>FH012026072300102</td><td>DD2026071000102</td><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>2</td><td>¥80</td></tr>
+      <tr class="sku-a"><td rowspan="3">BFH0120260723001</td><td>BFH012026072300101</td><td>DD2026071000101</td><td rowspan="2">冷静王变频柜机 A</td><td rowspan="2">SP1123654001</td><td>2</td><td>¥80</td></tr>
+      <tr class="sku-a"><td>BFH012026072300103</td><td>DD2026072200101</td><td>2</td><td>¥80</td></tr>
+      <tr class="sku-b"><td>BFH012026072300102</td><td>DD2026071000102</td><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>2</td><td>¥80</td></tr>
     </table>
     <div class="map-subtitle"><span class="step-dot step-sc">2</span>收差扣款明细</div>
     <table class="map-table">
       <tr><th>收差单号</th><th>收差单行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>不合格数量</th><th>收差金额</th></tr>
-      <tr><td>SC0120260723001</td><td>SC012026072300101</td><td>DD2026071000102</td><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>3</td><td>¥120</td></tr>
+      <tr><td>BSC0120260723001</td><td>BSC012026072300101</td><td>DD2026071000102</td><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>3</td><td>¥120</td></tr>
     </table>
-    <div class="map-warn">提交后将生成核销单号 BHX262026072300101 并进入审批流程；FH单/SC单 随核销单一起提交。</div>
+    <div class="map-warn">提交后将生成核销单号 BHX262026072300101 并进入审批流程；BFH单/BSC单 随核销单一起提交。</div>
   </div>
 
   <div class="map-panel panel-net" style="left:1190px;top:1150px;width:810px;height:350px;">
@@ -642,7 +642,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
       <span class="map-arrow-sm">→</span>
       <span class="mini-node red">核销单终态</span>
       <span class="map-arrow-sm">→</span>
-      <span class="mini-node red">FH单/SC单 作废</span>
+      <span class="mini-node red">BFH单/BSC单 作废</span>
       <span class="map-arrow-sm">→</span>
       <span class="mini-node">复制并新建</span>
     </div>
@@ -660,13 +660,13 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
       <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>状态“已提交 FMS”（等待）；通过 → 进入返还执行；驳回 → 整单终态</td></tr>
       <tr><td>2 返还结果</td><td>返还完成</td><td>返还完成状态 / 时间</td><td>金额回写：已返还金额 +；返还状态 → 已返还；经闲时队列处理</td></tr>
       <tr><td>3 收差结果</td><td>收差完成</td><td>收差完成状态 / 时间</td><td>金额回写：已收差金额 +；收差状态 → 已收差；经闲时队列处理</td></tr>
-      <tr><td>4 发票单号</td><td>按 SC单行号异步回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
+      <tr><td>4 发票单号</td><td>按 BSC单行号异步回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
     </table>
     <div class="map-note-inline">FMS 返回的返还/收差/发票结果进入网批闲时队列，每日 12:00 开始消费；处理前金额不回写，状态保持执行中。详细字段和时序见左侧“FMS接口与数据包”视图；接口草稿待对方提供后更新。</div>
     <h4>关键边界</h4>
     <ul>
       <li class="red">FMS 不回传就一直等待；“已提交 FMS”状态责任归属 FMS。</li>
-      <li class="red">FMS 驳回：回传网批后整单终态；SC单/FH单作废；可复制并新建。</li>
+      <li class="red">FMS 驳回：回传网批后整单终态；BSC单/BFH单作废；可复制并新建。</li>
       <li class="red">发票单号按收差单行号异步回推；回推前显示“回推中”。</li>
       <li>收差状态：待执行 → 执行中 → 已收差。</li>
     </ul>
@@ -692,7 +692,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
     <ul>
       <li class="red">FMS 整单通过即数量已核销：合格/不合格立即计入累计合格/累计收差数量；已返还/已收差金额按执行完成回写，结果经闲时队列处理，每日 12:00 开始。</li>
       <li class="red">FMS 回传结果 → 网批系统更新汇总页；不是 FMS 直接改网批页面。</li>
-      <li class="red">发票单号允许按 SC单行号批量回推网批。</li>
+      <li class="red">发票单号允许按 BSC单行号批量回推网批。</li>
       <li>剩余可核销 = 已开单数量 − 历史累计合格 − 历史累计收差 − 审批中数量。</li>
       <li>方案待核销总数 = 需核销总数 − 已核销总数（含审批中）。</li>
     </ul>
@@ -736,13 +736,13 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
       <div class="rule"><b>存在审批中单</b><br>不允许发起新建；全部完结/驳回后恢复</div>
       <div class="rule"><b>无输入</b><br>至少填写一个 SKU 的合格或不合格数量</div>
       <div class="rule"><b>超限拦截</b><br>合格+不合格超过剩余可核销时不能提交确认</div>
-      <div class="rule"><b>提交生成单据</b><br>确认后生成 BHX单/FH单/SC单 及行号，行号映射原订单行</div>
+      <div class="rule"><b>提交生成单据</b><br>确认后生成 BHX单/BFH单/BSC单 及行号，行号映射原订单行</div>
     </div>
     <table class="tbl">
       <tr><th>单据</th><th>规则</th><th>示例</th></tr>
       <tr><td>BHX单</td><td>BHX + 方案编号第 5 位起 13 位 + 2 位流水</td><td>BHX262026072300101</td></tr>
-      <tr><td>FH单</td><td>FH + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>FH0120260723001</td></tr>
-      <tr><td>SC单</td><td>SC + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>SC0120260723001</td></tr>
+      <tr><td>BFH单</td><td>BFH + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>BFH0120260723001</td></tr>
+      <tr><td>BSC单</td><td>BSC + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>BSC0120260723001</td></tr>
     </table>
   </div>
 </section>
@@ -921,7 +921,7 @@ AllocationResult {
       <div class="branch-box">
         <h4>任一节点驳回</h4>
         <div class="mini red">核销单终态</div>
-        <div class="mini red">FH单/SC单作废</div>
+        <div class="mini red">BFH单/BSC单作废</div>
         <div class="mini">审批中数量释放回剩余可核销</div>
       </div>
       <div class="branch-box">
@@ -958,10 +958,10 @@ AllocationResult {
       <tr><td>核销单号</td><td>BHX262026072300101</td><td>本次审批主键</td></tr>
       <tr><td>关联特批方案编号</td><td>GCTP2620260723001</td><td>财务核对方案上下文</td></tr>
       <tr><td>销售公司</td><td>珠海销售公司</td><td>部门编码前 2 位：01</td></tr>
-      <tr><td>FH单号</td><td>FH0120260723001</td><td>返还单主键</td></tr>
-      <tr><td>FH单行号</td><td>FH012026072300101 / 102 / 103</td><td>按订单行映射</td></tr>
-      <tr><td>SC单号</td><td>SC0120260723001</td><td>收差单主键</td></tr>
-      <tr><td>SC单行号</td><td>SC012026072300101</td><td>按订单行映射；发票按此行回推</td></tr>
+      <tr><td>BFH单号</td><td>BFH0120260723001</td><td>返还单主键</td></tr>
+      <tr><td>BFH单行号</td><td>BFH012026072300101 / 102 / 103</td><td>按订单行映射</td></tr>
+      <tr><td>BSC单号</td><td>BSC0120260723001</td><td>收差单主键</td></tr>
+      <tr><td>BSC单行号</td><td>BSC012026072300101</td><td>按订单行映射；发票按此行回推</td></tr>
       <tr><td>商品/SKU/数量/金额</td><td>6 合格 / 3 不合格；¥240 / ¥120</td><td>与全景图演示数据一致</td></tr>
       <tr><td>发票信息</td><td>按网批现有推送为准</td><td>字段待对方提供后更新</td></tr>
     </table>
@@ -977,17 +977,17 @@ AllocationResult {
   "salesCompany": "珠海销售公司",
   "deptCode": "01",
   "refund": {
-    "refundOrderNo": "FH0120260723001",
+    "refundOrderNo": "BFH0120260723001",
     "lines": [
-      {"refundLineNo":"FH012026072300101","orderLineNo":"DD2026071000101","qty":2,"amount":80},
-      {"refundLineNo":"FH012026072300102","orderLineNo":"DD2026071000102","qty":2,"amount":80},
-      {"refundLineNo":"FH012026072300103","orderLineNo":"DD2026072200101","qty":2,"amount":80}
+      {"refundLineNo":"BFH012026072300101","orderLineNo":"DD2026071000101","qty":2,"amount":80},
+      {"refundLineNo":"BFH012026072300102","orderLineNo":"DD2026071000102","qty":2,"amount":80},
+      {"refundLineNo":"BFH012026072300103","orderLineNo":"DD2026072200101","qty":2,"amount":80}
     ]
   },
   "deduct": {
-    "deductOrderNo": "SC0120260723001",
+    "deductOrderNo": "BSC0120260723001",
     "lines": [
-      {"deductLineNo":"SC012026072300101","orderLineNo":"DD2026071000102","qty":3,"amount":120}
+      {"deductLineNo":"BSC012026072300101","orderLineNo":"DD2026071000102","qty":3,"amount":120}
     ]
   },
   "invoiceInfo": "按网批现有推送为准"
@@ -1004,7 +1004,7 @@ AllocationResult {
       <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>通过即数量已核销：累计合格 +、累计收差数量 +；金额待执行回写；驳回整单终态</td></tr>
       <tr><td>2 返还结果</td><td>返还完成</td><td>完成状态 / 时间</td><td>金额回写：已返还金额 +；返还状态 → 已返还；经闲时队列处理</td></tr>
       <tr><td>3 收差结果</td><td>收差完成</td><td>完成状态 / 时间</td><td>金额回写：已收差金额 +；收差状态 → 已收差；经闲时队列处理</td></tr>
-      <tr><td>4 发票单号</td><td>按 SC单行号批量回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
+      <tr><td>4 发票单号</td><td>按 BSC单行号批量回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
     </table>
     <div class="impl-note">FMS 返回的返还/收差/发票结果进入网批闲时队列，每日 12:00 开始消费；处理前金额不回写。</div>
   </div>
@@ -1019,7 +1019,7 @@ AllocationResult {
   "refundResult": {"status":"completed","time":"2026-08-16 10:00:00"},
   "deductResult": {"status":"completed","time":"2026-08-16 12:00:00"},
   "invoices": [
-    {"deductLineNo":"SC012026072300101","invoiceNo":"FPL202608160001"}
+    {"deductLineNo":"BSC012026072300101","invoiceNo":"FPL202608160001"}
   ]
 }</div>
     <div class="impl-note">JSON 为建议返回示例，实际字段、命名和结构以开发及 FMS 接口实现为准。</div>
@@ -1036,14 +1036,14 @@ AllocationResult {
       <tr><td>writeOffNo</td><td>string</td><td>是</td><td>18 位，^BHX\d{15}$</td><td>BHX262026072300101</td></tr>
       <tr><td>planNo</td><td>string</td><td>是</td><td>^(GCTP|GCZY)\d{13}$</td><td>GCTP2620260723001</td></tr>
       <tr><td>salesCompany / deptCode</td><td>string</td><td>是</td><td>deptCode 取部门编码前 2 位</td><td>珠海销售公司 / 01</td></tr>
-      <tr><td>refund.refundOrderNo</td><td>string</td><td>条件</td><td>有合格数量时必填</td><td>FH0120260723001</td></tr>
-      <tr><td>refund.lines[].refundLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水</td><td>FH012026072300101</td></tr>
+      <tr><td>refund.refundOrderNo</td><td>string</td><td>条件</td><td>有合格数量时必填</td><td>BFH0120260723001</td></tr>
+      <tr><td>refund.lines[].refundLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水</td><td>BFH012026072300101</td></tr>
       <tr><td>refund.lines[].orderLineNo / qty / amount</td><td>string / int / decimal(2)</td><td>是</td><td>amount = qty × 单价</td><td>DD2026071000101 / 2 / 80</td></tr>
-      <tr><td>deduct.deductOrderNo</td><td>string</td><td>条件</td><td>有不合格数量时必填</td><td>SC0120260723001</td></tr>
-      <tr><td>deduct.lines[].deductLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水；发票按此行回推</td><td>SC012026072300101</td></tr>
+      <tr><td>deduct.deductOrderNo</td><td>string</td><td>条件</td><td>有不合格数量时必填</td><td>BSC0120260723001</td></tr>
+      <tr><td>deduct.lines[].deductLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水；发票按此行回推</td><td>BSC012026072300101</td></tr>
       <tr><td>approval.result</td><td>enum</td><td>是</td><td>pass / reject</td><td>pass</td></tr>
       <tr><td>refundResult / deductResult.status</td><td>enum</td><td>条件</td><td>completed；按段回传</td><td>completed</td></tr>
-      <tr><td>invoices[]</td><td>array</td><td>否</td><td>按 SC单行号批量回推；未回推行保持“回推中”</td><td>FPL202608160001</td></tr>
+      <tr><td>invoices[]</td><td>array</td><td>否</td><td>按 BSC单行号批量回推；未回推行保持“回推中”</td><td>FPL202608160001</td></tr>
     </table>
   </div>
 </section>
@@ -1056,7 +1056,7 @@ AllocationResult {
       <div class="rule"><b>不回传</b><br>状态保持“审批中（FMS）”，一直等待；无超时自动结束</div>
       <div class="rule"><b>重复回传</b><br>幂等键 = writeOffNo + 段次；重复消息忽略，不重复推进</div>
       <div class="rule"><b>接口报错</b><br>记录错误日志，状态不变；可人工重新推送</div>
-      <div class="rule"><b>发票部分回推</b><br>invoices 数组按 SC单行号更新；未返回的行继续显示“回推中”</div>
+      <div class="rule"><b>发票部分回推</b><br>invoices 数组按 BSC单行号更新；未返回的行继续显示“回推中”</div>
       <div class="rule"><b>字段校验失败</b><br>返回错误，不更新核销单状态，避免脏数据</div>
     </div>
   </div>
@@ -1077,7 +1077,7 @@ AllocationResult {
       <div class="arrow">↓</div>
       <div class="node n-green">执行完成 · 金额回写<span class="small">已返还 +¥240；已收差 +¥120；收差状态 → 已收差</span></div>
       <div class="arrow">↓</div>
-      <div class="node n-orange">发票单号按 SC单行号批量回推<span class="small">回推前显示“回推中”</span></div>
+      <div class="node n-orange">发票单号按 BSC单行号批量回推<span class="small">回推前显示“回推中”</span></div>
     </div>
   </div>
 </section>
@@ -1109,7 +1109,7 @@ AllocationResult {
       <tr><td>FMS 审批通过（数量回写）</td><td>FMS 审批完成</td><td>累计合格 +6；累计收差 +3；审批中 −9；金额不变；剩余不变</td></tr>
       <tr><td>返还完成（金额回写）</td><td>返还完成回传</td><td>已返还 +¥240；返还状态 → 已返还；经闲时队列处理</td></tr>
       <tr><td>收差完成（金额回写）</td><td>收差完成回传</td><td>已收差 +¥120；收差状态 → 已收差；经闲时队列处理</td></tr>
-      <tr><td>发票回推</td><td>按 SC单行号批量回推</td><td>更新发票单号；回推前显示“回推中”</td></tr>
+      <tr><td>发票回推</td><td>按 BSC单行号批量回推</td><td>更新发票单号；回推前显示“回推中”</td></tr>
       <tr><td>驳回</td><td>任一节点驳回 / FMS 驳回</td><td>审批中释放全部；累计与金额不变</td></tr>
     </table>
   </div>
