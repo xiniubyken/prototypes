@@ -83,21 +83,6 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .empty-box{display:inline-flex;align-items:center;gap:8px;}
 .empty-ico{width:28px;height:28px;border-radius:50%;border:1px dashed #c5cae9;color:#c5cae9;display:inline-flex;align-items:center;justify-content:center;font-size:15px;}
 
-/* ====== 详情弹窗（新增，标 col-new） ====== */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;}
-.modal-overlay.show{display:flex;}
-.modal-content{width:760px;max-width:92vw;max-height:86vh;background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18);}
-.modal-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.modal-title{font-size:14px;font-weight:700;}
-.modal-close{width:28px;height:28px;border-radius:50%;border:none;background:transparent;color:var(--text-aux);cursor:pointer;font-size:15px;}
-.modal-close:hover{background:var(--bg-hover);color:var(--text);}
-.modal-body{flex:1;overflow-y:auto;padding:16px 20px;}
-.detail-head{display:flex;flex-wrap:wrap;gap:8px 24px;background:var(--bg);border:1px solid var(--border-light);border-radius:6px;padding:10px 14px;font-size:12px;margin-bottom:12px;}
-.detail-head b{color:var(--text);}
-.detail-table{width:100%;border-collapse:collapse;font-size:12px;}
-.detail-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:left;}
-.detail-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);white-space:nowrap;text-align:left;color:var(--text);}
-
 /* ====== Toast ====== */
 .toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.14);padding:10px 22px;font-size:13px;display:flex;align-items:center;gap:8px;opacity:0;transition:.25s;z-index:500;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -174,20 +159,6 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
   <div class="form-footer">
     <span class="ff-tip" id="createTip"></span>
     <button class="btn btn-primary" id="createBtn" onclick="goCreate()">＋ 发起核销</button>
-  </div>
-</div>
-
-<!-- ====== 查看核销详情弹窗（新增，标 col-new；仅显示涉及核销的 SKU 行） ====== -->
-<div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeDetail()">
-  <div class="modal-content">
-    <div class="modal-header"><span class="modal-title">查看核销详情</span><button class="modal-close" onclick="closeDetail()">✕</button></div>
-    <div class="modal-body">
-      <div class="detail-head" id="detailHead"></div>
-      <table class="detail-table">
-        <thead><tr><th>商品名称/型号</th><th>SKU编号</th><th>合格数量</th><th>不合格数量</th><th>返还金额</th><th>收差金额</th></tr></thead>
-        <tbody id="detailBody"></tbody>
-      </table>
-    </div>
   </div>
 </div>
 
@@ -328,35 +299,11 @@ function renderBills(list){
       <td class="td-money">${fmt(b.refund)}</td>
       <td class="td-red">${fmt(b.deduct)}</td>
       <td>
-        <span class="op-link" onclick="openDetail(${i})">查看详情</span>
+        <a class="op-link" href="管理端-保证金核销审批页_查看版.html?billNo=${encodeURIComponent(b.no)}">查看详情</a>
         ${b.status==='已驳回' ? '<span class="op-copy" onclick="copyNew('+i+')">复制与新建</span>' : ''}
       </td>
     </tr>`).join('');
 }
-
-/* ==================== 查看详情（仅显示涉及核销的 SKU 行） ==================== */
-function openDetail(i){
-  const b = BILLS[i];
-  const st = b.status==='已通过' ? 'st-pass' : (b.sub==='FMS' ? 'st-fms' : 'st-rej');
-  const stText = b.sub==='FMS' ? '审批中（FMS）' : b.status;
-  document.getElementById('detailHead').innerHTML =
-    '<span>核销单号：<b>'+b.no+'</b></span>'+
-    '<span>申请时间：<b>'+b.time+'</b></span>'+
-    '<span>审批状态：<b class="'+st+'" style="font-weight:600;">'+stText+'</b></span>';
-  document.getElementById('detailBody').innerHTML = b.detail.map(d=>{
-    const k = SKUS.find(x=>x.id===d.sku);
-    return `<tr>
-      <td class="td-strong">${k.name} ${k.model}</td>
-      <td>${k.sku}</td>
-      <td>${d.q}</td>
-      <td>${d.uq}</td>
-      <td class="td-money">${fmt(d.refund)}</td>
-      <td class="td-red">${fmt(d.deduct)}</td>
-    </tr>`;
-  }).join('');
-  document.getElementById('detailModal').classList.add('show');
-}
-function closeDetail(){ document.getElementById('detailModal').classList.remove('show'); }
 
 /* ==================== 复制与新建（仅驳回单显示入口） ==================== */
 function copyNew(i){
