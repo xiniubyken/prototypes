@@ -299,7 +299,7 @@ function renderBills(list){
       <td class="td-money">${fmt(b.refund)}</td>
       <td class="td-red">${fmt(b.deduct)}</td>
       <td>
-        <a class="op-link" href="管理端-保证金核销审批页_查看版.html?billNo=${encodeURIComponent(b.no)}">查看详情</a>
+        <a class="op-link" href="管理端-保证金核销审批页_查看版.html?billNo=${encodeURIComponent(b.no)}&status=${encodeURIComponent(b.sub==='FMS'?'审批中（FMS）':b.status)}">查看详情</a>
         ${b.status==='已驳回' ? '<span class="op-copy" onclick="copyNew('+i+')">复制与新建</span>' : ''}
       </td>
     </tr>`).join('');
