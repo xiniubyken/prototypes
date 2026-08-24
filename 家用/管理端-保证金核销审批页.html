@@ -128,6 +128,21 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .col-new .ff-left{font-size:12px;color:#B45309;}
 .col-new .ff-right{display:flex;gap:10px;align-items:center;}
 .col-new.note-attach-card{background:#fff;}
+
+/* ====== 当次提交单据（标 col-new） ====== */
+.col-new.submit-doc-card{background:#fff;}
+.col-new .doc-block{margin-bottom:12px;}
+.col-new .doc-block:last-child{margin-bottom:0;}
+.col-new .doc-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text);padding:7px 10px;background:var(--bg-header);border:1px solid var(--border-light);border-bottom:none;border-radius:4px 4px 0 0;}
+.col-new .doc-tag{font-size:11px;font-weight:600;padding:1px 8px;border-radius:10px;}
+.col-new .doc-tag.refund{background:#E6F7EC;color:#2e7d32;}
+.col-new .doc-tag.deduct{background:#FDECEC;color:#d9534f;}
+.col-new .doc-summary{margin-left:auto;font-size:11px;color:var(--text-aux);font-weight:400;}
+.col-new .doc-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--border-light);}
+.col-new .doc-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.col-new .doc-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
+.col-new .doc-table tr:last-child td{border-bottom:none;}
+.col-new .doc-empty{padding:14px;text-align:center;color:var(--text-aux);font-size:12px;background:var(--bg);border:1px dashed var(--border);border-radius:0 0 4px 4px;}
 .col-new .na-label{font-size:12px;color:var(--text-secondary);font-weight:600;margin-bottom:6px;}
 
 /* ====== 审批弹窗（通过/驳回） ====== */
@@ -222,6 +237,15 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
       <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">核销订单行明细</span><span class="fc-tag">系统按订单行自动分配，先合格后不合格</span></div>
       <div class="fc-body">
         <div id="orderGroups"></div>
+      </div>
+    </div>
+
+    <!-- ====== 当次提交单据（提交时生成的 BFH/BSC 单，标 col-new） ====== -->
+    <div class="form-card col-new submit-doc-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">当次提交单据</span><span class="fc-tag">提交时生成，随核销单一并审批</span></div>
+      <div class="fc-body">
+        <div class="doc-block" id="refundDocBlock"></div>
+        <div class="doc-block" id="deductDocBlock"></div>
       </div>
     </div>
 
@@ -411,7 +435,7 @@ function renderOrders(){
       </div>
       <table class="og-table">
         <thead><tr>
-          <th>订单行号</th><th>下单时间</th><th>追溯订单下单数量</th>
+          <th>订单行号</th><th>下单时间</th><th>已开单数量</th>
           <th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>订单行剩余可核销数量</th>
           <th class="alloc-col">本次合格（系统分配）</th><th class="alloc-col">本次不合格（系统分配）</th>
           <th class="money-col">本次返还金额</th><th class="money-col">本次收差金额</th>
@@ -438,6 +462,43 @@ function renderOrders(){
   });
   // 数据对平校验：组尾小计之和 = SKU表合计
   document.getElementById('orderGroups').innerHTML = html;
+}
+
+/* ==================== 渲染当次提交单据（提交时生成 BFH/BSC 单） ==================== */
+function renderSubmitDocs(){
+  const refundRows=[], deductRows=[];
+  SKUS.forEach(k=>{
+    if(k.q+k.uq===0){ return; }
+    const {lines} = allocate(k);
+    lines.forEach(l=>{
+      if(l.allocQ){ refundRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocQ, amt:l.allocQ*k.price}); }
+      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocUQ, amt:l.allocUQ*k.price}); }
+    });
+  });
+  const refundNo='BFH0120260723001', deductNo='BSC0120260723001';
+  const docTable = (no, rows, cls, nameCls, qLabel, amtCls) => {
+    if(!rows.length){
+      return `<div class="doc-title"><span class="doc-tag ${cls}">${cls==='refund'?'BFH 返还单':'BSC 收差单'}</span><span>本次无${cls==='refund'?'返还':'收差'}</span></div>
+        <div class="doc-empty">未生成${cls==='refund'?'返还单':'收差单'}</div>`;
+    }
+    return `<div class="doc-title"><span class="doc-tag ${cls}">${cls==='refund'?'BFH 返还单':'BSC 收差单'}</span>
+      <span class="doc-no">${no}</span>
+      <span class="doc-summary">共 ${rows.length} 行 · 合计 ${rows.reduce((s,r)=>s+r.q,0)} 台</span></div>
+      <table class="doc-table"><thead><tr>
+        <th>${cls==='refund'?'返还单':'收差单'}行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>${qLabel}</th><th>${cls==='refund'?'返还':'收差'}金额</th>
+      </tr></thead><tbody>
+      ${rows.map((r,i)=>`<tr>
+        <td class="td-strong">${no}${String(i+1).padStart(3,'0')}</td>
+        <td>${r.lineNo}</td>
+        <td class="td-left">${r.name} ${r.model}</td>
+        <td class="td-gray">${r.sku}</td>
+        <td class="${nameCls}">${r.q}</td>
+        <td class="${amtCls}">${fmt(r.amt)}</td>
+      </tr>`).join('')}
+      </tbody></table>`;
+  };
+  document.getElementById('refundDocBlock').innerHTML = docTable(refundNo, refundRows, 'refund', 'td-green', '合格数量', 'td-green');
+  document.getElementById('deductDocBlock').innerHTML = docTable(deductNo, deductRows, 'deduct', 'td-red', '不合格数量', 'td-red');
 }
 
 /* ==================== 渲染金额汇总 + 对平校验 ==================== */
@@ -568,6 +629,7 @@ function toast(msg, type){
   }
   const t = renderSku();
   renderOrders();
+  renderSubmitDocs();
   renderSummary(t);
   renderAttach();
   renderRecord();
