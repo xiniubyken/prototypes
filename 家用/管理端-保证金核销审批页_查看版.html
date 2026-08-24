@@ -124,6 +124,24 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .status-待审核{background:#E8F0FE;color:#3b5998;}
 .status-已驳回{background:#FDECEC;color:#d9534f;}
 .status-fms{background:#EDE9FE;color:#6d28d9;}
+.status-已通过{background:#E6F7EC;color:#2e7d32;}
+.status-审批中{background:#E8F0FE;color:#3b5998;}
+
+/* ====== 当次提交单据（标 col-new） ====== */
+.col-new.submit-doc-card{background:#fff;}
+.col-new .doc-block{margin-bottom:12px;}
+.col-new .doc-block:last-child{margin-bottom:0;}
+.col-new .doc-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text);padding:7px 10px;background:var(--bg-header);border:1px solid var(--border-light);border-bottom:none;border-radius:4px 4px 0 0;}
+.col-new .doc-tag{font-size:11px;font-weight:600;padding:1px 8px;border-radius:10px;}
+.col-new .doc-tag.refund{background:#E6F7EC;color:#2e7d32;}
+.col-new .doc-tag.deduct{background:#FDECEC;color:#d9534f;}
+.col-new .doc-no{font-family:'Consolas',monospace;color:var(--primary);font-size:12px;}
+.col-new .doc-summary{margin-left:auto;font-size:11px;color:var(--text-aux);font-weight:400;}
+.col-new .doc-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--border-light);}
+.col-new .doc-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.col-new .doc-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
+.col-new .doc-table tr:last-child td{border-bottom:none;}
+.col-new .doc-empty{padding:14px;text-align:center;color:var(--text-aux);font-size:12px;background:var(--bg);border:1px dashed var(--border);border-radius:0 0 4px 4px;}
 </style>
 </head>
 <body>
@@ -193,6 +211,15 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
       <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">核销订单行明细</span><span class="fc-tag">系统按订单行自动分配，先合格后不合格</span></div>
       <div class="fc-body">
         <div id="orderGroups"></div>
+      </div>
+    </div>
+
+    <!-- ====== 当次提交单据（提交时生成的 BFH/BSC 单，标 col-new，只读） ====== -->
+    <div class="form-card col-new submit-doc-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">当次提交单据</span><span class="fc-tag">提交时生成，随核销单一并审批</span></div>
+      <div class="fc-body">
+        <div class="doc-block" id="refundDocBlock"></div>
+        <div class="doc-block" id="deductDocBlock"></div>
       </div>
     </div>
 
@@ -351,6 +378,43 @@ function renderOrders(){
   document.getElementById('orderGroups').innerHTML = html;
 }
 
+/* ==================== 渲染当次提交单据（提交时生成 BFH/BSC 单，只读） ==================== */
+function renderSubmitDocs(){
+  const refundRows=[], deductRows=[];
+  SKUS.forEach(k=>{
+    if(k.q+k.uq===0){ return; }
+    const {lines} = allocate(k);
+    lines.forEach(l=>{
+      if(l.allocQ){ refundRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocQ, amt:l.allocQ*k.price}); }
+      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocUQ, amt:l.allocUQ*k.price}); }
+    });
+  });
+  const refundNo='BFH0120260723001', deductNo='BSC0120260723001';
+  const docTable = (no, rows, cls, nameCls, qLabel, amtCls) => {
+    if(!rows.length){
+      return `<div class="doc-title"><span class="doc-tag ${cls}">${cls==='refund'?'BFH 返还单':'BSC 收差单'}</span><span>本次无${cls==='refund'?'返还':'收差'}</span></div>
+        <div class="doc-empty">未生成${cls==='refund'?'返还单':'收差单'}</div>`;
+    }
+    return `<div class="doc-title"><span class="doc-tag ${cls}">${cls==='refund'?'BFH 返还单':'BSC 收差单'}</span>
+      <span class="doc-no">${no}</span>
+      <span class="doc-summary">共 ${rows.length} 行 · 合计 ${rows.reduce((s,r)=>s+r.q,0)} 台</span></div>
+      <table class="doc-table"><thead><tr>
+        <th>${cls==='refund'?'返还单':'收差单'}行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>${qLabel}</th><th>${cls==='refund'?'返还':'收差'}金额</th>
+      </tr></thead><tbody>
+      ${rows.map((r,i)=>`<tr>
+        <td class="td-strong">${no}${String(i+1).padStart(3,'0')}</td>
+        <td>${r.lineNo}</td>
+        <td class="td-left">${r.name} ${r.model}</td>
+        <td class="td-gray">${r.sku}</td>
+        <td class="${nameCls}">${r.q}</td>
+        <td class="${amtCls}">${fmt(r.amt)}</td>
+      </tr>`).join('')}
+      </tbody></table>`;
+  };
+  document.getElementById('refundDocBlock').innerHTML = docTable(refundNo, refundRows, 'refund', 'td-green', '合格数量', 'td-green');
+  document.getElementById('deductDocBlock').innerHTML = docTable(deductNo, deductRows, 'deduct', 'td-red', '不合格数量', 'td-red');
+}
+
 /* ==================== 渲染金额汇总 + 对平校验 ==================== */
 function renderSummary(t){
   document.getElementById('sumRefund').textContent = fmt(t.tR);
@@ -392,19 +456,44 @@ function renderRecord(){
   if(no){ // 列表页带单号进入，更新单据信息单号
     document.getElementById('iNo').textContent = no;
   }
-  if(getParam('stage')==='fms'){
+  const billNo = getParam('billNo');
+  if(billNo){ document.getElementById('iNo').textContent = billNo; }
+  const status = getParam('status') || '审批中';
+  const head = document.getElementById('headStatus');
+  if(status==='已通过'){
+    FLOW = [
+      {stage:'总部业务组长', name:'张伟', result:'pass', time:'2026-08-13 10:20', opinion:'同意，质检报告与数量一致', system:'网批'},
+      {stage:'总部业务主管', name:'李娜', result:'pass', time:'2026-08-13 11:05', opinion:'同意，数量核对无误', system:'网批'},
+      {stage:'销司确认', name:'王芳（珠海销售公司）', result:'pass', time:'2026-08-13 12:30', opinion:'确认通过', system:'网批'},
+      {stage:'FMS财务审批', name:'财务系统（FMS）', result:'pass', time:'2026-08-14 09:10', opinion:'审批通过', system:'FMS'},
+    ];
+    head.textContent = '已通过';
+    head.className = 'status status-已通过';
+  } else if(status==='已驳回'){
+    FLOW = [
+      {stage:'总部业务组长', name:'张伟', result:'reject', time:'2026-08-13 10:20', opinion:'质检材料与数量不一致，驳回', system:'网批'},
+      {stage:'总部业务主管', name:'李娜', result:'skip', time:'', opinion:'', system:'网批'},
+      {stage:'销司确认', name:'王芳（珠海销售公司）', result:'skip', time:'', opinion:'', system:'网批'},
+      {stage:'FMS财务审批', name:'财务系统（FMS）', result:'skip', time:'', opinion:'', system:'FMS'},
+    ];
+    head.textContent = '已驳回';
+    head.className = 'status status-已驳回';
+  } else if(status==='审批中（FMS）'){
     FLOW = [
       {stage:'总部业务组长', name:'张伟', result:'pass', time:'2026-08-13 10:20', opinion:'同意，质检报告与数量一致', system:'网批'},
       {stage:'总部业务主管', name:'李娜', result:'pass', time:'2026-08-13 11:05', opinion:'同意，数量核对无误', system:'网批'},
       {stage:'销司确认', name:'王芳（珠海销售公司）', result:'pass', time:'2026-08-13 12:30', opinion:'确认通过', system:'网批'},
       {stage:'FMS财务审批', name:'财务系统（FMS）', result:'wait', time:'', opinion:'', system:'FMS'},
     ];
-    const el = document.getElementById('headStatus');
-    el.textContent = '审批中（FMS）';
-    el.className = 'status status-fms';
+    head.textContent = '审批中（FMS）';
+    head.className = 'status status-fms';
+  } else {
+    head.textContent = '审批中';
+    head.className = 'status status-审批中';
   }
   const t = renderSku();
   renderOrders();
+  renderSubmitDocs();
   renderSummary(t);
   renderAttach();
   renderRecord();
