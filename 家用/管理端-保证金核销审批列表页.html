@@ -122,7 +122,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 
   <div class="page-scroll">
 
-    <!-- ====== 筛选区（8 字段：方案编号/核销单号/所属部门/方案名称/项目类型/价格审批编号/SKU编码/核销状态；创建人、创建时间搜索已移除） ====== -->
+    <!-- ====== 筛选区（9 字段：方案编号/核销单号/所属部门/方案名称/项目类型/价格审批编号/SKU编码/核销状态/显示过滤；创建人、创建时间搜索已移除） ====== -->
     <div class="filter-card">
       <div class="filter-grid">
         <div class="filter-item"><label>方案编号</label><input id="fPlanNo" placeholder="如 GCTP2620260723001"></div>
@@ -143,6 +143,9 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
         <div class="filter-item"><label>SKU编码</label><input id="fSku" placeholder="请输入"></div>
         <div class="filter-item"><label>核销状态</label>
           <select id="fStatus"><option value="">全部</option><option value="待审核">待审核</option><option value="已驳回">已驳回</option></select>
+        </div>
+        <div class="filter-item"><label>显示过滤</label>
+          <select id="fShow"><option value="mine" selected>待我审批</option><option value="all">所有单据</option></select>
         </div>
       </div>
       <div class="filter-actions">
@@ -192,20 +195,28 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 /* 审批权限开关：具备审批权限=展示操作列按钮；无权限=整列隐藏。演示默认 true。 */
 const HAS_APPROVE_PERMISSION = true;
 
+/* 当前登录用户（演示）：待我审批 = 单据为待审核 且 当前待审节点审批人为当前用户 */
+const CURRENT_USER = '张伟';
+
 const DATA = [
-  {no:'BHX262026072300101', planNo:'GCTP2620260723001', dept:'珠海销售公司', planName:'珠海·华发水郡工程特批方案', projType:'特批项目', special:'配提机', priceNo:'PJ2026081001', sku:'SKU100234', status:'待审核', sub:'FMS', creator:'陈晓明', time:'2026-08-10 14:20',
-   flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX262026072300102', planNo:'GCTP2620260723002', dept:'广州销售公司', planName:'广州·敏捷广场工程特批方案', projType:'特批项目', special:'资源机', priceNo:'PJ2026081102', sku:'SKU200187', status:'待审核', creator:'张磊', time:'2026-08-11 09:30',
-   flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX262026072300103', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'资源机项目', special:'特价机', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', creator:'李伟', time:'2026-08-12 11:05',
-   flow:[{stage:'1',role:'区域经理',result:'wait',name:'',time:'',opinion:''},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX262026072300104', planNo:'GCTP2620260723004', dept:'佛山销售公司', planName:'佛山·岭南工程特批方案', projType:'特批项目', special:'配提机', priceNo:'PJ2026080904', sku:'SKU100998', status:'已驳回', creator:'王芳', time:'2026-08-09 16:10',
+  {no:'BHX262026072300101', planNo:'GCTP2620260723001', dept:'珠海销售公司', planName:'珠海·华发水郡工程特批方案', projType:'特批项目', special:'配提机', priceNo:'PJ2026081001', sku:'SKU100234', status:'待审核', sub:'FMS', curApprover:'', creator:'陈晓明', time:'2026-08-10 14:20',
+   flow:[{stage:'1',role:'总部业务组长',result:'pass',name:'张伟',time:'2026-08-10 15:00',opinion:'同意'},{stage:'2',role:'总部业务主管',result:'pass',name:'李强',time:'2026-08-10 16:00',opinion:'同意'},{stage:'3',role:'销司确认',result:'pass',name:'陈晓明',time:'2026-08-11 10:00',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
+  {no:'BHX262026072300102', planNo:'GCTP2620260723002', dept:'广州销售公司', planName:'广州·敏捷广场工程特批方案', projType:'特批项目', special:'资源机', priceNo:'PJ2026081102', sku:'SKU200187', status:'待审核', curApprover:'张伟', creator:'张磊', time:'2026-08-11 09:30',
+   flow:[{stage:'1',role:'总部业务组长',result:'wait',name:'张伟',time:'',opinion:''},{stage:'2',role:'总部业务主管',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'销司确认',result:'wait',name:'',time:'',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
+  {no:'BHX262026072300103', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'资源机项目', special:'特价机', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', curApprover:'李强', creator:'李伟', time:'2026-08-12 11:05',
+   flow:[{stage:'1',role:'总部业务组长',result:'wait',name:'李强',time:'',opinion:''},{stage:'2',role:'总部业务主管',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'销司确认',result:'wait',name:'',time:'',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
+  {no:'BHX262026072300104', planNo:'GCTP2620260723004', dept:'佛山销售公司', planName:'佛山·岭南工程特批方案', projType:'特批项目', special:'配提机', priceNo:'PJ2026080904', sku:'SKU100998', status:'已驳回', curApprover:'', creator:'王芳', time:'2026-08-09 16:10',
    reason:'合格数量与质检报告不符，请核对后重新提交',
-   flow:[{stage:'1',role:'区域经理',result:'reject',name:'王强',time:'2026-08-09 17:02',opinion:'合格数量与质检报告不符，请核对后重新提交'},{stage:'2',role:'财务',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'总经理',result:'wait',name:'',time:'',opinion:''}]},
+   flow:[{stage:'1',role:'总部业务组长',result:'reject',name:'王强',time:'2026-08-09 17:02',opinion:'合格数量与质检报告不符，请核对后重新提交'},{stage:'2',role:'总部业务主管',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'销司确认',result:'wait',name:'',time:'',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
 ];
 
 const PAGE_SIZE = 10;
-let filtered = DATA.slice();
+/* 「显示过滤」：mine=待我审批（默认），all=所有单据 */
+function filterByShow(d, show){
+  if(show==='all') return true;
+  return d.status==='待审核' && d.curApprover===CURRENT_USER;
+}
+let filtered = DATA.filter(d=>filterByShow(d,'mine'));
 let curPage = 1;
 
 /* ==================== 渲染表格 ==================== */
@@ -263,6 +274,7 @@ function doFilter(){
     priceNo:document.getElementById('fPriceNo').value.trim().toLowerCase(),
     sku:document.getElementById('fSku').value.trim().toLowerCase(),
     status:document.getElementById('fStatus').value,
+    show:document.getElementById('fShow').value,
   };
   filtered = DATA.filter(d=>{
     if(kw.planNo && !d.planNo.toLowerCase().includes(kw.planNo)) return false;
@@ -273,6 +285,7 @@ function doFilter(){
     if(kw.priceNo && !(d.priceNo||'').toLowerCase().includes(kw.priceNo)) return false;
     if(kw.sku && !(d.sku||'').toLowerCase().includes(kw.sku)) return false;
     if(kw.status && d.status!==kw.status) return false;
+    if(!filterByShow(d, kw.show)) return false;
     return true;
   });
   curPage = 1;
@@ -284,7 +297,8 @@ function resetFilter(){
   document.getElementById('msDeptLabel').textContent = '全部';
   msRenderDept();
   ['fProjType','fStatus'].forEach(id=>document.getElementById(id).value='');
-  filtered = DATA.slice(); curPage = 1; renderList();
+  document.getElementById('fShow').value = 'mine';
+  filtered = DATA.filter(d=>filterByShow(d,'mine')); curPage = 1; renderList();
 }
 
 /* ==================== 操作跳转 ==================== */
@@ -312,7 +326,7 @@ function openFlow(no){
         ${n.opinion?`<div class="flow-opinion">审批意见：${n.opinion}</div>`:''}
       </div>`).join('') +
     '</div>' +
-    '<div class="flow-note">⚠️ 当前审批流为示意 3 级（区域经理→财务→总经理），实际审批流节点尚未定稿，定稿后回填。</div>';
+    '<div class="flow-note">⚠️ 审批流程：总部业务组长 → 总部业务主管 → 销司确认 → FMS 财务审批（销司仅通过、7 天未审自动通过；FMS 结果回传）。</div>';
   document.getElementById('flowModal').classList.add('show');
 }
 function closeFlow(){ document.getElementById('flowModal').classList.remove('show'); }
