@@ -223,7 +223,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .nonstd-badge{color:#E65100;font-weight:700;font-size:11px;background:#FFF3E0;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;}
 .pj-count{font-size:12px;color:#8f959e;}
 .pj-count span{color:#3b5998;font-weight:600;}
-.demo-hint{padding:8px 12px;background:#FFF8E1;border:1px solid #FFE082;border-radius:4px;font-size:12px;color:#F57F17;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
 
 /* ===== 登录顺序详情弹窗 ===== */
 .lod-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:1001;display:none;align-items:center;justify-content:center}
@@ -362,9 +361,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
   <!-- ==================== 二、表单填写区（选完项目后显示） ==================== -->
   <div id="formFillArea" style="display:none;">
-
-    <!-- 演示提示 -->
-    <div class="demo-hint">ⓘ 设备清单已从工程项目单自动带入，可修改数量/价格/点位后提交批价申请</div>
 
     <!-- 业务线选择（选完项目后可选） -->
     <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
@@ -1175,7 +1171,7 @@ var certData = [
   { label:'中标通知书', required:true, files:[
     { type:'pdf', name:'中标通知书_格力商用工程.pdf' }
   ]},
-  { label:'评标/询价/成交通知书', required:true, files:[
+  { label:'采购订单/成交通知书', required:true, files:[
     { type:'pdf', name:'评标报告.pdf' },
     { type:'docx', name:'询价记录(供应商回执).docx' }
   ]},
@@ -1183,14 +1179,14 @@ var certData = [
   { label:'区域授权函', required:true, files:[
     { type:'xls', name:'区域授权函_附件.xls' }
   ]},
-  { label:'项目信息说明', required:true, files:[
+  { label:'项目进度说明', required:true, files:[
     { type:'docx', name:'项目概况说明.docx' }
   ]},
-  { label:'发票凭证(已开/未开)', required:false, files:[
+  { label:'发票凭证（已付/未付）', required:false, files:[
     { type:'img', name:'发票_已开.png' },
     { type:'docx', name:'发票清单.docx' }
   ]},
-  { label:'验收报告(部分/最终)', required:false, files:[
+  { label:'验收报告（阶段性/最终）', required:false, files:[
     { type:'img', name:'验收报告_首页.png' },
     { type:'docx', name:'验收报告_完整版.docx' }
   ]},
@@ -1198,19 +1194,19 @@ var certData = [
     { type:'img', name:'技术方案确认书.png' },
     { type:'docx', name:'技术方案.docx' }
   ]},
-  { label:'合码文件', required:false, files:[
-    { type:'img', name:'合码确认.png' },
-    { type:'docx', name:'合码说明.docx' }
+  { label:'条码文件', required:false, files:[
+    { type:'img', name:'条码确认.png' },
+    { type:'docx', name:'条码说明.docx' }
   ]},
   { label:'工程图纸', required:false, files:[
     { type:'img', name:'图纸-平面图.png' },
     { type:'docx', name:'图纸说明.docx' }
   ]},
-  { label:'资质材料', required:false, files:[
+  { label:'招投标材料', required:false, files:[
     { type:'img', name:'资质证书.png' },
     { type:'docx', name:'资质说明.docx' }
   ]},
-  { label:'*解算其他附件', required:true, files:[
+  { label:'销司其他附件', required:true, files:[
     { type:'img', name:'结算单.png' },
     { type:'docx', name:'其他补充说明.docx' }
   ]}

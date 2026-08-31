@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>审批进度-工程批价</title>
+<title>用户端-批价单-审批进度-工程批价</title>
 <style>
 :root{
   --primary:#3b5998; --primary-light:#4a72c3;
@@ -671,7 +671,7 @@ var certData = [
   { label:'中标通知书', required:true, files:[
     { type:'pdf', name:'中标通知书_格力商用工程.pdf' }
   ]},
-  { label:'评标/询价/成交通知书', required:true, files:[
+  { label:'采购订单/成交通知书', required:true, files:[
     { type:'pdf', name:'评标报告.pdf' },
     { type:'docx', name:'询价记录(供应商回执).docx' }
   ]},
@@ -679,14 +679,14 @@ var certData = [
   { label:'区域授权函', required:true, files:[
     { type:'xls', name:'区域授权函_附件.xls' }
   ]},
-  { label:'项目信息说明', required:true, files:[
+  { label:'项目进度说明', required:true, files:[
     { type:'docx', name:'项目概况说明.docx' }
   ]},
-  { label:'发票凭证(已开/未开)', required:false, files:[
+  { label:'发票凭证（已付/未付）', required:false, files:[
     { type:'img', name:'发票_已开.png' },
     { type:'docx', name:'发票清单.docx' }
   ]},
-  { label:'验收报告(部分/最终)', required:false, files:[
+  { label:'验收报告（阶段性/最终）', required:false, files:[
     { type:'img', name:'验收报告_首页.png' },
     { type:'docx', name:'验收报告_完整版.docx' }
   ]},
@@ -694,19 +694,19 @@ var certData = [
     { type:'img', name:'技术方案确认书.png' },
     { type:'docx', name:'技术方案.docx' }
   ]},
-  { label:'合码文件', required:false, files:[
-    { type:'img', name:'合码确认.png' },
-    { type:'docx', name:'合码说明.docx' }
+  { label:'条码文件', required:false, files:[
+    { type:'img', name:'条码确认.png' },
+    { type:'docx', name:'条码说明.docx' }
   ]},
   { label:'工程图纸', required:false, files:[
     { type:'img', name:'图纸-平面图.png' },
     { type:'docx', name:'图纸说明.docx' }
   ]},
-  { label:'资质材料', required:false, files:[
+  { label:'招投标材料', required:false, files:[
     { type:'img', name:'资质证书.png' },
     { type:'docx', name:'资质说明.docx' }
   ]},
-  { label:'*解算其他附件', required:true, files:[
+  { label:'销司其他附件', required:true, files:[
     { type:'img', name:'结算单.png' },
     { type:'docx', name:'其他补充说明.docx' }
   ]}

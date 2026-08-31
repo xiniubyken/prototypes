@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>审批-二次批价</title>
+<title>管理端-二次批价审批页</title>
 <style>
 :root{
   --primary:#3b5998; --primary-light:#4a72c3;
@@ -1656,7 +1656,7 @@ function renderEquipList() {
     var origPriceFmt = eq.origPrice ? '¥' + eq.origPrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     // 非标行特殊渲染
-    var cateHtml, nameHtml, modelHtml, estimateHtml, opHtml, nonstdBadgeHtml, skuHtml, idHtml, effectiveOnlinePrice, approvePriceHtml, rangeHtml;
+    var cateHtml, nameHtml, modelHtml, estimateHtml, opHtml, nonstdBadgeHtml, skuHtml, idHtml, effectiveOnlinePrice, approvePriceHtml, rangeHtml, onlinePriceHtml;
     if(eq.isNonStd && eq.isBound) {
       // === 已绑定态：只读展示真实商品 + 双行型号 ===
       cateHtml = '<span>' + (eq.boundProductCate || eq.cate) + '</span>';
@@ -1700,6 +1700,12 @@ function renderEquipList() {
       opHtml = '<a onclick="delEquipRow(this)">删除</a>';
     }
     var newOnlinePriceFmt = effectiveOnlinePrice ? '¥' + effectiveOnlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
+    // 挂网价列：非标未绑定=输入框(1~9999999)；标准行/已绑定非标=只读展示
+    if(eq.isNonStd && !eq.isBound){
+      onlinePriceHtml = '<td data-col="onlinePrice"><input class="td-input td-num equip-online-price" type="number" value="' + (eq.onlinePrice || '') + '" min="1" max="9999999" style="width:78px;" placeholder="输入挂网价"></td>';
+    } else {
+      onlinePriceHtml = '<td style="color:#1f2329;" data-col="onlinePrice">' + newOnlinePriceFmt + '</td>';
+    }
     tr.innerHTML =
       '<td style="text-align:center;" data-col="checkbox"><input type="checkbox" class="row-cb" onchange="onRowCheck()"></td>' +
       '<td style="text-align:center;color:#8f959e;" data-col="seq">' + (i+1) + '</td>' +
@@ -1718,7 +1724,7 @@ function renderEquipList() {
       rangeHtml +
       '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '--') + '</td>' +
       '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="' + eq.depositRate + '" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
-      '<td style="color:#1f2329;" data-col="onlinePrice">' + newOnlinePriceFmt + '</td>' +
+      onlinePriceHtml +
       estimateHtml.replace('<td', '<td data-col="estimate"') +
       '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填..." value="' + (eq.remark !== '--' ? eq.remark : '') + '"></td>' +
       '<td class="td-op" data-col="op">' + opHtml + '</td>';
@@ -1883,7 +1889,7 @@ function addNonStdRow() {
     '<td style="font-size:12px;color:#8f959e;" data-col="range">--</td>' +
     '<td style="color:#1f2329;" data-col="resetPoint">--</td>' +
     '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="10" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
-    '<td style="color:#1f2329;" data-col="onlinePrice">--</td>' +
+    '<td data-col="onlinePrice"><input class="td-input td-num equip-online-price" type="number" min="1" max="9999999" style="width:78px;" placeholder="输入挂网价"></td>' +
     '<td style="font-size:12px;color:#8f959e;" data-col="estimate" class="equip-estimate-txt">待绑定商品后填写</td>' +
     '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填备注..."></td>' +
     '<td class="td-op" data-col="op"><a class="btn-bind-link" onclick="openBindModalForNew(this)">绑定</a><a onclick="delEquipRow(this)" style="margin-left:6px;">删除</a></td>';

@@ -247,6 +247,22 @@ function showToast(msg, type) {
 /* ===== 返回 =====*/
 function goBack() { showToast('返回列表页','success'); }
 
+
+/* ====== 审批流程弹窗 ====== */
+function openApprovalFlowModal(){
+  var o=document.getElementById('afOverlay');
+  o.style.display='flex';
+  switchAfTab('flow',document.querySelector('.af-tab[data-tab="flow"]'));
+}
+function closeApprovalFlowModal(){
+  document.getElementById('afOverlay').style.display='none';
+}
+function switchAfTab(tabName,btnEl){
+  document.querySelectorAll('.af-tab').forEach(function(t){t.classList.remove('active');});
+  if(btnEl) btnEl.classList.add('active');
+  document.getElementById('afFlowPanel').style.display=tabName==='flow'?'block':'none';
+  document.getElementById('afNodePanel').style.display=tabName==='node'?'block':'none';
+}
 </script>
 <!-- ========== 底部操作栏 ==========-->
 <div class="approval-footer">

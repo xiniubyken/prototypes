@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>审批-非跨区登录</title>
+<title>管理端-批价单审批页</title>
 <style>
 :root{
   --primary:#3b5998; --primary-light:#4a72c3;
@@ -651,7 +651,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="cert-card-body">
         <label class="form-label" style="display:block;font-size:12px;color:#646a73;margin-bottom:6px;">项目凭证备注</label>
         <div class="cert-note">
-          <textarea placeholder="请输入项目凭证备注说明（选填）..." style="width:100%;padding:8px 10px;border:1px solid #e0e3ea;border-radius:4px;font-size:13px;outline:none;resize:vertical;line-height:1.5;box-sizing:border-box;background:#fff;min-height:60px;">本项目为某商业综合体空调改造项目，合同扫描件、项目信息说明及发票凭证详见上传附件，其中第3项发票凭证(已开)的扫描件预计本周五补齐。</textarea>
+          <textarea placeholder="请输入项目凭证备注说明（选填）..." style="width:100%;padding:8px 10px;border:1px solid #e0e3ea;border-radius:4px;font-size:13px;outline:none;resize:vertical;line-height:1.5;box-sizing:border-box;background:#fff;min-height:60px;">本项目为某商业综合体空调改造项目，合同扫描件、项目进度说明及发票凭证详见上传附件，其中第3项发票凭证（已付）的扫描件预计本周五补齐。</textarea>
         </div>
         <div class="cert-list" id="certList">
           <!-- 由 JS 动态渲染 -->
@@ -1691,7 +1691,7 @@ function renderEquipList() {
     // 金额格式化
     var onlinePriceFmt = eq.onlinePrice ? '¥' + eq.onlinePrice.toLocaleString('zh-CN',{minimumFractionDigits:2}) : '--';
     // 非标行特殊渲染：品类下拉、名称固定、型号输入框
-    var cateHtml, nameHtml, modelHtml, estimateHtml, approvePriceHtml, rangeHtml;
+    var cateHtml, nameHtml, modelHtml, estimateHtml, approvePriceHtml, rangeHtml, onlinePriceHtml;
     if(eq.isNonStd) {
       var cateOpts = ['中央空调','多联机','新风','冷水机组','精密空调','机房空调'];
       cateHtml = '<select class="td-select" style="width:70px;">';
@@ -1702,6 +1702,7 @@ function renderEquipList() {
       estimateHtml = '<td style="font-size:12px;color:#8f959e;" class="equip-estimate-txt">待绑定商品后填写</td>';
       approvePriceHtml = '<td style="font-size:12px;color:#8f959e;" class="equip-estimate-txt" data-col="approvePrice">待绑定商品后填写</td>';
       rangeHtml = '<td style="font-size:12px;color:#8f959e;" data-col="range">--</td>';
+      onlinePriceHtml = '<td data-col="onlinePrice"><input class="td-input td-num equip-online-price" type="number" value="' + (eq.onlinePrice || '') + '" min="1" max="9999999" style="width:78px;" placeholder="输入挂网价"></td>';
     } else {
       cateHtml = '<span>' + eq.cate + '</span>';
       nameHtml = '<span style="color:#1f2329;">' + eq.name + '</span>';
@@ -1709,6 +1710,7 @@ function renderEquipList() {
       estimateHtml = '<td><input class="td-input td-num equip-estimate-input" type="number" value="' + (eq.estimatePrice || 0) + '" min="0" step="0.01" style="width:70px;"></td>';
       approvePriceHtml = '<td data-col="approvePrice"><input class="td-input td-num equip-approve-price" type="number" value="' + eq.approvePrice + '" min="0" step="0.01" style="width:78px;" onchange="recalcSummary()"></td>';
       rangeHtml = '<td style="color:#1f2329;font-size:12px;" data-col="range">' + (eq.range || '--') + '</td>';
+      onlinePriceHtml = '<td style="color:#1f2329;" data-col="onlinePrice">' + onlinePriceFmt + '</td>';
     }
     tr.innerHTML =
       '<td style="text-align:center;" data-col="checkbox"><input type="checkbox" class="row-cb" onchange="onRowCheck()"></td>' +
@@ -1726,7 +1728,7 @@ function renderEquipList() {
       rangeHtml +
       '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '--') + '</td>' +
       '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="' + eq.depositRate + '" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
-      '<td style="color:#1f2329;" data-col="onlinePrice">' + onlinePriceFmt + '</td>' +
+      onlinePriceHtml +
       estimateHtml.replace('<td', '<td data-col="estimate"') +
       '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填..." value="' + (eq.remark !== '--' ? eq.remark : '') + '"></td>' +
       '<td class="td-op" data-col="op"><a onclick="delEquipRow(this)">删除</a></td>';
@@ -1805,7 +1807,7 @@ function addNonStdRow() {
     '<td style="font-size:12px;color:#8f959e;" data-col="range">--</td>' +
     '<td style="color:#1f2329;" data-col="resetPoint">--</td>' +
     '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="10" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
-    '<td style="color:#1f2329;" data-col="onlinePrice">--</td>' +
+    '<td data-col="onlinePrice"><input class="td-input td-num equip-online-price" type="number" min="1" max="9999999" style="width:78px;" placeholder="输入挂网价"></td>' +
     '<td style="font-size:12px;color:#8f959e;" data-col="estimate" class="equip-estimate-txt">待绑定商品后填写</td>' +
     '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填备注..."></td>' +
     '<td class="td-op" data-col="op"><a onclick="delEquipRow(this)">删除</a></td>';
@@ -2026,7 +2028,7 @@ var certData = [
   { label:'中标通知书', required:true, files:[
     { type:'pdf', name:'中标通知书_格力商用工程.pdf' }
   ]},
-  { label:'评标/询价/成交通知书', required:true, files:[
+  { label:'采购订单/成交通知书', required:true, files:[
     { type:'pdf', name:'评标报告.pdf' },
     { type:'docx', name:'询价记录(供应商回执).docx' }
   ]},
@@ -2034,14 +2036,14 @@ var certData = [
   { label:'区域授权函', required:true, files:[
     { type:'xls', name:'区域授权函_附件.xls' }
   ]},
-  { label:'项目信息说明', required:true, files:[
+  { label:'项目进度说明', required:true, files:[
     { type:'docx', name:'项目概况说明.docx' }
   ]},
-  { label:'发票凭证(已开/未开)', required:false, files:[
+  { label:'发票凭证（已付/未付）', required:false, files:[
     { type:'img', name:'发票_已开.png' },
     { type:'docx', name:'发票清单.docx' }
   ]},
-  { label:'验收报告(部分/最终)', required:false, files:[
+  { label:'验收报告（阶段性/最终）', required:false, files:[
     { type:'img', name:'验收报告_首页.png' },
     { type:'docx', name:'验收报告_完整版.docx' }
   ]},
@@ -2049,19 +2051,19 @@ var certData = [
     { type:'img', name:'技术方案确认书.png' },
     { type:'docx', name:'技术方案.docx' }
   ]},
-  { label:'合码文件', required:false, files:[
-    { type:'img', name:'合码确认.png' },
-    { type:'docx', name:'合码说明.docx' }
+  { label:'条码文件', required:false, files:[
+    { type:'img', name:'条码确认.png' },
+    { type:'docx', name:'条码说明.docx' }
   ]},
   { label:'工程图纸', required:false, files:[
     { type:'img', name:'图纸-平面图.png' },
     { type:'docx', name:'图纸说明.docx' }
   ]},
-  { label:'资质材料', required:false, files:[
+  { label:'招投标材料', required:false, files:[
     { type:'img', name:'资质证书.png' },
     { type:'docx', name:'资质说明.docx' }
   ]},
-  { label:'*解算其他附件', required:true, files:[
+  { label:'销司其他附件', required:true, files:[
     { type:'img', name:'结算单.png' },
     { type:'docx', name:'其他补充说明.docx' }
   ]}

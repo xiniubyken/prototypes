@@ -488,7 +488,7 @@ function previewFile(index) {
   var reader = new FileReader();
   reader.onload = function(e) {
     var w = window.open('', '_blank', 'width=800,height=600');
-    w.document.write('<html><head><title>图片预览</title><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#333;}img{max-width:100%;max-height:100vh;object-fit:contain;}</style></head><body><img src="' + e.target.result + '" alt="预览"></body></html>');
+    w.document.write('<html><head><title>用户端-新建登录延期</title><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#333;}img{max-width:100%;max-height:100vh;object-fit:contain;}</style></head><body><img src="' + e.target.result + '" alt="预览"></body></html>');
     w.document.close();
   };
   reader.readAsDataURL(file);
