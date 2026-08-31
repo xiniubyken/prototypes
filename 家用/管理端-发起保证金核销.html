@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>总部管理端-发起保证金核销（返还保证金+收差扣款）</title>
+<title>管理端-发起保证金核销</title>
 <style>
 :root{
   --primary:#3b5998; --primary-light:#4a72c3;
@@ -231,6 +231,19 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.success .t-icon{color:var(--success);}
 .toast.error .t-icon{color:var(--danger);}
+/* ====== 字段注释抽屉（新增，标 col-new） ====== */
+.note-fab{position:fixed;right:16px;bottom:120px;width:44px;height:44px;border-radius:50%;background:#3b5998;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.note-fab:hover{background:#2f4a80;}
+.note-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1001;display:none;}
+.note-overlay.show{display:block;}
+.note-drawer{position:fixed;top:0;right:-380px;width:360px;height:100%;background:#fff;z-index:1002;box-shadow:-2px 0 12px rgba(0,0,0,.2);transition:right .25s;overflow-y:auto;}
+.note-drawer.show{right:0;}
+.note-head{position:sticky;top:0;background:#3b5998;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;z-index:1;}
+.note-close{cursor:pointer;background:none;border:none;color:#fff;font-size:16px;}
+.note-body{padding:12px 16px;}
+.note-item{margin-bottom:10px;}
+.note-item .ni-name{font-weight:600;font-size:13px;color:#3b5998;}
+.note-item .ni-desc{font-size:12px;color:#555;line-height:1.6;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -254,7 +267,7 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
     <div class="copy-tip" id="copyTip">📋 <b>复制并新建：</b>已按原单带入填写信息/附件/备注，订单数据按当前额度重算，可修改后提交；原单保持「已驳回」。</div>
 
     <!-- ====== 演示提示条 ====== -->
-    <div class="demo-tip">💡 <b>演示引导：</b>SKU「天行IT资质单元机」已预填 <b>合格4台 + 不合格11台</b>（合计15=剩余可核销数量），看下方订单行如何<b>跨行递扣分配</b>（合格→订单行1分2、订单行2分2；不合格→订单行2分3、订单行3分8）。所有数字可修改，试试超限输入：<b>输入过程标红提示，失焦自动修正到上限</b>。</div>
+    <div class="demo-tip">💡 <b>演示引导：</b>SKU「天井机变频1」已预填 <b>合格2台 + 不合格2台</b>（合计4=剩余可核销数量），看下方订单行如何<b>递扣分配</b>（合格→订单行1分2；不合格→订单行2分2）。所有数字可修改，试试超限输入：<b>输入过程标红提示，失焦自动修正到上限</b>。</div>
 
     <!-- ====== 汇总信息栏 ====== -->
     <div class="form-card">
@@ -262,16 +275,16 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
       <div class="summary-grid">
         <div class="sum-row">
           <div class="sum-card">
-            <div><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumReceived">¥5,800.00</div></div>
+            <div><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumReceived">¥148,000.00</div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">方案已返还保证金金额</div><div class="sum-value money" id="sumRefunded">¥1,150.00</div></div>
+            <div><div class="sum-label">方案已返还保证金金额</div><div class="sum-value money" id="sumRefunded">¥6,000.00</div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">方案已收差保证金金额</div><div class="sum-value money" id="sumDeducted">¥700.00</div></div>
+            <div><div class="sum-label">方案已收差保证金金额</div><div class="sum-value money" id="sumDeducted">¥1,000.00</div></div>
           </div>
           <div class="sum-card">
-            <div><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumPending">¥3,950.00</div></div>
+            <div><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumPending">¥141,000.00</div></div>
           </div>
         </div>
         <div class="sum-row">
@@ -407,49 +420,48 @@ textarea.form-ctrl::placeholder{color:#c0c4cc;}
 <script>
 /* ==================== 演示数据 ==================== */
 // SKU数据：price=保证金单价(元/台)，剩余可核销数量=已开单-累计合格-累计收差-审批中数量
-// 演示模型（自洽）：已收取5800 = 50×80+40×30+30×20+0×10
-//                已返还1150 = 15×50+10×40；已收差700 = 10×50+5×40；待处理3950 = 5800-1150-700
-//                剩余可核销90 = 55+15+20（单价0的SKU4不计）；本次15（预填4+11）；提交后剩余75
+// 演示模型（自洽，与汇总页同口径）：已收取148000 = 1000×50+2000×30+1500×20+800×10（已采购×单价）
+//                已返还6000 = 4×1000+1×2000；已收差1000 = 1×1000；待处理141000 = 148000-6000-1000
+//                剩余可核销17 = 5+4+8（单价0的SKU4不计）；本次4（预填合格2+不合格2）；提交后剩余13
 const SKUS = [
-  {id:1, name:'清悉贝茨空调螺机',  model:'KFR-35GW', sku:'KB5410019000', type:'特价机', purchased:500, ordered:80, bought:80, spreadable:0,   price:50, cumQual:15, cumDeduct:10, pending:0, q:0,  uq:0},
-  {id:2, name:'天行IT资质单元机',  model:'KFR-455W', sku:'KB5410019001', type:'资源机', purchased:300, ordered:30, bought:20, spreadable:10, price:40, cumQual:10, cumDeduct:5,  pending:0, q:4,  uq:11},
-  {id:3, name:'安顿组织器多联机',  model:'KFR-380W', sku:'KB5410019002', type:'配提机', purchased:200, ordered:20, bought:15, spreadable:5,  price:30, cumQual:0,  cumDeduct:0,  pending:0, q:0,  uq:0},
-  {id:4, name:'清悉贝茨标准分体机', model:'KFR-05GW', sku:'KB5410019003', type:'配提机', purchased:100, ordered:10, bought:10, spreadable:0,  price:0,  cumQual:0,  cumDeduct:0,  pending:0, q:0,  uq:0},
+  {id:1, name:'清柔风变频壁挂机',  model:'KFR-35GW', sku:'KB541001600', type:'特价机', purchased:50, ordered:10, bought:6, spreadable:4,   price:1000, cumQual:4, cumDeduct:1, pending:0, q:0,  uq:0},
+  {id:2, name:'天井机变频1',     model:'KFR-65GW', sku:'KB541001601', type:'资源机', purchased:30, ordered:5,  bought:3, spreadable:2,   price:2000, cumQual:1, cumDeduct:0, pending:0, q:2,  uq:2},
+  {id:3, name:'变频柜机2级280',  model:'KFR-38GW', sku:'KB541001602', type:'配提机', purchased:20, ordered:8,  bought:2, spreadable:6,   price:1500, cumQual:0, cumDeduct:0, pending:0, q:0,  uq:0},
+  {id:4, name:'清柔风变频壁挂机', model:'KFR-05GW', sku:'KB541001603', type:'配提机', purchased:10, ordered:6,  bought:1, spreadable:5,   price:800,  cumQual:0, cumDeduct:0, pending:0, q:0,  uq:0},
 ];
 
 // 订单行数据：qty=已开单数量, hQual=历史累计合格(审批通过即计入), hDeduct=历史累计收差(审批通过即计入)；金额由执行完成回写
 // 说明：只展示订单行号 = 订单号 + 流水号（如 DD2026071000101 = 订单 DD20260710001 + 流水 01），全局唯一
-// SKU2三行：剩余额度2/5/8（合计15=SKU剩余可核销数量）→ 合格4跨行递扣(行01分2/行02分2)，不合格11跨行递扣(行02分3/行03分8)
+// SKU2两行：剩余额度2/2（合计4=SKU剩余可核销数量）→ 合格2递扣(行01分2)，不合格2递扣(行02分2)
 const ORDERS = {
   1: [
-    {lineNo:'DD2026061500101', date:'2026-06-15', qty:50, hQual:15, hDeduct:10},
-    {lineNo:'DD2026062000101', date:'2026-06-20', qty:30, hQual:0,  hDeduct:0},
+    {lineNo:'DD2026061500101', date:'2026-06-15', qty:6, hQual:4, hDeduct:1},
+    {lineNo:'DD2026062000101', date:'2026-06-20', qty:4, hQual:0, hDeduct:0},
   ],
   2: [
-    {lineNo:'DD2026071000101', date:'2026-07-10', qty:12, hQual:10, hDeduct:0},
-    {lineNo:'DD2026071000102', date:'2026-07-10', qty:10, hQual:0,  hDeduct:5},
-    {lineNo:'DD2026072200101', date:'2026-07-22', qty:8,  hQual:0,  hDeduct:0},
+    {lineNo:'DD2026071000101', date:'2026-07-10', qty:3, hQual:1, hDeduct:0},
+    {lineNo:'DD2026071000102', date:'2026-07-10', qty:2, hQual:0, hDeduct:0},
   ],
   3: [
-    {lineNo:'DD2026072500101', date:'2026-07-25', qty:20, hQual:0, hDeduct:0},
+    {lineNo:'DD2026072500101', date:'2026-07-25', qty:8, hQual:0, hDeduct:0},
   ],
   4: [
-    {lineNo:'DD2026072800101', date:'2026-07-28', qty:10, hQual:0, hDeduct:0},
+    {lineNo:'DD2026072800101', date:'2026-07-28', qty:6, hQual:0, hDeduct:0},
   ],
 };
 
-// 历史单据：已完结2条合计 返还1150=750+400 / 收差700=500+200（与汇总卡已返还/已收差对平）
+// 历史单据：已完结2条合计 返还6000=4000+2000 / 收差1000（与汇总卡已返还/已收差对平）
 // 已驳回1条：额度已释放，可「重新提交」改原单
 const HIST = [
-  {no:'BHHX20260720001', time:'2026-07-20 14:32', user:'钟日健', q:15, uq:10, refund:750, deduct:500, status:'已完结', detail:[
-    {name:'清悉贝茨空调螺机', model:'KFR-35GW', lineNo:'DD2026061500101', q:15, uq:10, refund:750, deduct:500},
+  {no:'BHHX20260720001', time:'2026-07-20 14:32', user:'钟日健', q:4, uq:0, refund:4000, deduct:0, status:'已完结', detail:[
+    {name:'清柔风变频壁挂机', model:'KFR-35GW', lineNo:'DD2026061500101', q:4, uq:0, refund:4000, deduct:0},
   ]},
-  {no:'BHHX20260725002', time:'2026-07-25 09:15', user:'钟日健', q:10, uq:5, refund:400, deduct:200, status:'已完结', detail:[
-    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026071000101', q:10, uq:0, refund:400, deduct:0},
-    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026071000102', q:0,  uq:5, refund:0,   deduct:200},
+  {no:'BHHX20260725002', time:'2026-07-25 09:15', user:'钟日健', q:1, uq:1, refund:2000, deduct:1000, status:'已完结', detail:[
+    {name:'天井机变频1', model:'KFR-65GW', lineNo:'DD2026071000101', q:1, uq:0, refund:2000, deduct:0},
+    {name:'清柔风变频壁挂机', model:'KFR-35GW', lineNo:'DD2026061500101', q:0, uq:1, refund:0, deduct:1000},
   ]},
-  {no:'BHHX20260728003', time:'2026-07-28 16:40', user:'钟日健', q:5, uq:0, refund:200, deduct:0, status:'已驳回', reason:'合格数量与质检报告不符，请核对后重新提交', detail:[
-    {name:'天行IT资质单元机', model:'KFR-455W', lineNo:'DD2026072200101', q:5, uq:0, refund:200, deduct:0},
+  {no:'BHHX20260728003', time:'2026-07-28 16:40', user:'钟日健', q:2, uq:0, refund:2000, deduct:0, status:'已驳回', reason:'合格数量与质检报告不符，请核对后重新提交', detail:[
+    {name:'天井机变频1', model:'KFR-65GW', lineNo:'DD2026071000102', q:2, uq:0, refund:2000, deduct:0},
   ]},
 ];
 
@@ -458,7 +470,7 @@ const remain = sku => sku.ordered - sku.cumQual - sku.cumDeduct - (sku.pending||
 
 /* ==================== 汇总卡片（静态自洽 + 本次/待核销动态联动） ==================== */
 (function initSummary(){
-  const received = SKUS.reduce((s,k)=>s+k.price*k.ordered,0);
+  const received = SKUS.reduce((s,k)=>s+k.price*k.purchased,0);
   const refunded = SKUS.reduce((s,k)=>s+k.price*k.cumQual,0);
   const deducted = SKUS.reduce((s,k)=>s+k.price*k.cumDeduct,0);
   document.getElementById('sumReceived').textContent = fmt(received);
@@ -514,7 +526,7 @@ function renderSkuTable(){
       <td>${k.bought}</td>
       <td>${k.spreadable}</td>
       <td class="col-new td-strong">${k.price}</td>
-      <td class="col-new td-money">${fmt(k.price*k.ordered)}</td>
+      <td class="col-new td-money">${fmt(k.price*k.purchased)}</td>
       <td class="td-green">${k.cumQual}</td>
       <td class="td-red">${k.cumDeduct}</td>
       <td class="td-strong">${r}</td>
@@ -899,6 +911,35 @@ function getParam(name){
 if(getParam('copy')){ document.getElementById('copyTip').style.display = 'flex'; }
 renderAll();
 fetchInvoice();
+/* ==================== 字段注释抽屉（新增，标 col-new） ==================== */
+const FIELD_NOTES = [
+  {name:'方案已收取保证金总额', desc:'Σ(保证金单价 × 项目已采购数量)，采购即已收取。'},
+  {name:'方案已返还保证金金额', desc:'FMS 返还完成回写合计（金额执行完成才计入）。'},
+  {name:'方案已收差保证金金额', desc:'FMS 收差完成回写合计（金额执行完成才计入）。'},
+  {name:'方案待处理保证金金额', desc:'已收取 − 已返还 − 已收差。'},
+  {name:'方案剩余可核销总数', desc:'Σ各SKU剩余可核销数量（单价0不计）；剩余 = 已开单 − 累计合格 − 累计收差 − 审批中。'},
+  {name:'本次提交核销总数', desc:'Σ各SKU本次填写（合格数量+不合格数量）。'},
+  {name:'提交后剩余可核销总数', desc:'方案剩余可核销总数 − 本次提交核销。'},
+  {name:'项目已开单数量', desc:'ERP 开单数量（计算基数），与付款保证金无关。'},
+  {name:'累计合格数量', desc:'审批通过完结的合格台数。'},
+  {name:'累计收差数量', desc:'审批通过完结的不合格台数。'},
+  {name:'订单行剩余可核销数量', desc:'该行已开单 − 历史累计合格 − 历史累计收差。'},
+  {name:'本次合格/不合格（系统分配）', desc:'先合格后不合格，按订单行下单时间先后递扣，每行上限=该行剩余额度；不合格只占合格未占的剩余。'},
+];
+function toggleNotes(){
+  const o = document.getElementById('noteOverlay'), d = document.getElementById('noteDrawer');
+  const show = !d.classList.contains('show');
+  o.classList.toggle('show', show);
+  d.classList.toggle('show', show);
+  if(show) document.getElementById('noteBody').innerHTML = FIELD_NOTES.map(n=>'<div class="note-item"><div class="ni-name">'+n.name+'</div><div class="ni-desc">'+n.desc+'</div></div>').join('');
+}
 </script>
+<!-- ====== 字段注释抽屉（新增，标 col-new） ====== -->
+<div class="note-fab" onclick="toggleNotes()" title="字段注释">?</div>
+<div class="note-overlay" id="noteOverlay" onclick="toggleNotes()"></div>
+<div class="note-drawer" id="noteDrawer">
+  <div class="note-head"><span>字段注释</span><button class="note-close" onclick="toggleNotes()">✕</button></div>
+  <div class="note-body" id="noteBody"></div>
+</div>
 </body>
 </html>
