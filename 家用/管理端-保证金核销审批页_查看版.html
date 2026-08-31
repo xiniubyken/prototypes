@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>保证金核销审批（查看版）</title>
+<title>管理端-保证金核销审批页_查看版</title>
 <style>
 :root{
   --primary:#3b5998; --primary-light:#4a72c3;
@@ -142,6 +142,19 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .col-new .doc-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
 .col-new .doc-table tr:last-child td{border-bottom:none;}
 .col-new .doc-empty{padding:14px;text-align:center;color:var(--text-aux);font-size:12px;background:var(--bg);border:1px dashed var(--border);border-radius:0 0 4px 4px;}
+/* ====== 字段注释抽屉（新增，标 col-new） ====== */
+.note-fab{position:fixed;right:16px;bottom:120px;width:44px;height:44px;border-radius:50%;background:#3b5998;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.note-fab:hover{background:#2f4a80;}
+.note-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1001;display:none;}
+.note-overlay.show{display:block;}
+.note-drawer{position:fixed;top:0;right:-380px;width:360px;height:100%;background:#fff;z-index:1002;box-shadow:-2px 0 12px rgba(0,0,0,.2);transition:right .25s;overflow-y:auto;}
+.note-drawer.show{right:0;}
+.note-head{position:sticky;top:0;background:#3b5998;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;z-index:1;}
+.note-close{cursor:pointer;background:none;border:none;color:#fff;font-size:16px;}
+.note-body{padding:12px 16px;}
+.note-item{margin-bottom:10px;}
+.note-item .ni-name{font-weight:600;font-size:13px;color:#3b5998;}
+.note-item .ni-desc{font-size:12px;color:#555;line-height:1.6;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -386,7 +399,7 @@ function renderSubmitDocs(){
     const {lines} = allocate(k);
     lines.forEach(l=>{
       if(l.allocQ){ refundRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocQ, amt:l.allocQ*k.price}); }
-      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocUQ, amt:l.allocUQ*k.price}); }
+      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocUQ, amt:l.allocUQ*k.price, inv:deductRows.length===0?'FP202608140001':''}); }
     });
   });
   const refundNo='BFH0120260723001', deductNo='BSC0120260723001';
@@ -399,7 +412,7 @@ function renderSubmitDocs(){
       <span class="doc-no">${no}</span>
       <span class="doc-summary">共 ${rows.length} 行 · 合计 ${rows.reduce((s,r)=>s+r.q,0)} 台</span></div>
       <table class="doc-table"><thead><tr>
-        <th>${cls==='refund'?'返还单':'收差单'}行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>${qLabel}</th><th>${cls==='refund'?'返还':'收差'}金额</th>
+        <th>${cls==='refund'?'返还单':'收差单'}行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>${qLabel}</th><th>${cls==='refund'?'返还':'收差'}金额</th>${cls==='deduct'?'<th>发票单号</th>':''}
       </tr></thead><tbody>
       ${rows.map((r,i)=>`<tr>
         <td class="td-strong">${no}${String(i+1).padStart(3,'0')}</td>
@@ -407,7 +420,7 @@ function renderSubmitDocs(){
         <td class="td-left">${r.name} ${r.model}</td>
         <td class="td-gray">${r.sku}</td>
         <td class="${nameCls}">${r.q}</td>
-        <td class="${amtCls}">${fmt(r.amt)}</td>
+        <td class="${amtCls}">${fmt(r.amt)}</td>${cls==='deduct'?`<td class="td-gray">${r.inv||'--'}</td>`:''}
       </tr>`).join('')}
       </tbody></table>`;
   };
@@ -498,6 +511,32 @@ function renderRecord(){
   renderAttach();
   renderRecord();
 })();
+/* ==================== 字段注释抽屉（新增，标 col-new） ==================== */
+const FIELD_NOTES = [
+  {name:'返还保证金合计', desc:'Σ SKU 返还金额（合格数量 × 保证金单价）。'},
+  {name:'收差扣款合计', desc:'Σ SKU 收差金额（不合格数量 × 保证金单价）。'},
+  {name:'涉及保证金总额', desc:'返还 + 收差。'},
+  {name:'本次合格（系统分配）', desc:'合格数量按订单行下单时间先后递扣，每行上限=该行剩余额度。'},
+  {name:'本次不合格（系统分配）', desc:'合格分完后，不合格按行序只占未被合格占用的剩余额度。'},
+  {name:'订单行剩余可核销数量', desc:'该行已开单 − 历史累计合格 − 历史累计收差。'},
+  {name:'审批记录', desc:'按实际发生逐条追加，只展示已处理 + 当前节点。'},
+  {name:'当次提交单据', desc:'提交时生成 BFH/BSC 单，随核销单一并审批；发票单号不在此展示。'},
+  {name:'查看版·只读', desc:'本页为审批快照只读展示，无审批操作区。'},
+];
+function toggleNotes(){
+  const o = document.getElementById('noteOverlay'), d = document.getElementById('noteDrawer');
+  const show = !d.classList.contains('show');
+  o.classList.toggle('show', show);
+  d.classList.toggle('show', show);
+  if(show) document.getElementById('noteBody').innerHTML = FIELD_NOTES.map(n=>'<div class="note-item"><div class="ni-name">'+n.name+'</div><div class="ni-desc">'+n.desc+'</div></div>').join('');
+}
 </script>
+<!-- ====== 字段注释抽屉（新增，标 col-new） ====== -->
+<div class="note-fab" onclick="toggleNotes()" title="字段注释">?</div>
+<div class="note-overlay" id="noteOverlay" onclick="toggleNotes()"></div>
+<div class="note-drawer" id="noteDrawer">
+  <div class="note-head"><span>字段注释</span><button class="note-close" onclick="toggleNotes()">✕</button></div>
+  <div class="note-body" id="noteBody"></div>
+</div>
 </body>
 </html>
