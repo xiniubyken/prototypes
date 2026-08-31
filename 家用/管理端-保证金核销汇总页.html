@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>保证金核销汇总（总部管理端）</title>
+<title>管理端-保证金核销汇总页</title>
 <style>
 :root{
   --primary:#3b5998; --primary-light:#4a72c3;
@@ -89,6 +89,19 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .toast.success .t-icon{color:var(--success);}
 .toast.error .t-icon{color:var(--danger);}
 .toast.info .t-icon{color:var(--primary);}
+/* ====== 字段注释抽屉（新增，标 col-new） ====== */
+.note-fab{position:fixed;right:16px;bottom:120px;width:44px;height:44px;border-radius:50%;background:#3b5998;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:1000;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.note-fab:hover{background:#2f4a80;}
+.note-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1001;display:none;}
+.note-overlay.show{display:block;}
+.note-drawer{position:fixed;top:0;right:-380px;width:360px;height:100%;background:#fff;z-index:1002;box-shadow:-2px 0 12px rgba(0,0,0,.2);transition:right .25s;overflow-y:auto;}
+.note-drawer.show{right:0;}
+.note-head{position:sticky;top:0;background:#3b5998;color:#fff;padding:12px 16px;font-size:14px;font-weight:600;display:flex;justify-content:space-between;align-items:center;z-index:1;}
+.note-close{cursor:pointer;background:none;border:none;color:#fff;font-size:16px;}
+.note-body{padding:12px 16px;}
+.note-item{margin-bottom:10px;}
+.note-item .ni-name{font-weight:600;font-size:13px;color:#3b5998;}
+.note-item .ni-desc{font-size:12px;color:#555;line-height:1.6;margin-top:2px;}
 </style>
 </head>
 <body>
@@ -104,15 +117,15 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
       <div class="fc-body">
         <div class="summary-grid">
           <div class="sum-row">
-            <div class="sum-cell"><div class="sum-label">方案需核销总数</div><div class="sum-value" id="sumTotalQty">1000<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
-            <div class="sum-cell"><div class="sum-label">方案已核销总数（审批通过）</div><div class="sum-value green" id="sumPassedQty">500<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
-            <div class="sum-cell"><div class="sum-label">方案待核销总数</div><div class="sum-value" id="sumPendingQty">500<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
-            <div class="sum-cell"><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumAmount">¥300,000.00</div></div>
+            <div class="sum-cell"><div class="sum-label">方案需核销总数</div><div class="sum-value" id="sumTotalQty">29<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
+            <div class="sum-cell"><div class="sum-label">方案已核销总数（审批通过）</div><div class="sum-value green" id="sumPassedQty">6<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
+            <div class="sum-cell"><div class="sum-label">方案待核销总数</div><div class="sum-value" id="sumPendingQty">18<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
+            <div class="sum-cell"><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumAmount">¥148,000.00</div></div>
           </div>
           <div class="sum-row">
-            <div class="sum-cell"><div class="sum-label">方案已返还保证金金额</div><div class="sum-value green" id="sumRefund">¥30,000.00</div></div>
-            <div class="sum-cell"><div class="sum-label">方案已收差保证金金额</div><div class="sum-value red" id="sumDeduct">¥6,000.00</div></div>
-            <div class="sum-cell"><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumHandling">¥264,000.00</div></div>
+            <div class="sum-cell"><div class="sum-label">方案已返还保证金金额</div><div class="sum-value green" id="sumRefund">¥6,000.00</div></div>
+            <div class="sum-cell"><div class="sum-label">方案已收差保证金金额</div><div class="sum-value red" id="sumDeduct">¥1,000.00</div></div>
+            <div class="sum-cell"><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumHandling">¥141,000.00</div></div>
           </div>
         </div>
       </div>
@@ -145,7 +158,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
           <table class="tbl tbl-bill">
             <thead><tr>
               <th>核销单号</th><th>申请时间</th><th>审批状态</th><th>合格数量</th><th>不合格数量</th>
-              <th>已返还金额</th><th>已收差金额</th><th>操作</th>
+              <th>应返还金额</th><th>已返还金额</th><th>应收差金额</th><th>已收差金额</th><th>操作</th>
             </tr></thead>
             <tbody id="billBody"></tbody>
           </table>
@@ -167,32 +180,32 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 <script>
 /* 演示数据承接图片提取初稿：方案 GCTP2620260723001 */
 const SKUS = [
-  {id:1, name:'清柔风变频壁挂机', model:'KFR-35GW', sku:'KB541001600', type:'特价机', purchased:50, ordered:10, bought:6,  price:1000, cumQ:4, cumU:1, pending:0, remain:5, refund:4000, deduct:1000},
-  {id:2, name:'天井机变频1',     model:'KFR-65GW', sku:'KB541001601', type:'资源机', purchased:30, ordered:5,  bought:3,  price:2000, cumQ:1, cumU:0, pending:0, remain:4, refund:2000, deduct:0},
+  {id:1, name:'清柔风变频壁挂机', model:'KFR-35GW', sku:'KB541001600', type:'特价机', purchased:50, ordered:10, bought:6,  price:1000, cumQ:4, cumU:1, pending:2, remain:3, refund:4000, deduct:1000},
+  {id:2, name:'天井机变频1',     model:'KFR-65GW', sku:'KB541001601', type:'资源机', purchased:30, ordered:5,  bought:3,  price:2000, cumQ:1, cumU:0, pending:3, remain:1, refund:2000, deduct:0},
   {id:3, name:'变频柜机2级280',  model:'KFR-38GW', sku:'KB541001602', type:'配提机', purchased:20, ordered:8,  bought:2,  price:1500, cumQ:0, cumU:0, pending:0, remain:8, refund:0, deduct:0},
   {id:4, name:'清柔风变频壁挂机', model:'KFR-05GW', sku:'KB541001603', type:'配提机', purchased:10, ordered:6,  bought:1,  price:800,  cumQ:0, cumU:0, pending:0, remain:6, refund:0, deduct:0},
 ];
 
 const BILLS = [
-  {no:'BHX262026072300101', time:'2026-06-06 12:30:00', status:'已通过', refund:4000, deduct:0, q:4, uq:0, detail:[
+  {no:'BHX262026072300101', time:'2026-06-06 12:30:00', status:'已通过', sub:'', shouldRefund:4000, refund:4000, shouldDeduct:0, deduct:0, q:4, uq:0, detail:[
     {sku:1, q:4, uq:0, refund:4000, deduct:0}
   ]},
-  {no:'BHX262026072300102', time:'2026-06-18 10:10:00', status:'已通过', refund:0, deduct:1000, q:0, uq:1, detail:[
+  {no:'BHX262026072300102', time:'2026-06-18 10:10:00', status:'已通过', sub:'', shouldRefund:0, refund:0, shouldDeduct:1000, deduct:1000, q:0, uq:1, detail:[
     {sku:1, q:0, uq:1, refund:0, deduct:1000}
   ]},
-  {no:'BHX262026072300103', time:'2026-07-02 15:40:00', status:'已通过', refund:2000, deduct:0, q:1, uq:0, detail:[
+  {no:'BHX262026072300103', time:'2026-07-02 15:40:00', status:'已通过', sub:'', shouldRefund:2000, refund:2000, shouldDeduct:0, deduct:0, q:1, uq:0, detail:[
     {sku:2, q:1, uq:0, refund:2000, deduct:0}
   ]},
-  {no:'BHX262026072300104', time:'2026-07-15 09:20:00', status:'已驳回', refund:3000, deduct:2000, q:3, uq:2, detail:[
-    {sku:1, q:3, uq:2, refund:3000, deduct:2000}
+  {no:'BHX262026072300104', time:'2026-07-15 09:20:00', status:'已驳回', sub:'', shouldRefund:0, refund:0, shouldDeduct:0, deduct:0, q:3, uq:2, detail:[
+    {sku:1, q:3, uq:2, refund:0, deduct:0}
+  ]},
+  {no:'BHX262026072300105', time:'2026-08-10 09:30:00', status:'待审核', sub:'', shouldRefund:2000, refund:0, shouldDeduct:0, deduct:0, q:2, uq:0, detail:[
+    {sku:1, q:2, uq:0, refund:2000, deduct:0}
+  ]},
+  {no:'BHX262026072300106', time:'2026-08-12 11:00:00', status:'待审核', sub:'FMS', shouldRefund:6000, refund:0, shouldDeduct:0, deduct:0, q:3, uq:0, detail:[
+    {sku:2, q:3, uq:0, refund:6000, deduct:0}
   ]},
 ];
-
-/* 审批中演示单：提交后 SKU 卡即时更新（审批中数量+、剩余可核销数量-），且不允许再发起新建 */
-const PENDING_BILL = {no:'BHX262026072300105', time:'2026-08-12 09:30:00', status:'审批中', sub:'FMS', refund:4000, deduct:0, q:3, uq:0, detail:[
-  {sku:1, q:2, uq:0, refund:2000, deduct:0},
-  {sku:2, q:1, uq:0, refund:2000, deduct:0}
-]};
 
 const fmt = n => '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
@@ -226,7 +239,7 @@ function renderSku(list){
       <td>${k.pending||0}</td>
       <td>${k.remain||0}</td>
       <td class="td-money">¥${k.price.toLocaleString()}</td>
-      <td class="td-money">${fmt(k.price*k.ordered)}</td>
+      <td class="td-money">${fmt(k.price*k.purchased)}</td>
       <td class="td-money">${fmt(k.refund||0)}</td>
       <td class="td-red">${fmt(k.deduct||0)}</td>
     </tr>`).join('');
@@ -234,7 +247,7 @@ function renderSku(list){
   const tU = rows.reduce((s,k)=>s+(k.cumU||0),0);
   const tP = rows.reduce((s,k)=>s+(k.pending||0),0);
   const tR = rows.reduce((s,k)=>s+(k.remain||0),0);
-  const tAmt = rows.reduce((s,k)=>s+k.price*k.ordered,0);
+  const tAmt = rows.reduce((s,k)=>s+k.price*k.purchased,0);
   const tRF = rows.reduce((s,k)=>s+(k.refund||0),0);
   const tDF = rows.reduce((s,k)=>s+(k.deduct||0),0);
   document.getElementById('skuFoot').innerHTML = `<tr style="font-weight:700;background:var(--bg-header);">
@@ -262,9 +275,9 @@ function renderSummary(isEmpty){
   const passedQty = sum(k=>(k.cumQ||0)+(k.cumU||0));
   const remainQty = sum(k=>k.remain||0);
   const pendingQty = sum(k=>k.pending||0);
-  const waitQty = remainQty + pendingQty;
-  const totalQty = passedQty + waitQty;
-  const amount = sum(k=>k.price*k.ordered);
+  const waitQty = remainQty;                 // 待核销 = 剩余可核销（不含审批中）
+  const totalQty = passedQty + waitQty + pendingQty;  // 需核销 = 已核销 + 剩余 + 审批中
+  const amount = sum(k=>k.price*k.purchased);
   const refund = sum(k=>k.refund||0);
   const deduct = sum(k=>k.deduct||0);
   set('sumTotalQty', totalQty);
@@ -286,17 +299,19 @@ function renderCreate(hasPending){
 function renderBills(list){
   const rows = list || BILLS;
   if(!rows.length){
-    document.getElementById('billBody').innerHTML = '<tr class="empty-row"><td class="empty-cell" colspan="8"><span class="empty-box"><span class="empty-ico">∅</span>暂无核销明细</span></td></tr>';
+    document.getElementById('billBody').innerHTML = '<tr class="empty-row"><td class="empty-cell" colspan="10"><span class="empty-box"><span class="empty-ico">∅</span>暂无核销明细</span></td></tr>';
     return;
   }
   document.getElementById('billBody').innerHTML = rows.map((b,i)=>`
     <tr>
       <td class="td-strong">${b.no}</td>
       <td>${b.time}</td>
-      <td>${b.sub==='FMS' ? '<span class="st st-fms">审批中（FMS）</span>' : `<span class="st ${b.status==='已通过'?'st-pass':(b.status==='审批中'?'st-wait':'st-rej')}">${b.status}</span>`}</td>
+      <td>${b.sub==='FMS' ? '<span class="st st-fms">审批中（FMS）</span>' : `<span class="st ${b.status==='已通过'?'st-pass':(b.status==='待审核'?'st-wait':'st-rej')}">${b.status}</span>`}</td>
       <td>${b.q}</td>
       <td>${b.uq}</td>
+      <td class="td-money">${fmt(b.shouldRefund)}</td>
       <td class="td-money">${fmt(b.refund)}</td>
+      <td class="td-red">${fmt(b.shouldDeduct)}</td>
       <td class="td-red">${fmt(b.deduct)}</td>
       <td>
         <a class="op-link" href="管理端-保证金核销审批页_查看版.html?billNo=${encodeURIComponent(b.no)}&status=${encodeURIComponent(b.sub==='FMS'?'审批中（FMS）':b.status)}">查看详情</a>
@@ -323,19 +338,45 @@ function toast(msg, type){
 /* ==================== 初始化 ==================== */
 (function init(){
   const isEmpty = getParam('empty') !== null; // ?empty=1 预览缺省页
-  const isPending = getParam('pending') !== null; // ?pending=1 预览审批中单据
-  if(isPending && !isEmpty){
-    BILLS.push(PENDING_BILL);
-    SKUS[0].pending = 2;
-    SKUS[0].remain = 3;
-    SKUS[1].pending = 1;
-    SKUS[1].remain = 3;
-  }
   renderSummary(isEmpty);
-  renderCreate(isPending);
+  const hasPending = BILLS.some(b => b.status==='待审核');
+  renderCreate(hasPending);
   renderSku(isEmpty ? [] : null);
   renderBills(isEmpty ? [] : null);
 })();
+/* ==================== 字段注释抽屉（新增，标 col-new） ==================== */
+const FIELD_NOTES = [
+  {name:'方案需核销总数', desc:'Σ（保证金>0 SKU 的项目已开单数量）。'},
+  {name:'方案已核销总数', desc:'Σ（累计合格+累计收差），仅审批通过单计入（数量口径）。'},
+  {name:'方案待核销总数', desc:'需核销 − 已核销 − 审批中 = 剩余可核销合计（不含审批中）。'},
+  {name:'方案已收取保证金总额', desc:'Σ(保证金单价 × 项目已采购数量)，采购即已收取。'},
+  {name:'方案已返还保证金金额', desc:'FMS 返还完成回写合计（金额执行完成才计入）。'},
+  {name:'方案已收差保证金金额', desc:'FMS 收差完成回写合计（金额执行完成才计入）。'},
+  {name:'方案待处理保证金金额', desc:'已收取 − 已返还 − 已收差。'},
+  {name:'项目已开单数量', desc:'ERP 开单数量，计算基数（剩余可核销）；与付款保证金无关。'},
+  {name:'累计合格数量', desc:'审批通过完结的合格台数。'},
+  {name:'累计收差数量', desc:'审批通过完结的不合格台数。'},
+  {name:'审批中数量', desc:'待审核单占用数量（提交+、通过/驳回−）。'},
+  {name:'剩余可核销数量', desc:'已开单 − 累计合格 − 累计收差 − 审批中。'},
+  {name:'应返还金额', desc:'提交时锁定 = 合格数量 × 保证金单价，审批不改。'},
+  {name:'已返还金额', desc:'FMS 返还完成才计入；FMS 按返还单号回传，金额网批自算。'},
+  {name:'应收差金额', desc:'提交时锁定 = 不合格数量 × 保证金单价，审批不改。'},
+  {name:'已收差金额', desc:'FMS 收差完成才计入；FMS 按收差单号回传，金额网批自算。'},
+];
+function toggleNotes(){
+  const o = document.getElementById('noteOverlay'), d = document.getElementById('noteDrawer');
+  const show = !d.classList.contains('show');
+  o.classList.toggle('show', show);
+  d.classList.toggle('show', show);
+  if(show) document.getElementById('noteBody').innerHTML = FIELD_NOTES.map(n=>'<div class="note-item"><div class="ni-name">'+n.name+'</div><div class="ni-desc">'+n.desc+'</div></div>').join('');
+}
 </script>
+<!-- ====== 字段注释抽屉（新增，标 col-new） ====== -->
+<div class="note-fab" onclick="toggleNotes()" title="字段注释">?</div>
+<div class="note-overlay" id="noteOverlay" onclick="toggleNotes()"></div>
+<div class="note-drawer" id="noteDrawer">
+  <div class="note-head"><span>字段注释</span><button class="note-close" onclick="toggleNotes()">✕</button></div>
+  <div class="note-body" id="noteBody"></div>
+</div>
 </body>
 </html>
