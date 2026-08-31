@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保证金核销审批（管理端）</title>
+<style>
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --text:#333; --text-secondary:#666; --text-aux:#999;
+  --bg:#f5f6fa; --bg-header:#f8f9fb; --bg-hover:#f2f4f9;
+  --border:#e0e3ea; --border-light:#eef0f4;
+  --success:#52c41a; --warning:#faad14; --danger:#f5222d;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+
+/* ====== 页面框架 ====== */
+.page{display:flex;flex-direction:column;height:100vh;min-width:1200px;}
+.page-header{height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#fff;border-bottom:1px solid var(--border);}
+.ph-left{display:flex;align-items:center;gap:12px;}
+.ph-back{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);border:none;background:transparent;font-size:16px;transition:.15s;}
+.ph-back:hover{background:var(--bg-hover);color:var(--primary);}
+.ph-title{font-size:15px;font-weight:700;color:var(--text);}
+/* 头部标题内联方案编号（参照总部管理端备份头部，标 col-new） */
+.ph-left.col-new .ph-title .ph-no{color:#1f3a8a;font-family:'Consolas',monospace;}
+.page-scroll{flex:1;overflow-y:auto;padding:16px 20px 80px;}
+
+/* ====== 通用卡片 ====== */
+.form-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.fc-header{height:40px;display:flex;align-items:center;gap:8px;padding:0 16px;background:var(--bg-header);border-bottom:1px solid var(--border-light);}
+.fc-dot{width:4px;height:14px;border-radius:2px;background:var(--primary);}
+.fc-title{font-size:13px;font-weight:700;color:var(--text);}
+.fc-tag{margin-left:8px;font-size:11px;color:var(--text-aux);background:var(--bg-hover);padding:1px 8px;border-radius:10px;}
+.col-new{background:#FFF9E8;}
+.col-new .fc-dot{background:#d48806;}
+.col-new .fc-title{color:#8a6d1a;}
+.fc-body{padding:14px 16px;}
+
+/* ====== 单据信息网格 ====== */
+.info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 24px;}
+.info-item{display:flex;align-items:baseline;gap:10px;min-width:0;}
+.info-label{font-size:12px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;}
+.info-value{font-size:13px;color:var(--text);font-weight:600;word-break:break-all;}
+.info-value.mono{font-family:'Consolas',monospace;color:var(--primary);}
+
+/* ====== 表格通用 ====== */
+.table-wrap{overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:1080px;}
+.tbl th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1;}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
+.tbl tbody tr:hover{background:var(--bg-hover);}
+.td-left{text-align:left!important;}
+.td-strong{font-weight:600;color:var(--text);}
+.td-gray{color:var(--text-aux);}
+.td-money{color:var(--primary);font-weight:600;}
+.td-red{color:var(--danger);font-weight:600;}
+.td-green{color:#52a24b;font-weight:600;}
+
+/* ====== 订单行分组（复用总部管理端发起页） ====== */
+.order-group{border:1px solid var(--border-light);border-radius:6px;margin-bottom:10px;overflow:hidden;}
+.order-group:last-child{margin-bottom:0;}
+.og-head{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-header);border-bottom:1px solid var(--border-light);font-size:12px;flex-wrap:wrap;}
+.og-sku{font-weight:700;color:var(--text);}
+.og-model{color:var(--text-secondary);}
+.og-info{color:var(--text-aux);}
+.og-badge{margin-left:auto;font-size:11px;color:var(--primary);background:#E8F0FE;padding:1px 10px;border-radius:10px;font-weight:600;}
+.og-table{width:100%;border-collapse:collapse;font-size:12px;}
+.og-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.og-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;}
+.og-table tr:last-child td{border-bottom:none;}
+.og-table .alloc-col{background:#F0F7FF;color:var(--primary);font-weight:600;}
+.og-table .alloc-col.q-alloc{background:#E6F7EC;color:#2e7d32;}
+.og-table .alloc-col.u-alloc{background:#FDECEC;color:#d9534f;}
+.og-table .alloc-col .alloc-num{font-weight:700;font-size:13px;}
+.og-table .money-col{background:#FFF9E8;color:#8a6d1a;font-weight:600;}
+.og-foot{display:flex;justify-content:flex-end;gap:24px;padding:7px 12px;background:var(--bg-header);border-top:1px solid var(--border-light);font-size:12px;}
+.og-foot .ft-item{color:var(--text-secondary);}
+.og-foot .ft-val{font-weight:700;color:var(--primary);margin-left:4px;}
+.og-foot .ft-val.red{color:var(--danger);}
+
+/* ====== 金额汇总卡 ====== */
+.sum-grid{display:flex;gap:12px;}
+.sum-card{flex:1;background:var(--bg);border:1px solid var(--border-light);border-radius:6px;padding:12px 16px;text-align:center;}
+.sum-label{font-size:12px;color:var(--text-secondary);}
+.sum-value{font-size:18px;font-weight:700;margin-top:6px;}
+.sum-value.blue{color:var(--primary);}
+.sum-value.green{color:#52a24b;}
+.sum-value.red{color:var(--danger);}
+
+/* ====== 附件（只读） ====== */
+.attach-list{display:flex;flex-direction:column;gap:6px;}
+.attach-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border:1px solid var(--border-light);border-radius:4px;font-size:12px;}
+.ai-icon{width:24px;height:24px;border-radius:4px;background:#E8F0FE;color:#3b5998;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.ai-name{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ai-size{color:var(--text-aux);font-size:11px;}
+.remark-readonly{font-size:13px;color:var(--text);line-height:1.8;background:var(--bg);border:1px solid var(--border-light);border-radius:4px;padding:12px 14px;min-height:48px;}
+
+/* ====== 审批记录（参照网批审批记录，标 col-new） ====== */
+.col-new.approval-record-card{background:#fff;}
+.col-new.approval-record-card .fc-body{padding:0;}
+.col-new .record-table{width:100%;border-collapse:collapse;font-size:12px;}
+.col-new .record-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:left;}
+.col-new .record-table td{padding:8px 10px;border-bottom:1px solid var(--border-light);text-align:left;white-space:nowrap;color:var(--text);}
+.col-new .record-table tbody tr:hover{background:var(--bg-hover);}
+.col-new .record-table .rc-no{color:var(--text-aux);}
+.col-new .record-table .rc-opinion{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.col-new .record-table .rc-st{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
+.col-new .record-table .rc-st.wait{background:#E8F0FE;color:#3b5998;}
+.col-new .record-table .rc-st.pass{background:#E6F7EC;color:#52a24b;}
+.col-new .record-table .rc-st.reject{background:#FDECEC;color:#d9534f;}
+.col-new .record-table .rc-st.auto{background:#FFF7E6;color:#B45309;}
+.col-new .record-table .rc-st.skip{background:#f2f4f9;color:#999;}
+.col-new .record-table .view-link{color:var(--primary);cursor:pointer;font-size:12px;}
+.col-new .record-table .view-link:hover{text-decoration:underline;}
+
+/* ====== 底部审批操作区（核心新增，标 col-new） ====== */
+.form-footer{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px;background:#fff;border-top:1px solid var(--border);position:relative;z-index:10;}
+.btn{height:32px;padding:0 22px;border-radius:4px;font-size:13px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:#fff;color:var(--text-secondary);}
+.btn:hover{border-color:var(--primary);color:var(--primary);}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+.btn-primary:hover{background:var(--primary-light);color:#fff;}
+.btn-reject{background:#fff;border-color:var(--danger);color:var(--danger);font-weight:600;}
+.btn-reject:hover{background:#FDECEC;}
+.form-footer.col-new{justify-content:space-between;}
+.form-footer.col-new.hidden{display:none;}
+.col-new .ff-left{font-size:12px;color:#B45309;}
+.col-new .ff-right{display:flex;gap:10px;align-items:center;}
+.col-new.note-attach-card{background:#fff;}
+
+/* ====== 当次提交单据（标 col-new） ====== */
+.col-new.submit-doc-card{background:#fff;}
+.col-new .doc-block{margin-bottom:12px;}
+.col-new .doc-block:last-child{margin-bottom:0;}
+.col-new .doc-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text);padding:7px 10px;background:var(--bg-header);border:1px solid var(--border-light);border-bottom:none;border-radius:4px 4px 0 0;}
+.col-new .doc-tag{font-size:11px;font-weight:600;padding:1px 8px;border-radius:10px;}
+.col-new .doc-tag.refund{background:#E6F7EC;color:#2e7d32;}
+.col-new .doc-tag.deduct{background:#FDECEC;color:#d9534f;}
+.col-new .doc-summary{margin-left:auto;font-size:11px;color:var(--text-aux);font-weight:400;}
+.col-new .doc-table{width:100%;border-collapse:collapse;font-size:12px;border:1px solid var(--border-light);}
+.col-new .doc-table th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:7px 8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.col-new .doc-table td{padding:7px 8px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
+.col-new .doc-table tr:last-child td{border-bottom:none;}
+.col-new .doc-empty{padding:14px;text-align:center;color:var(--text-aux);font-size:12px;background:var(--bg);border:1px dashed var(--border);border-radius:0 0 4px 4px;}
+.col-new .na-label{font-size:12px;color:var(--text-secondary);font-weight:600;margin-bottom:6px;}
+
+/* ====== 审批弹窗（通过/驳回） ====== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-content{width:560px;max-width:92vw;max-height:86vh;background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.18);}
+.modal-header{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.modal-title{font-size:14px;font-weight:700;}
+.modal-close{width:28px;height:28px;border-radius:50%;border:none;background:transparent;color:var(--text-aux);cursor:pointer;font-size:15px;}
+.modal-close:hover{background:var(--bg-hover);color:var(--text);}
+.modal-body{flex:1;overflow-y:auto;padding:18px 20px;}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+.warn-bar{display:flex;gap:8px;background:#FFF7E6;border:1px solid #FFE58F;border-radius:6px;padding:8px 12px;font-size:12px;color:#8a6d1a;line-height:1.6;margin-bottom:14px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:12px;color:var(--text-secondary);margin-bottom:6px;}
+.form-group label .req{color:var(--danger);margin-left:2px;font-weight:700;}
+.form-group textarea{width:100%;height:90px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;color:var(--text);resize:vertical;outline:none;line-height:1.7;background:#fff;}
+.form-group textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.12);}
+
+/* Toast */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.14);padding:10px 22px;font-size:13px;display:flex;align-items:center;gap:8px;opacity:0;transition:.25s;z-index:500;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success .t-icon{color:var(--success);}
+.toast.error .t-icon{color:var(--danger);}
+.toast.info .t-icon{color:var(--primary);}
+.status{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
+.status-待审核{background:#E8F0FE;color:#3b5998;}
+.status-已驳回{background:#FDECEC;color:#d9534f;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ====== 页面头部 ====== -->
+  <div class="page-header">
+    <div class="ph-left col-new">
+      <button class="ph-back" title="返回">←</button>
+      <span class="ph-title">关联特批方案编号 <span class="ph-no">GCTP2620260723001</span> 保证金核销审批</span>
+      <span class="status status-待审核" id="headStatus">待审核</span>
+    </div>
+  </div>
+
+  <div class="page-scroll">
+
+    <!-- ====== 单据信息 ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">单据信息</span></div>
+      <div class="fc-body">
+        <div class="info-grid">
+          <div class="info-item"><span class="info-label">核销单号</span><span class="info-value mono" id="iNo">BHX262026072300101</span></div>
+          <div class="info-item"><span class="info-label">所属部门</span><span class="info-value" id="iDept">珠海销售公司</span></div>
+          <div class="info-item"><span class="info-label">方案名称</span><span class="info-value" id="iPlanName">珠海·华发水郡工程特批方案</span></div>
+          <div class="info-item"><span class="info-label">项目类型</span><span class="info-value">特批项目</span></div>
+          <div class="info-item"><span class="info-label">特批方案类型</span><span class="info-value">配提机</span></div>
+          <div class="info-item"><span class="info-label">提交人</span><span class="info-value">陈晓明</span></div>
+          <div class="info-item"><span class="info-label">提交时间</span><span class="info-value" id="iTime">2026-08-10 14:20</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 金额汇总（放头部，标 col-new 位置调整） ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">金额汇总</span></div>
+      <div class="fc-body">
+        <div class="sum-grid">
+          <div class="sum-card"><div class="sum-label">返还保证金合计</div><div class="sum-value green" id="sumRefund">¥160.00</div></div>
+          <div class="sum-card"><div class="sum-label">收差扣款合计</div><div class="sum-value red" id="sumDeduct">¥440.00</div></div>
+          <div class="sum-card"><div class="sum-label">涉及保证金总额</div><div class="sum-value blue" id="sumTotal">¥600.00</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== SKU核销明细（快照只读） ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">SKU核销明细</span></div>
+      <div class="fc-body pad0">
+        <div class="table-wrap">
+          <table class="tbl" id="skuTable">
+            <thead><tr>
+              <th>序号</th><th>商品名称</th><th>产品型号</th><th>SKU编号</th><th>特批类型</th>
+              <th>保证金单价(元/台)</th><th>合格数量</th><th>不合格数量</th><th>返还金额</th><th>收差金额</th>
+            </tr></thead>
+            <tbody id="skuBody"></tbody>
+            <tfoot id="skuFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 核销订单行明细（快照只读，承接总部管理端分配） ====== -->
+    <div class="form-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">核销订单行明细</span><span class="fc-tag">系统按订单行自动分配，先合格后不合格</span></div>
+      <div class="fc-body">
+        <div id="orderGroups"></div>
+      </div>
+    </div>
+
+    <!-- ====== 当次提交单据（提交时生成的 BFH/BSC 单，标 col-new） ====== -->
+    <div class="form-card col-new submit-doc-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">当次提交单据</span><span class="fc-tag">提交时生成，随核销单一并审批</span></div>
+      <div class="fc-body">
+        <div class="doc-block" id="refundDocBlock"></div>
+        <div class="doc-block" id="deductDocBlock"></div>
+      </div>
+    </div>
+
+    <!-- ====== 备注与附件（参照新建页合并卡片，标 col-new） ====== -->
+    <div class="form-card col-new note-attach-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">备注与附件</span></div>
+      <div class="fc-body">
+        <div class="na-label">备注信息</div>
+        <div class="remark-readonly" id="remarkBox">客户反馈 SKU2 天行IT资质单元机 12 台中 4 台合格、其余不合格，质检报告附后，请审批。</div>
+        <div class="na-label" style="margin-top:14px;">附件凭证</div>
+        <div class="attach-list" id="attachList"></div>
+      </div>
+    </div>
+
+    <!-- ====== 审批记录（参照网批审批记录，放最下方，标 col-new） ====== -->
+    <div class="form-card col-new approval-record-card">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">审批记录</span></div>
+      <div class="fc-body">
+        <div class="table-wrap">
+          <table class="record-table">
+            <thead><tr>
+              <th>序号</th><th>审批人</th><th>审批状态</th><th>审批意见</th><th>附件</th><th>审批时间</th>
+            </tr></thead>
+            <tbody id="recordBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====== 底部审批操作区（核心新增，标 col-new） ====== -->
+  <div class="form-footer col-new" id="actionFooter">
+    <div class="ff-left" id="footerNote"></div>
+    <div class="ff-right">
+      <button class="btn btn-reject" id="rejectBtn" onclick="openReject()">驳回</button>
+      <button class="btn btn-primary" onclick="openApprove()">通过</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 审批-通过 弹窗 ====== -->
+<div class="modal-overlay" id="approveModal" onclick="if(event.target===this)closeApprove()">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">审批-通过</span><button class="modal-close" onclick="closeApprove()">✕</button></div>
+    <div class="modal-body">
+      <div class="warn-bar" id="approveWarn">⚠️ 确定通过此核销审批吗？请填写审批意见。</div>
+      <div class="form-group">
+        <label>审批意见</label>
+        <textarea id="approveRemark" placeholder="请输入审批意见（选填）" maxlength="200"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeApprove()">取消</button>
+      <button class="btn btn-primary" onclick="confirmApprove()">确定通过</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 审批-驳回 弹窗 ====== -->
+<div class="modal-overlay" id="rejectModal" onclick="if(event.target===this)closeReject()">
+  <div class="modal-content">
+    <div class="modal-header"><span class="modal-title">审批-驳回</span><button class="modal-close" onclick="closeReject()">✕</button></div>
+    <div class="modal-body">
+      <div class="warn-bar">⚠️ 确定驳回此核销审批吗？驳回原因必填，驳回后原单失效，提交人可复制重提。</div>
+      <div class="form-group">
+        <label>驳回原因 <span class="req">*</span></label>
+        <textarea id="rejectRemark" placeholder="请输入驳回原因（必填）" maxlength="200"></textarea>
+      </div>
+      <div class="form-group">
+        <label>审批意见</label>
+        <textarea id="rejectOpinion" placeholder="请输入审批意见（选填）" maxlength="200"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeReject()">取消</button>
+      <button class="btn btn-reject" onclick="confirmReject()">确定驳回</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toastBox"><span class="t-icon" id="toastIcon">✓</span><span id="toastMsg"></span></div>
+
+<script>
+/* ==================== 快照数据（承接总部管理端提交，审批中不可改） ====================
+   演示模型（自洽）：SKU2 预填 合格4 + 不合格11 → 返还 4×40=160 / 收差 11×40=440 */
+const SKUS = [
+  {id:1, name:'清悉贝茨空调螺机',  model:'KFR-35GW', sku:'KB5410019000', type:'特价机', price:50, remain:55, q:0,  uq:0},
+  {id:2, name:'天行IT资质单元机',  model:'KFR-455W', sku:'KB5410019001', type:'资源机', price:40, remain:15, q:4,  uq:11},
+  {id:3, name:'安顿组织器多联机',  model:'KFR-380W', sku:'KB5410019002', type:'配提机', price:30, remain:20, q:0,  uq:0},
+  {id:4, name:'清悉贝茨标准分体机', model:'KFR-05GW', sku:'KB5410019003', type:'配提机', price:0,  remain:10, q:0,  uq:0},
+];
+const ORDERS = {
+  1:[{line:'DD2026061500101',date:'2026-06-15',qty:50,hQual:15,hDeduct:10,hPending:0},{line:'DD2026061500102',date:'2026-06-20',qty:30,hQual:0,hDeduct:0,hPending:0}],
+  2:[{line:'DD2026071000101',date:'2026-07-10',qty:12,hQual:10,hDeduct:0,hPending:0},{line:'DD2026071000102',date:'2026-07-18',qty:10,hQual:0,hDeduct:5,hPending:0},{line:'DD2026072200101',date:'2026-07-22',qty:8,hQual:0,hDeduct:0,hPending:0}],
+  3:[{line:'DD2026072500101',date:'2026-07-25',qty:20,hQual:0,hDeduct:0,hPending:0}],
+  4:[{line:'DD2026072800101',date:'2026-07-28',qty:10,hQual:0,hDeduct:0,hPending:0}],
+};
+const ATTACH = [
+  {name:'SKU2质检报告.pdf', size:'1.8MB'},
+  {name:'工程现场照片.zip', size:'5.2MB'},
+  {name:'核销说明.docx', size:'0.4MB'},
+];
+
+/* 审批流固定 4 节点，但审批走向不固定：审批记录按实际发生逐条追加，不预展示未来节点 */
+const FLOW_SEQ = [
+  {stage:'总部业务组长', name:'张伟', system:'网批'},
+  {stage:'总部业务主管', name:'李娜', system:'网批'},
+  {stage:'销司确认', name:'王芳（珠海销售公司）', system:'网批', autoPass:true},
+  {stage:'FMS财务审批', name:'财务系统（FMS）', system:'FMS'},
+];
+let FLOW = [];
+function pushNextNode(){
+  const idx = FLOW.length;
+  if(idx < FLOW_SEQ.length){
+    FLOW.push({...FLOW_SEQ[idx], result:'wait', time:'', opinion:''});
+  }
+}
+pushNextNode(); // 初始只展示当前待审节点
+
+const fmt = n => '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+/* ==================== URL 参数读取（列表页跳转带 no） ==================== */
+function getParam(name){
+  const m = new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+/* ==================== 订单行分配（快照展示，先合格后不合格按时间递扣） ==================== */
+function allocate(k){
+  const r = k.remain;
+  const q = Math.max(0, Math.min(k.q, r));
+  const uq = Math.max(0, Math.min(k.uq, r - q));
+  const lines = ORDERS[k.id].map(l=>({...l, allocQ:0, allocUQ:0}));
+  let qLeft = q;
+  for(const l of lines){ const avail=Math.max(0,l.qty-l.hQual-l.hDeduct-l.hPending); const take=Math.min(qLeft,avail); l.allocQ=take; qLeft-=take; }
+  let uLeft = uq;
+  for(const l of lines){ const avail=Math.max(0,(l.qty-l.hQual-l.hDeduct-l.hPending)-l.allocQ); const take=Math.min(uLeft,avail); l.allocUQ=take; uLeft-=take; }
+  return {q, uq, lines};
+}
+
+/* ==================== 渲染 SKU 明细 ==================== */
+function renderSku(){
+  let tQ=0, tUQ=0, tR=0, tD=0;
+  const shown = SKUS.filter(k=>k.q+k.uq>0); // 无合格/不合格金额的 SKU 不展示
+  const body = shown.map((k,i)=>{
+    const refund = k.q * k.price;
+    const deduct = k.uq * k.price;
+    tQ+=k.q; tUQ+=k.uq; tR+=refund; tD+=deduct;
+    const noCalc = k.price===0;
+    return `<tr>
+      <td>${i+1}</td>
+      <td class="td-left td-strong">${k.name}</td>
+      <td>${k.model}</td>
+      <td class="td-gray">${k.sku}</td>
+      <td>${k.type}</td>
+      <td>${noCalc?'—':k.price}</td>
+      <td>${k.q}</td>
+      <td>${k.uq}</td>
+      <td class="td-green">${noCalc?'—':fmt(refund)}</td>
+      <td class="td-red">${noCalc?'—':fmt(deduct)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('skuBody').innerHTML = body;
+  document.getElementById('skuFoot').innerHTML = `<tr style="font-weight:700;background:var(--bg-header);">
+    <td colspan="6" class="td-left">合计</td>
+    <td>${tQ}</td><td>${tUQ}</td>
+    <td class="td-green">${fmt(tR)}</td><td class="td-red">${fmt(tD)}</td></tr>`;
+  return {tQ, tUQ, tR, tD};
+}
+
+/* ==================== 渲染订单行明细 ==================== */
+function renderOrders(){
+  let html='';
+  SKUS.forEach((k,idx)=>{
+    if(k.q+k.uq===0){ return; } // 无返还/收差金额的 SKU 不展示
+    const {q, uq, lines} = allocate(k);
+    const refund = lines.reduce((s,l)=>s+l.allocQ*k.price,0);
+    const deduct = lines.reduce((s,l)=>s+l.allocUQ*k.price,0);
+    const hasAlloc = (q+uq)>0;
+    html += `<div class="order-group">
+      <div class="og-head">
+        <span class="og-sku">${idx+1}. ${k.name}</span>
+        <span class="og-model">${k.model} / ${k.sku}</span>
+        <span class="og-info">保证金单价 ${k.price}元/台 · 剩余可核销数量 ${k.remain}台</span>
+        <span class="og-badge">本次核销 ${hasAlloc ? (q+uq)+'台' : '无'}</span>
+      </div>
+      <table class="og-table">
+        <thead><tr>
+          <th>订单行号</th><th>下单时间</th><th>已开单数量</th>
+          <th>历史累计合格</th><th>历史累计收差</th><th>审批中数量</th><th>订单行剩余可核销数量</th>
+          <th class="alloc-col">本次合格（系统分配）</th><th class="alloc-col">本次不合格（系统分配）</th>
+          <th class="money-col">本次返还金额</th><th class="money-col">本次收差金额</th>
+        </tr></thead>
+        <tbody>${lines.map(l=>{
+          const avail=Math.max(0,l.qty-l.hQual-l.hDeduct-l.hPending);
+          return `<tr>
+            <td class="td-strong">${l.line}</td><td>${l.date}</td><td>${l.qty}</td>
+            <td>${l.hQual}</td><td>${l.hDeduct}</td><td>${l.hPending||0}</td><td>${avail}</td>
+            <td class="alloc-col${l.allocQ?' q-alloc':''}">${l.allocQ?`<span class="alloc-num">${l.allocQ}</span>`:'-'}</td>
+            <td class="alloc-col${l.allocUQ?' u-alloc':''}">${l.allocUQ?`<span class="alloc-num">${l.allocUQ}</span>`:'-'}</td>
+            <td class="money-col">${l.allocQ?fmt(l.allocQ*k.price):'¥0.00'}</td>
+            <td class="money-col">${l.allocUQ?fmt(l.allocUQ*k.price):'¥0.00'}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+      <div class="og-foot">
+        <span class="ft-item">合格小计：<span class="ft-val">${q}</span> 台</span>
+        <span class="ft-item">不合格小计：<span class="ft-val red">${uq}</span> 台</span>
+        <span class="ft-item">返还金额：<span class="ft-val">${fmt(refund)}</span></span>
+        <span class="ft-item">收差金额：<span class="ft-val red">${fmt(deduct)}</span></span>
+      </div>
+    </div>`;
+  });
+  // 数据对平校验：组尾小计之和 = SKU表合计
+  document.getElementById('orderGroups').innerHTML = html;
+}
+
+/* ==================== 渲染当次提交单据（提交时生成 BFH/BSC 单） ==================== */
+function renderSubmitDocs(){
+  const refundRows=[], deductRows=[];
+  SKUS.forEach(k=>{
+    if(k.q+k.uq===0){ return; }
+    const {lines} = allocate(k);
+    lines.forEach(l=>{
+      if(l.allocQ){ refundRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocQ, amt:l.allocQ*k.price}); }
+      if(l.allocUQ){ deductRows.push({name:k.name, model:k.model, sku:k.sku, lineNo:l.line, q:l.allocUQ, amt:l.allocUQ*k.price}); }
+    });
+  });
+  const refundNo='BFH0120260723001', deductNo='BSC0120260723001';
+  const docTable = (no, rows, cls, nameCls, qLabel, amtCls) => {
+    if(!rows.length){
+      return `<div class="doc-title"><span class="doc-tag ${cls}">${cls==='refund'?'BFH 返还单':'BSC 收差单'}</span><span>本次无${cls==='refund'?'返还':'收差'}</span></div>
+        <div class="doc-empty">未生成${cls==='refund'?'返还单':'收差单'}</div>`;
+    }
+    return `<div class="doc-title"><span class="doc-tag ${cls}">${cls==='refund'?'BFH 返还单':'BSC 收差单'}</span>
+      <span class="doc-no">${no}</span>
+      <span class="doc-summary">共 ${rows.length} 行 · 合计 ${rows.reduce((s,r)=>s+r.q,0)} 台</span></div>
+      <table class="doc-table"><thead><tr>
+        <th>${cls==='refund'?'返还单':'收差单'}行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>${qLabel}</th><th>${cls==='refund'?'返还':'收差'}金额</th>
+      </tr></thead><tbody>
+      ${rows.map((r,i)=>`<tr>
+        <td class="td-strong">${no}${String(i+1).padStart(3,'0')}</td>
+        <td>${r.lineNo}</td>
+        <td class="td-left">${r.name} ${r.model}</td>
+        <td class="td-gray">${r.sku}</td>
+        <td class="${nameCls}">${r.q}</td>
+        <td class="${amtCls}">${fmt(r.amt)}</td>
+      </tr>`).join('')}
+      </tbody></table>`;
+  };
+  document.getElementById('refundDocBlock').innerHTML = docTable(refundNo, refundRows, 'refund', 'td-green', '合格数量', 'td-green');
+  document.getElementById('deductDocBlock').innerHTML = docTable(deductNo, deductRows, 'deduct', 'td-red', '不合格数量', 'td-red');
+}
+
+/* ==================== 渲染金额汇总 + 对平校验 ==================== */
+function renderSummary(t){
+  document.getElementById('sumRefund').textContent = fmt(t.tR);
+  document.getElementById('sumDeduct').textContent = fmt(t.tD);
+  document.getElementById('sumTotal').textContent = fmt(t.tR + t.tD);
+  // 对平：涉及总额 = 返还 + 收差
+  const total = t.tR + t.tD;
+  if(Math.abs(total - (t.tR + t.tD)) !== 0){ toast('金额对平异常','error'); }
+}
+
+/* ==================== 渲染附件 + 备注（只读） ==================== */
+function renderAttach(){
+  document.getElementById('attachList').innerHTML = ATTACH.map(f=>`
+    <div class="attach-item">
+      <span class="ai-icon">📄</span>
+      <span class="ai-name">${f.name}</span>
+      <span class="ai-size">${f.size}</span>
+    </div>`).join('');
+}
+
+/* ==================== 渲染审批记录（表格，参照网批审批记录） ==================== */
+function renderRecord(){
+  const rt = {wait:'待审批', pass:'已通过', reject:'已驳回', auto:'自动通过', skip:'未进行'};
+  document.getElementById('recordBody').innerHTML = FLOW.map((n,i)=>{
+    const attach = (n.result==='pass'||n.result==='auto')
+      ? '<span class="view-link" onclick="toast(\'审批附件：质检报告核对记录.pdf（示意）\',\'info\')">查看</span>'
+      : '—';
+    return `<tr>
+      <td class="rc-no">${i+1}</td>
+      <td class="td-strong">${n.name}</td>
+      <td><span class="rc-st ${n.result}">${rt[n.result]}</span></td>
+      <td><span class="rc-opinion" title="${n.opinion||''}">${n.opinion||'—'}</span></td>
+      <td>${attach}</td>
+      <td>${n.time||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ==================== 渲染当前节点 + 底部操作区（按节点权限） ==================== */
+function renderAction(){
+  const footer = document.getElementById('actionFooter');
+  const note = document.getElementById('footerNote');
+  const rejectBtn = document.getElementById('rejectBtn');
+  const warn = document.getElementById('approveWarn');
+  const cur = FLOW.find(n=>n.result==='wait');
+  if(!cur || cur.system==='FMS'){
+    footer.classList.add('hidden');
+    return;
+  }
+  footer.classList.remove('hidden');
+  if(cur.autoPass){
+    rejectBtn.style.display = 'none';
+    note.textContent = '';
+    warn.textContent = '⚠️ 确定通过此核销审批吗？请填写审批意见。';
+  } else {
+    rejectBtn.style.display = '';
+    note.textContent = '';
+    warn.textContent = '⚠️ 确定通过此核销审批吗？请填写审批意见。';
+  }
+}
+
+/* ==================== 通过 / 驳回 弹窗 ==================== */
+function openApprove(){ document.getElementById('approveModal').classList.add('show'); }
+function closeApprove(){ document.getElementById('approveModal').classList.remove('show'); }
+function openReject(){ document.getElementById('rejectModal').classList.add('show'); }
+function closeReject(){ document.getElementById('rejectModal').classList.remove('show'); }
+
+function confirmApprove(){
+  const remark = document.getElementById('approveRemark').value.trim();
+  const cur = FLOW.find(n=>n.result==='wait');
+  if(!cur){ closeApprove(); return; }
+  cur.result='pass';
+  cur.time='2026-08-13 '+new Date().toTimeString().slice(0,5);
+  cur.opinion=remark||(cur.autoPass?'确认通过':'同意');
+  pushNextNode(); // 审批通过后追加下一节点
+  renderRecord();
+  renderAction();
+  closeApprove();
+  const next = FLOW.find(n=>n.result==='wait');
+  if(next){
+    if(next.system==='FMS'){ toast(cur.stage+' 已通过，已流转至 FMS 财务审批，等待财务系统回传','success'); }
+    else { toast(cur.stage+' 已通过，流转至 '+next.stage,'success'); }
+  } else {
+    toast('全部审批通过，单据完结','success');
+  }
+}
+function confirmReject(){
+  const reason = document.getElementById('rejectRemark').value.trim();
+  if(!reason){ toast('驳回原因必填','error'); document.getElementById('rejectRemark').focus(); return; }
+  const opinion = document.getElementById('rejectOpinion').value.trim();
+  const cur = FLOW.find(n=>n.result==='wait');
+  if(cur){
+    cur.result='reject';
+    cur.time='2026-08-13 '+new Date().toTimeString().slice(0,5);
+    cur.opinion=reason+(opinion?('；'+opinion):'');
+    let hit=false;
+    FLOW.forEach(n=>{ if(hit){ n.result='skip'; } if(n===cur){ hit=true; } });
+  }
+  renderRecord();
+  renderAction();
+  setStatus('已驳回');
+  closeReject();
+  toast('已驳回，原单失效，提交人可复制重提','error');
+}
+function setStatus(s){
+  const map = {'待审核':'status-待审核','已驳回':'status-已驳回'};
+  const el = document.getElementById('headStatus');
+  el.textContent = s; el.className = 'status '+(map[s]||'status-待审核');
+}
+
+/* ==================== Toast ==================== */
+function toast(msg, type){
+  const box = document.getElementById('toastBox');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = type==='error'?'✕':type==='info'?'ℹ':'✓';
+  box.className = 'toast show ' + (type||'success');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>box.classList.remove('show'), 2800);
+}
+
+/* ==================== 初始化 ==================== */
+(function init(){
+  const no = getParam('no');
+  if(no){ // 列表页带单号进入，更新单据信息单号
+    document.getElementById('iNo').textContent = no;
+  }
+  const t = renderSku();
+  renderOrders();
+  renderSubmitDocs();
+  renderSummary(t);
+  renderAttach();
+  renderRecord();
+  renderAction();
+})();
+</script>
+</body>
+</html>

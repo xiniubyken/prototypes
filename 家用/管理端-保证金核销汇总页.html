@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>保证金核销汇总（总部管理端）</title>
+<style>
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --text:#333; --text-secondary:#666; --text-aux:#999;
+  --bg:#f5f6fa; --bg-header:#f8f9fb; --bg-hover:#f2f4f9;
+  --border:#e0e3ea; --border-light:#eef0f4;
+  --success:#52c41a; --warning:#faad14; --danger:#f5222d;
+  --radius:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color:var(--text);background:var(--bg);}
+
+.page{display:flex;flex-direction:column;height:100vh;min-width:1280px;}
+.page-scroll{flex:1;overflow-y:auto;padding:16px 20px 40px;}
+
+/* ====== 通用卡片（新增，标 col-new） ====== */
+.form-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius);margin-bottom:14px;overflow:hidden;}
+.col-new{background:#fff;}
+.col-new .fc-dot{background:#d48806;}
+.col-new .fc-title{color:#8a6d1a;}
+.fc-header{height:44px;display:flex;align-items:center;gap:8px;padding:0 16px;background:var(--bg-header);border-bottom:1px solid var(--border-light);}
+.fc-dot{width:4px;height:14px;border-radius:2px;background:var(--primary);}
+.fc-title{font-size:13px;font-weight:700;color:var(--text);}
+.fc-tag{margin-left:8px;font-size:11px;color:var(--text-aux);background:var(--bg-hover);padding:1px 8px;border-radius:10px;}
+.fc-action{margin-left:auto;}
+.fc-body{padding:14px 16px;}
+
+/* ====== 按钮 ====== */
+.btn{height:32px;padding:0 22px;border-radius:4px;font-size:13px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:#fff;color:var(--text-secondary);}
+.btn:hover{border-color:var(--primary);color:var(--primary);}
+.btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600;}
+.btn-primary:hover{background:var(--primary-light);color:#fff;}
+
+/* ====== 汇总卡片（新增，标 col-new） ====== */
+.summary-grid{display:flex;flex-direction:column;gap:12px;}
+.sum-row{display:flex;gap:12px;}
+.sum-cell{flex:1;background:var(--bg);border:1px solid var(--border-light);border-radius:6px;padding:12px 16px;text-align:center;}
+.sum-label{font-size:12px;color:var(--text-secondary);}
+.sum-value{font-size:17px;font-weight:700;margin-top:6px;color:var(--text);}
+.sum-value.money{color:var(--primary);}
+.sum-value.green{color:#52a24b;}
+.sum-value.red{color:var(--danger);}
+
+/* ====== 表格通用 ====== */
+.table-wrap{overflow-x:auto;}
+.tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:1880px;}
+.tbl th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1;}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
+.tbl tbody tr:hover{background:var(--bg-hover);}
+.td-left{text-align:left!important;}
+.td-strong{font-weight:600;color:var(--text);}
+.td-gray{color:var(--text-aux);}
+.td-money{color:var(--primary);font-weight:600;}
+.td-red{color:var(--danger);font-weight:600;}
+.td-green{color:#52a24b;font-weight:600;}
+.tbl-bill{min-width:1080px;}
+
+/* ====== 状态标签 ====== */
+.st{display:inline-block;padding:1px 8px;border-radius:3px;font-size:11px;font-weight:600;}
+.st-pass{background:#E6F7EC;color:#52a24b;}
+.st-rej{background:#FDECEC;color:#d9534f;}
+.st-wait{background:#E8F0FE;color:#3b5998;}
+.st-fms{background:#EDE9FE;color:#6d28d9;}
+
+/* ====== 明细操作（新增，标 col-new） ====== */
+.op-link{color:var(--primary);cursor:pointer;font-size:12px;}
+.op-link:hover{text-decoration:underline;}
+.op-copy{margin-left:10px;color:#B45309;cursor:pointer;font-size:12px;}
+.op-copy:hover{text-decoration:underline;}
+
+/* ====== 底部固定操作栏（新增，标 col-new） ====== */
+.form-footer{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px;background:#fff;border-top:1px solid var(--border);position:relative;z-index:10;}
+.form-footer .ff-tip{margin-right:auto;font-size:12px;color:#B45309;}
+
+/* ====== 缺省页（新增，标 col-new） ====== */
+.empty-cell{height:150px;background:#FBFBFC;color:var(--text-aux);font-size:13px;}
+.empty-box{display:inline-flex;align-items:center;gap:8px;}
+.empty-ico{width:28px;height:28px;border-radius:50%;border:1px dashed #c5cae9;color:#c5cae9;display:inline-flex;align-items:center;justify-content:center;font-size:15px;}
+
+/* ====== Toast ====== */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.14);padding:10px 22px;font-size:13px;display:flex;align-items:center;gap:8px;opacity:0;transition:.25s;z-index:500;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.success .t-icon{color:var(--success);}
+.toast.error .t-icon{color:var(--danger);}
+.toast.info .t-icon{color:var(--primary);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="page-scroll">
+
+    <!-- ====== 方案核销汇总（新增，标 col-new） ====== -->
+    <div class="form-card col-new">
+      <div class="fc-header">
+        <span class="fc-dot"></span><span class="fc-title">方案保证金汇总</span>
+      </div>
+      <div class="fc-body">
+        <div class="summary-grid">
+          <div class="sum-row">
+            <div class="sum-cell"><div class="sum-label">方案需核销总数</div><div class="sum-value" id="sumTotalQty">1000<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
+            <div class="sum-cell"><div class="sum-label">方案已核销总数（审批通过）</div><div class="sum-value green" id="sumPassedQty">500<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
+            <div class="sum-cell"><div class="sum-label">方案待核销总数</div><div class="sum-value" id="sumPendingQty">500<span style="font-size:12px;color:var(--text-aux);margin-left:2px;">台</span></div></div>
+            <div class="sum-cell"><div class="sum-label">方案已收取保证金总额</div><div class="sum-value money" id="sumAmount">¥300,000.00</div></div>
+          </div>
+          <div class="sum-row">
+            <div class="sum-cell"><div class="sum-label">方案已返还保证金金额</div><div class="sum-value green" id="sumRefund">¥30,000.00</div></div>
+            <div class="sum-cell"><div class="sum-label">方案已收差保证金金额</div><div class="sum-value red" id="sumDeduct">¥6,000.00</div></div>
+            <div class="sum-cell"><div class="sum-label">方案待处理保证金金额</div><div class="sum-value money" id="sumHandling">¥264,000.00</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 方案维度汇总表（新增，标 col-new） ====== -->
+    <div class="form-card col-new">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">方案维度汇总</span><span class="fc-tag">按 SKU 汇总</span></div>
+      <div class="fc-body pad0">
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead><tr>
+              <th>序号</th><th>商品名称</th><th>产品型号</th><th>SKU编号</th><th>特批类型</th>
+              <th>项目已采购数量</th><th>项目已开单数量</th><th>工程单已购买数量</th>
+              <th>累计合格数量</th><th>累计收差数量</th><th>审批中数量</th>
+              <th>剩余可核销数量</th><th>保证金单价</th><th>保证金金额</th><th>累计返还金额</th><th>累计收差金额</th>
+            </tr></thead>
+            <tbody id="skuBody"></tbody>
+            <tfoot id="skuFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 核销明细（新增，标 col-new） ====== -->
+    <div class="form-card col-new">
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">核销明细</span><span class="fc-tag">按核销单号展示</span></div>
+      <div class="fc-body pad0">
+        <div class="table-wrap">
+          <table class="tbl tbl-bill">
+            <thead><tr>
+              <th>核销单号</th><th>申请时间</th><th>审批状态</th><th>合格数量</th><th>不合格数量</th>
+              <th>已返还金额</th><th>已收差金额</th><th>操作</th>
+            </tr></thead>
+            <tbody id="billBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ====== 底部固定操作栏（新增，标 col-new） ====== -->
+  <div class="form-footer">
+    <span class="ff-tip" id="createTip"></span>
+    <button class="btn btn-primary" id="createBtn" onclick="goCreate()">＋ 发起核销</button>
+  </div>
+</div>
+
+<div class="toast" id="toastBox"><span class="t-icon" id="toastIcon">✓</span><span id="toastMsg"></span></div>
+
+<script>
+/* 演示数据承接图片提取初稿：方案 GCTP2620260723001 */
+const SKUS = [
+  {id:1, name:'清柔风变频壁挂机', model:'KFR-35GW', sku:'KB541001600', type:'特价机', purchased:50, ordered:10, bought:6,  price:1000, cumQ:4, cumU:1, pending:0, remain:5, refund:4000, deduct:1000},
+  {id:2, name:'天井机变频1',     model:'KFR-65GW', sku:'KB541001601', type:'资源机', purchased:30, ordered:5,  bought:3,  price:2000, cumQ:1, cumU:0, pending:0, remain:4, refund:2000, deduct:0},
+  {id:3, name:'变频柜机2级280',  model:'KFR-38GW', sku:'KB541001602', type:'配提机', purchased:20, ordered:8,  bought:2,  price:1500, cumQ:0, cumU:0, pending:0, remain:8, refund:0, deduct:0},
+  {id:4, name:'清柔风变频壁挂机', model:'KFR-05GW', sku:'KB541001603', type:'配提机', purchased:10, ordered:6,  bought:1,  price:800,  cumQ:0, cumU:0, pending:0, remain:6, refund:0, deduct:0},
+];
+
+const BILLS = [
+  {no:'BHX262026072300101', time:'2026-06-06 12:30:00', status:'已通过', refund:4000, deduct:0, q:4, uq:0, detail:[
+    {sku:1, q:4, uq:0, refund:4000, deduct:0}
+  ]},
+  {no:'BHX262026072300102', time:'2026-06-18 10:10:00', status:'已通过', refund:0, deduct:1000, q:0, uq:1, detail:[
+    {sku:1, q:0, uq:1, refund:0, deduct:1000}
+  ]},
+  {no:'BHX262026072300103', time:'2026-07-02 15:40:00', status:'已通过', refund:2000, deduct:0, q:1, uq:0, detail:[
+    {sku:2, q:1, uq:0, refund:2000, deduct:0}
+  ]},
+  {no:'BHX262026072300104', time:'2026-07-15 09:20:00', status:'已驳回', refund:3000, deduct:2000, q:3, uq:2, detail:[
+    {sku:1, q:3, uq:2, refund:3000, deduct:2000}
+  ]},
+];
+
+/* 审批中演示单：提交后 SKU 卡即时更新（审批中数量+、剩余可核销数量-），且不允许再发起新建 */
+const PENDING_BILL = {no:'BHX262026072300105', time:'2026-08-12 09:30:00', status:'审批中', sub:'FMS', refund:4000, deduct:0, q:3, uq:0, detail:[
+  {sku:1, q:2, uq:0, refund:2000, deduct:0},
+  {sku:2, q:1, uq:0, refund:2000, deduct:0}
+]};
+
+const fmt = n => '¥' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+function goCreate(){ location.href = '管理端-发起保证金核销.html'; }
+
+function getParam(name){
+  const m = new RegExp('[?&]'+name+'=([^&]*)').exec(location.search);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+/* ==================== 渲染方案维度汇总表 ==================== */
+function renderSku(list){
+  const rows = list || SKUS;
+  if(!rows.length){
+    document.getElementById('skuBody').innerHTML = '<tr class="empty-row"><td class="empty-cell" colspan="16"><span class="empty-box"><span class="empty-ico">∅</span>暂无方案核销数据</span></td></tr>';
+    document.getElementById('skuFoot').innerHTML = '';
+    return;
+  }
+  document.getElementById('skuBody').innerHTML = rows.map((k,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td class="td-left td-strong">${k.name}</td>
+      <td>${k.model}</td>
+      <td class="td-gray">${k.sku}</td>
+      <td><span class="st st-pass">${k.type}</span></td>
+      <td>${k.purchased}</td>
+      <td>${k.ordered}</td>
+      <td>${k.bought}</td>
+      <td>${k.cumQ||0}</td>
+      <td>${k.cumU||0}</td>
+      <td>${k.pending||0}</td>
+      <td>${k.remain||0}</td>
+      <td class="td-money">¥${k.price.toLocaleString()}</td>
+      <td class="td-money">${fmt(k.price*k.ordered)}</td>
+      <td class="td-money">${fmt(k.refund||0)}</td>
+      <td class="td-red">${fmt(k.deduct||0)}</td>
+    </tr>`).join('');
+  const tQ = rows.reduce((s,k)=>s+(k.cumQ||0),0);
+  const tU = rows.reduce((s,k)=>s+(k.cumU||0),0);
+  const tP = rows.reduce((s,k)=>s+(k.pending||0),0);
+  const tR = rows.reduce((s,k)=>s+(k.remain||0),0);
+  const tAmt = rows.reduce((s,k)=>s+k.price*k.ordered,0);
+  const tRF = rows.reduce((s,k)=>s+(k.refund||0),0);
+  const tDF = rows.reduce((s,k)=>s+(k.deduct||0),0);
+  document.getElementById('skuFoot').innerHTML = `<tr style="font-weight:700;background:var(--bg-header);">
+    <td colspan="8" class="td-left">合计</td>
+    <td>${tQ}</td><td>${tU}</td><td>${tP}</td><td>${tR}</td>
+    <td class="td-gray">—</td><td class="td-money">${fmt(tAmt)}</td>
+    <td class="td-money">${fmt(tRF)}</td><td class="td-red">${fmt(tDF)}</td>
+  </tr>`;
+}
+
+/* ==================== 渲染汇总卡（提交后即时更新） ==================== */
+function renderSummary(isEmpty){
+  const sum = fn => SKUS.reduce((s,k)=>s+fn(k),0);
+  const set = (id,v)=>{ document.getElementById(id).textContent = v; };
+  if(isEmpty){
+    set('sumTotalQty','0');
+    set('sumPassedQty','0');
+    set('sumPendingQty','0');
+    set('sumAmount','¥0.00');
+    set('sumRefund','¥0.00');
+    set('sumDeduct','¥0.00');
+    set('sumHandling','¥0.00');
+    return;
+  }
+  const passedQty = sum(k=>(k.cumQ||0)+(k.cumU||0));
+  const remainQty = sum(k=>k.remain||0);
+  const pendingQty = sum(k=>k.pending||0);
+  const waitQty = remainQty + pendingQty;
+  const totalQty = passedQty + waitQty;
+  const amount = sum(k=>k.price*k.ordered);
+  const refund = sum(k=>k.refund||0);
+  const deduct = sum(k=>k.deduct||0);
+  set('sumTotalQty', totalQty);
+  set('sumPassedQty', passedQty);
+  set('sumPendingQty', waitQty);
+  set('sumAmount', fmt(amount));
+  set('sumRefund', fmt(refund));
+  set('sumDeduct', fmt(deduct));
+  set('sumHandling', fmt(amount-refund-deduct));
+}
+
+/* ==================== 渲染发起核销按钮（有审批中单据则禁用） ==================== */
+function renderCreate(hasPending){
+  document.getElementById('createBtn').disabled = hasPending;
+  document.getElementById('createTip').textContent = hasPending ? '存在审批中的核销单，暂不可发起新建' : '';
+}
+
+/* ==================== 渲染核销明细 ==================== */
+function renderBills(list){
+  const rows = list || BILLS;
+  if(!rows.length){
+    document.getElementById('billBody').innerHTML = '<tr class="empty-row"><td class="empty-cell" colspan="8"><span class="empty-box"><span class="empty-ico">∅</span>暂无核销明细</span></td></tr>';
+    return;
+  }
+  document.getElementById('billBody').innerHTML = rows.map((b,i)=>`
+    <tr>
+      <td class="td-strong">${b.no}</td>
+      <td>${b.time}</td>
+      <td>${b.sub==='FMS' ? '<span class="st st-fms">审批中（FMS）</span>' : `<span class="st ${b.status==='已通过'?'st-pass':(b.status==='审批中'?'st-wait':'st-rej')}">${b.status}</span>`}</td>
+      <td>${b.q}</td>
+      <td>${b.uq}</td>
+      <td class="td-money">${fmt(b.refund)}</td>
+      <td class="td-red">${fmt(b.deduct)}</td>
+      <td>
+        <a class="op-link" href="管理端-保证金核销审批页_查看版.html?billNo=${encodeURIComponent(b.no)}&status=${encodeURIComponent(b.sub==='FMS'?'审批中（FMS）':b.status)}">查看详情</a>
+        ${b.status==='已驳回' ? '<span class="op-copy" onclick="copyNew('+i+')">复制与新建</span>' : ''}
+      </td>
+    </tr>`).join('');
+}
+
+/* ==================== 复制与新建（仅驳回单显示入口） ==================== */
+function copyNew(i){
+  toast('已按原单进入「复制与新建」，预填逻辑由发起页承接（本期为入口示意）','info');
+}
+
+/* ==================== Toast ==================== */
+function toast(msg, type){
+  const box = document.getElementById('toastBox');
+  document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastIcon').textContent = type==='error' ? '✕' : '✓';
+  box.className = 'toast show ' + (type||'success');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>box.classList.remove('show'), 2800);
+}
+
+/* ==================== 初始化 ==================== */
+(function init(){
+  const isEmpty = getParam('empty') !== null; // ?empty=1 预览缺省页
+  const isPending = getParam('pending') !== null; // ?pending=1 预览审批中单据
+  if(isPending && !isEmpty){
+    BILLS.push(PENDING_BILL);
+    SKUS[0].pending = 2;
+    SKUS[0].remain = 3;
+    SKUS[1].pending = 1;
+    SKUS[1].remain = 3;
+  }
+  renderSummary(isEmpty);
+  renderCreate(isPending);
+  renderSku(isEmpty ? [] : null);
+  renderBills(isEmpty ? [] : null);
+})();
+</script>
+</body>
+</html>
