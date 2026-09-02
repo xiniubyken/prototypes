@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>调拨单逆向单</title>
+<style>
+  :root {
+    --bg:#f5f7fa; --panel:#fff; --line:#e4e7ec; --text:#1f2937; --muted:#667085;
+    --primary:#2563eb; --success:#16a34a; --warn:#d97706; --danger:#dc2626; --info:#0284c7;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif; font-size:13px; letter-spacing:0; }
+  button,input,select { font-family:inherit; font-size:13px; letter-spacing:0; }
+  .topbar { position:sticky; top:0; z-index:50; height:52px; background:var(--panel); border-bottom:1px solid var(--line); display:flex; align-items:center; gap:14px; padding:0 20px; }
+  .brand { font-weight:700; font-size:15px; color:var(--primary); }
+  .crumb-sep { margin:0 8px; color:#cbd5e1; }
+  .crumb { color:var(--muted); }
+  .spacer { flex:1; }
+  .app { max-width:1380px; margin:0 auto; padding:16px 20px 100px; }
+  .page-title { font-size:18px; font-weight:600; margin:0 0 14px; }
+  .page-title-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .page-title-row h1 { font-size:18px; font-weight:600; margin:0; }
+  .back-btn { border:1px solid var(--line); background:var(--panel); border-radius:6px; width:30px; height:30px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text); text-decoration:none; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; margin-bottom:14px; }
+  .panel-body { padding:14px 16px; }
+  .panel-head { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); }
+  .panel-head h2 { font-size:14px; font-weight:600; margin:0; }
+  .panel-head .sub { color:var(--muted); font-size:12px; }
+  .search-grid { display:grid; grid-template-columns:repeat(4,minmax(150px,1fr)); gap:10px 12px; align-items:end; }
+  .field { display:flex; flex-direction:column; gap:5px; }
+  .field label { color:var(--muted); font-size:12px; }
+  .field input,.field select { height:32px; border:1px solid #d0d5dd; border-radius:6px; padding:0 9px; background:#fff; width:100%; }
+  .range { display:flex; align-items:center; gap:6px; }
+  .range input { flex:1; min-width:0; }
+  .range span { color:var(--muted); }
+  .btn-row { display:flex; gap:8px; }
+  .btn { height:32px; border-radius:6px; border:1px solid #d0d5dd; background:#fff; color:var(--text); padding:0 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; text-decoration:none; }
+  .btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn:disabled { opacity:.45; cursor:not-allowed; }
+  .toolbar { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--line); }
+  .toolbar .left { display:flex; gap:8px; }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:12px; min-width:1200px; }
+  .table-narrow table, table.narrow { min-width:900px; }
+  th,td { border-bottom:1px solid var(--line); padding:9px 10px; text-align:left; white-space:nowrap; }
+  th { background:#f9fafb; color:var(--muted); font-weight:600; }
+  tbody tr:hover { background:#f8fafc; }
+  .pager { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:10px 16px; color:var(--muted); font-size:12px; }
+  .tag { display:inline-flex; align-items:center; height:22px; border-radius:11px; padding:0 9px; font-size:12px; }
+  .tag.info { background:#f0f9ff; color:var(--info); }
+  .tag.success { background:#ecfdf3; color:var(--success); }
+  .tag.danger { background:#fef2f2; color:var(--danger); }
+  .tag.warn { background:#fffaeb; color:var(--warn); }
+  .link { color:var(--primary); cursor:pointer; text-decoration:none; }
+  .muted { color:var(--muted); }
+  .small { font-size:12px; }
+  .tabs { display:flex; gap:2px; border-bottom:1px solid var(--line); background:var(--panel); padding:0 16px; }
+  .tab { padding:11px 14px; color:var(--muted); cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:600; }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+  .empty { padding:56px 20px; text-align:center; color:var(--muted); }
+  .empty h2 { font-size:15px; color:var(--text); margin:0 0 8px; }
+  .empty .actions { display:flex; justify-content:center; gap:10px; margin-top:18px; }
+  .price-input { width:118px; height:28px; border:1px solid var(--warn); border-radius:5px; padding:0 8px; background:#fffdf5; }
+  .hint-line { color:var(--warn); font-size:12px; }
+  .info-strip { display:grid; grid-template-columns:repeat(4,minmax(140px,1fr)); gap:12px 16px; padding:14px 16px; }
+  .info-item .k { color:var(--muted); font-size:12px; margin-bottom:4px; }
+  .info-item .v { font-size:13px; }
+  .modal-mask { position:fixed; inset:0; background:rgba(15,23,42,.45); z-index:80; display:none; align-items:center; justify-content:center; }
+  .modal-mask.show { display:flex; }
+  .modal { width:760px; max-width:calc(100vw - 48px); background:var(--panel); border-radius:8px; overflow:hidden; box-shadow:0 18px 48px rgba(15,23,42,.22); }
+  .modal-head { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--line); }
+  .modal-head h3 { margin:0; font-size:15px; font-weight:600; }
+  .modal-close { border:none; background:none; font-size:18px; color:var(--muted); cursor:pointer; }
+  .modal-body { padding:16px 18px; }
+  .modal-foot { display:flex; justify-content:flex-end; gap:8px; padding:12px 18px; border-top:1px solid var(--line); }
+  .file-row { display:flex; align-items:center; gap:10px; margin:12px 0; flex-wrap:wrap; }
+  .file-name { color:var(--text); background:#f0f9ff; border-radius:6px; padding:5px 10px; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .progress { height:8px; border-radius:4px; background:#eef2f6; overflow:hidden; margin:12px 0 10px; }
+  .progress > div { height:100%; width:100%; background:var(--primary); }
+  .summary { display:flex; align-items:center; gap:16px; font-weight:600; margin:10px 0; }
+  .summary .fail { color:var(--danger); }
+  .note { color:var(--muted); font-size:12px; margin-top:8px; }
+  .bottombar { position:fixed; left:0; right:0; bottom:0; z-index:60; background:var(--panel); border-top:1px solid var(--line); padding:10px 20px; display:none; align-items:center; justify-content:flex-end; gap:10px; }
+  .bottombar.show { display:flex; }
+  #detailBottomBar { justify-content:center; }
+  .fade-hint { position:fixed; left:50%; bottom:70px; transform:translateX(-50%); background:rgba(37,99,235,.95); color:#fff; padding:8px 16px; border-radius:6px; font-size:12px; z-index:70; opacity:0; transition:opacity .4s ease; pointer-events:none; }
+  .fade-hint.show { opacity:1; }
+  @media (max-width:1280px) {
+    .search-grid { grid-template-columns:repeat(3,minmax(150px,1fr)); }
+    .info-strip { grid-template-columns:repeat(2,minmax(140px,1fr)); }
+    table { min-width:1000px; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="brand">调拨单管理</span><span class="crumb-sep">/</span><span class="crumb" id="crumb">逆向单列表</span>
+</div>
+
+<!-- ============ 视图一：列表 ============ -->
+<div class="view" id="view-list">
+  <div class="app">
+    <h1 class="page-title">逆向单列表</h1>
+    <div class="panel">
+      <div class="panel-body">
+        <div class="search-grid">
+          <div class="field"><label>退货单号</label><input placeholder="请输入退货单号"></div>
+          <div class="field"><label>客户账号</label><input placeholder="请输入客户账号"></div>
+          <div class="field"><label>状态</label><select><option>全部状态</option><option>已推送OMS</option><option>推送失败</option><option>已开单</option></select></div>
+          <div class="field"><label>创建时间</label><div class="range"><input type="date"><span>至</span><input type="date"></div></div>
+          <div class="field"><label>条码</label><input placeholder="请输入条码"></div>
+          <div class="field"><label>收货账仓</label><input placeholder="请输入收货账仓"></div>
+          <div class="field"><label>发货账仓</label><input placeholder="请输入发货账仓"></div>
+          <div class="field"><label>鉴定批次</label><input placeholder="请输入鉴定批次"></div>
+          <div class="field"><label>残次机鉴定单单号</label><input placeholder="请输入残次机鉴定单单号"></div>
+          <div class="field"><label>erp单号</label><input placeholder="请输入erp单号"></div>
+          <div class="btn-row"><button class="btn primary">查询</button><button class="btn">重置</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="toolbar">
+        <div class="left">
+          <a class="btn primary" onclick="goNew()">新建/导入</a>
+          <button class="btn" onclick="demoDownload('已按当前筛选结果导出 XLSX（15 项明细字段，无条码行也导出）')">导出</button>
+        </div>
+        <span class="muted small"></span>
+      </div>
+      <div class="table-wrap table-narrow">
+        <table>
+          <thead><tr><th>序号</th><th>退货单号</th><th>客户账号</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td><a class="link" onclick="goDetail('success')">DBTH20260824001</a></td><td>P9600019</td><td><span class="tag success">已开单</span></td><td>张敏</td><td>2026-08-24 10:05:07</td><td><a class="link" onclick="goDetail('success')">详情</a></td></tr>
+            <tr><td>2</td><td><a class="link" onclick="goDetail('waiting')">DBTH20260824002</a></td><td>P9600018</td><td><span class="tag info">已推送OMS</span></td><td>张敏</td><td>2026-08-24 10:12:30</td><td><a class="link" onclick="goDetail('waiting')">详情</a></td></tr>
+            <tr><td>3</td><td><a class="link" onclick="goDetail('push_fail')">DBTH20260824003</a></td><td>P9600020</td><td><span class="tag danger">推送失败</span></td><td>李华</td><td>2026-08-24 10:30:11</td><td><a class="link" onclick="goDetail('push_fail')">详情</a></td></tr>
+            <tr><td>4</td><td><a class="link" onclick="goDetail('open_fail')">DBTH20260824004</a></td><td>P9600021</td><td><span class="tag info">已推送OMS</span></td><td>李华</td><td>2026-08-24 10:42:55</td><td><a class="link" onclick="goDetail('open_fail')">详情</a></td></tr>
+            <tr><td>5</td><td><a class="link" onclick="goDetail('success')">DBTH20260824005</a></td><td>P9600019</td><td><span class="tag success">已开单</span></td><td>王芳</td><td>2026-08-24 11:01:40</td><td><a class="link" onclick="goDetail('success')">详情</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager"><span>共 86 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 视图二：新建 ============ -->
+<div class="view" id="view-new" style="display:none">
+  <div class="app">
+    <div class="page-title-row">
+      <a class="back-btn" onclick="goList()" title="返回">‹</a>
+      <h1>新建-调拨单-逆向单</h1>
+    </div>
+
+    <div class="panel" id="newEmpty">
+      <div class="empty">
+        <h2>请先导入调拨退货明细</h2>
+        <div>支持 XLS/XLSX，最多 2000 行；有任一失败时整文件导入失败</div>
+        <div class="actions">
+          <button class="btn" onclick="demoDownload('已下载导入模板')">下载模板</button>
+          <button class="btn primary" onclick="openImport(true)">打开导入弹窗</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="newPreview" style="display:none">
+      <div class="tabs">
+        <div class="tab active" id="tab-gen-btn" onclick="setNewTab('gen')">生成预览</div>
+        <div class="tab" id="tab-raw-btn" onclick="setNewTab('raw')">导入明细</div>
+      </div>
+      <div class="tab-content active" id="tab-gen">
+        <div class="panel">
+          <div class="panel-head"><h2>生成退货单预览</h2><span class="sub">本次导入生成 1 个退货单，共 3 条明细</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>序号</th><th>订单分组</th><th>客户账号</th><th>业务伙伴</th><th>商家名称</th><th>物料代码</th><th>条码</th><th>收货账仓</th><th>收货仓库名称</th><th>发货账仓</th><th>发货仓库名称</th><th>调拨单价</th><th>参考A</th><th>参考B</th><th>仓库名称</th><th>鉴定批次</th><th>是否性能故障</th><th>性能故障原因</th><th>非性能故障</th><th>是否上墙</th><th>残次机鉴定单单号</th><th>备注</th><th>erp单号</th></tr></thead>
+              <tbody id="genTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pager"><span>共 3 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>ERP 开单透视</h2><span class="sub">共 2 个开单行；退货行号提交后生成</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>退货行号</th><th>客户账号</th><th>商家名称</th><th>业务伙伴</th><th>物料代码</th><th>数量</th><th>收货账仓</th><th>收货仓库名称</th><th>发货账仓</th><th>发货仓库名称</th><th>参考A</th><th>参考B</th><th>调拨单价</th><th>erp单号</th></tr></thead>
+              <tbody id="pivotTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pager"><span>共 2 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+        </div>
+      </div>
+      <div class="tab-content" id="tab-raw">
+        <div class="panel">
+          <div class="panel-head"><h2>导入明细回显</h2><span class="sub">只展示导入成功的明细行，共 3 条</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>序号</th><th>订单分组</th><th>客户账号</th><th>物料代码</th><th>条码</th><th>收货账仓</th><th>收货仓库名称</th><th>发货账仓</th><th>发货仓库名称</th><th>调拨单价</th><th>参考A</th><th>参考B</th><th>仓库名称</th><th>鉴定批次</th><th>是否性能故障</th><th>性能故障原因</th><th>非性能故障</th><th>是否上墙</th><th>残次机鉴定单单号</th><th>备注</th></tr></thead>
+              <tbody id="rawTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pager"><span>共 3 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 视图三：详情 ============ -->
+<div class="view" id="view-detail" style="display:none">
+  <div class="app">
+    <div class="page-title-row">
+      <a class="back-btn" onclick="goList()" title="返回">‹</a>
+      <h1>逆向单详情</h1>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h2>基本信息</h2></div>
+      <div class="info-strip">
+        <div class="info-item"><div class="k">退货单号</div><div class="v">DBTH20260824001</div></div>
+        <div class="info-item"><div class="k">状态</div><div class="v" id="detailStatus"></div></div>
+        <div class="info-item"><div class="k">创建人</div><div class="v">张敏</div></div>
+        <div class="info-item"><div class="k">创建时间</div><div class="v">2026-08-24 10:00:01</div></div>
+        <div class="info-item"><div class="k">明细行数</div><div class="v">3</div></div>
+        <div class="info-item"><div class="k">开单行数</div><div class="v">2</div></div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" id="dtab-gen-btn" onclick="setDetailTab('gen')">生成数据</div>
+      <div class="tab" id="dtab-raw-btn" onclick="setDetailTab('raw')">导入明细</div>
+      <div class="tab" id="dtab-push-btn" onclick="setDetailTab('push')">推送记录</div>
+    </div>
+    <div class="tab-content active" id="dtab-gen">
+      <div class="panel">
+        <div class="panel-head"><h2>退货单明细</h2><span class="sub">只读，共 3 条明细</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>序号</th><th>订单分组</th><th>客户账号</th><th>业务伙伴</th><th>商家名称</th><th>物料代码</th><th>条码</th><th>收货账仓</th><th>收货仓库名称</th><th>发货账仓</th><th>发货仓库名称</th><th>调拨单价</th><th>参考A</th><th>参考B</th><th>仓库名称</th><th>鉴定批次</th><th>是否性能故障</th><th>性能故障原因</th><th>非性能故障</th><th>是否上墙</th><th>残次机鉴定单单号</th><th>备注</th><th>erp单号</th></tr></thead>
+            <tbody id="detailGenBody"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span>共 3 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>ERP 开单透视</h2><span class="sub">只读，共 2 个开单行</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>退货行号</th><th>客户账号</th><th>商家名称</th><th>业务伙伴</th><th>物料代码</th><th>数量</th><th>收货账仓</th><th>收货仓库名称</th><th>发货账仓</th><th>发货仓库名称</th><th>参考A</th><th>参考B</th><th>调拨单价</th><th>erp单号</th></tr></thead>
+            <tbody id="detailPivotBody"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span>共 2 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+      </div>
+    </div>
+    <div class="tab-content" id="dtab-raw">
+      <div class="panel">
+        <div class="panel-head"><h2>导入明细</h2><span class="sub">只读，共 3 条</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>序号</th><th>订单分组</th><th>客户账号</th><th>物料代码</th><th>条码</th><th>收货账仓</th><th>收货仓库名称</th><th>发货账仓</th><th>发货仓库名称</th><th>调拨单价</th><th>参考A</th><th>参考B</th><th>仓库名称</th><th>鉴定批次</th><th>是否性能故障</th><th>性能故障原因</th><th>非性能故障</th><th>是否上墙</th><th>残次机鉴定单单号</th><th>备注</th></tr></thead>
+            <tbody id="detailRawBody"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span>共 3 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+      </div>
+    </div>
+    <div class="tab-content" id="dtab-push">
+      <div class="panel">
+        <div class="panel-head"><h2>推送记录</h2><span class="sub">只记录集采→OMS 与 OMS返回</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>序号</th><th>提交时间</th><th>节点</th><th>节点状态</th><th>返回信息</th><th>回传时间</th></tr></thead>
+            <tbody id="pushTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pager"><span>共 2 条</span><span>每页 100 条</span><button class="btn" disabled>上一页</button><button class="btn" disabled>下一页</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 导入弹窗（通用） ============ -->
+<div class="modal-mask" id="importModal">
+  <div class="modal">
+    <div class="modal-head"><h3>批量导入-调拨单逆向单</h3><button class="modal-close" onclick="openImport(false)">×</button></div>
+    <div class="modal-body">
+      <div class="muted small">支持 XLS/XLSX，最多 2000 行；* 为必填项</div>
+      <div class="file-row">
+        <button class="btn" onclick="demoDownload('已下载导入模板')">下载模板</button><button class="btn">选择文件</button><span class="file-name">调拨单逆向单_20260824.xlsx</span><button class="btn primary" onclick="uploadDemo()">上传文件</button>
+      </div>
+      <div class="muted small" style="margin-bottom:8px">核验演示：<a class="link" onclick="toggleImportDemo()" id="importDemoToggle">切换为「有失败」</a></div>
+      <div class="progress"><div></div></div>
+      <div class="summary" id="importSummary"></div>
+      <div class="note" id="importNote"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="openImport(false)">取消</button>
+      <button class="btn" id="downloadFailBtn" onclick="demoDownload('已下载失败记录（含源文件行号和失败原因）')">下载失败记录</button>
+      <button class="btn primary" id="confirmImportBtn" onclick="confirmImport()">确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 底部操作栏 ============ -->
+<div class="bottombar" id="newBottomBar"><span class="muted small" style="margin-right:auto">提交结果演示：<a class="link" onclick="toggleSubmitDemo()" id="submitDemoToggle">成功</a></span><button class="btn primary" id="submitPushBtn" onclick="submitPush()">提交推送</button></div>
+<div class="bottombar" id="detailBottomBar"><button class="btn primary" onclick="retryPush()">重新提交</button></div>
+<div class="fade-hint" id="fadeHint"></div>
+
+<script>
+  // ==================== 导航 ====================
+  function show(view) {
+    ['list','new','detail'].forEach(v => {
+      document.getElementById('view-'+v).style.display = (v === view) ? '' : 'none';
+    });
+  }
+  function goList() {
+    show('list');
+    document.getElementById('newBottomBar').classList.remove('show');
+    document.getElementById('detailBottomBar').classList.remove('show');
+    document.getElementById('importModal').classList.remove('show');
+  }
+  function goNew() {
+    show('new');
+    document.getElementById('newEmpty').style.display = '';
+    document.getElementById('newPreview').style.display = 'none';
+    document.getElementById('newBottomBar').classList.remove('show');
+    document.getElementById('detailBottomBar').classList.remove('show');
+    document.getElementById('importModal').classList.remove('show');
+  }
+  function goDetail(status) {
+    show('detail');
+    detailStatus = status || 'waiting';
+    renderDetail();
+    document.getElementById('newBottomBar').classList.remove('show');
+    document.getElementById('importModal').classList.remove('show');
+  }
+
+  // ==================== 新建视图 ====================
+  const newRows = [
+    { no:'01', group:'02', customer:'P9600019', partner:'YY001', merchant:'格力电器', sku:'B6001010200', barcode:'4Y3235W001807', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A001', refB:'B001', wh:'正品仓', batch:'C20260508000012', pf:'是', pfr:'箱损', npf:'/', wall:'是', appr:'CJ20260824001', remark:'整机退货', price:'¥2222.22' },
+    { no:'02', group:'02', customer:'P9600019', partner:'YY001', merchant:'格力电器', sku:'B6001010200', barcode:'', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A002', refB:'B002', wh:'正品仓', batch:'C20260508000012', pf:'否', pfr:'机损', npf:'/', wall:'否', appr:'CJ20260824001', remark:'', price:'¥2222.22' },
+    { no:'03', group:'22', customer:'P9600018', partner:'YY002', merchant:'美的集团', sku:'KH340000200', barcode:'4Y3235W001809', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A003', refB:'B003', wh:'', batch:'C20260508000012', pf:'否', pfr:'/', npf:'箱损', wall:'否', appr:'CJ20260824001', remark:'箱损件', price:'' }
+  ];
+  const newPivotRows = [
+    { line:'--', customer:'P9600019', merchant:'格力电器', partner:'YY001', sku:'B6001010200', qty:'2', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A001、A002', refB:'B001、B002', price:'¥2222.22', erp:'--' },
+    { line:'--', customer:'P9600018', merchant:'美的集团', partner:'YY002', sku:'KH340000200', qty:'1', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A003', refB:'B003', price:'待补录', erp:'--' }
+  ];
+  let enteredPrice = {};
+  let newImportState = 'pass';
+  let submitResult = 'success';
+
+  function barcodeCell(b) {
+    return b ? b : '<span class="tag warn">导入无条码</span>';
+  }
+  function renderGenTable() {
+    document.getElementById('genTableBody').innerHTML = newRows.map(r => {
+      const priceCell = r.price ? r.price : ('<input class="price-input" value="'+(enteredPrice[r.sku]||'')+'" placeholder="请输入调拨价" onblur="fillPrice(this, \''+r.sku+'\')"><div class="hint-line">调拨价未匹配，请补录</div>');
+      return '<tr><td>'+r.no+'</td><td>'+r.group+'</td><td>'+r.customer+'</td><td>'+r.partner+'</td><td>'+r.merchant+'</td><td>'+r.sku+'</td><td>'+barcodeCell(r.barcode)+'</td><td>'+r.rc+'</td><td>'+r.rn+'</td><td>'+r.sc+'</td><td>'+r.sn+'</td><td>'+priceCell+'</td><td>'+r.refA+'</td><td>'+r.refB+'</td><td>'+r.wh+'</td><td>'+r.batch+'</td><td>'+r.pf+'</td><td>'+r.pfr+'</td><td>'+r.npf+'</td><td>'+r.wall+'</td><td>'+r.appr+'</td><td>'+r.remark+'</td><td>--</td></tr>';
+    }).join('');
+    renderPivotTable();
+  }
+  function renderPivotTable() {
+    document.getElementById('pivotTableBody').innerHTML = newPivotRows.map(r => {
+      const price = enteredPrice[r.sku] ? ('¥'+enteredPrice[r.sku]) : (r.price === '待补录' ? '待补录' : r.price);
+      return '<tr><td>'+r.line+'</td><td>'+r.customer+'</td><td>'+r.merchant+'</td><td>'+r.partner+'</td><td>'+r.sku+'</td><td>'+r.qty+'</td><td>'+r.rc+'</td><td>'+r.rn+'</td><td>'+r.sc+'</td><td>'+r.sn+'</td><td>'+r.refA+'</td><td>'+r.refB+'</td><td>'+price+'</td><td>'+r.erp+'</td></tr>';
+    }).join('');
+  }
+  function fillPrice(input, sku) {
+    const val = input.value.trim();
+    if (!val || !/^\d+(\.\d{1,2})?$/.test(val)) { input.style.borderColor = '#dc2626'; return; }
+    input.style.borderColor = '';
+    enteredPrice[sku] = val;
+    renderPivotTable();
+    updateBottomBar();
+  }
+  function renderRawTable() {
+    document.getElementById('rawTableBody').innerHTML = newRows.map(r =>
+      '<tr><td>'+r.no+'</td><td>'+r.group+'</td><td>'+r.customer+'</td><td>'+r.sku+'</td><td>'+barcodeCell(r.barcode)+'</td><td>'+r.rc+'</td><td>'+r.rn+'</td><td>'+r.sc+'</td><td>'+r.sn+'</td><td>'+(r.price||'--')+'</td><td>'+r.refA+'</td><td>'+r.refB+'</td><td>'+r.wh+'</td><td>'+r.batch+'</td><td>'+r.pf+'</td><td>'+r.pfr+'</td><td>'+r.npf+'</td><td>'+r.wall+'</td><td>'+r.appr+'</td><td>'+r.remark+'</td></tr>'
+    ).join('');
+  }
+  function updateBottomBar() {
+    const bar = document.getElementById('newBottomBar');
+    const submit = document.getElementById('submitPushBtn');
+    const previewVisible = document.getElementById('newPreview').style.display !== 'none';
+    const modalOpen = document.getElementById('importModal').classList.contains('show');
+    if (previewVisible && !modalOpen) {
+      const allFilled = newRows.every(r => r.price || enteredPrice[r.sku]);
+      submit.disabled = !allFilled;
+      bar.classList.add('show');
+    } else {
+      bar.classList.remove('show');
+    }
+  }
+  function setNewTab(tab) {
+    document.getElementById('tab-gen-btn').classList.toggle('active', tab === 'gen');
+    document.getElementById('tab-raw-btn').classList.toggle('active', tab === 'raw');
+    document.getElementById('tab-gen').classList.toggle('active', tab === 'gen');
+    document.getElementById('tab-raw').classList.toggle('active', tab === 'raw');
+  }
+  function openImport(show) {
+    document.getElementById('importModal').classList.toggle('show', show);
+    updateBottomBar();
+  }
+  function renderImportModal() {
+    const summary = document.getElementById('importSummary');
+    const note = document.getElementById('importNote');
+    const downloadBtn = document.getElementById('downloadFailBtn');
+    const confirmBtn = document.getElementById('confirmImportBtn');
+    if (newImportState === 'fail') {
+      summary.innerHTML = '共 2000 条，成功 1998 条，失败 <span class="fail">2</span> 条';
+      note.innerHTML = '弹窗内不展示失败行，点击“下载失败记录”查看源文件行号和失败原因；修改后重新上传，重新上传全量覆盖。<br><span style="color:var(--muted)">失败记录示例：<br>行 128｜物料代码不存在或调拨价未配置<br>行 356｜收货账仓不存在<br>行 512｜订单分组02下收货账仓不一致：N52/N53</span>';
+      downloadBtn.style.display = '';
+      confirmBtn.disabled = true;
+    } else {
+      summary.innerHTML = '共 3 条，全部通过';
+      note.textContent = '确认导入后将生成退货单预览；有任一失败时整文件导入失败，不允许部分导入。';
+      downloadBtn.style.display = 'none';
+      confirmBtn.disabled = false;
+    }
+  }
+  function uploadDemo() {
+    newImportState = 'pass';
+    renderImportModal();
+  }
+  function toggleImportDemo() {
+    newImportState = (newImportState === 'pass') ? 'fail' : 'pass';
+    renderImportModal();
+    document.getElementById('importDemoToggle').textContent = (newImportState === 'pass') ? '切换为「有失败」' : '切换为「全部通过」';
+  }
+  function demoDownload(msg) {
+    showFadeHint(msg);
+  }
+  function confirmImport() {
+    if (newImportState === 'fail') return;
+    if (!confirm('确认导入 3 条记录？失败记录不会导入。')) return;
+    openImport(false);
+    document.getElementById('newEmpty').style.display = 'none';
+    document.getElementById('newPreview').style.display = '';
+    renderGenTable();
+    renderRawTable();
+    setNewTab('gen');
+    updateBottomBar();
+  }
+  function submitPush() {
+    if (!confirm('提交后将生成退货单并推送 OMS，是否继续？')) return;
+    if (submitResult === 'fail') {
+      showFadeHint('推送失败，请稍后在列表页重新提交');
+      setTimeout(() => goList(), 1600);
+    } else {
+      showFadeHint('提交成功，已生成退货单并推送 OMS');
+      setTimeout(() => goList(), 1200);
+    }
+  }
+  function toggleSubmitDemo() {
+    submitResult = (submitResult === 'success') ? 'fail' : 'success';
+    document.getElementById('submitDemoToggle').textContent = submitResult;
+  }
+
+  // ==================== 详情视图 ====================
+  const detailRows = [
+    { no:'01', group:'02', customer:'P9600019', partner:'YY001', merchant:'格力电器', sku:'B6001010200', barcode:'4Y3235W001807', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A001', refB:'B001', wh:'正品仓', batch:'C20260508000012', pf:'是', pfr:'箱损', npf:'/', wall:'是', appr:'CJ20260824001', remark:'整机退货', price:'¥2222.22' },
+    { no:'02', group:'02', customer:'P9600019', partner:'YY001', merchant:'格力电器', sku:'B6001010200', barcode:'', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A002', refB:'B002', wh:'正品仓', batch:'C20260508000012', pf:'否', pfr:'机损', npf:'/', wall:'否', appr:'CJ20260824001', remark:'', price:'¥2222.22' },
+    { no:'03', group:'22', customer:'P9600018', partner:'YY002', merchant:'美的集团', sku:'KH340000200', barcode:'4Y3235W001809', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A003', refB:'B003', wh:'', batch:'C20260508000012', pf:'否', pfr:'/', npf:'箱损', wall:'否', appr:'CJ20260824001', remark:'箱损件', price:'¥2222.22' }
+  ];
+  const detailPivotRows = [
+    { line:'DBTH2026082400102001', customer:'P9600019', merchant:'格力电器', partner:'YY001', sku:'B6001010200', qty:'2', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A001、A002', refB:'B001、B002', price:'¥2222.22', erp:'erp0001' },
+    { line:'DBTH2026082400122001', customer:'P9600018', merchant:'美的集团', partner:'YY002', sku:'KH340000200', qty:'1', rc:'N52', rn:'菜鸟家电上海仓', sc:'T0027A', sn:'菜鸟家电义乌仓', refA:'A003', refB:'B003', price:'¥2222.22', erp:'erp0002' }
+  ];
+  let detailStatus = 'waiting';
+  let retryCount = 0;
+  let lastPushHtml = '';
+
+  function renderDetail() {
+    document.getElementById('detailGenBody').innerHTML = detailRows.map(r =>
+      '<tr><td>'+r.no+'</td><td>'+r.group+'</td><td>'+r.customer+'</td><td>'+r.partner+'</td><td>'+r.merchant+'</td><td>'+r.sku+'</td><td>'+barcodeCell(r.barcode)+'</td><td>'+r.rc+'</td><td>'+r.rn+'</td><td>'+r.sc+'</td><td>'+r.sn+'</td><td>'+r.price+'</td><td>'+r.refA+'</td><td>'+r.refB+'</td><td>'+r.wh+'</td><td>'+r.batch+'</td><td>'+r.pf+'</td><td>'+r.pfr+'</td><td>'+r.npf+'</td><td>'+r.wall+'</td><td>'+r.appr+'</td><td>'+r.remark+'</td><td>'+(detailStatus==='success'?'erp0001 / erp0002':'--')+'</td></tr>'
+    ).join('');
+    document.getElementById('detailPivotBody').innerHTML = detailPivotRows.map(r =>
+      '<tr><td>'+r.line+'</td><td>'+r.customer+'</td><td>'+r.merchant+'</td><td>'+r.partner+'</td><td>'+r.sku+'</td><td>'+r.qty+'</td><td>'+r.rc+'</td><td>'+r.rn+'</td><td>'+r.sc+'</td><td>'+r.sn+'</td><td>'+r.refA+'</td><td>'+r.refB+'</td><td>'+r.price+'</td><td>'+(detailStatus==='success'?r.erp:'--')+'</td></tr>'
+    ).join('');
+    document.getElementById('detailRawBody').innerHTML = detailRows.map(r =>
+      '<tr><td>'+r.no+'</td><td>'+r.group+'</td><td>'+r.customer+'</td><td>'+r.sku+'</td><td>'+barcodeCell(r.barcode)+'</td><td>'+r.rc+'</td><td>'+r.rn+'</td><td>'+r.sc+'</td><td>'+r.sn+'</td><td>'+(r.price||'--')+'</td><td>'+r.refA+'</td><td>'+r.refB+'</td><td>'+r.wh+'</td><td>'+r.batch+'</td><td>'+r.pf+'</td><td>'+r.pfr+'</td><td>'+r.npf+'</td><td>'+r.wall+'</td><td>'+r.appr+'</td><td>'+r.remark+'</td></tr>'
+    ).join('');
+    let push = '';
+    if (detailStatus === 'waiting') {
+      if (retryCount > 0) {
+        push = lastPushHtml + '<tr><td>2</td><td>2026-08-24 10:35:00</td><td>集采→OMS</td><td><span class="tag success">成功</span></td><td>推送成功</td><td>10:35:01</td></tr><tr><td>2</td><td>2026-08-24 10:35:01</td><td>OMS返回</td><td><span class="tag info">待返回</span></td><td>--</td><td>--</td></tr>';
+      } else {
+        push = '<tr><td>1</td><td>2026-08-24 10:00:01</td><td>集采→OMS</td><td><span class="tag success">成功</span></td><td>推送成功</td><td>10:00:02</td></tr><tr><td>1</td><td>2026-08-24 10:00:02</td><td>OMS返回</td><td><span class="tag info">待返回</span></td><td>--</td><td>--</td></tr>';
+      }
+    } else if (detailStatus === 'success') {
+      push = '<tr><td>1</td><td>2026-08-24 10:00:01</td><td>集采→OMS</td><td><span class="tag success">成功</span></td><td>推送成功</td><td>10:00:02</td></tr><tr><td>1</td><td>2026-08-24 10:00:02</td><td>OMS返回</td><td><span class="tag success">成功</span></td><td>开单成功，单号 erp0001、erp0002</td><td>10:05:07</td></tr>';
+    } else if (detailStatus === 'push_fail') {
+      push = '<tr><td>1</td><td>2026-08-24 10:30:11</td><td>集采→OMS</td><td><span class="tag danger">失败</span></td><td>接口超时，请稍后重试</td><td>--</td></tr>';
+      lastPushHtml = push;
+    } else if (detailStatus === 'open_fail') {
+      push = '<tr><td>1</td><td>2026-08-24 10:00:01</td><td>集采→OMS</td><td><span class="tag success">成功</span></td><td>推送成功</td><td>10:00:02</td></tr><tr><td>1</td><td>2026-08-24 10:00:02</td><td>OMS返回</td><td><span class="tag danger">失败</span></td><td>开单失败</td><td>--</td></tr>';
+      lastPushHtml = push;
+    }
+    document.getElementById('pushTableBody').innerHTML = push;
+    const map = { waiting:['已推送OMS','info'], success:['已开单','success'], push_fail:['推送失败','danger'], open_fail:['已推送OMS','info'] };
+    const item = map[detailStatus];
+    document.getElementById('detailStatus').innerHTML = '<span class="tag '+item[1]+'">'+item[0]+'</span>';
+    document.getElementById('detailBottomBar').classList.toggle('show', detailStatus === 'push_fail' || detailStatus === 'open_fail');
+  }
+  function setDetailTab(tab) {
+    ['gen','raw','push'].forEach(t => {
+      document.getElementById('dtab-'+t+'-btn').classList.toggle('active', tab === t);
+      document.getElementById('dtab-'+t).classList.toggle('active', tab === t);
+    });
+  }
+  function retryPush() {
+    retryCount += 1;
+    detailStatus = 'waiting';
+    renderDetail();
+    showFadeHint('已重新提交，状态更新为「已推送OMS」');
+  }
+  function showFadeHint(msg) {
+    const h = document.getElementById('fadeHint');
+    h.textContent = msg;
+    h.classList.add('show');
+    setTimeout(() => h.classList.remove('show'), 2000);
+  }
+
+  // ==================== 初始化 ====================
+  (function init() {
+    const qp = new URLSearchParams(location.search);
+    const page = qp.get('page');
+    if (page === 'new') {
+      goNew();
+      if (qp.get('modal') === '1') {
+        newImportState = qp.get('import') || 'pass';
+        renderImportModal();
+        openImport(true);
+      }
+    } else if (page === 'detail') {
+      goDetail(qp.get('status') || 'waiting');
+    } else {
+      goList();
+    }
+  })();
+</script>
+</body>
+</html>
