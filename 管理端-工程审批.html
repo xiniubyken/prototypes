@@ -294,6 +294,7 @@ var secondaryTabConfig = {
     // {key:'inProvince',label:'省内跨区登录', badge:'99+'},  // 已移除
     {key:'outProvince',label:'省外跨区登录', badge:'99+'},
     {key:'extend',    label:'登录延期',     badge:'99+'},
+    {key:'addrRelief',label:'解除地址限制', badge:'99+'},
     {key:'voidApply', label:'作废',        badge:'99+'}
   ],
   price: [
@@ -434,6 +435,19 @@ var columnDefs = {
     {key:'ops',        label:'操作',         w:'130'}
   ],
 
+  /* ========== 登录审批-解除地址限制（列表结构同作废，原因列名为「申请解除原因」，内容为申请解除地址限制原因） ========== */
+  addrRelief: [
+    {key:'seqNo',      label:'序号',         w:'60'},
+    {key:'projectNo',  label:'项目单号',     w:'120'},
+    {key:'salesCo',    label:'销售公司',     w:'130'},
+    {key:'dealerName', label:'经销商名称',   w:'140'},
+    {key:'useUnit',    label:'项目名称',     w:'130'},
+    {key:'reason',     label:'申请解除原因', w:'200'},
+    {key:'status',     label:'状态',         w:'70'},
+    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
+    {key:'ops',        label:'操作',         w:'130'}
+  ],
+
   /* ========== 其他-作废 ========== */
   voidApply: [
     {key:'seqNo',      label:'序号',         w:'60'},
@@ -524,6 +538,15 @@ var sampleData = {
     {no:'GCQ1202111300003', co:'安徽销售公司', office:'合肥办事处C', dealer:'家电部顾家正环境编号', useUnit:'希望小学C项目', reason:'机器故障，没办法产提供资料...', status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
     {no:'GCQ1202111300004', co:'安徽销售公司', office:'合肥办事处D', dealer:'家电部顾家正环境编号', useUnit:'希望小学D项目', reason:'机器故障，没办法产提供资料...', status:'通过', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:false},
     {no:'GCQ1202111300005', co:'安徽销售公司', office:'合肥办事处E', dealer:'家电部顾家正环境编号', useUnit:'希望小学E项目', reason:'机器故障，没办法产提供资料...', status:'驳回', time:'2021-12-12 12:21:21', ver:'3.0', canApprove:false}
+  ],
+
+  /* 解除地址限制（原因内容与作废不同：申请解除动销系统(RMS)开单地址限制的原因） */
+  addrRelief: [
+    {no:'GCR1202111300001', co:'安徽销售公司', office:'合肥办事处A', dealer:'家电部顾家正环境编号', useUnit:'希望小学A项目', reason:'因项目实际安装地点超出原工程单开单地址范围，需新增浙江省杭州市西湖区作为动销系统(RMS)开单安装地址。已与甲方确认实际安装位置及设备清单，附现场勘测报告及甲方确认函，请审批通过后开放该区域开单权限。', status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
+    {no:'GCR1202111300002', co:'安徽销售公司', office:'合肥办事处B', dealer:'家电部顾家正环境编号', useUnit:'希望小学B项目', reason:'（驳回重提）已重新核实实际安装地址：浙江省杭州市西湖区确为该经销商合规授权安装区域，项目为甲方指定安装地点。已补充经销商授权区域证明及甲方确认函，请审批通过后开放该区域开单权限。', status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
+    {no:'GCR1202111300003', co:'安徽销售公司', office:'合肥办事处C', dealer:'家电部顾家正环境编号', useUnit:'希望小学C项目', reason:'项目实际施工地点位于原开单地址范围边缘，超出部分街道区域需开通开单权限，已附项目施工合同及现场施工照片，请审批通过后开放对应区域。', status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
+    {no:'GCR1202111300004', co:'安徽销售公司', office:'合肥办事处D', dealer:'家电部顾家正环境编号', useUnit:'希望小学D项目', reason:'因甲方临时调整项目安装地点，原工程单开单地址不再适用，需新增广东省珠海市香洲区作为动销系统(RMS)开单安装地址，已附甲方变更确认函。', status:'通过', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:false},
+    {no:'GCR1202111300005', co:'安徽销售公司', office:'合肥办事处E', dealer:'家电部顾家正环境编号', useUnit:'希望小学E项目', reason:'申请解除的地址区域超出经销商授权范围，需补充授权区域证明后重新提交。', status:'驳回', time:'2021-12-12 12:21:21', ver:'3.0', canApprove:false}
   ]
 };
 
@@ -700,7 +723,9 @@ function doReset() {
    ================================================================ */
 
 function gotoApprovePage(projectNo) {
-  location.href = '管理端-审批进度页.html?no=' + projectNo;
+  // 解除地址限制页签 → 跳对应审批详情页；其余页签维持原跳转
+  var page = (currentSecondary === 'addrRelief') ? '管理端-解除地址限制审批页.html' : '管理端-审批进度页.html';
+  location.href = page + '?no=' + projectNo;
 }
 
 /* 点击全局输入规则 */
