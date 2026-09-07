@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-工程审批</title>
+<!--
+  管理端-工程审批（列表）· 移动端单文件演示原型
+  ============================================
+  来源
+   - PC 源：E:\工作文件\项目\商用工程\20_正式交付\管理端-工程审批.html（一级 tab 登录审批/价格审批 99+；二级子类；行字段：项目单号/销售公司/经销商名称/登录顺序/状态/审批时间；审核=canApprove&&审批中；状态语义色 审批中蓝/通过绿/驳回红）
+   - 设计稿 OCR：outputs\DeepSeek_本次管理端-第二批\ocr_list\（工程审批列表-登录审批 / -价格审批 / -筛选）：卡片=项目名+状态 pill+行字段+底部「审核/审批流程」；筛选面板=项目单号/经销商名称/项目名称/销售公司(请选择)/审批状态(可多选:全部/审批中/通过/驳回)+显示过滤单选(待我审批/所有单据)+重置/确定
+   - 风格骨架（只学 CSS/布局/toast/筛选底弹层/卡片，不照搬字段）：20_正式交付\移动端\管理端-批价单列表_移动端.html、用户端-工程项目单列表_移动端.html
+   - 审批流程弹层（流程 SVG 占位可放大｜当前节点）=复用既有详情页同款（20_正式交付\移动端\用户端-工程项目单详情_移动端.html V5 af 弹层形态）
+  已按拍板执行
+   - 输出名=PC 名+_移动端；返回/审核/进详情=toast「原型占位：…」无真跳转；状态 pill=白底彩字 PC 语义色
+   - 一级 tab=登录审批(99+)/价格审批(99+)；二级子类 chips 随一级切换：登录审批=非跨区/省外跨区/登录延期/作废；价格审批=非跨区/省外跨区/二次批价/提货延期/作废
+   - 卡片=项目名+状态 pill + 一字段一行（项目单号/销售公司/经销商名称/登录顺序/审批时间）+ 底部两操作：审核(实底按钮，仅 status=审批中 显示，PC canApprove 口径)/审批流程(link)
+   - 筛选入口在列表工具行右侧；筛选面板=真过滤：项目单号/经销商名称/项目名称(输入)+销售公司(单选,默认请选择)+审批状态(多选:全部/审批中/通过/驳回)；显示过滤单选(待我审批/所有单据,默认所有单据)在面板内；重置=恢复默认并关闭面板；空态「暂无数据」
+   - 数据：12 条虚构演示，覆盖 登录审批/价格审批 两级 4+5 个子类与 4 状态(审批中×5/通过×3/已驳回×3/已取消×1)及登录顺序成功/候补/—；字段值按 PC 口径
+  默认取舍（像素级视觉证据不足，布局非像素还原）
+   1. OCR 坐标文件疑似多屏拼接、无法像素级复原布局/颜色 → 布局按拍板文字+移动端骨架，pill 色=白底彩字：审批中#1565C0/通过#2E7D32/已驳回#C62828/已取消#78909C。
+   2. 登录审批二级子类按拍板与 OCR 取 5 项（非跨区/省外跨区/解除地址限制/登录延期/作废），PC 有的「解除地址限制」chip 保留。
+   3. 显示过滤单选置入筛选底弹层（OCR 筛选帧含 待我审批/所有单据 + 重置/确定）；默认「所有单据」使首屏直接呈现多状态；「待我审批」=只显示 status=审批中 的行（即当前审批人待办）。
+   4. 状态 pill 文案用「已驳回」(OCR 列表帧)，筛选 chip 文案按 PC 用「驳回」；状态筛选项=全部/审批中/通过/驳回（无已取消），故「已取消」行仅在全量可见。
+   5. 审核入口仅 status=审批中 时渲染（PC canApprove 口径）；其余状态卡片仅有「审批流程」与行点击 toast 占位。
+   6. 审批流程弹层节点序列为演示固定序列（登录审批类 4 节点/价格审批类 4 节点），当前节点按状态渲染（审批中=待当前节点、通过=全部完成、驳回/取消=终止），SVG 为占位流程图可点击放大；非像素证据。
+   7. 卡片底部操作区采用 左「审批流程」link + 右「审核」实底（证据不足取通用移动端布局）。
+   8. 无状态分组、无调试演示下拉、无顶搜索框（本页 OCR/PC 搜索区为筛选面板形态）。
+-->
+<style>
+:root{--blue:#1872F6;--bg:#f5f6f7;--text:#292929;--line:#ececec;
+  --safe-bottom:env(safe-area-inset-bottom);
+  --c-ap:#1565C0;--c-ok:#2E7D32;--c-rj:#C62828;--c-cl:#78909C;
+  --c-lo-ok:#1a9c5c;--c-lo-sub:#ED6C02}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:24px}
+/* 状态栏 */
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+/* 导航 */
+.nav{height:56px;padding:0 10px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+/* 一级 tab */
+.ptabs{display:flex;background:#fff;border-bottom:1px solid var(--line)}
+.ptab{flex:1;border:0;background:#fff;padding:13px 6px 12px;font-size:16px;color:#8f959e;position:relative;white-space:nowrap}
+.ptab .bdg{display:inline-block;min-width:22px;height:16px;line-height:16px;padding:0 6px;margin-left:3px;border-radius:8px;background:#eceef1;color:#8f959e;font-size:11px;font-weight:600;vertical-align:2px}
+.ptab.active{color:var(--blue);font-weight:700}
+.ptab.active .bdg{background:var(--blue);color:#fff}
+.ptab.active:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:44px;height:3px;border-radius:3px;background:var(--blue)}
+/* 二级子类 chips（可横滑） */
+.subbar{background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center}
+.subs{flex:1;min-width:0;display:flex;gap:8px;padding:10px 6px 10px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.subs::-webkit-scrollbar{display:none}
+.sub{flex:0 0 auto;padding:7px 15px;border-radius:16px;background:#f3f4f6;color:#555;font-size:13px;border:1px solid transparent;white-space:nowrap;transition:.15s}
+.sub.active{background:var(--blue);color:#fff;font-weight:600}
+/* 工具行：计数 + 筛选入口 */
+.listbar{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 6px}
+.bar-info{font-size:13px;color:#8f959e}
+.bar-info b{color:#333;font-weight:600}
+.bar-filter{display:flex;align-items:center;gap:5px;border:1px solid #e3e6ea;background:#fff;color:#333;border-radius:8px;padding:6px 14px;font-size:13px;transition:.15s}
+.bar-filter.on{color:var(--blue);border-color:var(--blue);background:#eef4ff}
+/* 卡片列表 */
+.scroll{padding:6px 14px 20px}
+.li{background:#fff;border-radius:14px;padding:14px 14px 0;margin-bottom:12px;overflow:hidden;cursor:pointer}
+.li-hd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.li-name{flex:1;min-width:0;font-size:16px;font-weight:700;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{flex:0 0 auto;margin-top:1px;padding:3px 9px;border-radius:5px;font-size:12px;font-weight:700;background:#fff;line-height:1.35;white-space:nowrap}
+.pill.st-ap{color:var(--c-ap);border:1px solid rgba(21,101,192,.28)}
+.pill.st-ok{color:var(--c-ok);border:1px solid rgba(46,125,50,.32)}
+.pill.st-rj{color:var(--c-rj);border:1px solid rgba(198,40,40,.26)}
+.pill.st-cl{color:var(--c-cl);border:1px solid rgba(120,144,156,.32)}
+.c-kv{padding-top:10px}
+.kv{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.7}
+.kv .k{flex:0 0 auto;color:#9a9a9a}
+.kv .v{flex:1;min-width:0;color:#333;font-weight:600;word-break:break-all}
+.kv .v.lo-ok{color:var(--c-lo-ok)}
+.kv .v.lo-sub{color:var(--c-lo-sub)}
+.kv .v.lo-na{color:#9a9a9a;font-weight:400}
+.li-act{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f3f4f6;margin-top:12px;padding:10px 0 12px;cursor:auto}
+.act-proc{border:0;background:#fff;color:var(--blue);font-size:13px;font-weight:600;padding:6px 2px;display:inline-flex;align-items:center;gap:2px}
+.act-proc .arr{font-size:15px;line-height:1}
+.act-aprv{border:0;background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:7px 24px;border-radius:18px}
+/* 空态 */
+.empty{background:#fff;border-radius:14px;padding:52px 0;text-align:center;color:#a6adb6;font-size:14px}
+.empty-t{margin-top:10px}
+/* 筛选底弹层 */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:17px 17px 0 0;display:flex;flex-direction:column;max-height:90vh;overflow:hidden}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;padding:16px 18px 10px;flex:0 0 auto}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px}
+.sheet-bd{flex:1;min-height:0;padding:2px 18px 4px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.f-sec{margin-bottom:6px}
+.f-sec-t{display:flex;align-items:baseline;gap:6px;font-size:15px;font-weight:700;margin:14px 0 10px}
+.f-sec-t .hint{font-size:11px;font-weight:400;color:#9aa0a6}
+.fld{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fld .lb{flex:0 0 92px;font-size:14px;color:#333;font-weight:600}
+.fld input{flex:1;min-width:0;height:40px;border:1px solid #e3e6ea;border-radius:9px;background:#f7f8fa;padding:0 12px;font-size:14px;color:#333;outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 15px;border-radius:17px;background:#f3f4f6;color:#444;font-size:13px;cursor:pointer;border:1px solid transparent;transition:.15s}
+.chip.on{background:#e8f1ff;color:var(--blue);border-color:var(--blue);font-weight:600}
+.sheet-ft{display:flex;gap:10px;padding:12px 18px calc(12px + var(--safe-bottom));border-top:1px solid #f0f1f3;flex:0 0 auto}
+.f-btn{flex:1;height:46px;border-radius:24px;font-size:16px;font-weight:700}
+.f-btn.rst{background:#fff;color:var(--blue);border:1px solid #cfe0f8}
+.f-btn.ok{background:var(--blue);color:#fff;border:1px solid var(--blue)}
+/* 审批流程弹层（复用既有详情页 af 形态） */
+.af-title{font-size:18px;font-weight:700;text-align:center;padding:16px 16px 10px;flex:0 0 auto}
+.af-seg{display:flex;margin:0 16px;background:#f2f4f7;border-radius:10px;padding:3px;gap:3px;flex:0 0 auto}
+.af-seg button{flex:1;height:38px;border:0;border-radius:8px;background:transparent;color:#8b8b8b;font-size:15px}
+.af-seg button.active{background:#fff;color:var(--blue);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.af-body{flex:1;overflow-y:auto;padding:14px 16px 8px;-webkit-overflow-scrolling:touch}
+.af-steps{padding:6px 4px 10px}
+.af-step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:12px;position:relative;padding:6px 0 18px}
+.af-step:last-child{padding-bottom:6px}
+.af-step:not(:last-child):before{content:"";position:absolute;left:14px;top:34px;bottom:0;width:2px;background:#e3e6ea}
+.af-dot{width:28px;height:28px;border-radius:50%;border:2px solid #c9ced6;background:#fff;display:grid;place-items:center;color:#aab2bd;font-size:12px;font-weight:700}
+.af-step.done .af-dot{background:#e9f9f0;border-color:#28b978;color:#16a567}
+.af-step.current .af-dot{background:#e8f1ff;border-color:var(--blue);color:var(--blue)}
+.af-step.stop .af-dot{background:#fdecea;border-color:#d9665d;color:#c62828}
+.af-step-name{font-size:16px;font-weight:600;line-height:1.4}
+.af-step-name .mini{font-size:11px;font-weight:400;color:#999;margin-left:6px}
+.af-step-meta{font-size:13px;color:#999;margin-top:3px}
+.af-hint{text-align:center;color:#b9b9b9;font-size:13px;padding:2px 0 6px}
+.af-flow{background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:12px 8px 8px;cursor:zoom-in;margin-top:4px}
+.af-flow svg{display:block;width:100%;height:auto}
+.af-flow-note{text-align:center;color:#b9b9b9;font-size:13px;padding:8px 0 2px}
+.af-node-type{font-size:13px;color:#666;margin:6px 2px 10px}
+.af-node{background:#fff;border:1px solid #f0f1f3;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.af-node .n1{font-size:14px;color:#333}
+.af-node .n1 b{font-weight:600}
+.af-node .n2{font-size:13px;color:#999;margin-top:6px;line-height:1.5}
+.af-foot{display:flex;justify-content:center;padding:10px 16px calc(2px + var(--safe-bottom));border-top:1px solid #f2f3f5;flex:0 0 auto}
+.pd-ok{width:70%;height:44px;border:0;border-radius:22px;background:var(--blue);color:#fff;font-size:16px;font-weight:700}
+/* 流程图放大 */
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;align-items:center;justify-content:center;z-index:115;padding:22px}
+.zoom.show{display:flex}
+.zoom-box{background:#fff;border-radius:14px;padding:14px;max-width:94vw;max-height:86vh;overflow:auto}
+.zoom-box svg{display:block;width:min(430px,88vw);height:auto}
+.zoom-close{position:absolute;top:14px;right:18px;border:0;background:transparent;color:#fff;font-size:44px;font-weight:200;line-height:1;cursor:pointer}
+/* toast */
+.toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;white-space:nowrap;max-width:82vw}
+.toast.show{display:block}
+@media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<main class="phone">
+  <!-- 状态栏 -->
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+  <!-- 导航 -->
+  <header class="nav">
+    <button class="back" onclick="toast('原型占位：返回')" aria-label="返回"><i></i></button>
+    <div class="nav-title">工程审批</div>
+  </header>
+
+  <!-- 一级 tab -->
+  <nav class="ptabs" id="ptabs"></nav>
+  <!-- 二级子类 chips -->
+  <div class="subbar"><div class="subs" id="subs"></div></div>
+  <!-- 工具行：计数 + 筛选入口 -->
+  <div class="listbar">
+    <span class="bar-info" id="barInfo"></span>
+    <button class="bar-filter" id="filBtn" onclick="openFilter()">
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>筛选
+    </button>
+  </div>
+
+  <!-- 卡片列表 -->
+  <div class="scroll" id="listBox"></div>
+</main>
+
+<!-- 筛选底弹层 -->
+<div class="mask" id="filterMask" onclick="maskTap(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>筛选</span><button class="sheet-x" onclick="closeFilter()" aria-label="关闭">×</button></div>
+    <div class="sheet-bd">
+      <div class="f-sec">
+        <div class="fld"><span class="lb">项目单号</span><input id="fNo" type="text" placeholder="请输入项目单号"></div>
+        <div class="fld"><span class="lb">经销商名称</span><input id="fDealer" type="text" placeholder="请输入经销商名称"></div>
+        <div class="fld"><span class="lb">项目名称</span><input id="fName" type="text" placeholder="请输入项目名称"></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-sec-t">销售公司<span class="hint">单选 · 请选择</span></div>
+        <div class="chips" id="fCo"></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-sec-t">审批状态<span class="hint">可多选</span></div>
+        <div class="chips" id="fSt"></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-sec-t">显示过滤<span class="hint">单选</span></div>
+        <div class="chips" id="fScope"></div>
+      </div>
+    </div>
+    <div class="sheet-ft">
+      <button class="f-btn rst" onclick="resetFilter()">重置</button>
+      <button class="f-btn ok" onclick="applyFilter()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 审批流程弹层（流程占位图可放大｜当前节点） -->
+<div class="mask" id="afMask" onclick="closeAf(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="af-title" id="afTitle">审批流程</div>
+    <div class="af-seg">
+      <button class="active" data-aft="flow" onclick="afTab(this,'flow')">审批流程</button>
+      <button data-aft="node" onclick="afTab(this,'node')">当前节点</button>
+    </div>
+    <div class="af-body">
+      <div id="afFlowBody"></div>
+      <div id="afNodeBody" style="display:none"></div>
+    </div>
+    <div class="af-foot"><button class="pd-ok" onclick="closeAf()">确 认</button></div>
+  </div>
+</div>
+
+<!-- 流程图放大层 -->
+<div class="zoom" id="zoomWrap" onclick="closeZoom(event)">
+  <button class="zoom-close" id="zoomClose" onclick="closeZoom()" aria-label="关闭">×</button>
+  <div class="zoom-box" id="zoomBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   演示数据：12 条（PC 口径虚构），覆盖 登录审批(6)/价格审批(4)/作废(2 两级共享)
+   状态：审批中×5 / 通过×3 / 已驳回×3 / 已取消×1
+   prim: login | price | both(作废，两级共享，PC sampleData 同数组复用)
+   sub : login=local/outProvince/extend/void ; price=pLocal/pOutProvince/rePrice/deliveryExt/void
+   ================================================================ */
+var DATA=[
+ {prim:"login",sub:"local",       no:"GC202606250001",name:"希望小学A项目",co:"安徽销售公司",dealer:"合肥市庐阳区惠民电器经营部",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-25 10:30",st:"审批中",mine:true},
+ {prim:"login",sub:"local",       no:"GC202606170002",name:"阳光新城一期空调工程",co:"安徽销售公司",dealer:"安徽广厦机电设备有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-20 14:05",st:"通过",mine:false},
+ {prim:"login",sub:"outProvince",no:"GC202606230003",name:"南昌绿地中心写字楼项目",co:"华东销售公司",dealer:"南昌格瑞暖通工程有限公司",lo:"2—候补登录",loCls:"lo-sub",time:"2026-06-24 09:18",st:"审批中",mine:true},
+ {prim:"login",sub:"outProvince",no:"GC202606110004",name:"武汉光谷创新天地项目",co:"华东销售公司",dealer:"武汉江城制冷设备有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-12 16:42",st:"已驳回",mine:false},
+ {prim:"login",sub:"extend",      no:"GC202606220005",name:"海滨学校综合楼空调工程",co:"粤东销售公司",dealer:"珠海格力电器股份有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-23 11:20",st:"审批中",mine:true},
+ {prim:"login",sub:"extend",      no:"GC202606050006",name:"佛山国际金融中心项目",co:"华南销售公司",dealer:"佛山新恒基机电工程有限公司",lo:"—",loCls:"lo-na",time:"2026-06-08 17:33",st:"通过",mine:false},
+ {prim:"both", sub:"void",        no:"GCQ202606180007",name:"东莞松山湖智造园一期工程",co:"华南销售公司",dealer:"东莞东松机电科技有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-19 10:00",st:"已取消",mine:false},
+ {prim:"both", sub:"void",        no:"GCQ202606130008",name:"中山古镇灯饰商贸城工程",co:"粤东销售公司",dealer:"中山市古镇镇灯都电器商行",lo:"2—候补登录",loCls:"lo-sub",time:"2026-06-14 15:26",st:"已驳回",mine:false},
+ {prim:"price",sub:"pLocal",      no:"GC202606240009",name:"广州琶洲会展中心改造项目",co:"粤东销售公司",dealer:"广州格力销售有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-25 10:10",st:"审批中",mine:true},
+ {prim:"price",sub:"pOutProvince",no:"GC202606210010",name:"厦门环东海域综合体项目",co:"华南销售公司",dealer:"厦门金鹭暖通设备有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-22 13:45",st:"已驳回",mine:false},
+ {prim:"price",sub:"rePrice",     no:"GC202606190011",name:"深圳南山科技园二期工程",co:"粤东销售公司",dealer:"深圳市南山区恒远空调工程部",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-20 09:52",st:"通过",mine:false},
+ {prim:"price",sub:"deliveryExt", no:"GC202606150012",name:"惠州潼湖生态智慧区厂房项目",co:"华东销售公司",dealer:"惠州市弘泰电器有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-16 08:30",st:"审批中",mine:true}
+];
+/* 二级子类配置（随一级切换） */
+var SUB_CFG={
+  login:[{k:"local",t:"非跨区"},{k:"outProvince",t:"省外跨区"},{k:"addrLimit",t:"解除地址限制"},{k:"extend",t:"登录延期"},{k:"void",t:"作废"}],
+  price:[{k:"pLocal",t:"非跨区"},{k:"pOutProvince",t:"省外跨区"},{k:"rePrice",t:"二次批价"},{k:"deliveryExt",t:"提货延期"},{k:"void",t:"作废"}]
+};
+/* 单据类型 → 审批流程节点序列（演示固定序列） */
+var FLOW_NODES={
+  login:["经销商提交","办事处内勤","工程科审批","销司经理"],
+  price:["经销商提交","办事处价格审核","销司价格审批","销司经理"]
+};
+var pillCls={"审批中":"st-ap","通过":"st-ok","已驳回":"st-rj","已取消":"st-cl"};
+var ST_OPTS=["全部","审批中","通过","驳回"];
+var CO_OPTS=["安徽销售公司","粤东销售公司","华东销售公司","华南销售公司"];
+var SCOPE_OPTS=["待我审批","所有单据"];
+
+var curP="login",curS="local";
+/* 当前生效过滤 */
+var cur={no:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
+/* 面板临时值 */
+var tmp={co:"",st:[],scope:"所有单据"};
+var lastType="login"; /* 审批流程弹层所用单据类型 */
+var zoomSt="审批中";  /* 放大层跟随最近一次打开的单据状态 */
+
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(function(){el.classList.remove("show");},1500);}
+
+/* ====== 数据过滤 ====== */
+function belongs(d){
+  if(d.sub!==curS)return false;
+  if(d.prim==="both")return curS==="void";
+  return d.prim===curP;
+}
+function filtered(){
+  return DATA.filter(function(d){
+    if(!belongs(d))return false;
+    if(cur.scope==="待我审批" && !d.mine)return false;
+    if(cur.no && d.no.indexOf(cur.no)<0)return false;
+    if(cur.dealer && d.dealer.indexOf(cur.dealer)<0)return false;
+    if(cur.name && d.name.indexOf(cur.name)<0)return false;
+    if(cur.co && d.co!==cur.co)return false;
+    if(cur.st.length){
+      var ok=false;
+      cur.st.forEach(function(s){
+        var want=(s==="驳回")?"已驳回":s;
+        if(d.st===want)ok=true;
+      });
+      if(!ok)return false;
+    }
+    return true;
+  });
+}
+function kvHtml(k,v,cls){return '<div class="kv"><span class="k">'+esc(k)+'</span><span class="v'+(cls?" "+cls:"")+'">'+esc(v)+'</span></div>';}
+function cardHtml(d){
+  var acts='<button class="act-proc" onclick="event.stopPropagation();openAf(event,\''+esc(d.no)+'\')">审批流程<span class="arr">›</span></button>';
+  if(d.st==="审批中"&&d.mine){
+    acts='<div style="display:flex;align-items:center;gap:14px">'+acts+'</div>'
+      +'<button class="act-aprv" onclick="event.stopPropagation();toast(\'原型占位：进入审批\')">审核</button>';
+  }else{
+    acts='<span></span>'+acts;
+  }
+  return '<div class="li" onclick="toast(\'原型占位：进入审批\')">'
+    +'<div class="li-hd"><div class="li-name">'+esc(d.name)+'</div>'
+    +'<span class="pill '+pillCls[d.st]+'">'+esc(d.st)+'</span></div>'
+    +'<div class="c-kv">'
+    +kvHtml("项目单号",d.no)
+    +kvHtml("销售公司",d.co)
+    +kvHtml("经销商名称",d.dealer)
+    +kvHtml("登录顺序",d.lo,d.loCls)
+    +kvHtml("审批时间",d.time)
+    +'</div>'
+    +'<div class="li-act">'+acts+'</div>'
+    +'</div>';
+}
+function renderTabs(){
+  var curCfg=SUB_CFG[curP];
+  /* 一级 tab */
+  document.getElementById("ptabs").innerHTML=[
+    {k:"login",t:"登录审批"},
+    {k:"price",t:"价格审批"}
+  ].map(function(t){
+    return '<button class="ptab '+(t.k===curP?"active":"")+'" onclick="switchPrimary(\''+t.k+'\')">'+t.t+'<span class="bdg">99+</span></button>';
+  }).join("");
+  /* 二级子类 chips（保持同 key 选中，无则回退第一个） */
+  var hit=curCfg.some(function(s){return s.k===curS;});
+  if(!hit)curS=curCfg[0].k;
+  document.getElementById("subs").innerHTML=curCfg.map(function(s){
+    return '<button class="sub '+(s.k===curS?"active":"")+'" onclick="switchSub(\''+s.k+'\',this)">'+s.t+'</button>';
+  }).join("");
+}
+function switchPrimary(k){
+  if(k===curP)return;
+  curP=k;
+  var c=SUB_CFG[k][0];
+  curS=c.k;
+  renderTabs();refresh();window.scrollTo(0,0);
+}
+function switchSub(k,el){
+  curS=k;
+  [].forEach.call(document.querySelectorAll("#subs .sub"),function(x){x.classList.remove("active");});
+  el.classList.add("active");
+  refresh();window.scrollTo(0,0);
+}
+function refresh(){
+  var list=filtered();
+  var box=document.getElementById("listBox");
+  box.innerHTML=list.length?list.map(cardHtml).join(""):'<div class="empty"><svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#c3c9d1" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg><div class="empty-t">暂无数据</div></div>';
+  var scopeNote=cur.scope==="待我审批"?" · 待我审批":"";
+  document.getElementById("barInfo").innerHTML="共 <b>"+list.length+"</b> 条"+scopeNote;
+  var on=cur.no||cur.dealer||cur.name||cur.co||cur.st.length||cur.scope!=="所有单据";
+  document.getElementById("filBtn").classList.toggle("on",!!on);
+}
+
+/* ====== 筛选面板 ====== */
+function renderChips(){
+  document.getElementById("fCo").innerHTML=CO_OPTS.map(function(v){
+    return '<span class="chip '+(v===tmp.co?"on":"")+'" onclick="pickCo(\''+esc(v)+'\')">'+esc(v)+'</span>';
+  }).join("");
+  document.getElementById("fSt").innerHTML=ST_OPTS.map(function(v){
+    var on=(v==="全部")?(tmp.st.length===0):(tmp.st.indexOf(v)>=0);
+    return '<span class="chip '+(on?"on":"")+'" onclick="pickSt(\''+v+'\')">'+esc(v)+'</span>';
+  }).join("");
+  document.getElementById("fScope").innerHTML=SCOPE_OPTS.map(function(v){
+    return '<span class="chip '+(v===tmp.scope?"on":"")+'" onclick="pickScope(\''+v+'\')">'+esc(v)+'</span>';
+  }).join("");
+}
+function openFilter(){
+  tmp.co=cur.co;tmp.st=cur.st.slice();tmp.scope=cur.scope;
+  document.getElementById("fNo").value=cur.no;
+  document.getElementById("fDealer").value=cur.dealer;
+  document.getElementById("fName").value=cur.name;
+  renderChips();
+  document.getElementById("filterMask").classList.add("show");
+}
+function pickCo(v){tmp.co=(tmp.co===v)?"":v;renderChips();}
+function pickScope(v){tmp.scope=v;renderChips();}
+function pickSt(v){
+  if(v==="全部"){tmp.st=[];}
+  else{
+    var i=tmp.st.indexOf(v);
+    if(i>=0){tmp.st.splice(i,1);}else{tmp.st.push(v);}
+  }
+  renderChips();
+}
+function closeFilter(){document.getElementById("filterMask").classList.remove("show");}
+function maskTap(e){if(e&&e.target===document.getElementById("filterMask"))closeFilter();}
+function applyFilter(){
+  cur.no=(document.getElementById("fNo").value||"").trim();
+  cur.dealer=(document.getElementById("fDealer").value||"").trim();
+  cur.name=(document.getElementById("fName").value||"").trim();
+  cur.co=tmp.co;cur.st=tmp.st.slice();cur.scope=tmp.scope;
+  closeFilter();refresh();
+}
+function resetFilter(){
+  cur={no:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
+  tmp={co:"",st:[],scope:"所有单据"};
+  document.getElementById("fNo").value="";
+  document.getElementById("fDealer").value="";
+  document.getElementById("fName").value="";
+  renderChips();
+  closeFilter();refresh();
+}
+
+/* ====== 审批流程弹层（复用既有详情页 af 形态：流程占位 SVG 可放大｜当前节点） ====== */
+function typeOfRecord(no){
+  var r=null;
+  DATA.forEach(function(d){if(d.no===no)r=d;});
+  return r;
+}
+function flowNodeList(d){
+  var isPrice=d.prim==="price";
+  return FLOW_NODES[isPrice?"price":"login"];
+}
+function afFlowSvg(nodes,st,stopLabel){
+  var H=nodes.length*96+20;
+  var p=['<svg viewBox="0 0 300 '+H+'" xmlns="http://www.w3.org/2000/svg"><defs><marker id="afArr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#ccd2da"/></marker></defs>'];
+  var currentIdx=(st==="审批中")?1:(st==="已驳回"||st==="已取消")?nodes.length-1:-1;
+  var lastColor=(st==="已驳回"||st==="已取消")?"#d9665d":"#28b978";
+  nodes.forEach(function(n,i){
+    var y=8+i*96;
+    var col=(st==="审批中")?(i<currentIdx?"#28b978":(i===currentIdx?"#1872F6":"#c9ced6")):(st==="通过"?"#28b978":(i===currentIdx?lastColor:"#28b978"));
+    p.push('<rect x="62" y="'+y+'" width="176" height="54" rx="10" fill="#fff" stroke="'+col+'" stroke-width="2"/>');
+    p.push('<text x="150" y="'+(y+22)+'" text-anchor="middle" font-size="13" fill="#333" font-weight="600">'+n+'</text>');
+    var stateTxt=(st==="审批中")?(i<currentIdx?"完成":(i===currentIdx?"当前":"待处理")):(st==="通过"?"完成":(i===currentIdx?stopLabel:"完成"));
+    p.push('<text x="150" y="'+(y+41)+'" text-anchor="middle" font-size="11" fill="'+col+'">'+stateTxt+'</text>');
+    if(i<nodes.length-1){p.push('<line x1="150" y1="'+(y+54)+'" x2="150" y2="'+(y+84)+'" stroke="#ccd2da" stroke-width="2" marker-end="url(#afArr)"/>');}
+  });
+  p.push('</svg>');
+  return p.join("");
+}
+function afStepHtml(name,meta,state){
+  var mark=state==="done"?"✓":(state==="current"?"···":(state==="stop"?"!":""));
+  return '<div class="af-step '+state+'"><span class="af-dot">'+mark+'</span>'
+    +'<div><div class="af-step-name">'+esc(name)+(state==="current"?'<span class="mini">当前节点</span>':"")+'</div>'
+    +(meta?'<div class="af-step-meta">'+esc(meta)+'</div>':"")+'</div></div>';
+}
+function stepsOf(d){
+  var nodes=flowNodeList(d);
+  var st=d.st;
+  var stopLabel=(st==="已取消")?"已取消":"已驳回";
+  if(st==="审批中")return nodes.map(function(n,i){
+    var state=i===0?"done":(i===1?"current":"");
+    return afStepHtml(n,(i===0?("提交时间 "+d.time):(i===1?"审批时间 —":"")),state);
+  });
+  if(st==="通过")return nodes.map(function(n,i){return afStepHtml(n,(i===0?("提交时间 "+d.time):("审批时间 "+d.time)),"done");});
+  /* 驳回 / 已取消：最后节点终止 */
+  return nodes.map(function(n,i){
+    var state=i===nodes.length-1?"stop":"done";
+    return afStepHtml(n,(i===0?("提交时间 "+d.time):(i===nodes.length-1?("审批时间 "+d.time):"")),state);
+  });
+}
+function openAf(ev,no){
+  var d=typeOfRecord(no);if(!d)return;
+  lastType=(d.prim==="price")?"price":"login";
+  zoomSt=d.st;
+  var subName="";
+  SUB_CFG[lastType].forEach(function(s){if(s.k===d.sub)subName=s.t;});
+  document.getElementById("afTitle").textContent="审批流程·"+subName;
+  var nodes=flowNodeList(d);
+  /* 流程 tab：占位 SVG 可放大 */
+  document.getElementById("afFlowBody").innerHTML=
+    '<div class="af-flow" onclick="openZoom()">'+afFlowSvg(nodes,d.st,(d.st==="已取消"?"已取消":"已驳回"))+'<div class="af-flow-note">流程图占位图 · 点击可放大</div></div>';
+  /* 当前节点 tab */
+  var nodeBody="";
+  if(d.st==="审批中"){
+    nodeBody='<div class="af-node-type">节点类型：岗位 · 当前审批中</div>'
+      +'<div class="af-node"><div class="n1">岗位编号 <b>10086</b> · 岗位名称：'+esc(nodes[1])+'</div><div class="n2">处理人：王五 · 待处理</div></div>'
+      +'<div class="af-node"><div class="n1">岗位编号 <b>10087</b> · 岗位名称：'+esc(nodes[2])+'</div><div class="n2">处理人：— · 未开始</div></div>';
+  }else if(d.st==="通过"){
+    nodeBody='<div class="af-node-type">节点类型：岗位 · 已全部通过</div>'
+      +'<div class="af-node"><div class="n1">岗位编号 <b>10086</b> · 岗位名称：'+esc(nodes[1])+'</div><div class="n2">处理人：王五 · 已审批 '+d.time+'</div></div>';
+  }else{
+    nodeBody='<div class="af-node-type">节点类型：岗位 · 流程已终止（'+(d.st==="已取消"?"已取消":"已驳回")+'）</div>'
+      +'<div class="af-node"><div class="n1">岗位编号 <b>10086</b> · 岗位名称：'+esc(nodes[1])+'</div><div class="n2">处理人：王五 · 已审批 '+d.time+'</div></div>';
+  }
+  document.getElementById("afNodeBody").innerHTML=nodeBody;
+  afTab(document.querySelector('#afMask [data-aft="flow"]'),"flow");
+  document.getElementById("afMask").classList.add("show");
+}
+function afTab(btn,which){
+  document.querySelectorAll("#afMask .af-seg button").forEach(function(b){b.classList.remove("active");});
+  btn.classList.add("active");
+  document.getElementById("afFlowBody").style.display=(which==="flow")?"":"none";
+  document.getElementById("afNodeBody").style.display=(which==="node")?"":"none";
+}
+function closeAf(e){if(e&&e.target!==document.getElementById("afMask"))return;document.getElementById("afMask").classList.remove("show");}
+function openZoom(){
+  var nodes=FLOW_NODES[lastType];
+  document.getElementById("zoomBody").innerHTML=afFlowSvg(nodes,zoomSt,(zoomSt==="已取消"?"已取消":"已驳回"));
+  document.getElementById("zoomWrap").classList.add("show");
+}
+function closeZoom(e){
+  var z=document.getElementById("zoomWrap");
+  if(e&&e.target!==z&&e.target.id!=="zoomClose")return;
+  z.classList.remove("show");
+}
+
+/* 初始化 */
+renderTabs();
+refresh();
+</script>
+</body>
+</html>
