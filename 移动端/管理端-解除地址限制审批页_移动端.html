@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-解除地址限制审批</title>
+<!--
+  管理端-解除地址限制审批（移动端单文件原型，工程审批族-批二实现）
+  来源：
+    - OCR 设计稿帧（Y-工程审批-工程单-解除地址限制：审批-解除地址限制 / 查看原销售范围 / 解除地址限制-审批(级联选择先用旧样式)）→ 本页仅「单据信息 | 审批记录」两段、注意条+解除地址限制区域+其他信息结构
+    - PC 权威（管理端-解除地址限制审批页.html）→ 字段口径/注意条文案/意见弹窗字段与校验/审批记录(通过·驳回·已取消)
+    - 级联选择旧样式（用户端-新建解除地址限制_移动端.html）→ 底部 sheet 省/市/区级联选择、已选区域多行回填列表
+    - 风格骨架（管理端-批价单申请作废_移动端.html + 用户端移动端惯例）→ 手机框/导航/卡片/toast/sheet/dialog 样式
+    - 批二通用记录卡约定（审批-登录延期-审批记录×4变体 OCR）→ 展示所有信息开关/通过·驳回·已取消徽标/备注/时间/附件(2)+预览/内部信息三态/暂无记录空态
+  默认取舍（本页已拍板）：
+    1. 标题「审批—解除地址限制」，对象名 粤东GCDT202506250001（希望小学A项目）；内容段=单据信息｜审批记录 两段（本页设计稿无关联项目参考帧）。
+    2. 底部动作按拍板：审批中状态底栏显示「驳回|通过」双按钮（驳回描边红字/通过实底蓝，同批二登录延期页），点击各自弹出底部意见 sheet；终态（已通过/已驳回/已取消）底栏整条隐藏，对象名行状态徽标切换（审批中/通过/驳回/已取消）。
+    3. 意见 sheet（同批二约定）：标题 通过审批/驳回审批，正文「确定通过/驳回此审批吗？…请填写审批意见」+ 审批意见必填≤200 + 非公开信息选填≤200（仅管理端展示提示），取消/确认；确认→toast「原型占位：审批通过/审批驳回…」并切至对应终态演示（同批二行为）。
+    4. ⚠注意条整段按 PC 文案；「点击查看 ›」打开「查看原销售范围」底部弹层（多行 省/市/区 级联地址，可滚动）。
+    5. 选择安装范围：默认已选多行区域列表（含新增超出区域，如浙江省/杭州市/西湖区），级联添加/删除沿用用户端旧样式；本页为审批视角，允许增删演示。
+    6. 附件（原因描述下 1 pdf + 3 docx）为只读样例：PDF→放大层（合成示例 PDF 内嵌查看器预览），docx→点击即下载样例文件（批一约定：docx 预览=下载）。
+    7. 审批记录默认有记录（批二通用卡）：展示所有信息开关默认开；记录卡内部信息块含 展开有内容/展开暂无信息/收起 三态；无记录时空态「暂无记录」。
+    8. 终态（已通过/已驳回/已取消）与审批记录变体（暂无记录/无内部信息）演示通过 ≥700px 的「场景演示」下拉切换（含 #scene=xxx / #rec 直达）；主色/状态色与同批「管理端-登录延期审批页_移动端」一致。
+    9. 返回/跳转=toast「原型占位」；无真路由/无真上传；docx/xlsx/图片/PDF 预览规则按批一。
+-->
+<style>
+:root{--pri:#3b5998;--pri-d:#2e477a;--blue-line:#d6e0f5;--blue-bg:#eef3fb;--red:#d32f2f;--red-bg:#fdf0ef;--green:#2e7d32;--green-bg:#e8f6ea;--gray:#8f959e;--gray-bg:#f0f2f4;--txt:#1f2329;--txt2:#646a73;--aux:#8f959e;--line:#ececf0;--amber:#8a6100;--amber-bg:#FFF8E6;--amber-bd:#FFE0A3;--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--txt)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden;-webkit-text-size-adjust:100%}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:#f5f6f7;overflow-x:hidden;position:relative;padding-bottom:108px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+/* ===== 顶部 ===== */
+.nav{height:56px;padding:0 10px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:34px;height:34px;border-radius:6px;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.objbar{background:#fff;border-bottom:1px solid var(--line);padding:9px 12px 11px 14px;display:flex;align-items:flex-start;gap:8px}
+.obj-main{flex:1;min-width:0}
+.obj-line{font-size:14px;font-weight:700;color:var(--txt);line-height:1.5;word-break:break-all}
+.obj-sub{font-size:11px;color:var(--aux);margin-top:2px;letter-spacing:.2px}
+.pill{flex-shrink:0;border-radius:5px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.in{background:#e6f0ff;color:#2f6fd6}
+.pill.pass{background:var(--green-bg);color:var(--green)}
+.pill.rej{background:var(--red-bg);color:var(--red)}
+.pill.cancel{background:var(--gray-bg);color:var(--gray)}
+.objbar .pill{margin-top:2px}
+/* ===== 段切换 ===== */
+.segs{position:sticky;top:0;z-index:18;background:#fff;border-bottom:1px solid var(--line);display:flex;padding:0 8px}
+.seg{flex:1;height:46px;font-size:16px;font-weight:600;color:var(--txt2);position:relative}
+.seg.on{color:var(--pri)}
+.seg.on:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:46px;height:3px;border-radius:3px;background:var(--pri)}
+/* ===== 内容区 ===== */
+.scroll{padding:12px 14px 22px}
+.card{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden}
+.ch{padding:13px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.ch .accent{width:4px;height:16px;background:var(--red);border-radius:2px}
+.ch .accent.b{background:var(--pri)}
+.ch .opt{font-size:12px;color:var(--aux);font-weight:400}
+.cb{padding:14px 16px}
+.lab{font-size:14px;font-weight:600;margin-bottom:8px;display:block}
+.lab .req{color:var(--red)}
+.lab .note{font-size:12px;color:var(--aux);font-weight:400;margin-left:6px}
+/* ⚠注意条 */
+.notice{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:12px;padding:11px 14px;display:flex;gap:8px;font-size:13px;color:var(--amber);line-height:1.7;margin-bottom:12px;align-items:flex-start}
+.notice .ni{flex-shrink:0;line-height:1.4;font-weight:700}
+.notice .nt{flex:1;min-width:0}
+.notice .lk{color:var(--pri);text-decoration:underline;white-space:nowrap;font-weight:600}
+/* 已选区域列表 */
+.area-list{display:flex;flex-direction:column;gap:8px}
+.area-item{display:flex;align-items:center;gap:10px;background:#f3f7ff;border:1px solid #d6e4ff;border-radius:10px;padding:10px 12px;font-size:14px}
+.area-item .path{flex:1;color:#2b5fb8;font-weight:600;word-break:break-all;min-width:0}
+.area-item .out{font-size:11px;color:#b4540a;background:#fdeedd;border-radius:4px;padding:1px 6px;flex-shrink:0}
+.area-item .del{color:var(--red);font-size:18px;line-height:1;padding:2px;flex-shrink:0}
+.selrow{width:100%;border:1px dashed #b9c6de;border-radius:10px;padding:11px 12px;font-size:15px;background:#fbfcff;display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-top:10px}
+.selrow .ph{color:#5a606b}
+.selrow .arr{color:#b9b9b9;font-size:17px}
+/* 只读信息块 */
+.ro-para{background:#f7f8fa;border-radius:10px;padding:11px 12px;font-size:13px;color:#333;line-height:1.7}
+.att-list{display:flex;flex-direction:column;gap:8px}
+.att-item{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f5f6fa;border-radius:8px;font-size:13px}
+.att-item .at-ico{flex-shrink:0;font-size:15px;line-height:1}
+.att-item .at-name{flex:1;color:#333;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.att-item .at-size{color:var(--aux);font-size:12px;flex-shrink:0}
+.att-item .at-pv{color:var(--pri);font-size:12px;padding:2px 9px;background:var(--blue-bg);border:1px solid var(--blue-line);border-radius:5px;cursor:pointer;flex-shrink:0}
+/* ===== 审批记录 ===== */
+.rec-tools{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.rec-tools .rt-l{font-size:15px;font-weight:700}
+.rec-tools .rt-r{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt2)}
+.switch{position:relative;width:42px;height:23px;flex-shrink:0}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.sw-slider{position:absolute;inset:0;background:#c7cbd4;border-radius:12px;transition:.22s}
+.sw-slider:before{content:"";position:absolute;width:19px;height:19px;left:2px;top:2px;background:#fff;border-radius:50%;transition:.22s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch input:checked+.sw-slider{background:var(--pri)}
+.switch input:checked+.sw-slider:before{transform:translateX(19px)}
+.sw-val{color:var(--pri);font-size:12px;font-weight:600;width:14px}
+.sw-val.off{color:var(--aux)}
+/* 记录卡 */
+.rec{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.02)}
+.rec .r-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px 6px}
+.r-who{font-size:14px;font-weight:700;min-width:0;word-break:break-all}
+.rec .r-remark{margin:4px 16px 0;background:#f7f8fa;border-radius:8px;padding:9px 11px;font-size:13px;color:#333;line-height:1.7;word-break:break-all}
+.rec .r-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 16px 2px;font-size:12px;color:var(--aux)}
+.r-files{padding:2px 16px 12px}
+.rfile{display:flex;align-items:center;gap:8px;padding:7px 8px;background:#f5f6fa;border-radius:8px;margin-top:6px;font-size:13px}
+.rfile .nm{flex:1;color:#333;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.rfile .pv{color:var(--pri);font-size:12px;padding:2px 9px;background:var(--blue-bg);border:1px solid var(--blue-line);border-radius:5px;cursor:pointer;flex-shrink:0}
+/* 内部信息 */
+.int-hd{display:flex;align-items:center;justify-content:space-between;margin:2px 16px 0;padding:10px 12px;background:#eef3fb;border-radius:8px 8px 0 0;font-size:13px;font-weight:700;color:#34507c;cursor:pointer}
+.int-hd .chev{font-size:11px;color:#7b90b8;transition:.2s}
+.int-hd.open .chev{transform:rotate(180deg)}
+.int-bd{border:1px solid #e4ebf7;border-top:0;border-radius:0 0 8px 8px;margin:0 16px 12px;padding:10px 12px;background:#fbfcff}
+.int-bd .i-note{font-size:13px;color:#333;line-height:1.7;word-break:break-all}
+.int-bd .i-file{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:12px;color:#34507c}
+.int-bd .i-file .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.int-bd .i-file .pv{color:var(--pri);cursor:pointer;flex-shrink:0}
+.int-empty{padding:9px 0;font-size:12px;color:var(--aux);text-align:center}
+/* 空态 */
+.rec-empty{background:#fff;border-radius:14px;padding:46px 16px;text-align:center}
+.rec-empty .ic{font-size:40px;color:#cdd2da;line-height:1}
+.rec-empty .t1{margin-top:12px;font-size:15px;color:#5a606b;font-weight:600}
+.rec-empty .t2{margin-top:6px;font-size:12px;color:var(--aux)}
+/* ===== 底部 ===== */
+.foot{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + var(--safe-bottom));z-index:30}
+.f-btns{display:flex;gap:10px}
+.f-btn{flex:1;height:46px;border-radius:23px;font-size:16px;font-weight:700}
+.f-btn.rej{background:#fff;color:var(--red);border:1.5px solid #eec4c2}
+.f-btn.rej:active{background:var(--red-bg)}
+.f-btn.pass{background:var(--pri);color:#fff;border:0}
+.f-btn.pass:active{background:var(--pri-d)}
+/* ===== 底部 sheet ===== */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:17px 17px 0 0;padding:10px 16px calc(14px + var(--safe-bottom));max-height:88vh;display:flex;flex-direction:column}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;padding:6px 0 10px;flex-shrink:0}
+.sheet-hd .s-tit{display:flex;align-items:center;gap:7px}
+.sheet-hd .dot{width:8px;height:8px;border-radius:50%}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px;line-height:1;flex-shrink:0}
+.sheet-bd{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.crumb{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--aux);margin-bottom:4px;flex-shrink:0}
+.crumb b{color:var(--pri);font-weight:600}
+.optrow{width:100%;background:#fff;padding:13px 4px;font-size:16px;color:#333;text-align:left;border-bottom:1px solid #f3f4f6}
+.optrow:last-child{border-bottom:0}
+.optrow:active{background:#f6f8fb}
+.ov-title{font-size:15px;font-weight:700;color:var(--txt);padding:8px 2px 4px}
+.ov-rows{border-top:1px solid var(--line)}
+.ov-row{display:flex;align-items:center;gap:8px;padding:11px 2px;border-bottom:1px solid #f2f3f5;font-size:14px;color:#333;line-height:1.5}
+.ov-row .ic{color:#b9c6de;flex-shrink:0}
+/* 意见 sheet */
+.op-warn{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:10px;padding:10px 12px;margin:2px 0 12px}
+.op-warn .t1{font-size:15px;font-weight:700;color:#7a5b00;line-height:1.5}
+.op-warn .t2{margin-top:5px;font-size:13px;color:var(--amber);line-height:1.6}
+.fg{margin-bottom:12px}
+.fg .fl{font-size:13px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.fg .fl .need{color:var(--red)}
+.fg textarea{width:100%;border:1px solid #e4e7ec;border-radius:10px;padding:10px 12px;font-size:14px;min-height:92px;resize:none;outline:none;line-height:1.6;background:#fff;display:block}
+.fg textarea:focus{border-color:var(--pri);box-shadow:0 0 0 2px rgba(59,89,152,.1)}
+.cnt{text-align:right;font-size:12px;color:#a2a2a2;margin-top:4px}
+.cnt.warn{color:#e6a23c;font-weight:700}
+.nonpub{background:#f6f8fb;border-radius:10px;padding:12px}
+.nonpub .fl{color:#34507c}
+.nonpub textarea{min-height:72px;border-color:#e0e6f0}
+.sheet-acts{display:flex;gap:10px;margin-top:6px;flex-shrink:0}
+.s-act{flex:1;height:44px;border-radius:22px;font-size:15px;font-weight:700}
+.s-act.gray{background:#f0f1f3;color:#333}
+.s-act.ok{background:var(--pri);color:#fff}
+.s-act.ok.red{background:var(--red)}
+/* 中心确认弹层 */
+.dlg-wrap{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
+.dlg-wrap.show{display:flex}
+.dlg{width:min(330px,100%);background:#fff;border-radius:15px;overflow:hidden}
+.dlg-bd{padding:24px 20px 4px;text-align:center}
+.dlg-msg{font-size:16px;font-weight:700;line-height:1.5}
+.dlg-sub{font-size:13px;color:var(--aux);line-height:1.7;margin-top:8px}
+.dlg-btns{display:flex;padding:16px 20px 20px;gap:10px}
+.dlg-btn{flex:1;height:42px;border-radius:21px;font-size:15px;font-weight:700}
+.dlg-btn.gray{background:#f0f1f3;color:#333}
+.dlg-btn.blue{background:var(--pri);color:#fff}
+/* 预览放大层 */
+.viewmask{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:200;padding:20px}
+.viewmask.show{display:flex}
+.viewmask iframe{width:min(428px,94%);height:74vh;border:0;background:#fff;border-radius:8px}
+.viewmask .cap{color:#cfd3da;font-size:12px;margin-top:14px;max-width:100%;text-align:center;word-break:break-all}
+.viewmask .v-close{position:absolute;top:18px;right:18px;color:#fff;font-size:22px;background:rgba(255,255,255,.12);width:34px;height:34px;border-radius:50%}
+.toast{position:fixed;left:50%;bottom:122px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;display:none;z-index:300;max-width:min(360px,calc(100vw - 48px));text-align:center;line-height:1.5;word-break:break-all}
+.toast.show{display:block}
+/* 演示工具（仅宽屏可见） */
+.demo-tools{display:none;position:fixed;top:8px;left:8px;z-index:120;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;gap:7px;align-items:center;font-size:12px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.demo-tools select{padding:4px;border:1px solid #ddd;border-radius:4px;font-size:12px}
+@media (min-width:700px){.demo-tools{display:flex}.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<div class="demo-tools"><span>场景演示</span>
+  <select id="sceneSel" onchange="setScene(this.value)">
+    <option value="approving">审批中（默认）</option>
+    <option value="passed">已通过（终态）</option>
+    <option value="rejected">已驳回（终态）</option>
+    <option value="cancelled">已取消（终态）</option>
+    <option value="nointernal">审批记录-无内部信息</option>
+    <option value="norecord">审批记录-暂无记录</option>
+  </select>
+</div>
+
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+
+  <header class="nav">
+    <button class="back" onclick="toast('原型占位：返回工程审批列表')" aria-label="返回"><i></i></button>
+    <div class="nav-title">审批—解除地址限制</div>
+  </header>
+
+  <div class="objbar">
+    <div class="obj-main">
+      <div class="obj-line">粤东GCDT202506250001（希望小学A项目）</div>
+      <div class="obj-sub">工程审批 · 解除地址限制</div>
+    </div>
+    <span class="pill in" id="objPill">审批中</span>
+  </div>
+
+  <div class="segs">
+    <button class="seg on" id="segDoc" onclick="showSeg('doc')">单据信息</button>
+    <button class="seg" id="segRec" onclick="showSeg('rec')">审批记录</button>
+  </div>
+
+  <!-- ============ 单据信息 ============ -->
+  <section id="secDoc" class="scroll">
+
+    <!-- ⚠注意条 -->
+    <div class="notice">
+      <span class="ni">⚠</span>
+      <span class="nt">请注意：非跨区工程，所选安装范围已超出经销商销售范围，原销售范围包括：<span class="lk" onclick="openOrig()">点击查看 ›</span></span>
+    </div>
+
+    <!-- 解除地址限制区域 -->
+    <div class="card">
+      <div class="ch"><span class="accent"></span>解除地址限制区域</div>
+      <div class="cb">
+        <label class="lab"><span class="req">*</span>选择安装范围<span class="note">可添加/移除，超出原销售范围的区域将开放开单</span></label>
+        <div class="area-list" id="areaList"></div>
+        <button class="selrow" onclick="openAddr()">
+          <span class="ph">＋ 请选择省/市/区</span><span class="arr">›</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 其他信息 -->
+    <div class="card">
+      <div class="ch"><span class="accent b"></span>其他信息</div>
+      <div class="cb">
+        <div class="lab">原因描述</div>
+        <div class="ro-para">因项目实际安装地点超出原工程单开单地址范围，需新增浙江省杭州市西湖区等区域作为动销系统(RMS)开单安装地址。已与甲方确认实际安装位置及设备清单，附现场勘测报告及甲方确认函，请审批通过后开放对应区域开单权限。</div>
+        <div style="height:12px"></div>
+        <div class="lab">附件</div>
+        <div class="att-list" id="docAttList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 审批记录 ============ -->
+  <section id="secRec" class="scroll" style="display:none">
+    <div class="card" id="recWrap">
+      <div class="rec-tools" id="recTools">
+        <div class="rt-l">审批记录</div>
+        <div class="rt-r">
+          <span>展示所有信息</span>
+          <label class="switch">
+            <input type="checkbox" id="swAll" checked onchange="onSwAll()">
+            <span class="sw-slider"></span>
+          </label>
+          <span class="sw-val" id="swVal">开</span>
+        </div>
+      </div>
+      <div id="recList"></div>
+    </div>
+    <div class="rec-empty" id="recEmpty" style="display:none">
+      <div class="ic">🗂️</div>
+      <div class="t1">暂无记录</div>
+      <div class="t2">暂无审批记录</div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== 底部动作（仅审批中显示） ===== -->
+<div class="foot" id="foot">
+  <div id="footAct" class="f-btns">
+    <button class="f-btn rej" onclick="openOpinion('reject')">驳回</button>
+    <button class="f-btn pass" onclick="openOpinion('approve')">通过</button>
+  </div>
+</div>
+
+<!-- ===== 级联选择（省/市/区，旧样式） ===== -->
+<div class="mask" id="addrMask" onclick="if(event.target===this)closeSh('addrMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span class="s-tit"><span class="dot" style="background:var(--pri)"></span>请选择省/市/区</span><button class="sheet-x" onclick="closeSh('addrMask')">×</button></div>
+    <div class="crumb" id="addrCrumb"></div>
+    <div class="sheet-bd" id="addrOpts"></div>
+  </div>
+</div>
+
+<!-- ===== 查看原销售范围 ===== -->
+<div class="mask" id="origMask" onclick="if(event.target===this)closeSh('origMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span class="s-tit"><span class="dot" style="background:var(--amber)"></span>查看原销售范围</span><button class="sheet-x" onclick="closeSh('origMask')">×</button></div>
+    <div class="sheet-bd">
+      <div class="ov-title">该经销商原销售范围（动销系统 RMS 已开通开单区域）</div>
+      <div class="ov-rows" id="origRows"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 通过/驳回 意见 sheet ===== -->
+<div class="mask" id="opMask" onclick="if(event.target===this)closeSh('opMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd">
+      <span class="s-tit"><span class="dot" id="opDot" style="background:var(--pri)"></span><span id="opTit">通过审批</span></span>
+      <button class="sheet-x" onclick="closeSh('opMask')">×</button>
+    </div>
+    <div class="sheet-bd">
+      <div class="op-warn">
+        <div class="t1" id="opWarn1">确定通过此审批吗？</div>
+        <div class="t2" id="opWarn2">审批通过后将在动销系统(RMS)开放对应地址的开单权限。请填写审批意见。</div>
+      </div>
+      <div class="fg">
+        <div class="fl"><span><span class="need">*</span>审批意见</span><span style="font-size:12px;color:var(--aux);font-weight:400">必填</span></div>
+        <textarea id="opOpinion" placeholder="请输入审批意见，不超过200字" maxlength="200" oninput="cntOp(this)"></textarea>
+        <div class="cnt" id="opCnt">0 / 200</div>
+      </div>
+      <div class="nonpub">
+        <div class="fg" style="margin-bottom:0">
+          <div class="fl"><span>非公开信息</span><span style="font-size:12px;color:var(--aux);font-weight:400">选填 · 仅管理端权限展示</span></div>
+          <textarea id="opNonpub" placeholder="请输入内部备注等非公开信息，不超过200字（选填）" maxlength="200" oninput="cntNp(this)"></textarea>
+          <div class="cnt" id="opNpCnt">0 / 200</div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-acts">
+      <button class="s-act gray" onclick="closeSh('opMask')">取消</button>
+      <button class="s-act ok" id="opOk" onclick="confirmOpinion()">确认</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 附件 PDF 预览放大层 ===== -->
+<div class="viewmask" id="viewMask" onclick="if(event.target===this)closeView()">
+  <button class="v-close" onclick="closeView()" aria-label="关闭">×</button>
+  <iframe id="viewIframe" title="附件预览"></iframe>
+  <div class="cap" id="viewCap"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============ 演示数据 ============ */
+var ADDR={
+  "贵州省":{"毕节市":["南明区","七星关区"],"贵阳市":["南明区","云岩区"]},
+  "云南省":{"昆明市":["安宁市","官渡区"]},
+  "广东省":{"珠海市":["香洲区","金湾区"],"广州市":["天河区"],"深圳市":["南山区"]},
+  "浙江省":{"杭州市":["西湖区","拱墅区"],"宁波市":["海曙区"]},
+  "北京市":{"北京市":["朝阳区","海淀区"]},
+  "江苏省":{"南京市":["玄武区"],"苏州市":["姑苏区"]}
+};
+var PROVS=Object.keys(ADDR);
+/* 原销售范围（查看原销售范围弹层） */
+var ORIG=[
+  "贵州省/毕节市/南明区","贵州省/毕节市/七星关区",
+  "贵州省/贵阳市/南明区","贵州省/贵阳市/云岩区",
+  "云南省/昆明市/安宁市","云南省/昆明市/官渡区",
+  "广东省/珠海市/香洲区","广东省/珠海市/金湾区",
+  "广东省/广州市/天河区","广东省/深圳市/南山区"
+];
+/* 本页默认已选安装范围（含超出原销售范围的新增区域：浙江省/杭州市/…） */
+var DEF_AREAS=[
+  ["贵州省","毕节市","南明区"],
+  ["贵州省","毕节市","七星关区"],
+  ["贵州省","贵阳市","南明区"],
+  ["浙江省","杭州市","西湖区"],
+  ["浙江省","杭州市","拱墅区"]
+];
+/* 单据信息-附件（只读样例：1 pdf + 3 docx） */
+var DOC_ATT=[
+  {n:"现场勘测报告.pdf",s:"2.1MB",k:"pdf"},
+  {n:"安装地址变更说明.docx",s:"368KB",k:"doc"},
+  {n:"甲方确认函.docx",s:"480KB",k:"doc"},
+  {n:"经销商授权范围说明.docx",s:"512KB",k:"doc"}
+];
+/* 审批记录数据（按场景切换） */
+var REC_DEFAULT=[
+  {who:"赵倩（办事处内勤）",st:"pass",txt:"通过",time:"2026-06-29 15:22",
+   opinion:"申请材料齐全，附件与申报内容一致，原销售范围核实无误，同意提交上级审批。",
+   att:[{n:"现场核验记录.pdf",k:"pdf"},{n:"核验情况说明.docx",k:"doc"}],
+   int:{note:"该经销商为签约合作客户，历史履约良好；注意复核新增地址与申报一致后再放行。",att:[{n:"内部核查记录.docx",k:"doc"}]}},
+  {who:"钱进（办事处经理）",st:"pass",txt:"通过",time:"2026-07-01 10:18",
+   opinion:"已补充确认实际安装地址无误，与甲方使用地址一致，同意按申报范围开放对应区域开单。",
+   att:[{n:"补充确认函.docx",k:"doc"}],
+   int:{note:"注意：开放区域仅限本次申报范围，超范围开单需重新走解除地址限制审批。",att:[]}}
+];
+var REC_REJECT=[
+  {who:"赵倩（办事处内勤）",st:"pass",txt:"通过",time:"2026-06-29 15:22",
+   opinion:"申请材料齐全，附件与申报内容一致，原销售范围核实无误，同意提交上级审批。",
+   att:[{n:"现场核验记录.pdf",k:"pdf"},{n:"核验情况说明.docx",k:"doc"}],
+   int:{note:"该经销商为签约合作客户，历史履约良好。",att:[{n:"内部核查记录.docx",k:"doc"}]}},
+  {who:"王五（商用工程部审批）",st:"rej",txt:"驳回",time:"2026-07-02 09:40",
+   opinion:"所选安装范围含超出经销商授权区域部分（浙江省/杭州市/拱墅区），请补充甲方书面确认后重新提交。",
+   att:[],int:null}
+];
+var REC_CANCEL=[
+  {who:"赵倩（办事处内勤）",st:"pass",txt:"通过",time:"2026-06-29 15:22",
+   opinion:"申请材料齐全，附件与申报内容一致，原销售范围核实无误，同意提交上级审批。",
+   att:[{n:"现场核验记录.pdf",k:"pdf"},{n:"核验情况说明.docx",k:"doc"}],
+   int:{note:"该经销商为签约合作客户，历史履约良好。",att:[]}},
+  {who:"系统（申请人撤销）",st:"cancel",txt:"已取消",time:"2026-07-03 14:05",
+   opinion:"申请人在审批过程中主动撤销本次解除地址限制申请。",att:[],int:null}
+];
+/* 无内部信息场景：把 default 记录的内部信息置空（内部信息区展开后显示"暂无信息"） */
+function cloneEmptyInt(recs){return recs.map(function(r){var c={};for(var k in r){c[k]=r[k];}c.int={note:"",att:[]};return c;});}
+
+/* ============ 工具 ============ */
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(function(){el.classList.remove("show");},2000);}
+function show(id){document.getElementById(id).classList.add("show");}
+function hide(id){document.getElementById(id).classList.remove("show");}
+function closeSh(id){document.getElementById(id).classList.remove("show");}
+
+/* ============ 状态变量 ============ */
+var scene="approving";      /* approving|passed|rejected|cancelled|nointernal|norecord */
+var areas=[];
+var showAll=true;           /* 展示所有信息 */
+var recOpen={};             /* 内部信息收起/展开：默认展开 */
+
+/* ============ 单据信息：已选区域 ============ */
+function renderAreas(){
+  var el=document.getElementById("areaList");
+  el.innerHTML="";
+  areas.forEach(function(a,i){
+    var pth=a.join(" / ");
+    var out=(ORIG.indexOf(pth)<0);
+    var d=document.createElement("div");
+    d.className="area-item";
+    var html='<span class="path">'+esc(pth)+'</span>';
+    if(out){html+='<span class="out">超出原销售范围</span>';}
+    html+='<span class="del" onclick="delArea('+i+')">×</span>';
+    d.innerHTML=html;
+    el.appendChild(d);
+  });
+}
+function delArea(i){areas.splice(i,1);renderAreas();}
+
+/* ============ 级联选择（旧样式：crumb+选项列表） ============ */
+var alv=0,ap="",ac="";
+function openAddr(){alv=0;ap="";ac="";renderAddr();show("addrMask");}
+function renderAddr(back){
+  if(back!=null)alv=back;
+  var cr='<span>';
+  cr+=(alv>=0?(ap?"<b onclick=\"renderAddr(0)\">"+esc(ap)+"</b>":"<b>请选择</b>"):"");
+  if(alv>=1&&ap)cr+=' › '+(ac?"<b onclick=\"renderAddr(1)\">"+esc(ac)+"</b>":"<b>请选择</b>");
+  cr+='</span>';
+  document.getElementById("addrCrumb").innerHTML=cr;
+  var opts="";
+  if(alv===0)opts=PROVS.map(function(p){return '<button class="optrow" onclick="p1(\''+p+'\')">'+esc(p)+'</button>';}).join("");
+  else if(alv===1)opts=Object.keys(ADDR[ap]||{}).map(function(c){return '<button class="optrow" onclick="p2(\''+c+'\')">'+esc(c)+'</button>';}).join("");
+  else opts=(ADDR[ap]&&ADDR[ap][ac]||[]).map(function(d){return '<button class="optrow" onclick="p3(\''+d+'\')">'+esc(d)+'</button>';}).join("");
+  document.getElementById("addrOpts").innerHTML=opts||'<div style="padding:34px 0;text-align:center;color:#aaa;font-size:14px">暂无下级区域</div>';
+}
+function p1(p){ap=p;ac="";renderAddr(1);}
+function p2(c){ac=c;renderAddr(2);}
+function p3(d){
+  var dup=areas.some(function(a){return a[0]===ap&&a[1]===ac&&a[2]===d;});
+  if(dup){toast("该区域已在安装范围列表中");return;}
+  areas.push([ap,ac,d]);renderAreas();
+  hide("addrMask");
+  toast("已添加："+ap+" / "+ac+" / "+d);
+}
+
+/* ============ 查看原销售范围 ============ */
+function openOrig(){
+  document.getElementById("origRows").innerHTML=ORIG.map(function(r){
+    return '<div class="ov-row"><span class="ic">📍</span><span>'+esc(r)+'</span></div>';
+  }).join("");
+  show("origMask");
+}
+
+/* ============ 段切换 ============ */
+function showSeg(t){
+  var doc=t==="doc";
+  document.getElementById("secDoc").style.display=doc?"":"none";
+  document.getElementById("secRec").style.display=doc?"none":"";
+  document.getElementById("segDoc").classList.toggle("on",doc);
+  document.getElementById("segRec").classList.toggle("on",!doc);
+}
+
+/* ============ 附件（单据信息-只读） ============ */
+function renderDocAtt(){
+  var el=document.getElementById("docAttList");
+  el.innerHTML="";
+  DOC_ATT.forEach(function(f,i){
+    var d=document.createElement("div");
+    d.className="att-item";
+    d.innerHTML='<span class="at-ico">📄</span>'
+      +'<span class="at-name" title="'+esc(f.n)+'" onclick="fileAct(\''+f.k+'\',\''+esc(f.n)+'\')">'+esc(f.n)+'</span>'
+      +'<span class="at-size">'+esc(f.s)+'</span>'
+      +'<span class="at-pv" onclick="fileAct(\''+f.k+'\',\''+esc(f.n)+'\')">预览</span>';
+    el.appendChild(d);
+  });
+}
+/* 文件动作：pdf→放大层示例预览；doc/docx→下载样例文件（批一：docx 预览=下载） */
+function makePdfBlob(){
+  var s="",offs=[0];
+  function push(o){offs.push(s.length);s+=o;}
+  push("1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n");
+  push("2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n");
+  push("3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>\nendobj\n");
+  var stm="BT\n/F1 12 Tf\n60 770 Td\n(Approval attachment - preview placeholder) Tj\nET\n";
+  push("4 0 obj\n<< /Length "+stm.length+" >>\nstream\n"+stm+"endstream\nendobj\n");
+  push("5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n");
+  var xr=s.length;
+  s+="xref\n0 "+(offs.length)+"\n0000000000 65535 f \n";
+  for(var i=1;i<offs.length;i++){s+=("0000000000"+offs[i]).slice(-10)+" 00000 n \n";}
+  s+="trailer\n<< /Size "+offs.length+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF";
+  return new Blob([s],{type:"application/pdf"});
+}
+var viewUrl=null;
+function fileAct(k,n){
+  if(k==="pdf"){openPdfView(n);return;}
+  /* docx 预览=下载样例文件 */
+  var blob=new Blob(["【原型占位】附件样例内容："+n+"\n（本文件为演示下载，真实附件由后台提供）"],{type:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a");
+  a.href=url;a.download=n;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},4000);
+  toast("原型占位：正在下载 "+n);
+}
+function openPdfView(n){
+  if(viewUrl){URL.revokeObjectURL(viewUrl);}
+  viewUrl=URL.createObjectURL(makePdfBlob());
+  var f=document.getElementById("viewIframe");
+  f.src=viewUrl;
+  document.getElementById("viewCap").textContent=n+"（示例预览）";
+  show("viewMask");
+}
+function closeView(){
+  hide("viewMask");
+  var f=document.getElementById("viewIframe");
+  f.removeAttribute("src");
+  if(viewUrl){URL.revokeObjectURL(viewUrl);viewUrl=null;}
+}
+
+/* ============ 审批记录 ============ */
+function onSwAll(){
+  showAll=document.getElementById("swAll").checked;
+  var v=document.getElementById("swVal");
+  v.textContent=showAll?"开":"关";
+  v.classList.toggle("off",!showAll);
+  renderRecs();
+}
+function recFileHtml(f){
+  return '<div class="rfile"><span>📄</span><span class="nm" onclick="fileAct(\''+f.k+'\',\''+esc(f.n)+'\')">'+esc(f.n)+'</span>'
+    +'<span class="pv" onclick="fileAct(\''+f.k+'\',\''+esc(f.n)+'\')">预览</span></div>';
+}
+function intFileHtml(f){
+  return '<div class="i-file"><span>📎</span><span class="nm" onclick="fileAct(\''+f.k+'\',\''+esc(f.n)+'\')">'+esc(f.n)+'</span>'
+    +'<span class="pv" onclick="fileAct(\''+f.k+'\',\''+esc(f.n)+'\')">预览</span></div>';
+}
+function renderRecs(){
+  var list=document.getElementById("recList");
+  list.innerHTML="";
+  var recs=pickRecs();
+  document.getElementById("recEmpty").style.display=recs.length?"none":"";
+  document.getElementById("recTools").style.display=recs.length?"":"none";
+  recs.forEach(function(r,idx){
+    var isOpen=recOpen[idx]!==false;
+    var d=document.createElement("div");
+    d.className="rec";
+    var html='<div class="r-top"><span class="r-who">'+esc(r.who)+'</span><span class="pill '+r.st+'">'+esc(r.txt)+'</span></div>';
+    html+='<div class="r-remark">'+esc(r.opinion)+'</div>';
+    html+='<div class="r-meta"><span>'+esc(r.time)+'</span>'+(r.att&&r.att.length?'<span>附件（'+r.att.length+'）</span>':'')+'</div>';
+    if(r.att&&r.att.length){html+='<div class="r-files">'+r.att.map(recFileHtml).join("")+'</div>';}
+    if(showAll){
+      var hasInt=r.int&&(r.int.note||(r.int.att&&r.int.att.length));
+      html+='<div class="int-hd'+(isOpen?' open':'')+'" onclick="toggleInt('+idx+')"><span>内部信息</span><span class="chev">▾</span></div>';
+      if(isOpen){
+        if(hasInt){
+          var bd='';
+          if(r.int.note){bd+='<div class="i-note">'+esc(r.int.note)+'</div>';}
+          if(r.int.att&&r.int.att.length){bd+='<div style="border-top:1px dashed #dde5f2;margin:8px 0 2px"></div>'+r.int.att.map(intFileHtml).join("");}
+          html+='<div class="int-bd">'+bd+'</div>';
+        }else{
+          html+='<div class="int-bd"><div class="int-empty">暂无信息</div></div>';
+        }
+      }
+    }
+    d.innerHTML=html;
+    list.appendChild(d);
+  });
+}
+function toggleInt(idx){recOpen[idx]=recOpen[idx]===false?true:false;renderRecs();}
+function pickRecs(){
+  if(scene==="rejected"){return REC_REJECT;}
+  if(scene==="cancelled"){return REC_CANCEL;}
+  if(scene==="norecord"){return [];}
+  if(scene==="nointernal"){return cloneEmptyInt(REC_DEFAULT);}
+  return REC_DEFAULT;
+}
+
+/* ============ 意见 sheet（通过/驳回） ============ */
+var opMode="approve";
+function openOpinion(mode){
+  opMode=mode;
+  var dot=document.getElementById("opDot"),ok=document.getElementById("opOk");
+  document.getElementById("opTit").textContent=mode==="approve"?"通过审批":"驳回审批";
+  dot.style.background=mode==="approve"?"var(--pri)":"var(--red)";
+  ok.classList.toggle("red",mode==="reject");
+  document.getElementById("opWarn1").textContent=mode==="approve"?"确定通过此审批吗？":"确定驳回此审批吗？";
+  document.getElementById("opWarn2").textContent=mode==="approve"
+    ?"审批通过后将在动销系统(RMS)开放对应地址的开单权限。请填写审批意见。"
+    :"驳回后申请将退回给经销商重新修改提交。请填写审批意见。";
+  show("opMask");
+  setTimeout(function(){document.getElementById("opOpinion").focus();},80);
+}
+function cntOp(t){var c=document.getElementById("opCnt");c.textContent=t.value.length+" / 200";c.className="cnt"+(t.value.length>160?" warn":"");}
+function cntNp(t){var c=document.getElementById("opNpCnt");c.textContent=t.value.length+" / 200";c.className="cnt"+(t.value.length>160?" warn":"");}
+function confirmOpinion(){
+  var o=document.getElementById("opOpinion");
+  if(!o.value.trim()){toast("请填写审批意见");o.focus();return;}
+  hide("opMask");
+  var m=opMode==="approve"?"原型占位：审批通过，流程进入下一节点":"原型占位：审批驳回，申请退回经销商修改";
+  toast(m);
+  /* 拍板：确认后切换演示终态（底部动作仅审批中显示）；意见内容复位 */
+  var cur=scene;
+  o.value="";document.getElementById("opOpinion").value="";
+  document.getElementById("opNonpub").value="";
+  cntOp(document.getElementById("opOpinion"));
+  cntNp(document.getElementById("opNonpub"));
+  if(cur!=="passed"&&cur!=="rejected"&&cur!=="cancelled"){
+    setScene(opMode==="approve"?"passed":"rejected");
+  }
+}
+
+/* ============ 场景演示 ============ */
+function setScene(s){
+  scene=s;
+  document.getElementById("sceneSel").value=s;
+  recOpen={};
+  var approving=scene==="approving"||scene==="nointernal"||scene==="norecord";
+  /* 底部动作条仅「审批中」类状态显示；终态整条隐藏（与批二登录延期页一致） */
+  document.getElementById("foot").style.display=approving?"":"none";
+  var pill=document.getElementById("objPill");
+  pill.className="pill";
+  if(scene==="approving"||scene==="nointernal"||scene==="norecord"){pill.className="pill in";pill.textContent="审批中";}
+  else if(scene==="passed"){pill.className="pill pass";pill.textContent="通过";}
+  else if(scene==="rejected"){pill.className="pill rej";pill.textContent="驳回";}
+  else if(scene==="cancelled"){pill.className="pill cancel";pill.textContent="已取消";}
+  renderRecs();
+}
+
+/* ============ 初始化 ============ */
+function init(){
+  renderAreas();
+  renderDocAtt();
+  renderRecs();
+  var h=decodeURIComponent(location.hash.slice(1));
+  if(h==="rec"){showSeg("rec");}
+  else{showSeg("doc");}
+  var m=/scene=([a-z]+)/.exec(h);
+  if(m){setScene(m[1]);}
+}
+init();
+</script>
+</body>
+</html>
