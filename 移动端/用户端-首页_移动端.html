@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>用户端-首页</title>
+<!--
+  用户端-首页（无 PC 页面 → 设计稿直转 App HTML，2026-09-05）
+  设计稿：
+    A) 商用-工程机首页.png   —— 顶部搜索 + 类型 Tab(项目单/批价单/工程单/工程备货) + 项目单卡片 + 底部导航(首页/分类/项目/购物车/我的)
+    B) 卡片状态.png（5160 宽 4 列画板）—— 批价单/工程单/工程备货 的卡片与状态样例 + 状态/有效期配色注释：
+        有效期字体颜色 ≤3 天红 / 4-7 天橙 / >7 天绿；状态标签：项目单(审批中/已驳回/跟进中/已中标/已签单/已完结/已关闭/已丢标…) 批价单(审批中/已驳回/待提货/部分提货/已完结/已关闭) 工程单(登录成功/登录被驳回/价格审批中/待提交资料/资料审核/完结/异常处理/已失效…)
+  证据级别：无 PC 页 → 设计稿为唯一来源；本代理无图像输入，卡片字段/示例值来自 Windows OCR，均属「演示占位 / 视觉证据不足」，待识图或人工逐格比对。
+  主要交互：类型 Tab 切换（4 类卡片列表）；其余跳转 = 交互占位（toast「原型占位：…」）。
+-->
+<style>
+:root{--blue:#0868d7;--bg:#f5f6f7;--card:#fff;--text:#292929;--sub:#777;--line:#ececec;
+  --red:#ff5158;--orange:#ff7a1a;--green:#15b66a;--gray:#9a9a9a;--amber:#e6a23c;
+  --safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,select,input{font:inherit}
+button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:66px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.top{background:linear-gradient(180deg,#d9e6fb 0%,#edf3ff 64%,#ffffff 100%);padding:8px 14px 12px;border-bottom:0}
+.hero-row{display:flex;align-items:center;gap:10px}
+.search{flex:1;display:flex;align-items:center;gap:8px;background:#fff;border-radius:18px;padding:10px 13px;color:#a2a2a2;font-size:14px;min-height:38px;box-shadow:0 1px 4px rgba(31,61,109,.08)}
+.search svg{width:16px;height:16px;color:#a2a2a2;flex:0 0 auto}
+.search .ph{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hero-action{width:34px;height:34px;border:0;border-radius:50%;background:#fff;display:grid;place-items:center;position:relative;flex:0 0 auto;box-shadow:0 1px 4px rgba(31,61,109,.08)}
+.hero-action svg{width:19px;height:19px;color:#222}
+.hero-badge{position:absolute;right:-2px;top:-4px;min-width:22px;height:16px;padding:0 4px;border-radius:999px;background:#ff3b30;color:#fff;font-size:10px;line-height:16px;font-weight:700;border:1.5px solid #fff}
+.hero-tip{font-size:11px;line-height:1.5;color:#9fa7b2;margin:7px 2px 10px}
+.quick-card{background:#fff;border-radius:16px;padding:12px 10px 10px;box-shadow:0 1px 6px rgba(26,61,119,.08)}
+.quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 0}
+.quick-item{display:grid;justify-items:center;align-content:start;gap:6px;padding:0 4px;text-align:center}
+.quick-icon{width:30px;height:30px;border-radius:6px;background:linear-gradient(180deg,#2e85ff 0%,#0c69da 100%);display:grid;place-items:center;box-shadow:0 2px 4px rgba(12,105,218,.2)}
+.quick-icon svg{width:18px;height:18px;color:#fff;flex:0 0 auto}
+.quick-label{font-size:12px;line-height:1.25;color:#333;white-space:nowrap}
+.quick-item.muted .quick-icon{background:linear-gradient(180deg,#7e96bf 0%,#5f78a4 100%)}
+.seg{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.seg button{flex:1;height:52px;border:0;background:#fff;color:#8f959e;font-size:16px;position:relative}
+.seg button.active{color:var(--blue);font-weight:700}
+.seg button.active:after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:30px;height:4px;border-radius:4px;background:var(--blue)}
+.scroll{padding:12px 14px 16px}
+.panel{display:none}.panel.active{display:block}
+.hint{font-size:12px;color:#a6abb3;padding:2px 2px 10px;line-height:1.6}
+.li{background:#fff;border-radius:14px;padding:14px 14px 0;margin-bottom:12px;overflow:hidden}
+.li-hd{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.li-name{font-size:16px;font-weight:700;line-height:1.4}
+.li-name .sub{display:none}
+.bizline{margin-top:8px;display:flex;align-items:center;gap:8px}
+.biztag{display:inline-block;padding:3px 10px;border-radius:5px;font-size:12px;font-weight:600;color:#7a5b12;background:#fdf6e0;flex:0 0 auto}
+.no{font-size:13px;color:#333;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-pill{display:inline-block;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap}
+.st-pill.sp{background:#e3f2fd;color:#1565c0}
+.st-pill.ok{background:#e8f5e9;color:#2e7d32}
+.st-pill.rj{background:#fff3e0;color:#e65100}
+.st-pill.cc{background:#eceff1;color:#546e7a}
+.st-pill.pt{background:#e8f5e9;color:#2e7d32}
+.st-pill.dd{background:#fff3e0;color:#b45309}
+.st-pill.warn{background:#fdecea;color:#c62828}
+.li-no{font-size:13px;color:#333;margin-top:8px;word-break:break-all}
+.li-no .lbl{color:#a2a2a2}
+.lo{display:inline-flex;align-items:center;gap:6px;margin-top:9px}
+.lo-dot{width:20px;height:20px;border-radius:50%;color:#fff;font-size:11px;display:grid;place-items:center}
+.lo-dot.ok{background:#23b571}.lo-dot.sub{background:#4a90e2}
+.lo-txt{font-size:13px;font-weight:600}
+.lo-txt.ok{color:#1a9c5c}.lo-txt.sub{color:#2f7bd6}
+.li-kv{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;font-size:13px;color:#666}
+.li-kv .k{color:#9a9a9a}
+.li-kv .v{color:#333;font-weight:600}
+.valid{margin-top:8px;font-size:13px;line-height:1.6}
+.valid .lbl{color:#9a9a9a}
+.valid .days{font-weight:700}
+.valid .days.red{color:var(--red)}
+.valid .days.orange{color:var(--orange)}
+.valid .days.green{color:#1a9c5c}
+.rej{margin-top:9px;padding:8px 10px;background:#fdecea;border-radius:8px;font-size:12px;color:#c62828;line-height:1.6}
+.li-act{display:flex;justify-content:flex-end;gap:14px;border-top:1px solid #f3f4f6;margin-top:12px;padding:11px 2px 12px}
+.act{font-size:14px;color:var(--blue);cursor:pointer}
+.act.ghost{color:#666}
+.act.warn{color:#c62828}
+.act.outline{border:1px solid #e1e5eb;border-radius:6px;padding:6px 16px;color:#333}
+.act.solid{border:0;border-radius:6px;padding:6px 18px;background:var(--blue);color:#fff}
+.listbar{display:flex;justify-content:space-between;align-items:center;background:#fff;border-radius:10px;padding:8px 10px 8px 14px;margin-bottom:10px}
+.bar-info{font-size:13px;color:#8f959e}
+.bar-filter{display:flex;align-items:center;gap:5px;border:1px solid #e3e6ea;background:#fff;color:#333;border-radius:8px;padding:6px 14px;font-size:13px}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:17px 17px 0 0;padding:18px 18px calc(16px + var(--safe-bottom));max-height:88vh;overflow-y:auto}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;margin-bottom:14px}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px;line-height:1}
+.f-sec{margin-bottom:16px}
+.f-sec-t{font-size:15px;font-weight:700;color:#333;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 14px;border-radius:16px;background:#f3f4f6;color:#555;font-size:13px;cursor:pointer;border:1px solid transparent}
+.chip.on{background:#e8f1ff;color:var(--blue);border-color:var(--blue)}
+.f-range{display:flex;align-items:center;gap:8px}
+.f-date{flex:1;border:1px solid #e3e6ea;border-radius:8px;padding:9px 10px;font-size:13px;color:#333;background:#fff;min-width:0}
+.f-foot{display:flex;gap:10px;margin-top:6px}
+.f-btn{flex:1;height:46px;border:0;border-radius:24px;font-size:16px;font-weight:700}
+.f-btn.gray{background:#f0f1f3;color:#333}
+.f-btn.blue{background:var(--blue);color:#fff}
+.dlg-wrap{position:fixed;inset:0;background:rgba(0,0,0,.44);display:none;align-items:center;justify-content:center;z-index:70;padding:18px}
+.dlg-wrap.show{display:flex}
+.dlg{width:min(340px,100%);background:#fff;border-radius:14px;padding:24px 20px 20px;text-align:center}
+.dlg-msg{font-size:15px;line-height:1.7;color:#333}
+.dlg-msg b{color:var(--red)}
+.dlg-btns{display:flex;gap:12px;justify-content:center;margin-top:22px}
+.dlg-btn{padding:9px 26px;border-radius:24px;font-size:15px;font-weight:700;border:0}
+.dlg-btn.c{background:#f0f1f3;color:#333}
+.dlg-btn.y{background:var(--blue);color:#fff}
+.demo-tools{display:none;position:fixed;top:10px;left:10px;z-index:120;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;gap:7px;align-items:center;font-size:12px;box-shadow:0 5px 18px rgba(0,0,0,.12)}
+.demo-tools select{padding:4px;border:1px solid #ddd;border-radius:4px}
+@media (min-width:700px){.demo-tools{display:flex}.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+.bottom{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);display:flex;z-index:40;padding-bottom:var(--safe-bottom)}
+.bi{flex:1;border:0;background:#fff;padding:7px 0 8px;display:grid;place-items:center;gap:3px;color:#a2a2a2}
+.bi svg{width:22px;height:22px}
+.bi span{font-size:11px}
+.bi.active{color:var(--blue)}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;white-space:nowrap}
+.toast.show{display:block}
+</style>
+</head>
+<body>
+<div class="demo-tools" data-debug>
+  <span>Tab 演示</span>
+  <select id="tabSelect" onchange="switchSeg(this.value)"></select>
+</div>
+
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+  <div class="top">
+    <div class="hero-row">
+      <div class="search" onclick="toast('原型占位：搜索')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <span class="ph">请输入</span>
+      </div>
+      <button class="hero-action" onclick="toast('原型占位：消息')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 7a4 4 0 0 1 8 0c0 4 2 5 2 7H6c0-2 2-3 2-7z"/>
+          <path d="M9 17a3 3 0 0 0 6 0"/>
+        </svg>
+        <span class="hero-badge">99+</span>
+      </button>
+    </div>
+    <div class="hero-tip">支持同时搜索旧模式(工程单)和新模式(工程项目单、批价单)的数据</div>
+    <div class="quick-card">
+      <div class="quick-grid">
+        <div class="quick-item" onclick="toast('原型占位：新建项目单')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/><path d="M9 3h6l3 3v12l-3 3H9l-3-3V6z"/></svg></div>
+          <div class="quick-label">新建项目单</div>
+        </div>
+        <div class="quick-item" onclick="toast('原型占位：新建批价单')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8h10v8H7z"/><path d="M7 12h10"/><path d="M9 6h6"/></svg></div>
+          <div class="quick-label">新建批价单</div>
+        </div>
+        <div class="quick-item" onclick="toast('原型占位：新建工程备货')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14v10H5z"/><path d="M8 8V6h8v2"/><path d="M9 13l2 2 4-4"/></svg></div>
+          <div class="quick-label">新建工程备货</div>
+        </div>
+        <div class="quick-item" onclick="toast('原型占位：批价单提货')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12v10H6z"/><path d="M9 10h6"/><path d="M9 13h4"/></svg></div>
+          <div class="quick-label">批价单提货</div>
+        </div>
+        <div class="quick-item" onclick="toast('原型占位：全部项目单')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v16H7z"/><path d="M9 8h6"/><path d="M9 12h6"/><path d="M9 16h4"/></svg></div>
+          <div class="quick-label">全部项目单</div>
+        </div>
+        <div class="quick-item" onclick="toast('原型占位：全部批价单')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v16H8z"/><path d="M12 7v10"/><path d="M9 10h6"/></svg></div>
+          <div class="quick-label">全部批价单</div>
+        </div>
+        <div class="quick-item" onclick="toast('原型占位：全部工程')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 10h14v9H5z"/><path d="M8 10V6h8v4"/><path d="M9 14h6"/></svg></div>
+          <div class="quick-label">全部工程</div>
+        </div>
+        <div class="quick-item muted" onclick="toast('原型占位：敬请期待')">
+          <div class="quick-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg></div>
+          <div class="quick-label">敬请期待</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <nav class="seg" id="seg">
+    <button class="active" data-tab="pj">项目单</button>
+    <button data-tab="price">批价单</button>
+    <button data-tab="eng">工程单</button>
+    <button data-tab="stock">工程备货</button>
+  </nav>
+
+  <div class="scroll">
+    <div class="listbar"><span class="bar-info" id="barInfo"></span><button class="bar-filter" onclick="openFilter()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>筛选</button></div>
+    <div class="panel active" id="panel-pj"></div>
+    <div class="panel" id="panel-price"></div>
+    <div class="panel" id="panel-eng"></div>
+    <div class="panel" id="panel-stock"></div>
+  </div>
+
+  <nav class="bottom">
+    <button class="bi active" onclick="toast('当前页：首页')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 10l8-6 8 6v9a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/></svg><span>首页</span></button>
+    <button class="bi" onclick="toast('原型占位：分类')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h6v6H4zM14 5h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z"/></svg><span>分类</span></button>
+    <button class="bi" onclick="toast('原型占位：项目')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l7 4v5c0 4-3 7-7 9-4-2-7-5-7-9V7z"/></svg><span>项目</span></button>
+    <button class="bi" onclick="toast('原型占位：购物车')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/><path d="M3 4h2l2.6 11h10l2.4-8H6"/></svg><span>购物车</span></button>
+    <button class="bi" onclick="toast('原型占位：我的')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/></svg><span>我的</span></button>
+  </nav>
+</main>
+
+<!-- 筛选弹层（设计稿：全部工程项目-筛选） -->
+<div class="mask" id="filterMask" onclick="closeFilter(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span id="filterTitle">筛选</span><button class="sheet-x" onclick="closeFilter()">×</button></div>
+    <div class="f-sec">
+      <div class="f-sec-t">状态</div>
+      <div class="chips" id="filterChips"></div>
+    </div>
+    <div class="f-sec">
+      <div class="f-sec-t">登录时间</div>
+      <div class="f-range">
+        <input class="f-date" id="fFrom" type="date" placeholder="开始时间" aria-label="开始时间">
+        <span style="color:#aaa">至</span>
+        <input class="f-date" id="fTo" type="date" placeholder="结束时间" aria-label="结束时间">
+      </div>
+    </div>
+    <div class="f-foot">
+      <button class="f-btn gray" onclick="resetFilter()">重置</button>
+      <button class="f-btn blue" onclick="applyFilter()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 放弃登录/放弃提货 确认弹窗 -->
+<div class="dlg-wrap" id="confirmWrap" onclick="closeConfirm(event)">
+  <div class="dlg" onclick="event.stopPropagation()">
+    <div class="dlg-msg" id="confirmMsg"></div>
+    <div class="dlg-btns"><button class="dlg-btn c" onclick="closeConfirm()">取 消</button><button class="dlg-btn y" onclick="doConfirm()">确 认</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   数据 = 设计稿 OCR 演示样例（无 PC 页）。
+   声明：卡片字段结构来自设计稿 OCR；示例值（项目名/单号/数量/日期）为演示占位，
+   除 OCR 明示字段外不得臆造字段；逐像素核对 = 视觉证据不足（待识图/人工）。
+   ============================================================ */
+function daysColor(d){ return d<=3?"red":(d<=7?"orange":"green"); }
+
+var DATA = {
+  /* ---- 项目单（商用-工程机首页） ---- */
+  "pj":[
+    {name:"汕头中学空调改造项目", biz:"多联机", sub:"项目单", st:"已驳回", stCls:"rj", no:"粤东GCDT202606250001",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["购买数量","100"],["发货数量","60"]],
+     valid:"有效期至 2026/09/02", days:1, rej:"设备清单中型号与工程项目单不一致，请核对后重新提交。", act:["重新提交","放弃登录","复制新建"]},
+    {name:"深圳前海格力商用空调集中采购", biz:"中央空调", sub:"项目单", st:"审批中", stCls:"sp", no:"安徽-GCDT2026-06220001",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["购买数量","0"],["发货数量","0"]],
+     valid:"有效期至 2026/09/02", days:30, act:["放弃登录","复制新建"], tag:"工程登录"},
+    {name:"中山市冷链物流中心冷库设备采购", biz:"冷链", sub:"项目单", st:"已关闭", stCls:"cc", no:"安徽-GCDT2026-06220001",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["购买数量","0"],["发货数量","0"]],
+     act:["复制新建"], tag:"经销商放弃登录"}
+  ],
+  /* ---- 批价单（卡片状态画板） ---- */
+  "price":[
+    {name:"汕头中学空调改造项目", biz:"多联机", sub:"批价单", st:"已驳回", stCls:"rj", no:"粤东GCDT202606250001-PJ01",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["购买数量","100"],["发货数量","60"]],
+     valid:"有效期至 2026/09/02", days:1, rej:"设备清单中型号与工程项目单不一致，请核对后重新提交。", act:["重新提交","放弃提货","复制新建"]},
+    {name:"深圳前海格力商用空调集中采购", biz:"中央空调", sub:"批价单", st:"已驳回", stCls:"rj", no:"安徽-GCDT2026-06220001-PJ02",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["购买数量","0"],["发货数量","0"]],
+     valid:"有效期至 2026/09/02", days:6, rej:"批价单价超出指导价，需补充说明。", act:["重新提交","放弃提货","复制新建"]},
+    {name:"广州黄埔冷链仓储设备供应", biz:"冷链", sub:"批价单", st:"待提货", stCls:"dd", no:"安徽-GCDT2026-06220003-PJ01",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["购买数量","30"],["发货数量","0"]],
+     valid:"有效期至 2026/09/02", days:14, act:["去提货","复制新建","放弃提货"]},
+    {name:"珠海横琴新区中央空调设备采购", biz:"中央空调", sub:"批价单", st:"部分提货", stCls:"pt", no:"安徽-GCDT2026-06220001-PJ01",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["购买数量","100"],["发货数量","60"]],
+     valid:"有效期至 2026/09/02", days:20, act:["去提货","复制新建"]}
+  ],
+  /* ---- 工程单（旧模式，卡片状态画板 col2/col3） ---- */
+  "eng":[
+    {name:"希望小学A项目", biz:"工程", sub:"工程单", st:"登录审批中", stCls:"sp", no:"XG2111188-001",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["未发货","0"]],
+     valid:"有效期至 2026/09/02", days:2, act:["放弃登录","登录延期申请"]},
+    {name:"希望小学A项目", biz:"工程", sub:"工程单", st:"登录成功·已发货", stCls:"ok", no:"XG2111188-001",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["未发货","0"],["已发货","100"]],
+     valid:"有效期至 2026/09/02", days:30, act:["放弃登录","申请批价"]},
+    {name:"希望小学A项目", biz:"工程", sub:"工程单", st:"价格审批中", stCls:"warn", no:"XG2111188-001",
+     lo:{n:1,t:"登录成功",ok:true}, kv:[["未发货","100"]],
+     valid:"有效期至 2026/09/02", days:5, act:["放弃登录"]}
+  ],
+  /* ---- 工程备货（卡片状态画板 col2 尾部） ---- */
+  "stock":[
+    {name:"备供应项目", biz:"工程", sub:"工程备货", st:"待提货", stCls:"dd", no:"备供-2026-06220001",
+     kv:[["发货数量","5"]], valid:"有效期至 2026/09/02", days:6, act:["去提货","复制新建"]},
+    {name:"备供应项目", biz:"工程", sub:"工程备货", st:"部分提货", stCls:"pt", no:"备供-2026-06220002",
+     kv:[["发货数量","25"]], valid:"有效期至 2026/09/02", days:16, act:["去提货","复制新建"]},
+    {name:"备供应项目", biz:"工程", sub:"工程备货", st:"已完结", stCls:"ok", no:"备供-2026-06220003",
+     kv:[["发货数量","100"]], act:["复制新建"]}
+  ]
+};
+var TAB_TITLE = {pj:"项目单", price:"批价单", eng:"工程单", stock:"工程备货"};
+
+/* 筛选（设计稿：全部工程项目-筛选 → 状态 chips + 登录时间 开始/结束） */
+var ST_CHIPS = {
+  pj:["全部","审批中","跟进中","已中标","已签单","已流标","已丢单","已驳回","已关闭","已完结"],
+  price:["全部","审批中","已驳回","待提货","部分提货","已完结","已关闭"],
+  eng:["全部","登录审批中","价格审批中","登录成功·已发货"],
+  stock:["全部","待提货","部分提货","已完结"]
+};
+var curTab = "pj";
+var curSt = {pj:"全部", price:"全部", eng:"全部", stock:"全部"};
+var tmpSt = "全部";
+
+function esc(s){ return String(s).replace(/[&<>"']/g,function(c){return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];}); }
+
+function pill(d){
+  return '<span class="st-pill '+d.stCls+'">'+esc(d.st)+'</span>';
+}
+function cardHtml(d){
+  // 布局(人工反馈 2026-09-05)：卡内不显示“项目单/批价单/工程单/工程备货”类型字样；
+  // 只去掉“单号：”文字前缀，编码保留；业务线标签 + 单号编码同行展示。
+  var h='<div class="li">'
+   +'<div class="li-hd"><div class="li-name">'+esc(d.name)+'</div>'+pill(d)+'</div>'
+   +'<div class="bizline"><span class="biztag">'+esc(d.biz)+'</span><span class="no">'+esc(d.no)+'</span></div>';
+  if(d.tag){ h+='<div class="li-no" style="margin-top:4px"><span class="lbl">子状态：</span><span style="font-weight:600;color:#1565c0">'+esc(d.tag)+'</span></div>'; }
+  if(d.lo){ h+='<div class="lo"><span class="lo-dot '+(d.lo.ok?'ok':'sub')+'">'+d.lo.n+'</span><span class="lo-txt '+(d.lo.ok?'ok':'sub')+'">登录顺序：'+esc(d.lo.t)+'</span></div>'; }
+  if(d.kv && d.kv.length){
+    h+='<div class="li-kv">'+d.kv.map(function(k){ return '<span><span class="k">'+esc(k[0])+'：</span><span class="v">'+esc(k[1])+'</span></span>'; }).join("")+'</div>';
+  }
+  if(d.valid){ h+='<div class="valid"><span class="lbl">'+esc(d.valid)+'</span>'+(d.days!=null?'　<span class="lbl">剩余</span><span class="days '+daysColor(d.days)+'">'+d.days+' 天</span>':"")+'</div>'; }
+  if(d.rej){ h+='<div class="rej">驳回原因：'+esc(d.rej)+'</div>'; }
+  var acts=(d.act||[]).map(function(a){
+    var cls="act";
+    if(a==="放弃登录"||a==="放弃提货") cls+=" warn";
+    else if(a==="重新提交"||a==="去提货") cls+=" solid";
+    else if(a==="复制新建") cls+=" outline";
+    var fn = (a==="放弃登录"||a==="放弃提货") ? "askConfirm('"+a+"')" : "toast('原型占位："+a+"')";
+    return '<span class="'+cls+'" onclick="'+fn+'">'+a+'</span>';
+  }).join("");
+  h+='<div class="li-act">'+acts+'</div></div>';
+  return h;
+}
+function curList(key){
+  var all = DATA[key] || [];
+  var st = curSt[key];
+  return (st==="全部") ? all : all.filter(function(d){ return d.st===st; });
+}
+function render(key){
+  var el=document.getElementById("panel-"+key);
+  if(!el) return;
+  var list = curList(key);
+  el.innerHTML = list.length ? list.map(cardHtml).join("") : '<div style="background:#fff;border-radius:14px;padding:46px 0;text-align:center;color:#a2a2a2">暂无匹配记录</div>';
+}
+function updateBar(){
+  document.getElementById("barInfo").textContent = "共 "+curList(curTab).length+" 条"+(curSt[curTab]!=="全部"?" · 筛选："+curSt[curTab]:"");
+}
+function renderAll(){ ["pj","price","eng","stock"].forEach(render); updateBar(); }
+
+function switchSeg(key){
+  curTab = key;
+  document.querySelectorAll("#seg button").forEach(function(b){ b.classList.remove("active"); if(b.dataset.tab===key) b.classList.add("active"); });
+  document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("active"); });
+  var el=document.getElementById("panel-"+key); if(el) el.classList.add("active");
+  var sel=document.getElementById("tabSelect"); if(sel) sel.value=key;
+  updateBar();
+  window.scrollTo(0,0);
+}
+
+/* ---- 筛选弹层 ---- */
+function openFilter(){
+  tmpSt = curSt[curTab];
+  document.getElementById("filterTitle").textContent = TAB_TITLE[curTab]+" · 筛选";
+  var chips=(ST_CHIPS[curTab]||["全部"]).map(function(c){
+    return '<span class="chip '+(c===tmpSt?"on":"")+'" data-st="'+c+'" onclick="pickChip(this,\''+c+'\')">'+esc(c)+'</span>';
+  }).join("");
+  document.getElementById("filterChips").innerHTML = chips;
+  document.getElementById("fFrom").value=""; document.getElementById("fTo").value="";
+  document.getElementById("filterMask").classList.add("show");
+}
+function closeFilter(e){ if(e && e.target!==document.getElementById("filterMask")) return; document.getElementById("filterMask").classList.remove("show"); }
+function pickChip(el,st){
+  tmpSt = st;
+  [].forEach.call(document.querySelectorAll("#filterChips .chip"),function(x){ x.classList.remove("on"); });
+  el.classList.add("on");
+}
+function applyFilter(){
+  curSt[curTab]=tmpSt;
+  render(curTab); updateBar();
+  closeFilter();
+}
+function resetFilter(){
+  curSt={pj:"全部",price:"全部",eng:"全部",stock:"全部"};
+  renderAll(); closeFilter();
+}
+
+/* ---- 放弃登录/放弃提货 确认弹窗 ---- */
+var confirmAct = null;
+function askConfirm(a){
+  confirmAct = a;
+  document.getElementById("confirmMsg").innerHTML = "确定 <b>"+esc(a)+"</b> 之后无法撤销，要继续吗？";
+  document.getElementById("confirmWrap").classList.add("show");
+}
+function closeConfirm(e){ if(e && e.target!==document.getElementById("confirmWrap")) return; document.getElementById("confirmWrap").classList.remove("show"); }
+function doConfirm(){ closeConfirm(); toast("原型占位：已确认"+confirmAct); }
+function toast(msg){
+  var el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(window.__tt); window.__tt=setTimeout(function(){ el.classList.remove("show"); },1400);
+}
+(function init(){
+  var sel=document.getElementById("tabSelect");
+  sel.innerHTML=Object.keys(TAB_TITLE).map(function(k){ return '<option value="'+k+'">'+TAB_TITLE[k]+'</option>'; }).join("");
+  renderAll();
+  var hash=decodeURIComponent(location.hash.slice(1));
+  if(TAB_TITLE[hash]) switchSeg(hash);
+})();
+</script>
+</body>
+</html>
