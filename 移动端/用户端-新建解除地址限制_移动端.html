@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>用户端-新建解除地址限制</title>
+<!--
+  用户端-新建解除地址限制（设计稿直还原：核心的过程\用户端-新建解除地址限制：Group1276(确认)/1277,1278(驳回重提)/1279(已填)/1280(空)
+  PC：E:\工作文件\项目\商用工程\20_正式交付\用户端-新建解除地址限制.html（场景：新建申请/重新提交-驳回后；选择安装范围多选+原因+附件+剩余次数）
+  说明：琥珀提示条、区域多选(级联添加/删除)、原因500字必填校验、附件、剩余可提交次数10次、提交/放弃/成功弹窗。
+-->
+<style>
+:root{--blue:#0868d7;--bg:#f5f6f7;--text:#292929;--line:#ececec;--red:#ff5158;--amber:#8a6100;--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:116px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.rej{margin:10px 12px 0;background:#fff0f0;border:1px solid #ffc8c8;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.8}
+.rej .t{font-weight:700;color:#c62828;margin-bottom:6px}
+.rej .kv{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+.rej .kv span{color:#646a73;font-size:12px}
+.rej .kv b{color:#292929;font-weight:600}
+.rej .kv .r{color:#c62828;font-weight:700}
+.warnbox{margin:10px 12px 0;background:#FFF8E6;border:1px solid #FFE0A3;border-radius:12px;padding:12px 14px;display:flex;gap:8px;font-size:13px;color:var(--amber);line-height:1.7}
+.scroll{padding:12px 14px 24px}
+.card{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden}
+.ch{padding:13px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:700}
+.cb{padding:14px 16px}
+.lab{font-size:14px;font-weight:600;margin-bottom:8px}
+.lab .req{color:var(--red)}
+.lab .opt{font-size:13px;color:#9a9a9a;font-weight:400}
+.selrow{width:100%;border:1px solid #e4e7ec;border-radius:10px;padding:12px;font-size:15px;background:#fff;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.selrow .ph{color:#a2a2a2}
+.selrow .arr{color:#b9b9b9;font-size:16px}
+.area-list{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.area-item{display:flex;align-items:center;gap:10px;background:#f3f7ff;border:1px solid #d6e4ff;border-radius:10px;padding:11px 12px;font-size:14px}
+.area-item .path{flex:1;color:#2b5fb8;font-weight:600;word-break:break-all}
+.area-item .del{color:var(--red);font-size:17px;cursor:pointer}
+textarea.in{width:100%;border:1px solid #e4e7ec;border-radius:10px;padding:11px 12px;font-size:15px;min-height:110px;resize:none;outline:none;line-height:1.6}
+textarea.in.err{border-color:#f4bfbf;background:#fffafa}
+.cnt{text-align:right;font-size:12px;color:#a2a2a2;margin-top:4px}
+.err-tip{color:var(--red);font-size:12px;margin-top:4px;display:none}
+.err-tip.show{display:block}
+.zone{border:1.5px dashed #c5cae9;border-radius:10px;padding:18px 10px;text-align:center;background:#fafbfc;font-size:13px;color:#8f959e;line-height:1.8;cursor:pointer}
+.zone b{color:var(--blue);font-weight:400;text-decoration:underline}
+.att-item{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f5f6fa;border-radius:8px;margin-top:8px;font-size:13px}
+.att-item .nm{flex:1;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att-item .sz{color:#a2a2a2;font-size:12px}
+.att-item .del{color:var(--red);font-size:16px;cursor:pointer}
+.att-tip{margin-top:10px;font-size:12px;color:#8f959e;background:#f6f7f9;border-radius:8px;padding:9px 11px;line-height:1.7}
+.foot{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:8px 16px calc(10px + var(--safe-bottom));z-index:30}
+.f-tip{font-size:12px;color:#8f959e;line-height:1.6;padding-bottom:8px}
+.f-tip b{color:#e6a23c;font-weight:700}
+.f-tip .link{color:var(--blue);text-decoration:underline;cursor:pointer}
+.f-tip .oid{color:var(--blue);font-weight:700}
+.f-btns{display:flex;gap:10px}
+.f-btn{flex:1;height:46px;border-radius:23px;font-size:16px;font-weight:700}
+.f-btn.gray{background:#fff;color:#666;border:1px solid #e0e3ea}
+.f-btn.blue{background:var(--blue);color:#fff;border:0}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:17px 17px 0 0;padding:16px 16px calc(16px + var(--safe-bottom));max-height:88vh;display:flex;flex-direction:column}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;margin-bottom:10px;flex-shrink:0}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px}
+.crumb{display:flex;gap:6px;align-items:center;font-size:14px;color:#8f959e;margin-bottom:8px;flex-shrink:0}
+.crumb b{color:var(--blue)}
+.optrow{width:100%;border:0;background:#fff;padding:13px 4px;font-size:16px;color:#333;text-align:left;border-bottom:1px solid #f3f4f6}
+.optrow:last-child{border-bottom:0}
+.optrow:active{background:#f6f8fb}
+.sheet-bd{flex:1;overflow-y:auto}
+.dlg-wrap{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
+.dlg-wrap.show{display:flex}
+.dlg{width:min(330px,100%);background:#fff;border-radius:15px;overflow:hidden}
+.dlg-bd{padding:26px 20px 12px;text-align:center}
+.dlg-msg{font-size:16px;font-weight:700;margin-bottom:6px}
+.dlg-sub{font-size:13px;color:#8f959e;line-height:1.6}
+.dlg-info{text-align:left;font-size:12px;background:#f5f6fa;border-radius:8px;padding:10px 12px;margin-top:14px;line-height:2;color:#555}
+.dlg-info b{color:#333}
+.dlg-btns{display:flex;padding:14px 20px 20px;gap:10px}
+.dlg-btn{flex:1;height:42px;border-radius:21px;font-size:15px;font-weight:700;border:0}
+.dlg-btn.gray{background:#f0f1f3;color:#333}
+.dlg-btn.blue{background:var(--blue);color:#fff}
+.dlg-btn.danger{background:var(--red);color:#fff}
+.toast{position:fixed;left:50%;bottom:118px;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;white-space:nowrap}
+.toast.show{display:block}
+.demo-tools{display:none;position:fixed;top:8px;left:8px;z-index:120;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;gap:7px;align-items:center;font-size:12px}
+.demo-tools select{padding:4px;border:1px solid #ddd;border-radius:4px}
+@media (min-width:700px){.demo-tools{display:flex}.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<div class="demo-tools" data-debug><span>场景演示</span><select id="sceneSel" onchange="scene(this.value)"></select></div>
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+  <header class="nav"><button class="back" onclick="toast('原型占位：返回')" aria-label="返回"><i></i></button><div class="nav-title" id="navTitle">解除地址限制</div></header>
+  <div id="rejBox"></div>
+  <div class="warnbox"><span>!</span><p style="margin:0">该工程单因实际业务原因，需解制动销系统(RMS)开单安装地址限制，请说明原因并上传相关证明凭证，审批通过后即可在动销系统(RMS)新增对应地址范围进行开单。</p></div>
+  <div class="scroll">
+    <div class="card">
+      <div class="ch">解除地址限制区域</div>
+      <div class="cb">
+        <div class="lab">选择安装范围 <span class="req">*</span></div>
+        <div class="area-list" id="areaList"></div>
+        <button class="selrow" onclick="openAddr()"><span class="ph">＋ 请选择省/市/区</span><span class="arr">›</span></button>
+        <div class="err-tip" id="areaErr">必填项需完善，请选择安装范围</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">其他信息</div>
+      <div class="cb">
+        <div class="lab">原因描述 <span class="req">*</span></div>
+        <textarea class="in" id="reason" placeholder="请输入解除地址限制的原因，最多500字符" maxlength="500" oninput="cnt(this)"></textarea>
+        <div class="cnt" id="reasonCnt">已输入 0 / 500</div>
+        <div class="err-tip" id="reasonErr">必填项需完善，请填写原因描述</div>
+        <div style="height:6px"></div>
+        <div class="lab" style="margin-top:10px">附件 <span class="opt">（选填）</span></div>
+        <div class="zone" onclick="upZone()">点击或拖拽文件到此处上传<br><b>支持 PNG / JPG / PDF / DOCX / XLSX 格式</b></div>
+        <input type="file" id="fileUp" multiple accept=".png,.jpg,.jpeg,.pdf,.docx,.xlsx" style="display:none" onchange="upFiles(this)">
+        <div id="attList"></div>
+        <div class="att-tip">✅ 支持扩展名：.png .jpg .pdf .docx .xlsx，每文件大小不超过20MB，上传数量不超过10个<br>✅ 图片类文件可点击预览</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="f-tip" id="footTip"></div>
+    <div class="f-btns"><button class="f-btn gray" onclick="askCancel()">取消</button><button class="f-btn blue" id="subBtn" onclick="doSubmit()">提交申请</button></div>
+  </div>
+</main>
+
+<div class="mask" id="addrMask" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>请选择省/市/区</span><button class="sheet-x" onclick="closeSh('addrMask')">×</button></div>
+    <div class="crumb" id="addrCrumb"></div>
+    <div class="sheet-bd" id="addrOpts"></div>
+  </div>
+</div>
+<div class="dlg-wrap" id="submitDlg"><div class="dlg">
+  <div class="dlg-bd"><div class="dlg-msg">确定解除地址限制吗？</div><div class="dlg-sub">提交后进入审批流程，审批通过后即可在动销系统(RMS)新增对应范围开单</div></div>
+  <div class="dlg-btns"><button class="dlg-btn gray" onclick="hide('submitDlg')">取 消</button><button class="dlg-btn blue" onclick="confirmSubmit()">确 认</button></div>
+</div></div>
+<div class="dlg-wrap" id="cancelDlg"><div class="dlg">
+  <div class="dlg-bd"><div class="dlg-msg">确认放弃本次申请？</div><div class="dlg-sub">已填写的信息将不会被保存</div></div>
+  <div class="dlg-btns"><button class="dlg-btn gray" onclick="hide('cancelDlg')">继续填写</button><button class="dlg-btn danger" onclick="cancelYes()">确认放弃</button></div>
+</div></div>
+<div class="dlg-wrap" id="okDlg"><div class="dlg">
+  <div class="dlg-bd"><div class="dlg-msg" id="okMsg">解除地址限制申请已提交</div>
+    <div class="dlg-info"><div><b>申请编号：</b><span id="okNo">JCDZ202607060001</span></div><div><b>项目单号：</b>粤东GCDT202606250001</div><div><b>安装范围：</b><span id="okAddr">—</span></div></div></div>
+  <div class="dlg-btns"><button class="dlg-btn blue" onclick="hide('okDlg')">知道了</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+var scenes="new", areas=[], files=[];
+var ADDR={"贵州省":{"毕节市":["南明区","七星关区"],"贵阳市":["南明区","云岩区"]},"广东省":{"珠海市":["香洲区","金湾区"],"广州市":["天河区"],"深圳市":["南山区"]},"浙江省":{"杭州市":["西湖区","拱墅区"],"宁波市":["海曙区"]},"北京市":{"北京市":["朝阳区","海淀区"]},"江苏省":{"南京市":["玄武区"],"苏州市":["姑苏区"]}};
+var PROVS=Object.keys(ADDR);
+var REJ_NEW={reason:"",title:"解除地址限制"};
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(function(){el.classList.remove("show");},1600);}
+function hide(id){document.getElementById(id).classList.remove("show");}
+function show(id){document.getElementById(id).classList.add("show");}
+function cnt(t){document.getElementById("reasonCnt").textContent="已输入 "+t.value.length+" / 500";t.classList.remove("err");document.getElementById("reasonErr").classList.remove("show");}
+function renderAreas(){
+  document.getElementById("areaList").innerHTML=areas.map(function(a,i){
+    return '<div class="area-item"><span class="path">'+esc(a.join(" / "))+'</span><span class="del" onclick="delArea('+i+')">×</span></div>';
+  }).join("");
+  var err=document.getElementById("areaErr"); if(areas.length)err.classList.remove("show");
+}
+function delArea(i){areas.splice(i,1);renderAreas();}
+/* 地址级联（多选追加） */
+var alv=0,ap="",ac="";
+function openAddr(){alv=0;ap="";ac="";renderAddr();}
+function renderAddr(back){
+  if(back!=null)alv=back;
+  var cr='<span>';
+  cr+=alv>=0?(ap?"<b onclick=\"renderAddr(0)\">"+esc(ap)+"</b>":"<b>请选择</b>"):"";
+  if(alv>=1&&ap)cr+='›'+(ac?"<b onclick=\"renderAddr(1)\">"+esc(ac)+"</b>":"<b>请选择</b>");
+  cr+='</span>';
+  document.getElementById("addrCrumb").innerHTML=cr;
+  var opts="";
+  if(alv===0)opts=PROVS.map(function(p){return '<button class="optrow" onclick="p1(\''+p+'\')">'+esc(p)+'</button>';}).join("");
+  else if(alv===1)opts=Object.keys(ADDR[ap]||{}).map(function(c){return '<button class="optrow" onclick="p2(\''+c+'\')">'+esc(c)+'</button>';}).join("");
+  else opts=(ADDR[ap]&&ADDR[ap][ac]||[]).map(function(d){return '<button class="optrow" onclick="p3(\''+d+'\')">'+esc(d)+'</button>';}).join("");
+  document.getElementById("addrOpts").innerHTML=opts||'<div style="padding:30px 0;text-align:center;color:#aaa">暂无</div>';
+  show("addrMask");
+}
+function p1(p){ap=p;ac="";renderAddr(1);}
+function p2(c){ac=c;renderAddr(2);}
+function p3(d){var dup=areas.some(function(a){return a[0]===ap&&a[1]===ac&&a[2]===d;});if(!dup)areas.push([ap,ac,d]);renderAreas();hide("addrMask");}
+/* 附件 */
+function upZone(){document.getElementById("fileUp").click();}
+function upFiles(inp){var fs=inp.files||[];if(!fs.length)return;var ok=false;
+  for(var i=0;i<fs.length;i++){var f=fs[i];
+    if(files.length>=10){toast("上传数量已达上限（10个）");break;}
+    if(!/\.(png|jpg|jpeg|pdf|docx|xlsx)$/i.test(f.name)){toast('格式不支持："'+f.name+'"');continue;}
+    if(f.size>20*1024*1024){toast('文件超过 20MB："'+f.name+'"');continue;}
+    files.push(f);ok=true;}
+  renderAtt();inp.value="";if(!ok)toast("原型占位：文件未真正上传");}
+function renderAtt(){var el=document.getElementById("attList");el.innerHTML="";files.forEach(function(f,i){var s=f.size<1024?f.size+"B":(f.size/1024).toFixed(1)+"KB";var d=document.createElement("div");d.className="att-item";d.innerHTML='<span>📄</span><span class="nm">'+esc(f.name)+'</span><span class="sz">'+s+'</span><span class="del" onclick="files.splice('+i+',1);renderAtt()">×</span>';el.appendChild(d);});}
+/* 场景 */
+function scene(s){
+  scenes=s;
+  document.getElementById("sceneSel").value=s;
+  var rb=document.getElementById("rejBox");
+  var sub=document.getElementById("subBtn");
+  if(s==="resubmit"){
+    document.getElementById("navTitle").textContent="解除地址限制（驳回重提）";
+    rb.innerHTML='<div class="rej"><div class="t">驳回重提 · 请修改后重新提交</div><div class="kv">'
+      +'<span>驳回原因：<b>安装范围超出该经销商销司授权区域，请重新核实实际安装地址后提交</b></span>'
+      +'<span>驳回人：<b>王丽（商用工程部审批）</b></span>'
+      +'<span>驳回时间：<b>2026-06-19 14:32</b></span><span>剩余有效期：<b class="r">还剩 6 天</b></span></div></div>';
+    document.getElementById("footTip").innerHTML='原申请单号：<span class="oid">JCDZ202607010001</span>　｜　驳回重提保留原单号，修改后重新提交即可';
+    sub.textContent="重新提交";
+  }else{
+    document.getElementById("navTitle").textContent="解除地址限制";
+    rb.innerHTML="";
+    document.getElementById("footTip").innerHTML='剩余可提交次数：<b>10</b> 次　｜　若提交次数用完，可通过已驳回的申请单重新修改后提交 <span class="link" onclick="toast(\'原型占位：查看已驳回申请单\')">点击查看</span>';
+    sub.textContent="提交申请";
+  }
+}
+/* 校验与弹窗 */
+function doSubmit(){
+  var aerr=!areas.length;
+  var r=document.getElementById("reason");
+  var rerr=!r.value.trim();
+  r.classList.toggle("err",rerr);
+  document.getElementById("areaErr").classList.toggle("show",aerr);
+  document.getElementById("reasonErr").classList.toggle("show",rerr);
+  if(aerr||rerr){toast("必填项需完善");return;}
+  show("submitDlg");
+}
+function confirmSubmit(){hide("submitDlg");
+  document.getElementById("okAddr").textContent=areas.map(function(a){return a.join(" / ");}).join("；");
+  if(scenes==="resubmit"){document.getElementById("okNo").textContent="JCDZ202607010001";document.getElementById("okMsg").textContent="解除地址限制申请已重新提交";}
+  else{document.getElementById("okNo").textContent="JCDZ202607060001";document.getElementById("okMsg").textContent="解除地址限制申请已提交";}
+  show("okDlg");}
+function askCancel(){show("cancelDlg");}
+function cancelYes(){hide("cancelDlg");toast("已取消申请");}
+function closeSh(id){document.getElementById(id).classList.remove("show");}
+(function init(){
+  document.getElementById("sceneSel").innerHTML='<option value="new">新建申请</option><option value="resubmit">重新提交（驳回后）</option>';
+  renderAreas();
+  var hash=decodeURIComponent(location.hash.slice(1));
+  scene(hash==="resubmit"?"resubmit":"new");
+})();
+</script>
+</body>
+</html>
