@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-批价单申请作废</title>
+<!--
+  管理端-批价单申请作废（移动端单文件原型，实现阶段）
+  来源：
+    - 设计稿 OCR（Y-批价单-新建作废：新建-作废.png / 新建-作废-已填.png / 提示-弹窗.png）→ 结构骨架（导航/对象卡/操作提示/作废原因/附件/固定底栏）
+    - PC 权威（管理端-批价单申请作废.html）→ 单号体系、操作提示文案、附件区措辞、校验逻辑
+    - 移动端骨架惯例（用户端-新建登录延期/解除地址限制_移动端.html）→ 表单布局/toast/dialog/文件选择写法
+  默认取舍（本页已拍板）：
+    1. 设计稿为「工程单申请作废」模板复用稿：正文示例“工程单/项目单号 GCDT…”属稿子残留，页面文案/对象一律按批价单 PC 口径呈现（操作提示含“已提交的批价审批流程也将同时终止”句）。
+    2. 顶部对象卡字段按 PC 批价口径从简：经销商/公司名 + 高危操作 chip + 批价单号（粤东GCDT…-PJ001，不含 PC 头“审批-/审批中/中央空调”残影、不加业务线/状态）。
+    3. 附件 accept/白名单按拍板 = .png,.jpg,.pdf,.docx,.xlsx（不含 PC 附带的 .jpeg，与提示文案统一）；单文件≤20MB、最多10个；达10个隐藏上传区（PC 行为）。
+    4. 文件行均显示“预览”按钮：图片(png/jpg)与 PDF 点击→objectURL 放大层（图片 img、PDF iframe 内嵌浏览器查看器）；docx/xlsx→点击即下载该文件（<a download>）。
+    5. 底部仅“提交作废申请”单主按钮（常亮），不含 PC 取消/放弃；顶栏返回/跳转/上传提交均不真跳转：返回=toast「原型占位：返回列表」，确认提交=toast「原型占位：提交成功，进入审批」并清空表单回空态。
+    6. 字数计数 0/500（设计稿样式）：>400 变橙、满500（maxlength 禁超）变红；placeholder 取设计稿短版“请输入作废原因，需明确说明作废依据”。
+    7. 弹窗标题“提示”（设计稿新增），正文“确定提交作废申请吗？”（按拍板，取设计稿措辞），取消/确认双按钮；遮罩点击=关闭（PC 支持）。
+    8. 纯单状态演示页，无状态演示下拉；空原因校验=toast「请填写作废原因」+聚焦（PC 行为）。
+-->
+<style>
+:root{--danger:#d32f2f;--danger-d:#b71c1c;--warn:#e6a23c;--txt:#1f2329;--txt2:#646a73;--aux:#8f959e;--line:#ececec;--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--txt)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:#f5f6f7;overflow-x:hidden;position:relative;padding-bottom:96px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center;color:#333;border-radius:6px}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.scroll{padding:12px 14px 24px}
+.card{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden}
+.ch{padding:13px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.ch .warn-ico{color:var(--warn);flex-shrink:0;line-height:1}
+.cb{padding:14px 16px}
+.obj-name{font-size:18px;font-weight:700;color:var(--txt);line-height:1.45;word-break:break-all}
+.dg-chip{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:5px;background:#fdf0ef;border:1px solid #f2c0be;color:var(--danger);font-size:12px;font-weight:700}
+.k{display:flex;align-items:flex-start;gap:12px;border-top:1px dashed #eef0f3;margin-top:10px;padding-top:10px;font-size:13px;line-height:1.5}
+.k .kl{color:var(--aux);flex:0 0 auto}
+.k .kv2{color:var(--txt);font-weight:600;flex:1;min-width:0;text-align:right;word-break:break-all}
+.tip{padding:12px 16px;font-size:13px;color:#5a606b;line-height:1.8;background:#fff}
+.lab{font-size:14px;font-weight:600;margin-bottom:8px}
+.lab .req{color:var(--danger)}
+.lab .opt{font-size:13px;color:var(--aux);font-weight:400}
+textarea.in{width:100%;border:1px solid #e4e7ec;border-radius:10px;padding:11px 12px;font-size:15px;min-height:112px;resize:none;outline:none;line-height:1.6;display:block}
+textarea.in:focus{border-color:var(--danger);box-shadow:0 0 0 2px rgba(211,47,47,.08)}
+.cnt{text-align:right;font-size:12px;color:#a2a2a2;margin-top:4px}
+.cnt.warn{color:var(--warn);font-weight:700}
+.cnt.over{color:var(--danger);font-weight:700}
+.sub-lab{font-size:14px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.zone{border:1.5px dashed #c5cae9;border-radius:10px;padding:16px 10px;text-align:center;background:#fafbfc;font-size:13px;color:var(--aux);line-height:1.8;cursor:pointer}
+.zone .plus{display:block;font-size:30px;color:#aab0bc;line-height:1;font-weight:300}
+.zone .z1{font-size:14px;color:#5a606b;margin-top:4px}
+.zone b{color:#3b5998;font-weight:400;text-decoration:underline}
+.att-item{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f5f6fa;border-radius:8px;margin-top:8px;font-size:13px}
+.att-item .at-ico{flex-shrink:0;font-size:15px;line-height:1}
+.att-item .at-name{flex:1;color:#333;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.att-item .at-size{color:var(--aux);font-size:12px;flex-shrink:0}
+.att-item .at-pv{color:#3b5998;font-size:12px;padding:2px 8px;background:rgba(59,89,152,.08);border-radius:4px;cursor:pointer;flex-shrink:0}
+.att-item .at-del{color:var(--danger);font-size:18px;line-height:1;cursor:pointer;flex-shrink:0;padding:0 2px}
+.att-tip{margin-top:10px;font-size:12px;color:var(--aux);background:#f6f7f9;border-radius:8px;padding:9px 11px;line-height:1.7}
+.foot{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + var(--safe-bottom));z-index:30}
+.f-btn{width:100%;height:46px;border:0;border-radius:23px;background:var(--danger);color:#fff;font-size:16px;font-weight:700}
+.f-btn:active{background:var(--danger-d)}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:150;padding:24px}
+.mask.show{display:flex}
+.dlg{width:min(300px,100%);background:#fff;border-radius:14px;overflow:hidden;padding:24px 18px 18px}
+.dlg-hd{font-size:17px;font-weight:700;color:var(--txt);text-align:center}
+.dlg-msg{margin-top:12px;font-size:15px;color:#4a5057;text-align:center;line-height:1.6}
+.dlg-btns{display:flex;gap:12px;margin-top:22px}
+.dlg-btn{flex:1;height:40px;border-radius:20px;font-size:15px;font-weight:700;border:0}
+.dlg-btn.gray{background:#f0f1f3;color:#333}
+.dlg-btn.danger{background:var(--danger);color:#fff}
+.imgmask{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:200;padding:24px}
+.imgmask.show{display:flex}
+.imgmask img{max-width:100%;max-height:78vh;object-fit:contain;border-radius:4px}
+.imgmask .cap{color:#cfd3da;font-size:12px;margin-top:14px;max-width:100%;text-align:center;word-break:break-all}
+.toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;display:none;z-index:300;max-width:min(360px,calc(100vw - 48px));text-align:center;line-height:1.5;word-break:break-all}
+.toast.show{display:block}
+@media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+
+  <header class="nav">
+    <button class="back" onclick="toast('原型占位：返回列表')" aria-label="返回"><i></i></button>
+    <div class="nav-title">申请作废</div>
+  </header>
+
+  <div class="scroll">
+
+    <!-- ===== 顶部对象卡（PC 批价口径：经销商/公司名 + 高危操作 + 批价单号） ===== -->
+    <div class="card">
+      <div class="cb">
+        <div class="obj-name">珠海华鸿电器销售有限公司</div>
+        <span class="dg-chip">高危操作</span>
+        <div class="k"><span class="kl">批价单号</span><span class="kv2">粤东GCDT202506250001-PJ001</span></div>
+      </div>
+    </div>
+
+    <!-- ===== 操作提示（文案按 PC 批价口径） ===== -->
+    <div class="card">
+      <div class="ch"><span class="warn-ico">⚠</span>操作提示</div>
+      <div class="tip">批价单作废后将无法恢复，已提交的批价审批流程也将同时终止。请确认该批价单确实不再需要执行后再提交申请。申请提交后将进入审批流程，审批通过后批价单状态变更为"已关闭"。</div>
+    </div>
+
+    <!-- ===== 作废原因（必填） ===== -->
+    <div class="card">
+      <div class="ch">作废原因</div>
+      <div class="cb">
+        <div class="lab"><span class="req">*</span> 原因描述</div>
+        <textarea class="in" id="reason" placeholder="请输入作废原因，需明确说明作废依据" maxlength="500" oninput="cnt(this)"></textarea>
+        <div class="cnt" id="reasonCnt">0 / 500</div>
+      </div>
+    </div>
+
+    <!-- ===== 附件（选填） ===== -->
+    <div class="card">
+      <div class="ch">附件 <span class="opt" style="font-size:13px;color:var(--aux);font-weight:400">（选填）</span></div>
+      <div class="cb">
+        <div class="zone" id="zone" onclick="upZone()">
+          <span class="plus">＋</span>
+          <span class="z1">点击上传附件</span>
+          <b>支持 PNG / JPG / PDF / DOCX / XLSX 格式</b>
+        </div>
+        <input type="file" id="fileUp" multiple accept=".png,.jpg,.pdf,.docx,.xlsx" style="display:none" onchange="upFiles(this)">
+        <div id="attList"></div>
+        <div class="att-tip">✅ 支持扩展名：.png .jpg .pdf .docx .xlsx，每文件大小不超过20MB，上传数量不超过10个<br>✅ 图片/PDF 可点击预览，docx/xlsx 点击下载</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <button class="f-btn" id="btnSubmit" onclick="doSubmit()">提交作废申请</button>
+  </div>
+</main>
+
+<!-- ===== 提交确认弹窗 ===== -->
+<div class="mask" id="submitDlg" onclick="if(event.target===this)hideDlg('submitDlg')">
+  <div class="dlg">
+    <div class="dlg-hd">提示</div>
+    <div class="dlg-msg">确定提交作废申请吗？</div>
+    <div class="dlg-btns"><button class="dlg-btn gray" onclick="hideDlg('submitDlg')">取消</button><button class="dlg-btn danger" onclick="confirmSubmit()">确认</button></div>
+  </div>
+</div>
+
+<!-- ===== 附件预览放大层（图片/PDF） ===== -->
+<div class="imgmask" id="imgView" onclick="closeView()">
+  <img id="viewImg" alt="附件预览">
+  <iframe id="viewPdf" title="PDF 预览" style="display:none;width:min(428px,92%);height:72vh;border:0;background:#fff;border-radius:8px"></iframe>
+  <div class="cap" id="viewCap"></div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+var files=[]; /* 已选附件（仅本地，不真上传） */
+var curUrl=null; /* 当前预览 objectURL */
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(function(){el.classList.remove("show");},2000);}
+function hideDlg(id){document.getElementById(id).classList.remove("show");}
+function showDlg(id){document.getElementById(id).classList.add("show");}
+
+/* ===== 字数计数：>400 橙、满500（maxlength 禁超）红 ===== */
+function cnt(t){
+  var n=t.value.length;
+  var c=document.getElementById("reasonCnt");
+  c.textContent=n+" / 500";
+  c.className="cnt"+(n>400?" warn":"")+(n>=500?" over":"");
+}
+
+/* ===== 附件：格式/大小/数量校验（PC 文案口径） ===== */
+function upZone(){document.getElementById("fileUp").click();}
+function upFiles(inp){
+  var fs=inp.files||[];if(!fs.length){return;}
+  for(var i=0;i<fs.length;i++){
+    var f=fs[i];
+    if(files.length>=10){toast('上传数量已达上限（10个），无法继续添加');break;}
+    if(!/\.(png|jpg|pdf|docx|xlsx)$/i.test(f.name)){toast('格式不支持："'+f.name+'"，请上传指定格式文件');continue;}
+    if(f.size>20*1024*1024){toast('文件超过大小限制："'+f.name+'"（最大20MB），请重新上传');continue;}
+    files.push(f);
+  }
+  renderAtt();
+  inp.value="";
+}
+function fmtSize(n){
+  if(n<1024){return n+"B";}
+  if(n<1024*1024){return (n/1024).toFixed(1)+"KB";}
+  return (n/1024/1024).toFixed(1)+"MB";
+}
+function renderAtt(){
+  var el=document.getElementById("attList");
+  el.innerHTML="";
+  for(var i=0;i<files.length;i++){
+    var f=files[i];
+    var d=document.createElement("div");
+    d.className="att-item";
+    d.innerHTML='<span class="at-ico">📄</span>'
+      +'<span class="at-name" title="'+esc(f.name)+'" onclick="previewFile('+i+')">'+esc(f.name)+'</span>'
+      +'<span class="at-size">'+fmtSize(f.size)+'</span>'
+      +'<span class="at-pv" onclick="previewFile('+i+')">预览</span>'
+      +'<span class="at-del" onclick="removeAtt('+i+')">×</span>';
+    el.appendChild(d);
+  }
+  document.getElementById("zone").style.display=(files.length>=10)?"none":"";
+}
+function removeAtt(i){files.splice(i,1);renderAtt();}
+
+/* ===== 预览：图片/PDF 放大层；docx/xlsx 点击=下载 ===== */
+function downloadFile(f){
+  var url=URL.createObjectURL(f);
+  var a=document.createElement("a");
+  a.href=url;a.download=f.name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},4000);
+}
+function previewFile(i){
+  var f=files[i];if(!f){return;}
+  var img=/\.(png|jpg|jpeg)$/i.test(f.name);
+  var pdf=/\.pdf$/i.test(f.name);
+  if(!img&&!pdf){downloadFile(f);return;}
+  if(curUrl){URL.revokeObjectURL(curUrl);curUrl=null;}
+  curUrl=URL.createObjectURL(f);
+  var im=document.getElementById("viewImg"),pf=document.getElementById("viewPdf");
+  im.style.display=img?"":"none";
+  if(img){im.src=curUrl;}else{im.removeAttribute("src");}
+  pf.style.display=pdf?"":"none";
+  if(pdf){pf.src=curUrl;}else{pf.removeAttribute("src");}
+  document.getElementById("viewCap").textContent=f.name;
+  showDlg("imgView");
+}
+function closeView(){
+  hideDlg("imgView");
+  if(curUrl){URL.revokeObjectURL(curUrl);curUrl=null;}
+  var im=document.getElementById("viewImg"),pf=document.getElementById("viewPdf");
+  im.removeAttribute("src");pf.removeAttribute("src");
+  pf.style.display="none";im.style.display="";
+}
+
+/* ===== 提交：空原因拦截 → 确认弹窗 → 成功 toast + 清空回空态 ===== */
+function doSubmit(){
+  var r=document.getElementById("reason");
+  if(!r.value.trim()){toast("请填写作废原因");r.focus();return;}
+  showDlg("submitDlg");
+}
+function confirmSubmit(){
+  hideDlg("submitDlg");
+  toast("原型占位：提交成功，进入审批");
+  resetForm();
+}
+function resetForm(){
+  var r=document.getElementById("reason");
+  r.value="";
+  cnt(r);
+  files.length=0;
+  renderAtt();
+}
+</script>
+</body>
+</html>
+
