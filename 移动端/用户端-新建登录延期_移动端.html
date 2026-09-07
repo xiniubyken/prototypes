@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>用户端-新建登录延期</title>
+<!--
+  用户端-新建登录延期（设计稿直还原：核心的过程\用户端-登录延期：新建-登录延期.png / -填写.png / -提交.png / 通用-弹窗样式.png）
+  PC 业务基准：E:\工作文件\项目\商用工程\20_正式交付\用户端-新建登录延期.html
+  结构：顶部说明 → 工程项目单信息(状态:已登录/原定截止2026-07-20) → 延期原因*(500字+必填校验) → 附件(选填,20MB×10) → 期望延期期限(原定→延期至/延期天数/快捷30·60·90·自定义) → 提交申请(提交/取消确认/成功)
+  快捷/自定义仅演示占位（视觉一致）；上传/预览为原型占位。
+-->
+<style>
+:root{--blue:#0868d7;--bg:#f5f6f7;--text:#292929;--line:#ececec;--red:#ff5158;--warn:#e6a23c;--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:96px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.sub-hd{padding:12px 16px;font-size:14px;color:#666;line-height:1.6;background:#fff;border-bottom:1px solid var(--line)}
+.scroll{padding:12px 14px 24px}
+.card{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden}
+.ch{padding:13px 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.cb{padding:14px 16px}
+.pname{font-size:17px;font-weight:700}
+.phead{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pill{display:inline-block;padding:3px 10px;border-radius:5px;background:#e8f5e9;color:#1a9c5c;font-size:13px;font-weight:700;white-space:nowrap}
+.kv{margin-top:12px}
+.k{font-size:13px;line-height:1.9;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px dashed #f0f1f3;padding:7px 0}
+.k .kl{color:#9a9a9a;flex:0 0 96px}
+.k .kv2{color:#333;font-weight:600;text-align:right;min-width:0;word-break:break-all}
+.k .warn{color:#e6a23c}
+.fi{margin-bottom:16px}
+.lab{font-size:14px;font-weight:600;margin-bottom:8px}
+.lab .req{color:var(--red)}
+.lab .opt{font-size:13px;color:#9a9a9a;font-weight:400}
+textarea.in{width:100%;border:1px solid #e4e7ec;border-radius:10px;padding:11px 12px;font-size:15px;min-height:110px;resize:none;outline:none;line-height:1.6}
+input.in{width:100%;border:1px solid #e4e7ec;border-radius:10px;padding:11px 12px;font-size:15px;outline:none}
+.in.err{border-color:#f4bfbf;background:#fffafa}
+.cnt{text-align:right;font-size:12px;color:#a2a2a2;margin-top:4px}
+.err-tip{color:var(--red);font-size:12px;margin-top:4px;display:none}
+.err-tip.show{display:block}
+.zone{border:1.5px dashed #c5cae9;border-radius:10px;padding:20px 10px;text-align:center;background:#fafbfc;font-size:13px;color:#8f959e;line-height:1.8;cursor:pointer}
+.zone b{color:var(--blue);font-weight:400;text-decoration:underline}
+.att-item{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f5f6fa;border-radius:8px;margin-top:8px;font-size:13px}
+.att-item .nm{flex:1;color:#333;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att-item .sz{color:#a2a2a2;font-size:12px}
+.att-item .del{color:var(--red);font-size:16px;cursor:pointer}
+.att-tip{margin-top:10px;font-size:12px;color:#8f959e;background:#f6f7f9;border-radius:8px;padding:9px 11px;line-height:1.7}
+.drow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;color:#555;margin-bottom:8px}
+.drow .lbl{color:#9a9a9a;white-space:nowrap}
+.drow .od{color:#e6a23c;font-weight:700}
+.drow .sep{color:#cfd3da}
+.drow input.date{flex:1;min-width:150px;border:1px solid #e4e7ec;border-radius:10px;padding:9px 12px;font-size:15px;outline:none}
+.days{display:inline-block;font-size:13px;color:#8f959e;background:#f5f6f8;border-radius:6px;padding:4px 10px;margin-bottom:4px}
+.days b{color:#333}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px}
+.chip{padding:7px 16px;border-radius:16px;border:1px solid #d0d3da;background:#fff;color:#666;font-size:14px;cursor:pointer}
+.chip.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+.chip.custom{border-style:dashed;color:#a2a2a2}
+.chip.custom.on{background:var(--blue);border-color:var(--blue);color:#fff;border-style:solid}
+.hint{font-size:12px;color:#a2a2a2;margin-top:6px}
+.hint.red{color:var(--red)}
+.foot{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + var(--safe-bottom));z-index:30}
+.f-note{font-size:12px;color:#9a9a9a;text-align:center;padding-bottom:6px}
+.f-btns{display:flex;gap:10px}
+.f-btn{flex:1;height:46px;border-radius:23px;font-size:16px;font-weight:700}
+.f-btn.gray{background:#fff;color:#666;border:1px solid #e0e3ea}
+.f-btn.blue{background:var(--blue);color:#fff;border:0}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:80;padding:24px}
+.mask.show{display:flex}
+.dlg{width:min(330px,100%);background:#fff;border-radius:15px;overflow:hidden}
+.dlg-bd{padding:26px 20px 12px;text-align:center}
+.dlg-ico{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px}
+.dlg-msg{font-size:16px;font-weight:700;margin-bottom:6px}
+.dlg-sub{font-size:13px;color:#8f959e;line-height:1.6}
+.dlg-info{text-align:left;font-size:12px;background:#f5f6fa;border-radius:8px;padding:10px 12px;margin-top:14px;line-height:2;color:#555}
+.dlg-info b{color:#333;font-weight:700}
+.dlg-btns{display:flex;padding:14px 20px 20px;gap:10px}
+.dlg-btn{flex:1;height:42px;border-radius:21px;font-size:15px;font-weight:700}
+.dlg-btn.gray{background:#f0f1f3;color:#333;border:0}
+.dlg-btn.blue{background:var(--blue);color:#fff;border:0}
+.dlg-btn.danger{background:var(--red);color:#fff;border:0}
+.toast{position:fixed;left:50%;bottom:106px;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;white-space:nowrap}
+.toast.show{display:block}
+@media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+  <header class="nav"><button class="back" onclick="toast('原型占位：返回工程单详情')" aria-label="返回"><i></i></button><div class="nav-title">登录延期</div></header>
+  <div class="sub-hd">若发生特殊情况需登录延期，请完善并上传相关资料证明</div>
+  <div class="scroll">
+    <div class="card">
+      <div class="ch">工程项目单信息</div>
+      <div class="cb">
+        <div class="phead"><div class="pname">汕头市某中学空调改造项目</div><span class="pill">已登录</span></div>
+        <div class="kv">
+          <div class="k alone"><span class="kl">项目单号</span><span class="kv2">粤东GCDT202606250001</span></div>
+          <div class="k"><span class="kl">经销商</span><span class="kv2">汕头市华鸿电器有限公司</span></div>
+          <div class="k"><span class="kl">业务线</span><span class="kv2">中央空调</span></div>
+          <div class="k"><span class="kl">状态</span><span class="kv2" style="color:#1a9c5c">已登录</span></div>
+          <div class="k"><span class="kl">原定登录截止</span><span class="kv2 warn">2026-07-20</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">延期原因</div>
+      <div class="cb">
+        <div class="lab">原因描述 <span class="req">*</span></div>
+        <textarea class="in" id="reason" placeholder="请输入延期原因，最多500字符" maxlength="500" oninput="cnt(this)"></textarea>
+        <div class="cnt" id="reasonCnt">已输入 0 / 500</div>
+        <div class="err-tip" id="reasonErr">必填项需完善，请填写延期原因</div>
+        <div style="height:6px"></div>
+        <div class="lab" style="margin-top:10px">附件 <span class="opt">（选填）</span></div>
+        <div class="zone" onclick="upZone()"><span>点击或拖拽文件到此处上传<br><b>支持 PNG / JPG / PDF / DOCX / XLSX 格式</b></span></div>
+        <input type="file" id="fileUp" multiple accept=".png,.jpg,.jpeg,.pdf,.docx,.xlsx" style="display:none" onchange="upFiles(this)">
+        <div id="attList"></div>
+        <div class="att-tip">✅ 支持扩展名：.png .jpg .pdf .docx .xlsx，每文件大小不超过20MB，上传数量不超过10个<br>✅ 图片类文件可点击预览</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">期望延期期限</div>
+      <div class="cb">
+        <div class="lab">新的登录截止日期 <span class="req">*</span></div>
+        <div class="drow" style="justify-content:space-between;border-bottom:1px dashed #f0f1f3;padding:7px 0"><span class="lbl" style="flex:0 0 96px">原定截止</span><span class="od">2026-07-20</span></div>
+        <div class="drow" style="padding:8px 0"><span class="lbl" style="flex:0 0 96px">延期至</span><input class="date" id="ndate" type="date" min="2026-07-21" onchange="calcDays()"></div>
+        <div class="drow" style="justify-content:space-between;padding:2px 0 4px"><span class="lbl" style="flex:0 0 96px">延期天数</span><span class="days" style="margin:0"><b id="daysDisp">— 天</b></span></div>
+        <div class="chips">
+          <span class="chip" data-d="30" onclick="quickD(30)">30天</span>
+          <span class="chip" data-d="60" onclick="quickD(60)">60天</span>
+          <span class="chip" data-d="90" onclick="quickD(90)">90天</span>
+          <span class="chip custom on" data-d="custom" onclick="quickC()">自定义</span>
+        </div>
+        <div class="hint" id="dateHint">请选择 2026-07-21 之后的日期，或点击上方快捷按钮</div>
+        <div class="err-tip" id="dateErr">必填项需完善，请选择新的登录截止日期</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <div class="f-note">提交后进入审批流程</div>
+    <div class="f-btns"><button class="f-btn gray" onclick="askCancel()">取消</button><button class="f-btn blue" onclick="doSubmit()">提交申请</button></div>
+  </div>
+</main>
+
+<div class="mask" id="submitDlg"><div class="dlg">
+  <div class="dlg-bd"><div class="dlg-ico" style="background:#fdf0ee;color:#c62828">⚠</div><div class="dlg-msg">确定登录延期吗？</div><div class="dlg-sub">提交后进入审批流程，审批通过后方可延期登录</div></div>
+  <div class="dlg-btns"><button class="dlg-btn gray" onclick="hide('submitDlg')">取 消</button><button class="dlg-btn blue" onclick="confirmSubmit()">确 认</button></div>
+</div></div>
+<div class="mask" id="cancelDlg"><div class="dlg">
+  <div class="dlg-bd"><div class="dlg-ico" style="background:#fff3e0;color:#e65100">!</div><div class="dlg-msg">确认放弃本次申请？</div><div class="dlg-sub">已填写的信息将不会被保存</div></div>
+  <div class="dlg-btns"><button class="dlg-btn gray" onclick="hide('cancelDlg')">继续填写</button><button class="dlg-btn danger" onclick="cancelYes()">确认放弃</button></div>
+</div></div>
+<div class="mask" id="okDlg"><div class="dlg">
+  <div class="dlg-bd"><div class="dlg-ico" style="background:#e9f9f0;color:#1a9c5c">✓</div><div class="dlg-msg">登录延期申请已提交</div>
+    <div class="dlg-info"><div><b>申请编号：</b>YQ202607060001</div><div><b>项目单号：</b>粤东GCDT202606250001</div><div><b>原定截止：</b>2026-07-20</div><div><b>延期至：</b><span id="okDate">—</span></div></div></div>
+  <div class="dlg-btns"><button class="dlg-btn blue" onclick="hide('okDlg')">知道了</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+var ORIG="2026-07-20", files=[];
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(function(){el.classList.remove("show");},1600);}
+function hide(id){document.getElementById(id).classList.remove("show");}
+function show(id){document.getElementById(id).classList.add("show");}
+function cnt(t){document.getElementById("reasonCnt").textContent="已输入 "+t.value.length+" / 500";t.classList.remove("err");document.getElementById("reasonErr").classList.remove("show");}
+function fmt(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function calcDays(){
+  var v=document.getElementById("ndate").value;var el=document.getElementById("daysDisp");
+  document.getElementById("ndate").classList.remove("err");
+  document.getElementById("dateErr").classList.remove("show");
+  if(!v){el.textContent="— 天";return;}
+  var diff=Math.ceil((new Date(v)-new Date(ORIG))/86400000);
+  if(diff<=0){el.textContent="请选择 2026-07-21 之后的日期";}
+  else el.textContent=diff+" 天";
+  document.getElementById("dateHint").classList.remove("red");
+}
+function setQuick(days){[].forEach.call(document.querySelectorAll(".chip"),function(c){c.classList.toggle("on",c.dataset.d===String(days));});}
+function quickD(d){var to=new Date(ORIG);to.setDate(to.getDate()+d);document.getElementById("ndate").value=fmt(to);setQuick(d);calcDays();}
+function quickC(){document.getElementById("ndate").value="";setQuick("custom");calcDays();document.getElementById("ndate").focus();}
+function upZone(){document.getElementById("fileUp").click();}
+function upFiles(inp){
+  var fs=inp.files||[];if(!fs.length)return;
+  var ok=0;for(var i=0;i<fs.length;i++){var f=fs[i];if(files.length>=10){toast("上传数量已达上限（10个）");break;}
+    if(!/\.(png|jpg|jpeg|pdf|docx|xlsx)$/i.test(f.name)){toast('格式不支持："'+f.name+'"');continue;}
+    if(f.size>20*1024*1024){toast('文件超过 20MB："'+f.name+'"');continue;}
+    files.push(f);ok++;}
+  renderAtt();inp.value="";if(!ok)toast("原型占位：文件未真正上传");
+}
+function renderAtt(){
+  var el=document.getElementById("attList");el.innerHTML="";
+  files.forEach(function(f,i){var size=f.size<1024?f.size+"B":(f.size/1024).toFixed(1)+"KB";
+    var d=document.createElement("div");d.className="att-item";
+    d.innerHTML='<span>📄</span><span class="nm">'+esc(f.name)+'</span><span class="sz">'+size+'</span><span class="del" onclick="removeAtt('+i+')">×</span>';
+    el.appendChild(d);});
+}
+function removeAtt(i){files.splice(i,1);renderAtt();}
+function doSubmit(){
+  var reasonEl=document.getElementById("reason");
+  var dateEl=document.getElementById("ndate");
+  var reason=reasonEl.value.trim();
+  var date=dateEl.value;
+  var bad=false;
+  reasonEl.classList.toggle("err",!reason);
+  dateEl.classList.toggle("err",!date);
+  if(!reason){document.getElementById("reasonErr").classList.add("show");bad=true;}
+  if(!date){document.getElementById("dateErr").classList.add("show");bad=true;}
+  if(bad){toast("必填项需完善");return;}
+  show("submitDlg");
+}
+function confirmSubmit(){hide("submitDlg");document.getElementById("okDate").textContent=document.getElementById("ndate").value||"—";show("okDlg");}
+function askCancel(){show("cancelDlg");}
+function cancelYes(){hide("cancelDlg");toast("已取消申请");}
+document.getElementById("reason").value="";cnt(document.getElementById("reason"));
+</script>
+</body>
+</html>
