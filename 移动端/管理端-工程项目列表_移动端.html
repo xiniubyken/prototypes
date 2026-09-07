@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-工程项目列表（移动端）</title>
+<!--
+  管理端-工程项目列表（移动端单文件演示）
+  输出：outputs/DeepSeek_本次管理端-第一批/html/管理端-工程项目列表_移动端.html
+  来源：
+    - PC 源：20_正式交付/管理端-工程项目列表.html（21 列超宽表格 → 卡片化裁剪）
+    - 设计稿：Y-工程单-列表/工程项目列表.png、-全部状态.png、-筛选.png（OCR 重建证据）
+    - 风格骨架（学 CSS/布局/状态栏/导航/toast/筛选底弹层，未照抄字段）：移动端/用户端-工程项目单列表_移动端.html
+  实现取舍（默认决定清单，见文件尾注释）：
+    D1 状态胶囊=白底彩字：底白、字色取 PC 状态字色、1px 描边取 PC 状态底色（浅色），8 状态一一对应（PC 语义分色）。
+    D2 演示数据 13 条：PC 8 条(GC202606250001~0008)覆盖 8 状态 + 按真实口径扩展 5 条(日期散布 2026-02~06，便于日期区间真筛选)；经销商名已替换设计稿中的测试账号占位文案。
+    D3 筛选-登录时间默认态：设计稿面板默认区间 2026-02-22~2026-05-22，移动端打开筛选时需先回显这组初值；列表首屏仍保持 PC 演示数据，不把默认态强行当成已生效过滤。
+    D4 业务线第 6 行右列 OCR 乱码“六．气扌丸丿长”按 PC/常规词典定为“空气能热水”；19 项顺序=PC 下拉顺序，两列网格按行优先排列（与设计稿 OCR 网格逐项吻合）。
+    D5 登录状态补齐“2-候补登录”：设计稿 OCR 仅见 全部/登录成功（T6 存疑），按 PC 登录状态 2 项补齐，保证候补演示行可被筛出；“全部”为主项（选中即清除其它选择）。
+    D6 顶部导航按移动端惯例保留返回键（设计稿 OCR 未见返回箭头），点击 toast 占位。
+    D7 列表不加计数行/分页/状态分组 Tab/业务线 tag 行/查看按钮（设计稿均未含）；空结果显示“暂无数据”。
+    D8 行内条件动作按 PC：跟进中/已流标=[作废+登录延期]、已中标=[登录延期]、其余无动作；作废/登录延期为 toast 占位流程（不真改数据）。
+    D9 登录顺序显示沿用 PC 行渲染规则：已驳回/已关闭（或值缺失）显示“-”，否则 1-登录成功 / 2-候补登录。
+    D10 交互主色/选中态取风格骨架蓝(#0868d7)；底部主按钮“代客申请”按设计稿取蓝。
+-->
+<style>
+:root{--blue:#0868d7;--green:#2E7D32;--red:#D32F2F;--orange:#ED6C02;
+  --bg:#f5f6f7;--text:#292929;--line:#ececec;--gray:#8f959e;--light:#a2a2a2;
+  --safe-top:env(safe-area-inset-top);--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:86px}
+/* ===== 状态栏 ===== */
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+/* ===== 导航 ===== */
+.nav{height:54px;padding:0 10px 0 6px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:38px;height:40px;border:0;background:transparent;display:grid;place-items:center;color:#333;flex:none}
+.back i{width:13px;height:13px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block;margin-left:6px}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:18px;font-weight:700;white-space:nowrap}
+/* ===== 搜索行（含内嵌“筛选”入口） ===== */
+.top{background:#fff;padding:10px 14px 12px;border-bottom:1px solid var(--line)}
+.srow{display:flex;align-items:center;gap:10px}
+.search-pill{flex:1;min-width:0;display:flex;align-items:center;gap:6px;background:#f2f4f6;border-radius:9px;padding:0 10px;height:38px}
+.search-pill svg{flex:none;color:#9aa1ab}
+.sf{flex:1;min-width:0;border:0;background:transparent;font-size:14px;color:#333;outline:none}
+.sf::-webkit-search-cancel-button{-webkit-appearance:none}
+.filter-btn{flex:none;display:inline-flex;align-items:center;gap:4px;background:#fff;border:1px solid #e3e6ea;border-radius:9px;color:#333;font-size:13px;padding:0 12px;height:38px}
+.filter-btn svg{color:#333}
+/* ===== 列表区 ===== */
+.scroll{padding:10px 14px 20px}
+.li{background:#fff;border-radius:14px;padding:14px 14px 0;margin-bottom:12px;overflow:hidden;cursor:pointer}
+.li-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.li-name{font-size:16px;font-weight:700;line-height:1.45;min-width:0;flex:1;
+  overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}
+.pill{display:inline-block;flex:none;background:#fff;border:1px solid;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;white-space:nowrap;margin-top:2px}
+.st-approve{color:#1565C0;border-color:#E3F2FD}
+.st-reject{color:#C62828;border-color:#FFEBEE}
+.st-follow{color:#2E7D32;border-color:#E8F5E9}
+.st-won{color:#E65100;border-color:#FFF3E0}
+.st-signed{color:#6A1B9A;border-color:#F3E5F5}
+.st-lost{color:#F57F17;border-color:#FFF8E1}
+.st-closed{color:#78909C;border-color:#ECEFF1}
+.st-done{color:#00695C;border-color:#E0F2F1}
+.kv{display:flex;align-items:baseline;gap:2px;margin-top:8px;font-size:13px;line-height:1.45}
+.kv .k{color:#9a9a9a;flex:none}
+.kv .v{color:#333;font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-break:break-all}
+.li-act{display:flex;justify-content:flex-end;gap:4px;border-top:1px solid #f3f4f6;margin-top:12px;padding:8px 0 12px;cursor:auto}
+.act{font-size:13px;font-weight:600;cursor:pointer;border:0;background:#fff;padding:6px 10px;border-radius:6px}
+.act.void{color:var(--red)}.act.extend{color:var(--orange)}
+.empty{padding:52px 0;text-align:center;color:var(--light);font-size:14px}
+/* ===== 底部主按钮 ===== */
+.newbar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + var(--safe-bottom));z-index:30}
+.newbtn{width:100%;height:46px;border:0;border-radius:24px;background:var(--blue);color:#fff;font-size:16px;font-weight:700}
+/* ===== 筛选底弹层 ===== */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:17px 17px 0 0;padding:18px 18px calc(16px + var(--safe-bottom));max-height:86vh;overflow-y:auto}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;margin-bottom:14px}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px;line-height:1}
+.f-sec{margin-bottom:18px}
+.f-sec-t{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.f-hint{font-size:11px;color:var(--light);font-weight:400;border:1px solid #e6e8eb;border-radius:4px;padding:0 5px;line-height:1.7}
+.date-row{display:flex;align-items:center;gap:8px}
+.date-row input{flex:1;min-width:0;border:1px solid #e3e6ea;border-radius:8px;padding:9px 10px;font-size:13px;color:#333;outline:none;background:#fff}
+.date-row .sep{color:#aaa;flex:none}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{padding:9px 4px;text-align:center;font-size:13px;color:#555;background:#fff;border:1px solid #e6e8eb;border-radius:8px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:none}
+.opt.on{color:var(--blue);border-color:var(--blue);background:#e8f1ff;font-weight:600}
+.f-foot{display:flex;gap:10px;margin-top:4px}
+.f-btn{flex:1;height:46px;border:0;border-radius:24px;font-size:16px;font-weight:700}
+.f-btn.gray{background:#f0f1f3;color:#333}.f-btn.blue{background:var(--blue);color:#fff}
+/* ===== toast ===== */
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;max-width:82vw;text-align:center;line-height:1.5}
+.toast.show{display:block}
+@media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+  <header class="nav">
+    <button class="back" onclick="goBack()" aria-label="返回"><i></i></button>
+    <div class="nav-title">工程项目列表</div>
+  </header>
+  <div class="top">
+    <div class="srow">
+      <div class="search-pill">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="sf" id="kw" type="search" placeholder="请输入项目单号或项目名称" oninput="refresh()" aria-label="搜索项目单号或项目名称">
+      </div>
+      <button class="filter-btn" onclick="openFilter()">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>筛选
+      </button>
+    </div>
+  </div>
+  <div class="scroll" id="listBox"></div>
+  <div class="newbar"><button class="newbtn" onclick="toast('原型占位：代客申请（进入代客/代建项目单新建页）')">代客申请</button></div>
+</main>
+
+<!-- 筛选底弹层 -->
+<div class="mask" id="filterMask" onclick="closeFilter(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>筛选</span><button class="sheet-x" onclick="closeFilter()">×</button></div>
+    <div class="f-sec">
+      <div class="f-sec-t">登录时间</div>
+      <div class="date-row">
+        <input id="fFrom" type="date" aria-label="登录时间起">
+        <span class="sep">~</span>
+        <input id="fTo" type="date" aria-label="登录时间止">
+      </div>
+    </div>
+    <div class="f-sec">
+      <div class="f-sec-t">业务线<span class="f-hint">可多选</span></div>
+      <div class="opt-grid" id="bizGrid"></div>
+    </div>
+    <div class="f-sec">
+      <div class="f-sec-t">项目状态<span class="f-hint">单选</span></div>
+      <div class="opt-grid" id="stGrid"></div>
+    </div>
+    <div class="f-sec">
+      <div class="f-sec-t">登录状态<span class="f-hint">可多选</span></div>
+      <div class="opt-grid" id="loginGrid"></div>
+    </div>
+    <div class="f-foot">
+      <button class="f-btn gray" onclick="resetFilter()">重置</button>
+      <button class="f-btn blue" onclick="applyFilter()">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ===== 常量：业务线 19 项 = PC 下拉顺序（D4：OCR 第 6 行右列乱码按 PC=“空气能热水”）===== */
+var BZLINES=["中央空调","冷链","净化工程","家用中央空调","商用热水","新风系统","地暖系统","精密空调","机房空调","恒温恒湿","冷水机组","空气能热水","壁挂炉","太阳能","泳池设备","消防通风","全屋净水","智能家居","其他"];
+/* ===== 常量：项目状态 = 全部 + 8 状态（PC 下拉顺序，两列网格按行优先排列）===== */
+var ST_ALL=["全部","审批中","已驳回","跟进中","已中标","已签单","已流标","已关闭","已完结"];
+/* ===== 常量：登录状态 = 设计稿“全部/登录成功” + 按 PC 补齐“2-候补登录”(D5) ===== */
+var LOGIN_OPTS=[["all","全部"],["1","1-登录成功"],["2","2-候补登录"]];
+var DEFAULT_DATE_FROM="2026-02-22";
+var DEFAULT_DATE_TO="2026-05-22";
+var ST_CLS={审批中:"approve",已驳回:"reject",跟进中:"follow",已中标:"won",已签单:"signed",已流标:"lost",已关闭:"closed",已完结:"done"};
+
+/* ===== 演示数据 13 条：PC 8 条(8 状态全覆盖) + 扩展 5 条(日期散布 2026-02~06，支持日期区间/业务线/登录状态真筛选)（D2/D8/D9）===== */
+var DATA=[
+ {no:"GC202606250001",name:"希望小学中央空调采购项目",biz:"中央空调",status:"审批中",order:"1",dealer:"珠海格力电器销售有限公司",time:"2026-06-25 10:30",vo:false,ex:false},
+ {no:"GC202606250002",name:"南山区办公楼中央空调项目",biz:"中央空调",status:"已驳回",order:"1",dealer:"深圳格力贸易有限公司",time:"2026-06-24 14:20",vo:false,ex:false},
+ {no:"GC202606250003",name:"天河区酒店冷链改造项目",biz:"冷链",status:"跟进中",order:"1",dealer:"广州格力销售服务中心",time:"2026-06-22 09:15",vo:true,ex:true},
+ {no:"GC202606250004",name:"松山湖医院中央空调项目",biz:"中央空调",status:"已中标",order:"1",dealer:"东莞格力电器代理商",time:"2026-06-20 11:00",vo:false,ex:true},
+ {no:"GC202606250005",name:"顺德区商业综合体空调项目",biz:"中央空调",status:"已签单",order:"1",dealer:"佛山格力电器经销部",time:"2026-06-18 16:45",vo:false,ex:false},
+ {no:"GC202606250006",name:"火炬开发区学校空调采购项目",biz:"中央空调",status:"已流标",order:"2",dealer:"中山格力销售有限公司",time:"2026-06-15 08:30",vo:true,ex:true},
+ {no:"GC202606250007",name:"惠城区酒店冷链设备项目",biz:"冷链",status:"已关闭",order:"2",dealer:"惠州格力电器有限公司",time:"2026-06-10 13:20",vo:false,ex:false},
+ {no:"GC202606250008",name:"蓬江区医院中央空调维保项目",biz:"中央空调",status:"已完结",order:"1",dealer:"江门格力电器服务中心",time:"2026-05-28 10:00",vo:false,ex:false},
+ {no:"GC202606020009",name:"金湾区数据中心精密空调项目",biz:"精密空调",status:"跟进中",order:"2",dealer:"珠海格力电器销售有限公司",time:"2026-06-02 14:05",vo:true,ex:true},
+ {no:"GC202605200010",name:"龙湖区酒店商用热水项目",biz:"商用热水",status:"已签单",order:"1",dealer:"汕头格力电器销售有限公司",time:"2026-05-20 09:30",vo:false,ex:false},
+ {no:"GC202604150011",name:"霞山区学校空气能热水项目",biz:"空气能热水",status:"已中标",order:"1",dealer:"湛江格力电器服务中心",time:"2026-04-15 10:00",vo:false,ex:true},
+ {no:"GC202603080012",name:"麻章区冷链仓储净化工程项目",biz:"净化工程",status:"已完结",order:"1",dealer:"湛江格力贸易有限公司",time:"2026-03-08 11:20",vo:false,ex:false},
+ {no:"GC202602280013",name:"揭东区医院新风系统改造项目",biz:"新风系统",status:"审批中",order:"1",dealer:"揭阳格力电器经销部",time:"2026-02-28 15:40",vo:false,ex:false}
+];
+
+/* ===== 当前筛选条件（keyword 实时生效；面板条件在“确定”后生效）===== */
+var curDate={from:"",to:""};
+var curBiz=[];
+var curStatus="全部";
+var curLogin=["all"];   // 含 "all" 或空 = 不限
+
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+
+/* 登录顺序显示：已驳回/已关闭显示“-”（PC 行渲染规则，D9） */
+function loTxt(d){
+  if(d.status==="已关闭"||d.status==="已驳回"||d.order==="-"||d.order==="—")return "-";
+  return d.order==="2"?"2-候补登录":"1-登录成功";
+}
+/* 登录状态取值（供筛选比对）：'-' 行不属于登录成功/候补登录任一 */
+function loginState(d){
+  var t=loTxt(d);
+  if(t==="-")return "-";
+  return d.order==="2"?"2":"1";
+}
+
+/* ===== 卡片渲染 ===== */
+function cardHtml(d){
+  var h='<div class="li" onclick="openDetail(\''+esc(d.no)+'\')">'
+    +'<div class="li-hd"><div class="li-name">'+esc(d.name)+'</div><span class="pill st-'+ST_CLS[d.status]+'">'+esc(d.status)+'</span></div>'
+    +'<div class="kv"><span class="k">项目单号：</span><span class="v">'+esc(d.no)+'</span></div>'
+    +'<div class="kv"><span class="k">业务线：</span><span class="v">'+esc(d.biz)+'</span></div>'
+    +'<div class="kv"><span class="k">登录顺序：</span><span class="v">'+esc(loTxt(d))+'</span></div>'
+    +'<div class="kv"><span class="k">经销商名称：</span><span class="v">'+esc(d.dealer)+'</span></div>'
+    +'<div class="kv"><span class="k">登录时间：</span><span class="v">'+esc(d.time)+'</span></div>';
+  var acts="";
+  if(d.vo)acts+='<button class="act void" onclick="doVoid(\''+esc(d.no)+'\')">作废</button>';
+  if(d.ex)acts+='<button class="act extend" onclick="doExtend(\''+esc(d.no)+'\')">登录延期</button>';
+  if(acts)h+='<div class="li-act" onclick="event.stopPropagation()">'+acts+'</div>';
+  h+='</div>';
+  return h;
+}
+function filtered(){
+  var kw=(document.getElementById("kw").value||"").trim();
+  var f=curDate.from, t=curDate.to;
+  var bizAll=curBiz.length===0, stAll=curStatus==="全部";
+  var lgAll=curLogin.length===0||curLogin.indexOf("all")>=0;
+  return DATA.filter(function(d){
+    if(kw&&d.no.indexOf(kw)<0&&d.name.indexOf(kw)<0)return false;
+    if(f&&d.time.slice(0,10)<f)return false;
+    if(t&&d.time.slice(0,10)>t)return false;
+    if(!bizAll&&curBiz.indexOf(d.biz)<0)return false;
+    if(!stAll&&d.status!==curStatus)return false;
+    if(!lgAll&&curLogin.indexOf(loginState(d))<0)return false;
+    return true;
+  });
+}
+function refresh(){
+  var list=filtered();
+  var box=document.getElementById("listBox");
+  box.innerHTML=list.length
+    ?list.map(cardHtml).join("")
+    :'<div class="empty">暂无数据</div>';
+}
+
+/* ===== 占位跳转（用户拍板：一律 toast“原型占位：…”）===== */
+function openDetail(no){toast("原型占位：进入工程单详情 "+no);}
+function doVoid(no){toast("原型占位：作废（进入新建-作废流程）"+no);}
+function doExtend(no){toast("原型占位：登录延期（登录顺序转「2-候补登录」）"+no);}
+function goBack(){toast("原型占位：返回上一级");}
+function toast(msg){
+  var el=document.getElementById("toast");
+  el.textContent=msg;el.classList.add("show");
+  clearTimeout(window.__tt);
+  window.__tt=setTimeout(function(){el.classList.remove("show");},1600);
+}
+
+/* ===== 筛选面板 ===== */
+function buildGrid(id,opts,multi){
+  var box=document.getElementById(id);
+  box.innerHTML=opts.map(function(o){
+    var v=o[0],t=o[1];
+    return '<div class="opt" data-v="'+v+'" data-t="'+t+'">'+t+'</div>';
+  }).join("");
+  Array.prototype.forEach.call(box.children,function(cell){
+    cell.addEventListener("click",function(){
+      if(!multi){                       // 单选：互斥
+        Array.prototype.forEach.call(box.children,function(x){x.classList.remove("on");});
+        cell.classList.add("on");
+        return;
+      }
+      var v=cell.getAttribute("data-v");
+      if(v==="all"){                    // “全部”=不限，选中即清其它
+        Array.prototype.forEach.call(box.children,function(x){x.classList.remove("on");});
+        cell.classList.add("on");
+        return;
+      }
+      if(cell.classList.contains("on")){
+        cell.classList.remove("on");
+        var any=box.querySelector(".opt.on");
+        if(!any){                       // 全部取消时回退“全部”
+          var all=box.querySelector('.opt[data-v="all"]');
+          if(all)all.classList.add("on");
+        }
+      }else{
+        var all=box.querySelector('.opt[data-v="all"]');
+        if(all)all.classList.remove("on");
+        cell.classList.add("on");
+      }
+    });
+  });
+}
+function gridSel(id){
+  return Array.prototype.map.call(document.querySelectorAll("#"+id+" .opt.on"),function(el){return el.getAttribute("data-v");});
+}
+function syncPanel(){
+  document.getElementById("fFrom").value=curDate.from||DEFAULT_DATE_FROM;
+  document.getElementById("fTo").value=curDate.to||DEFAULT_DATE_TO;
+  var biz=document.getElementById("bizGrid");
+  Array.prototype.forEach.call(biz.children,function(c){c.classList.toggle("on",curBiz.indexOf(c.getAttribute("data-v"))>=0);});
+  var st=document.getElementById("stGrid");
+  Array.prototype.forEach.call(st.children,function(c){c.classList.toggle("on",c.getAttribute("data-v")===curStatus);});
+  var lg=(curLogin.length?curLogin:["all"]);
+  var log=document.getElementById("loginGrid");
+  Array.prototype.forEach.call(log.children,function(c){c.classList.toggle("on",lg.indexOf(c.getAttribute("data-v"))>=0);});
+}
+function openFilter(){syncPanel();document.getElementById("filterMask").classList.add("show");}
+function closeFilter(e){if(e&&e.target!==document.getElementById("filterMask"))return;document.getElementById("filterMask").classList.remove("show");}
+function applyFilter(){
+  curDate.from=(document.getElementById("fFrom").value||"").trim();
+  curDate.to=(document.getElementById("fTo").value||"").trim();
+  curBiz=gridSel("bizGrid");
+  var stSel=gridSel("stGrid");
+  curStatus=stSel.length?stSel[0]:"全部";
+  curLogin=gridSel("loginGrid");
+  if(curLogin.length===0)curLogin=["all"];
+  closeFilter();refresh();
+}
+function resetFilter(){
+  curDate={from:"",to:""};curBiz=[];curStatus="全部";curLogin=["all"];
+  syncPanel();closeFilter();refresh();
+}
+
+/* ===== 初始化 ===== */
+(function init(){
+  buildGrid("bizGrid",BZLINES.map(function(b){return [b,b];}),true);
+  buildGrid("stGrid",ST_ALL.map(function(s){return [s,s];}),false);
+  buildGrid("loginGrid",LOGIN_OPTS,true);
+  syncPanel();
+  refresh();
+})();
+</script>
+</body>
+</html>
