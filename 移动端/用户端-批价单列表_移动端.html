@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>用户端-批价单列表</title>
+<!--
+  用户端-批价单列表（PC: E:\工作文件\项目\商用工程\20_正式交付\用户端-批价单列表.html；设计稿: 核心的过程\用户端-批价单列表）
+  主列表 全部批价单.png + 筛选 全部批价单-筛选.png（状态+创建时间）+ 通用-弹窗样式.png（放弃提货确认）
+  说明：分组=全部/审批中/待商家处理/已完结（PC口径）；卡片=名称+业务线+单号+状态+子状态+购买/发货+有效期+驳回原因+操作(重新提交/放弃提货=确认弹窗/复制新建/去提货/查看详情=占位)；示例数据=PC列表样例。
+-->
+<style>
+:root{--blue:#0868d7;--bg:#f5f6f7;--text:#292929;--line:#ececec;--red:#ff5158;--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:84px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.top{background:#fff;padding:10px 14px 12px}
+.sf{width:100%;border:0;background:#f2f4f6;border-radius:9px;padding:9px 12px;font-size:14px;color:#333;outline:none}
+.gtabs{display:flex;background:#fff;padding:0 6px;border-bottom:1px solid var(--line);overflow-x:auto;position:sticky;top:0;z-index:20}
+.gtab{flex:0 0 auto;padding:12px 14px;border:0;background:#fff;color:#8f959e;font-size:15px;position:relative;white-space:nowrap}
+.gtab.active{color:var(--blue);font-weight:700}
+.gtab.active:after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:3px;border-radius:3px;background:var(--blue)}
+.listbar{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 0}
+.bar-info{font-size:13px;color:#8f959e}
+.bar-filter{display:flex;align-items:center;gap:5px;border:1px solid #e3e6ea;background:#fff;color:#333;border-radius:8px;padding:6px 14px;font-size:13px}
+.scroll{padding:8px 14px 20px}
+.li{background:#fff;border-radius:14px;padding:14px 14px 0;margin-bottom:12px;overflow:hidden;cursor:pointer}
+.li-hd{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.li-name{font-size:16px;font-weight:700;line-height:1.4}
+.bizline{margin-top:8px;display:flex;align-items:center;gap:8px}
+.biztag{display:inline-block;padding:3px 10px;border-radius:5px;font-size:12px;font-weight:600;color:#7a5b12;background:#fdf6e0;flex:0 0 auto}
+.no{font-size:13px;color:#333;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-pill{display:inline-block;padding:3px 10px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap}
+.st-pill.sp{background:#e3f2fd;color:#1565c0}
+.st-pill.ok{background:#e8f5e9;color:#2e7d32}
+.st-pill.rj{background:#fff3e0;color:#e65100}
+.st-pill.cc{background:#eceff1;color:#546e7a}
+.st-pill.dd{background:#fff3e0;color:#b45309}
+.sub-tag{display:inline-block;margin-top:6px;font-size:12px;color:#1565c0;background:#eef4fd;border-radius:4px;padding:2px 8px}
+.li-kv{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:9px;font-size:13px;color:#666}
+.li-kv .k{color:#9a9a9a}.li-kv .v{color:#333;font-weight:600}
+.valid{margin-top:7px;font-size:13px;line-height:1.6;color:#666}
+.valid .lbl{color:#9a9a9a}
+.valid .days{font-weight:700}
+.valid .days.red{color:var(--red)}.valid .days.orange{color:#e6a23c}.valid .days.green{color:#1a9c5c}
+.rej{margin-top:8px;padding:8px 10px;background:#fdecea;border-radius:8px;font-size:12px;color:#c62828;line-height:1.6}
+.li-act{display:flex;justify-content:flex-end;gap:8px;border-top:1px solid #f3f4f6;margin-top:12px;padding:11px 0 12px;cursor:auto}
+.act{font-size:13px;color:var(--blue);cursor:pointer;border:0;background:#fff;padding:6px 8px;border-radius:6px}
+.act.warn{color:#c62828}
+.act.solid{background:var(--blue);color:#fff;padding:6px 16px;border-radius:7px}
+.act.outline{border:1px solid #e1e5eb;color:#333;padding:6px 14px;border-radius:7px}
+.act.vd{color:var(--blue);padding:6px 8px}
+.newbar{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + var(--safe-bottom));z-index:30}
+.newbtn{width:100%;height:46px;border:0;border-radius:24px;background:var(--blue);color:#fff;font-size:16px;font-weight:700}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:17px 17px 0 0;padding:18px 18px calc(16px + var(--safe-bottom));max-height:88vh;overflow-y:auto}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;margin-bottom:14px}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px}
+.f-sec{margin-bottom:16px}.f-sec-t{font-size:15px;font-weight:700;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 14px;border-radius:16px;background:#f3f4f6;color:#555;font-size:13px;cursor:pointer;border:1px solid transparent}
+.chip.on{background:#e8f1ff;color:var(--blue);border-color:var(--blue)}
+.f-range{display:flex;gap:8px;align-items:center}
+.f-date{flex:1;border:1px solid #e4e7ec;border-radius:8px;padding:9px;font-size:13px;min-width:0}
+.f-foot{display:flex;gap:10px}
+.f-btn{flex:1;height:46px;border:0;border-radius:24px;font-size:16px;font-weight:700}
+.f-btn.gray{background:#f0f1f3;color:#333}.f-btn.blue{background:var(--blue);color:#fff}
+.dlg-wrap{position:fixed;inset:0;background:rgba(0,0,0,.44);display:none;align-items:center;justify-content:center;z-index:70;padding:18px}
+.dlg-wrap.show{display:flex}
+.dlg{width:min(330px,100%);background:#fff;border-radius:14px;padding:24px 20px 20px;text-align:center}
+.dlg-msg{font-size:15px;line-height:1.7}.dlg-msg b{color:var(--red)}
+.dlg-btns{display:flex;gap:12px;justify-content:center;margin-top:22px}
+.dlg-btn{padding:9px 26px;border-radius:24px;font-size:15px;font-weight:700;border:0}
+.dlg-btn.c{background:#f0f1f3;color:#333}.dlg-btn.y{background:var(--blue);color:#fff}
+.toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;white-space:nowrap}
+.toast.show{display:block}
+.demo-tools{display:none;position:fixed;top:8px;left:8px;z-index:120;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;gap:7px;align-items:center;font-size:12px}
+.demo-tools select{padding:4px;border:1px solid #ddd;border-radius:4px}
+@media (min-width:700px){.demo-tools{display:flex}.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<div class="demo-tools" data-debug><span>状态分组</span><select id="grpSel" onchange="switchGrp(this.value)"></select></div>
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+  <header class="nav"><button class="back" onclick="toast('原型占位：返回')" aria-label="返回"><i></i></button><div class="nav-title">全部批价单</div></header>
+  <div class="top"><input class="sf" id="kw" type="search" placeholder="批价单号 / 项目名称" oninput="refresh()"></div>
+  <nav class="gtabs" id="gtabs"></nav>
+  <div class="listbar"><span class="bar-info" id="barInfo"></span><button class="bar-filter" onclick="openFilter()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>筛选</button></div>
+  <div class="scroll" id="listBox"></div>
+  <div class="newbar"><button class="newbtn" onclick="toast('原型占位：新建批价单')">+ 新建批价单</button></div>
+</main>
+<div class="mask" id="filterMask" onclick="closeFilter(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>筛选</span><button class="sheet-x" onclick="closeFilter()">×</button></div>
+    <div class="f-sec"><div class="f-sec-t">状态</div><div class="chips" id="fChips"></div></div>
+    <div class="f-sec"><div class="f-sec-t">创建时间</div><div class="f-range"><input class="f-date" id="fFrom" type="date" aria-label="开始时间"><span style="color:#aaa">至</span><input class="f-date" id="fTo" type="date" aria-label="结束时间"></div></div>
+    <div class="f-foot"><button class="f-btn gray" onclick="resetFilter()">重置</button><button class="f-btn blue" onclick="applyFilter()">确定</button></div>
+  </div>
+</div>
+<div class="dlg-wrap" id="confirmWrap" onclick="closeConfirm(event)">
+  <div class="dlg" onclick="event.stopPropagation()"><div class="dlg-msg" id="confirmMsg"></div>
+    <div class="dlg-btns"><button class="dlg-btn c" onclick="closeConfirm()">取 消</button><button class="dlg-btn y" onclick="doConfirm()">确 认</button></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+var DATA=[
+ {no:"安徽-GCDT2026-06220001",name:"珠海横琴新区中央空调设备采购",biz:"中央空调",grp:"shenpi",st:"审批中",sub:"价格审批",sc:"sp",pb:100,ph:100,act:["放弃提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220001",name:"珠海横琴新区中央空调设备采购",biz:"多联机",grp:"shenpi",st:"审批中",sub:"销司作废审批",sc:"sp",pb:100,ph:100,act:["放弃提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220001",name:"深圳前海格力商用空调集中采购",biz:"中央空调",grp:"ds",st:"已驳回",sc:"rj",pb:0,ph:0,days:1,rej:"设备清单中型号与工程项目单不一致，请核对后重新提交。",act:["重新提交","放弃提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220001",name:"深圳前海格力商用空调集中采购",biz:"中央空调",grp:"ds",st:"已驳回",sc:"rj",pb:0,ph:0,days:6,rej:"批价单价超出指导价，需补充说明。",act:["重新提交","放弃提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220001",name:"广州黄埔冷链仓储设备供应项目",biz:"冷链",grp:"ds",st:"已驳回",sc:"rj",pb:0,ph:5,days:6,rej:"经销商资质证明文件不完整，请补充后重新提交。",act:["重新提交","放弃提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220001",name:"江门新会区商业广场空调设备采购",biz:"冷链",grp:"ds",st:"已驳回",sc:"rj",pb:0,ph:0,days:16,rej:"设备清单中型号与工程项目单不一致，请核对后重新提交。",act:["重新提交","放弃提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220003",name:"江门新会区商业广场空调设备采购",biz:"冷链",grp:"all",st:"待提货",sc:"dd",pb:0,ph:5,days:6,act:["去提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220004",name:"广州黄埔冷链仓储设备供应项目",biz:"冷链",grp:"all",st:"部分提货",sc:"ok",pb:30,ph:25,days:16,act:["去提货","复制新建"]},
+ {no:"安徽-GCDT2026-06220002",name:"佛山顺德商业综合体中央空调供应",biz:"中央空调",grp:"wj",st:"已完结",sc:"cc",pb:50,ph:50,act:["复制新建"]},
+ {no:"安徽-GCDT2026-06220006",name:"中山市冷链物流中心冷库设备采购",biz:"冷链",grp:"all",st:"已关闭",sub:"经销商放弃登录",sc:"cc",pb:0,ph:0,act:["复制新建"]},
+ {no:"安徽-GCDT2026-06220007",name:"中山市冷链物流中心冷库设备采购",biz:"冷链",grp:"all",st:"已关闭",sub:"登录有效期到期",sc:"cc",pb:0,ph:0,act:["复制新建"]}
+];
+var GROUPS=[{k:"all",t:"全部"},{k:"shenpi",t:"审批中"},{k:"ds",t:"待商家处理"},{k:"wj",t:"已完结"}];
+var ST_CHIPS=["全部","审批中","已驳回","待提货","部分提货","已完结","已关闭"];
+var curG="all",curSt="全部",tmpSt="全部";
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(function(){el.classList.remove("show");},1500);}
+function daysColor(d){return d<=3?"red":(d<=7?"orange":"green");}
+function filtered(){
+  var k=(document.getElementById("kw").value||"").trim();
+  return DATA.filter(function(d){
+    if(curG!=="all"&&d.grp!==curG)return false;
+    if(curSt!=="全部"&&d.st!==curSt)return false;
+    if(k&&d.no.indexOf(k)<0&&d.name.indexOf(k)<0)return false;
+    return true;});
+}
+function actHtml(a){
+  var cls="act";
+  if(a==="放弃提货"||a==="放弃登录")cls+=" warn";
+  else if(a==="重新提交"||a==="去提货")cls+=" solid";
+  else if(a==="复制新建")cls+=" outline";
+  var fn=(a==="放弃提货")?"askConfirm('"+a+"')":"toast('原型占位："+a+"')";
+  return '<button class="'+cls+'" onclick="'+fn+'">'+a+'</button>';
+}
+function cardHtml(d){
+  return '<div class="li" onclick="toast(\'原型占位：打开批价单详情\')">'
+   +'<div class="li-hd"><div class="li-name">'+esc(d.name)+'</div><span class="st-pill '+d.sc+'">'+esc(d.st)+'</span></div>'
+   +'<div class="bizline"><span class="biztag">'+esc(d.biz)+'</span><span class="no">'+esc(d.no)+'</span></div>'
+   +(d.sub?'<span class="sub-tag">'+esc(d.sub)+'</span>':"")
+   +'<div class="li-kv"><span><span class="k">购买数量：</span><span class="v">'+d.pb+'</span></span><span><span class="k">发货数量：</span><span class="v">'+d.ph+'</span></span></div>'
+   +(d.days!=null?'<div class="valid"><span class="lbl">有效期至 2026/09/02 · 剩余</span> <span class="days '+daysColor(d.days)+'">'+d.days+' 天'+(d.st==="已驳回"?"可重提":"")+'</span></div>':"")
+   +(d.rej?'<div class="rej">驳回原因：'+esc(d.rej)+'</div>':"")
+   +'<div class="li-act" onclick="event.stopPropagation()">'+d.act.map(actHtml).join("")+'<span class="act vd" onclick="toast(\'原型占位：批价单详情\')">查看详情 ›</span></div></div>';
+}
+function refresh(){
+  var list=filtered();
+  document.getElementById("listBox").innerHTML=list.length?list.map(cardHtml).join(""):'<div style="background:#fff;border-radius:14px;padding:46px 0;text-align:center;color:#a2a2a2">暂无匹配记录</div>';
+  document.getElementById("barInfo").textContent="共 "+list.length+" 条"+(curSt!=="全部"?" · 筛选："+curSt:"");
+}
+function renderTabs(){
+  var cnt={};GROUPS.forEach(function(g){cnt[g.k]=g.k==="all"?DATA.length:DATA.filter(function(d){return d.grp===g.k;}).length;});
+  document.getElementById("gtabs").innerHTML=GROUPS.map(function(g){return '<button class="gtab '+(g.k===curG?"active":"")+'" onclick="switchGrp(\''+g.k+'\')">'+g.t+'('+cnt[g.k]+')</button>';}).join("");
+  var sel=document.getElementById("grpSel");sel.innerHTML=GROUPS.map(function(g){return '<option value="'+g.k+'">'+g.t+'</option>';}).join("");sel.value=curG;
+}
+function switchGrp(k){curG=k;renderTabs();refresh();window.scrollTo(0,0);}
+function openFilter(){tmpSt=curSt;document.getElementById("fChips").innerHTML=ST_CHIPS.map(function(c){return '<span class="chip '+(c===tmpSt?"on":"")+'" onclick="pickChip(this,\''+c+'\')">'+esc(c)+'</span>';}).join("");document.getElementById("filterMask").classList.add("show");}
+function pickChip(el,st){tmpSt=st;[].forEach.call(document.querySelectorAll("#fChips .chip"),function(x){x.classList.remove("on");});el.classList.add("on");}
+function closeFilter(e){if(e&&e.target!==document.getElementById("filterMask"))return;document.getElementById("filterMask").classList.remove("show");}
+function applyFilter(){curSt=tmpSt;refresh();closeFilter();}
+function resetFilter(){curSt="全部";document.getElementById("fFrom").value="";document.getElementById("fTo").value="";refresh();closeFilter();}
+var confirmAct=null;
+function askConfirm(a){confirmAct=a;document.getElementById("confirmMsg").innerHTML="确定 <b>"+esc(a)+"</b> 之后无法撤销，要继续吗？";document.getElementById("confirmWrap").classList.add("show");}
+function closeConfirm(e){if(e&&e.target!==document.getElementById("confirmWrap"))return;document.getElementById("confirmWrap").classList.remove("show");}
+function doConfirm(){closeConfirm();toast("原型占位：已确认"+confirmAct);}
+(function init(){renderTabs();refresh();})();
+</script>
+</body>
+</html>
