@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>用户端-批价单详情</title>
+<!--
+  用户端-批价单详情（移动端 V1）
+  设计稿：C:\Users\23727\Desktop\核心的过程\用户端-批价单详情页（14 详情图 + 审批进度\5 图）
+  PC：E:\工作文件\项目\商用工程\20_正式交付\用户端-批价单详情.html（状态模型/业务文案来源）
+  架构参考：用户端-工程项目单详情_移动端.html（已收口）
+  规则：设计稿没有的字段/按钮/ico 一律不新增；演示数据=PC 口径；像素级=视觉证据不足见记录 K 表
+  结构：头部摘要(单号/标签/项目名/有效期) + 双tab(批价单详情|审批进度) + 详情(驳回条/设备清单折3+/项目凭证分类附件/基本信息)
+        + 底部固定操作(按状态) + 弹层族(更多操作/商品详情/审批流程[流程|当前节点]/放大/放弃提货确认)
+-->
+<style>
+:root{--blue:#0868d7;--bg:#f5f6f7;--text:#292929;--line:#ececec;--red:#ff5158;--green:#1a9c5c;--amber:#b45309;--gray:#8f959e;--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:110px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.status-icons{display:flex;gap:5px;align-items:center;font-size:10px}
+.signal{letter-spacing:-2px;font-size:13px}.wifi{font-size:12px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 4px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:sticky;top:0;z-index:20}
+.back{width:40px;height:40px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.more-wrap{position:absolute;right:4px}
+.more-ico{width:38px;height:38px;border:0;background:#fff;color:#333;font-size:24px;line-height:1;border-radius:8px}
+.more-menu{display:none;position:absolute;right:6px;top:44px;background:#fff;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.16);min-width:150px;overflow:hidden;z-index:60}
+.more-menu.on{display:block}
+.more-item{width:100%;text-align:left;padding:13px 16px;border:0;background:#fff;font-size:15px;color:#333;display:flex;align-items:center;gap:8px}
+.more-item:active{background:#f5f6f7}
+/* 左上角悬浮状态演示（公认方式=工程单详情同款）：不占内容流，仅 ≥700px 显示 */
+.demo-tools{display:none;position:fixed;top:12px;left:12px;z-index:120;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;box-shadow:0 5px 18px rgba(0,0,0,.12);gap:7px;align-items:center;font-size:12px;color:#333}
+.demo-tools select{max-width:190px;padding:4px;border:1px solid #ddd;border-radius:4px;font-size:12px}
+.demo-tools .dt-hint{color:#888}
+@media (min-width:700px){.demo-tools{display:flex}}
+/* 头部摘要 */
+.summary{background:#fff;padding:12px 16px 13px;border-bottom:8px solid #f2f3f5}
+.sum-id{display:flex;align-items:center;gap:8px;font-size:15px;color:#333;font-weight:700}
+.sum-id .lbl{font-size:12px;color:var(--gray);font-weight:400}
+.sum-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.tag{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:12px;white-space:nowrap}
+.tag.gray{color:#444;background:#f0f2f5}
+.tag.price{color:#0868d7;background:#e7f0ff}
+.sum-name{margin-top:7px;font-size:14px;color:#333;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.expiry{margin-top:9px;font-size:13px;display:none;align-items:baseline;gap:3px;flex-wrap:wrap;line-height:1.5}
+.expiry b{font-size:15px}
+.expiry .range{color:#666}
+/* tabs */
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:57px;z-index:15}
+.tab{flex:1;height:46px;border:0;background:#fff;color:#aaa;font-size:17px;position:relative}
+.tab.active{color:var(--blue);font-weight:700}
+.tab.active:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:34px;height:4px;background:var(--blue);border-radius:4px}
+.panel{display:none}
+.panel.on{display:block}
+.content{padding:12px 14px 24px}
+/* 驳回原因条 */
+.reject-card{background:#ffeded;border:1px solid #ffc9c9;border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.reject-card .txt{font-size:13px;color:#c23636;line-height:1.8;white-space:pre-line}
+.reject-card .time{margin-top:8px;font-size:12px;color:#e08a8a}
+/* 卡片 */
+.card{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:15px 14px 11px;font-size:16px;font-weight:700;border-bottom:1px solid var(--line)}
+.sec-hd .sub{font-size:12px;color:var(--gray);font-weight:400}
+.fold-btn{border:0;background:transparent;color:#b3b8c0;border-radius:0;font-size:19px;line-height:1;padding:0 2px}
+.cert-fold-btn{font-size:13px;color:#9aa1ab;padding:0}
+/* 设备清单 */
+.eq-list{padding:2px 12px 0}
+.eq-row{display:flex;gap:10px;margin:0 0 8px;padding:10px;border:0;border-radius:10px;background:#f7f8fa;cursor:pointer}
+.eq-row:last-of-type{margin-bottom:0}
+.thumb{width:62px;height:62px;border-radius:8px;background:#f2f3f5;display:grid;place-items:center;flex:0 0 auto;border:1px solid #eef0f3}
+.thumb svg{width:28px;height:28px;color:#c6ccd5}
+.eq-main{flex:1;min-width:0}
+.eq-l1{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700}
+.eq-l1 .nst{color:var(--red);background:#ffe7e7;border-radius:3px;font-size:11px;font-weight:400;padding:1px 5px}
+.eq-l1 .qty{margin-left:auto;font-size:12px;color:var(--blue);font-weight:700;white-space:nowrap}
+.eq-desc{font-size:12px;color:#a2a2a2;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq-price{font-size:13px;color:#444;margin-top:4px}
+.eq-fold-wrap{display:flex;justify-content:center;padding:5px 0 11px}
+.eq-totals{display:grid;justify-items:end;gap:7px;background:#fff;border-top:1px solid var(--line);padding:12px 14px 15px;font-size:12px;color:#777;line-height:1.35;text-align:right}
+.eq-totals b,.eq-totals .apv{color:#ff5a00;font-weight:700}
+.eq-empty{padding:34px 0;text-align:center;color:var(--gray);font-size:13px}
+/* 项目凭证 */
+.cert-note-label{font-size:12px;color:var(--gray);padding:12px 14px 4px}
+.cert-note{background:#fafbfc;margin:0 12px 12px;border-radius:8px;padding:10px 12px;font-size:13px;color:#333;line-height:1.75;white-space:pre-line}
+.cert-group{padding:2px 14px 14px;border-top:1px solid #f2f3f5}
+.cert-group .gl{font-size:13px;font-weight:600;color:#333;padding:11px 0 7px;display:flex;align-items:center;gap:3px}
+.cert-group .gl .req{color:var(--red)}
+.cert-files{display:grid;gap:8px}
+.cf{display:flex;align-items:center;gap:8px;width:100%;min-height:42px;background:#f7f8fa;border:0;border-radius:8px;padding:7px 10px;font-size:12px;color:#333;max-width:100%;cursor:pointer}
+.cf svg{width:20px;height:20px;flex:0 0 auto}
+.cf .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cf .view-eye{width:18px;height:18px;color:#8f959e;flex:0 0 auto}
+.cf.img{background:#fff;border-style:dashed}
+.cf .imgph{width:26px;height:26px;border-radius:5px;background:#fff4e5;display:grid;place-items:center;font-size:9px;color:#e6a817;flex:0 0 auto}
+.cf-empty{color:#c8ccd2;font-size:12px;padding:6px 0}
+/* 基本信息 */
+.kv{padding:2px 14px 8px}
+.kv-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid #f5f6f7;font-size:14px}
+.kv-row:last-child{border-bottom:0}
+.kv-row .k{color:var(--gray);flex:0 0 92px}
+.kv-row .v{flex:1;min-width:0;color:#333;word-break:break-all;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.copy-mini{border:0;background:#eef3fb;color:var(--blue);border-radius:6px;font-size:11px;padding:2px 9px;flex:0 0 auto}
+/* 审批进度记录 */
+.al-card{background:#fff;border-radius:14px;padding:18px 14px 17px;margin-bottom:10px;display:block;position:relative}
+.al-left{flex:1;min-width:0}
+.al-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:13px;border-bottom:1px solid #e8eaee}
+.al-type{font-size:19px;font-weight:700}
+.al-dates{margin-top:15px;display:grid;gap:10px;font-size:15px}
+.al-dates .d{color:#666;display:flex;gap:6px}
+.al-dates .d .lbl{color:#777;flex:0 0 auto}
+.al-right{position:absolute;right:14px;top:20px;display:flex;flex-direction:column;align-items:flex-end;gap:20px}
+.al-status{display:inline-flex;align-items:center;gap:5px;font-size:18px;font-weight:700;white-space:nowrap}
+.al-status-icon{width:25px;height:25px;display:inline-flex;align-items:center;justify-content:center;color:currentColor;line-height:1}
+.al-status-icon svg{width:25px;height:25px;display:block}
+.pill{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.af-link{border:1px solid #d9dce2;background:#fff;color:#333;border-radius:22px;font-size:15px;padding:9px 18px;white-space:nowrap}
+.af-link .arr{color:#b6c2d2}
+.ap-empty{padding:56px 0;text-align:center;color:var(--gray);font-size:13px}
+.ap-empty .ico{font-size:40px;margin-bottom:8px;color:#d8dde4;line-height:1}
+/* 底部固定操作 */
+.footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:9px 14px calc(9px + var(--safe-bottom));z-index:30;display:none;align-items:center;gap:10px}
+.footer.on{display:flex}
+.ft-state{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#333}
+.ft-status-pill{display:inline-flex;align-items:center;padding:3px 7px;border-radius:3px;font-size:14px;font-weight:700}
+.ft-ops{flex:1}
+.ft-btn{height:42px;border:0;border-radius:21px;padding:0 26px;font-size:15px;font-weight:700;white-space:nowrap;float:right}
+.ft-btn.primary{background:var(--blue);color:#fff}
+.ft-btn.ghost{background:#fff;color:var(--red);border:1px solid #ffc9c9}
+.ft-btn .cv{font-size:11px;margin-left:2px;opacity:.9}
+/* 弹层族 */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:none;align-items:flex-end;justify-content:center}
+.mask.on{display:flex}
+.mask.center{align-items:center}
+.sheet{width:min(428px,100%);background:#f7f8fa;border-radius:16px 16px 0 0;max-height:86vh;display:flex;flex-direction:column;position:relative}
+.sheet .sh{display:flex;align-items:center;justify-content:center;padding:16px 48px 6px;font-size:16px;font-weight:700;background:#fff;border-radius:16px 16px 0 0}
+.sheet .sh .x{position:absolute;right:14px;top:10px;width:34px;height:34px;border:0;background:transparent;color:#999;font-size:30px;line-height:1;font-weight:200}
+.sheet-body{overflow-y:auto;padding:12px 16px 18px;flex:1}
+.sheet.white{background:#fff}
+#opsMask .sheet{background:#fff}
+#opsMask .sheet .sh,#pdMask .sheet .sh{height:58px;padding:0;font-size:0}
+#opsMask .sheet-body{padding:80px 52px 44px}
+#pdMask .sheet{background:#f7f8fa}
+#pdMask .sheet-body{padding:0 16px 16px}
+.sheet-btn{width:100%;height:50px;border:0;border-radius:25px;background:#fff;color:#333;font-size:16px;margin-bottom:10px;border:1px solid #d9dce2}
+.sheet-btn:active{background:#f0f2f5}
+.sheet-btn.danger{color:var(--red);border:1px solid #ffd7d7;background:#fff}
+.sheet-btn.primary{background:var(--blue);color:#fff;border:0;font-weight:600}
+.sheet-btn:last-child{margin-bottom:0}
+/* 商品详情弹层 */
+.pd-top{background:#fff;padding:40px 16px 16px;border-radius:14px 14px 0 0;text-align:left;min-height:150px}
+.pd-img{width:92px;height:92px;float:left;margin:0 12px 0 0;border-radius:10px;background:#f2f3f5;display:grid;place-items:center;border:1px solid #eef0f3}
+.pd-img svg{width:48px;height:48px;color:#c6ccd5}
+.pd-top .pd-nm{min-height:92px;display:flex;align-items:center;font-size:17px;font-weight:700;line-height:1.35}
+.pd-top .pd-sub{margin:7px 0 0 104px;font-size:12px;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pd-top>div:last-child{margin:7px 0 0 104px!important}
+.pd-fields{background:#fff;margin-top:8px;border-radius:0 0 14px 14px;overflow:hidden}
+.pd-field{display:flex;padding:11px 16px;border-bottom:1px solid #f3f4f6;font-size:14px}
+.pd-field:last-child{border-bottom:0}
+.pd-field .k{color:var(--gray);flex:0 0 98px}
+.pd-field .v{flex:1;text-align:right;color:#333;word-break:break-all}
+.pd-field .v.ap{color:var(--green);font-weight:600}
+.pd-btns{display:flex;justify-content:center;gap:10px;padding:14px 16px calc(16px + var(--safe-bottom));background:#fff;border-radius:0 0 4px 4px}
+.pd-btn{flex:0 0 200px;height:44px;border-radius:22px;border:0;font-size:15px;font-weight:600;background:var(--blue);color:#fff}
+/* 审批流程弹层 */
+.af-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line)}
+.af-tab{flex:1;height:42px;border:0;background:#fff;color:#999;font-size:15px;position:relative}
+.af-tab.active{color:var(--blue);font-weight:700}
+.af-tab.active:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:30px;height:3px;background:var(--blue);border-radius:3px}
+.af-flow-card{background:#fff;border-radius:10px;padding:14px;cursor:pointer}
+.af-flow-card svg{display:block}
+.af-placeholder{height:310px;background:#e9e9e9;display:grid;place-items:center;font-size:26px;font-weight:700;color:#222}
+.af-flow-note{text-align:center;font-size:12px;color:var(--gray);margin-top:8px}
+.af-ok{padding:12px 16px calc(14px + var(--safe-bottom));background:#fff;border-radius:0 0 4px 4px}
+.af-ok .sheet-btn{margin:0}
+.af-node{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px}
+.af-node .dot{width:20px;height:20px;border-radius:50%;flex:0 0 auto;margin-top:2px;display:grid;place-items:center;color:#fff;font-size:11px}
+.af-node.done .dot{background:#1a9c5c}
+.af-node.cur .dot{background:var(--blue);box-shadow:0 0 0 4px rgba(8,104,215,.15)}
+.af-node.pend .dot{background:#cfd6df}
+.af-node .nd{flex:1;min-width:0}
+.af-node .nd .t{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.af-node .nd .s{font-size:12px;color:var(--gray);margin-top:4px;line-height:1.7}
+/* zoom 放大 */
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:120;display:none;padding:40px 14px 24px;overflow:auto}
+.zoom.on{display:block}
+.zoom .z-close{position:absolute;top:10px;right:14px;color:#fff;background:rgba(255,255,255,.16);border:0;width:38px;height:38px;border-radius:50%;font-size:22px}
+.zoom .z-tip{color:#dfe3ea;text-align:center;font-size:13px;margin-top:10px}
+/* 确认弹窗 */
+.dialog{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);padding:30px}
+.dialog.on{display:flex}
+.dbox{background:#fff;border-radius:14px;width:min(320px,100%);padding:22px 20px 18px;text-align:center}
+.dbox .di{font-size:34px;line-height:1}
+.dbox .dm{margin-top:10px;font-size:15px;color:#333;line-height:1.7}
+.dbox .dm b{color:#d94343}
+.dbtns{display:flex;gap:10px;margin-top:18px}
+.dbtn{flex:1;height:42px;border-radius:21px;border:0;font-size:15px}
+.dbtn.cancel{background:#f2f3f5;color:#666}
+.dbtn.confirm{background:var(--red);color:#fff;font-weight:600}
+.toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;z-index:200;display:none;white-space:nowrap;max-width:86%}
+.toast.on{display:block}
+@media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi">◉</span><span class="battery"></span></span></div>
+  <header class="nav">
+    <button class="back" onclick="toast('原型占位：返回批价单列表')" aria-label="返回"><i></i></button>
+    <div class="nav-title">批价单详情</div>
+    <div class="more-wrap">
+      <button class="more-ico" id="moreIco" onclick="toggleMore(event)" aria-label="更多">⋮</button>
+      <div class="more-menu" id="moreMenu"><button class="more-item" onclick="doCopyNew()"><span>📋</span>复制新建批价单</button></div>
+    </div>
+  </header>
+  <div class="demo-tools" data-debug><span class="dt-hint">状态：</span><select id="stateSelect" onchange="setState(this.value)"></select></div>
+
+  <div class="summary">
+    <div class="sum-id"><span class="lbl">批价单</span><span id="pjNo">粤东GCDT202606250001-PJ001</span></div>
+    <div class="sum-tags" id="headTags"></div>
+    <div class="sum-name" id="pjName"></div>
+    <div class="expiry" id="expiryRow"></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-panel="detail" onclick="switchPanel('detail',this)">批价单详情</button>
+    <button class="tab" data-panel="progress" onclick="switchPanel('progress',this)">审批进度</button>
+  </nav>
+
+  <div class="content">
+    <!-- ========== T1 批价单详情 ========== -->
+    <div class="panel on" id="detailPanel">
+      <div class="reject-card" id="rejectCard" style="display:none"><div class="txt" id="rejectTxt"></div><div class="time" id="rejectTime"></div></div>
+
+      <div class="card">
+        <div class="sec-hd"><span>设备清单</span></div>
+        <div id="eqList" class="eq-list"></div>
+        <div class="eq-fold-wrap"><button class="fold-btn" id="eqFold" onclick="toggleFold()">展开⌄</button></div>
+        <div class="eq-totals" id="eqTotals"></div>
+      </div>
+
+      <div class="card">
+        <div class="sec-hd"><span>项目凭证</span><button class="fold-btn cert-fold-btn" id="certFold" onclick="toggleCertFold()">收起⌃</button></div>
+        <div id="certBody">
+          <div class="cert-note-label">备注</div>
+          <div class="cert-note" id="certNote"></div>
+          <div id="certGroups"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="sec-hd"><span>基本信息</span></div>
+        <div class="kv" id="basicInfo"></div>
+      </div>
+    </div>
+
+    <!-- ========== T2 审批进度 ========== -->
+    <div class="panel" id="progressPanel">
+      <div id="alList"></div>
+    </div>
+  </div>
+
+  <div class="footer" id="footer">
+    <div class="ft-state" id="ftState"></div>
+    <div class="ft-ops" id="ftBtns"></div>
+  </div>
+</div>
+
+<!-- 更多操作 弹层 -->
+<div class="mask" id="opsMask" onclick="closeOps(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sh">更多操作<button class="x" onclick="closeOps()">×</button></div>
+    <div class="sheet-body white" id="opsList"></div>
+  </div>
+</div>
+
+<!-- 商品详情 弹层 -->
+<div class="mask" id="pdMask" onclick="closePd(event)">
+  <div class="sheet white" onclick="event.stopPropagation()">
+    <div class="sh">商品详情<button class="x" onclick="closePd()">×</button></div>
+    <div class="sheet-body" style="padding:0 0 16px" id="pdBody"></div>
+  </div>
+</div>
+
+<!-- 审批流程 弹层（流程/当前节点） -->
+<div class="mask" id="afMask" onclick="closeAf(event)">
+  <div class="sheet white" onclick="event.stopPropagation()">
+    <div class="sh">审批流程<button class="x" onclick="closeAf()">×</button></div>
+    <div class="af-tabs">
+      <button class="af-tab active" onclick="afTab('flow',this)">审批流程</button>
+      <button class="af-tab" onclick="afTab('node',this)">当前节点</button>
+    </div>
+    <div class="sheet-body" id="afFlowBody"></div>
+    <div class="sheet-body" id="afNodeBody" style="display:none"></div>
+    <div class="af-ok"><button class="sheet-btn primary" onclick="closeAf()">确认</button></div>
+  </div>
+</div>
+
+<!-- 流程图放大 -->
+<div class="zoom" id="zoomWrap" onclick="closeZoom(event)">
+  <button class="z-close" onclick="closeZoom()">×</button>
+  <div id="zoomBody" onclick="event.stopPropagation()"></div>
+  <div class="z-tip">点击空白处关闭</div>
+</div>
+
+<!-- 放弃提货 二次确认 -->
+<div class="dialog" id="abdDialog">
+  <div class="dbox">
+    <div class="di">⚠️</div>
+    <div class="dm">确定 <b>放弃提货</b> 之后无法撤销，要继续吗？</div>
+    <div class="dbtns"><button class="dbtn cancel" onclick="closeAbd()">取 消</button><button class="dbtn confirm" onclick="confirmAbd()">确 认</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================= 数据 ================= */
+var IMG_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4 3 3L16 12l4 4"/></svg>';
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function money(n){return "¥"+(n==null?"—":Number(n).toLocaleString());}
+var HDR={pjNo:"粤东GCDT202606250001-PJ001",pjName:"某商业综合体空调项目",biz:"中央空调-批价",saleType:"常规价",
+  created:"2026-06-25 10:30",dealer:"XX商贸有限公司",deposit:"比例保证金-A（10%）",line:"中央空调",priceType:"常规价"};
+
+/* 设备模板 */
+function eq(seq,nonstd,cate,name,model,sku,id,qty,price,point,approve,deposit,online,remark,buy,ship){
+  return {seq:seq,nonstd:nonstd,cate:cate,name:name,model:model,sku:sku,id:id,qty:qty,price:price,
+    point:point,approvePrice:approve,depositRate:deposit,onlinePrice:online,remark:remark||"",buyQty:buy||0,shipQty:ship||0};
+}
+var EQ_PENDING=[
+  eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","GID-10001",5,42000,8.5,null,10,40000,""),
+  eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","GID-10002",3,56000,8.0,null,10,54000,""),
+  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","GID-20001",8,8500,7.5,null,10,8000,""),
+  eq(4,false,"风管机","风管机FGR7.5/C","FGR7.5/C-120","SKU-FGR75C-120","GID-20002",6,12000,7.5,null,10,11500,""),
+  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","--",1,38000,null,null,10,null,"按图纸定制")
+];
+var EQ_APPROVED=[
+  eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","--",5,42000,8.5,40000,10,40000,"",0,0),
+  eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","--",3,56000,8.0,53000,10,54000,"",0,0),
+  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",0,0),
+  eq(4,false,"风管机","风管机FGR7.5/C","FGR7.5/C-120","SKU-FGR75C-120","--",6,12000,7.5,11500,10,11500,"",0,0),
+  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","GID-30001",1,38000,null,null,10,null,"按图纸定制",0,0)
+];
+var EQ_PARTIAL=[
+  eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","--",5,42000,8.5,40000,10,40000,"",5,3),
+  eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","--",3,56000,8.0,53000,10,54000,"",3,3),
+  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",4,4),
+  eq(4,true,"风管机","风管机FGR7.5/C-非标定制","FGR7.5/C-CUS","SKU-FGR75C-CUS","GID-30002",6,15000,null,14500,10,14500,"特殊风压定制",2,1),
+  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","GID-30001",1,38000,null,null,10,null,"按图纸定制",0,0)
+];
+var EQ_FINISH=[
+  eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","--",5,42000,8.5,40000,10,40000,"",5,5),
+  eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","--",3,56000,8.0,53000,10,54000,"",3,3),
+  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",8,8),
+  eq(4,true,"风管机","风管机FGR7.5/C-非标定制","FGR7.5/C-CUS","SKU-FGR75C-CUS","GID-30002",6,15000,null,14500,10,14500,"特殊风压定制",6,6),
+  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-002","SKU-DZ-002","GID-30001",1,38000,null,37500,10,38000,"按图纸定制-已完结",1,1)
+];
+
+/* 状态定义（key=PC 叶子） */
+var C={
+"审批中-价格审批":{main:"审批中",sub:"价格审批",pill:["#E3F2FD","#1565C0"],subPill:["#FFF8E1","#B45309"],
+  certNote:"经销商提交的项目凭证材料，包含合同扫描件、中标通知书等。\n\n审核进度：\n1. 销司已初审通过\n2. 工程部复审中\n3. 待价格审批确认",
+  equip:EQ_PENDING,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"待审批",r:"审批中",st:"c"},{n:"工程科内勤·王科长",t:"待审批",r:"待审批",st:"p"}],
+  al:[{type:"工程批价",status:"审批中",updated:"--",created:"2026-06-25 10:30:00"}],ft:"abd"},
+"审批中-二次批价":{main:"审批中",sub:"二次批价",pill:["#E3F2FD","#1565C0"],subPill:["#FFF3E0","#E65100"],
+  certNote:"二次批价申请说明：\n原批复价格已无法满足当前市场情况。\n\n原因分析：\n1. 原材料价格上涨约15%\n2. 物流成本增加\n3. 需重新核定价格",
+  equip:[eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","GID-10001",5,45000,8.5,null,10,40000,"涨价申请"),
+         eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","GID-10002",3,59000,8.0,null,10,54000,"涨价申请"),
+         eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","GID-20001",8,8500,7.5,null,10,8000,"")],
+  ap:[{n:"经销商提交(二次)",t:"2026-07-01 14:20",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"待审批",r:"审批中",st:"c"},{n:"工程科内勤·王科长",t:"待审批",r:"待审批",st:"p"}],
+  al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"二次批价",status:"审批中",updated:"--",created:"2026-07-01 14:20:00"}],ft:"abd"},
+"审批中-销司作废":{main:"审批中",sub:"销司作废",pill:["#E3F2FD","#1565C0"],subPill:["#FFEBEE","#D32F2F"],
+  certNote:"销司作废申请：关联工程项目单所有批价单购买数量=0",
+  equip:EQ_PENDING,ap:[{n:"销司发起作废",t:"2026-07-02 09:00",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"待审批",r:"审批中",st:"c"},{n:"工程科内勤·王科长",t:"待审批",r:"待审批",st:"p"}],
+  al:[{type:"工程批价",status:"已驳回",updated:"2026-07-01 17:30:00",created:"2026-06-25 10:30:00"},{type:"作废",status:"审批中",updated:"--",created:"2026-07-02 09:00:00"}],ft:"abd"},
+"审批中-提货延期":{main:"审批中",sub:"提货延期",pill:["#E3F2FD","#1565C0"],subPill:["#E8EAF6","#3F51B5"],
+  certNote:"提货延期申请：项目工期调整，需延长提货有效期",
+  equip:EQ_APPROVED,ap:[{n:"经销商提交(延期)",t:"2026-07-03 11:00",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"待审批",r:"审批中",st:"c"}],
+  al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"审批中",updated:"--",created:"2026-07-03 11:00:00"}],ft:"abd"},
+
+"已驳回":{main:"已驳回",sub:"",pill:["#FFEBEE","#D32F2F"],subPill:null,
+  reject:"申请价格偏离市场价格过多，GMV5系列申请价高于网批挂网价5%以上，不符合批价政策要求。请重新核算成本后再次提交。",
+  rejectTime:"2026-06-26 16:45",expiry:["驳回有效期",30,"2026-06-26 至 2026-07-26","#e65100"],
+  certNote:"批价申请已被驳回。\n\n驳回原因：\n1. 项目凭证不完整，缺少合同扫描件\n2. 申请价格与市场价差异较大\n3. 请补充完整材料后重新提交",
+  equip:EQ_PENDING,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-26 16:45",r:"已驳回",st:"r"}],
+  al:[{type:"工程批价",status:"已驳回",updated:"2026-06-26 16:45:00",created:"2026-06-25 10:30:00"}],ft:"ops",ops:["重新提交","放弃提货"]},
+
+"待提货":{main:"待提货",sub:"",pill:["#E8F5E9","#2E7D32"],subPill:null,
+  expiry:["提货有效期",90,"2026-06-27 至 2026-09-25","#2E7D32"],
+  certNote:"批价审批已通过，等待经销商提货",
+  equip:EQ_APPROVED,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-27 14:30",r:"已通过",st:"d"}],
+  al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"通过",updated:"2026-07-02 11:00:00",created:"2026-07-01 14:20:00"}],ft:"ops",ops:["去提货","提货延期","再次申请批价","放弃提货"]},
+
+"部分提货":{main:"部分提货",sub:"",pill:["#FFF8E1","#B45309"],subPill:null,
+  expiry:["提货有效期",90,"2026-06-27 至 2026-09-25","#B45309"],
+  certNote:"部分商品已提货，剩余可继续提货",
+  equip:EQ_PARTIAL,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-27 14:30",r:"已通过",st:"d"}],
+  al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"通过",updated:"2026-07-02 11:00:00",created:"2026-07-01 14:20:00"}],ft:"ops",ops:["去提货","提货延期","再次申请批价"]},
+
+"已完结":{main:"已完结",sub:"",pill:["#E8F5E9","#2E7D32"],subPill:null,ft:"pill",
+  certNote:"全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。",
+  equip:EQ_FINISH,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-27 14:30",r:"已通过",st:"d"}],
+  al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"通过",updated:"2026-07-05 11:20:00",created:"2026-07-01 10:00:00"}]},
+
+"已关闭-放弃提货":{main:"已关闭",sub:"放弃提货",pill:["#ECEFF1","#546E7A"],subPill:["#ECEFF1","#546E7A"],
+  certNote:"批价单已关闭 — 放弃提货",equip:EQ_APPROVED,ft:"none",
+  ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"经销商放弃",t:"2026-06-26 11:00",r:"已关闭",st:"cc"}],
+  al:[{type:"工程批价",status:"通过",updated:"2026-06-26 11:00:00",created:"2026-06-25 10:30:00"}]},
+"已关闭-提货有效期到期":{main:"已关闭",sub:"提货有效期到期",pill:["#ECEFF1","#546E7A"],subPill:["#ECEFF1","#546E7A"],
+  certNote:"批价单已关闭 — 提货有效期到期",equip:EQ_APPROVED,ft:"none",
+  ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-27 14:30",r:"已通过",st:"d"},{n:"系统自动关闭",t:"2026-09-26 00:00",r:"已关闭",st:"cc"}],
+  al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"已驳回",updated:"2026-09-20 15:00:00",created:"2026-09-15 10:00:00"}]},
+"已关闭-项目联动":{main:"已关闭",sub:"项目联动",pill:["#ECEFF1","#546E7A"],subPill:["#ECEFF1","#546E7A"],
+  certNote:"批价单已关闭 — 项目联动关闭",equip:EQ_PENDING,ft:"none",
+  ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"项目联动关闭",t:"2026-07-05 14:20",r:"已关闭",st:"cc"}],
+  al:[{type:"工程批价",status:"已取消",updated:"2026-07-05 14:20:00",created:"2026-06-25 10:30:00"}]},
+"已关闭-销司作废":{main:"已关闭",sub:"销司作废",pill:["#ECEFF1","#546E7A"],subPill:["#ECEFF1","#546E7A"],
+  certNote:"批价单已关闭 — 销司作废",equip:EQ_PENDING,ft:"none",
+  ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"销司发起作废",t:"2026-07-02 09:00",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-07-02 14:30",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-07-03 10:00",r:"已通过",st:"d"},{n:"作废生效",t:"2026-07-03 10:00",r:"已关闭",st:"cc"}],
+  al:[{type:"工程批价",status:"已取消",updated:"2026-07-03 10:00:00",created:"2026-06-25 10:30:00"},{type:"作废",status:"通过",updated:"2026-07-03 10:00:00",created:"2026-07-02 09:00:00"}]}
+};
+
+var SUBMAP=[["审批中","价格审批","二次批价","销司作废","提货延期"],["已驳回"],["待提货"],["部分提货"],["已完结"],["已关闭","放弃提货","提货有效期到期","项目联动","销司作废"]];
+
+/* 项目凭证分类（PC certData，占位预览） */
+var CERT=[
+ {label:"合同扫描件",req:true,files:[{t:"img",n:"合同第1-3页.png"},{t:"img",n:"合同第4-6页.png"}]},
+ {label:"中标通知书",req:true,files:[{t:"pdf",n:"中标通知书_格力商用工程.pdf"}]},
+ {label:"评标/询价/成交通知书",req:true,files:[{t:"pdf",n:"评标报告.pdf"},{t:"docx",n:"询价记录(供应商回执).docx"}]},
+ {label:"客户资质证明",req:true,files:[]},
+ {label:"区域授权函",req:true,files:[{t:"xls",n:"区域授权函_附件.xls"}]},
+ {label:"项目信息说明",req:true,files:[{t:"docx",n:"项目概况说明.docx"}]},
+ {label:"发票凭证（已开/未开）",req:false,files:[{t:"img",n:"发票_已开.png"},{t:"docx",n:"发票清单.docx"}]},
+ {label:"验收报告（部分/最终）",req:false,files:[{t:"img",n:"验收报告_首页.png"},{t:"docx",n:"验收报告_完整版.docx"}]},
+ {label:"技术方案确认书",req:false,files:[{t:"img",n:"技术方案确认书.png"},{t:"docx",n:"技术方案.docx"}]},
+ {label:"条码文件",req:false,files:[{t:"img",n:"条码确认.png"},{t:"docx",n:"条码说明.docx"}]},
+ {label:"工程图纸",req:false,files:[{t:"img",n:"图纸-平面图.png"},{t:"docx",n:"图纸说明.docx"}]},
+ {label:"资质材料",req:false,files:[{t:"img",n:"资质证书.png"},{t:"docx",n:"资质说明.docx"}]},
+ {label:"结算其他附件",req:true,files:[{t:"img",n:"结算单.png"},{t:"docx",n:"其他补充说明.docx"}]}
+];
+
+var curKey="待提货";
+var debugEmptyProgress=false;
+var foldOpen=false,certFoldOpen=true;
+var toastTimer=null;
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("on");clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.classList.remove("on");},2000);}
+
+/* ================= 工具 ================= */
+function fileIcon(t){
+  if(t==="pdf")return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#D32F2F" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  if(t==="docx"||t==="doc")return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#2b579a" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#2b579a" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  if(t==="xls"||t==="xlsx")return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#217346" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#217346" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#8f959e" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#8f959e" stroke-width="1.5" stroke-linecap="round"/></svg>';
+}
+var PILL_CSS={};
+function setState(key){
+  debugEmptyProgress=key==="__EMPTY_PROGRESS__";
+  if(!debugEmptyProgress)curKey=key;
+  closeAll();
+  renderAll();
+}
+function renderAll(){renderHead();renderDetail();renderProgress();renderFooter();}
+function closeAll(){
+  ["opsMask","pdMask","afMask","abdDialog","zoomWrap"].forEach(function(id){document.getElementById(id).classList.remove("on");});
+  document.getElementById("moreMenu").classList.remove("on");
+}
+
+/* ================= 头部 ================= */
+function renderHead(){
+  var d=C[curKey];
+  document.getElementById("pjNo").textContent=HDR.pjNo;
+  document.getElementById("pjName").textContent=HDR.pjName;
+  var tags='<span class="tag gray">'+esc(HDR.biz)+'</span>';
+  if(d.sub)tags+='<span class="tag" style="background:'+d.subPill[0]+';color:'+d.subPill[1]+'">'+esc(d.sub)+'</span>';
+  tags+='<span class="tag price">'+esc(HDR.saleType)+'</span>';
+  document.getElementById("headTags").innerHTML=tags;
+  var er=document.getElementById("expiryRow");
+  if(d.expiry){
+    er.style.display="flex";
+    er.innerHTML='<span>'+esc(d.expiry[0])+'：剩余 <b style="color:'+d.expiry[3]+'">'+d.expiry[1]+'</b> 天</span><span class="range">'+esc(d.expiry[2])+'</span>';
+  }else{er.style.display="none";er.innerHTML="";}
+}
+
+/* ================= T1 设备清单 ================= */
+function simpleMode(){return curKey.indexOf("审批中")===0||curKey==="已驳回";}
+function renderEquip(){
+  var d=C[curKey],list=d.equip||[];
+  var shown=foldOpen?list.length:Math.min(3,list.length);
+  var html="";
+  for(var i=0;i<shown;i++){
+    var e=list[i];
+    html+='<div class="eq-row" onclick="openPd('+i+')">'
+      +'<span class="thumb">'+IMG_SVG+'</span>'
+      +'<div class="eq-main">'
+      +'<div class="eq-l1"><span>'+(e.nonstd?'<span class="nst">非</span>':"")+esc(e.name)+'</span><span class="qty">×'+e.qty+'</span></div>'
+      +'<div class="eq-desc">'+esc(e.model)+'</div>'
+      +'<div class="eq-price">申请价格：'+money(e.price)+'</div>'
+      +'</div></div>';
+  }
+  document.getElementById("eqList").innerHTML=list.length?html:'<div class="eq-empty">暂无设备数据</div>';
+  document.getElementById("eqFold").style.display=list.length>3?"inline-block":"none";
+  document.getElementById("eqFold").textContent=foldOpen?"收起⌃":"展开⌄";
+  // 合计
+  var tq=0,ta=0,tap=0;
+  list.forEach(function(e){tq+=e.qty;ta+=e.price*e.qty;if(e.approvePrice)tap+=e.approvePrice*e.qty;});
+  var apTxt=simpleMode()?"待批复":(tap>0?"<b class=\"apv\">"+money(tap)+"</b>":"待批复");
+  document.getElementById("eqTotals").innerHTML='<span>总数量：<b>'+tq+'</b> 台</span><span>总申请金额：<b>'+money(ta)+'</b></span><span>批复总金额：'+apTxt+'</span>';
+}
+function toggleFold(){foldOpen=!foldOpen;renderEquip();}
+
+/* ================= 商品详情弹层 ================= */
+function openPd(i){
+  var e=C[curKey].equip[i];
+  var rows=[];
+  function fld(k,v,extra){rows.push('<div class="pd-field"><span class="k">'+k+'</span><span class="v'+(extra||"")+'">'+v+'</span></div>');}
+  if(simpleMode()){
+    fld("SKU编码",(e.sku&&e.sku!=="--")?esc(e.sku):"—");
+    fld("品类",esc(e.cate));
+    fld("商品ID",(e.id&&e.id!=="--")?esc(e.id):"—");
+    fld("型号",esc(e.model));
+    fld("申请数量",e.qty);
+    fld("申请价格",money(e.price));
+    fld("申请点位",(e.point!=null)?e.point+"%":"—");
+  }else{
+    fld("SKU编码",(e.sku&&e.sku!=="--")?esc(e.sku):"—");
+    fld("品类",esc(e.cate));
+    fld("商品ID",(e.id&&e.id!=="--")?esc(e.id):"—");
+    fld("型号",esc(e.model));
+    fld("申请数量",e.qty);
+    fld("申请价格",money(e.price));
+    fld("批复价格",e.approvePrice!=null?money(e.approvePrice):"—"," ap");
+    fld("批复点位",(e.resetPoint!=null)?e.resetPoint+"%":"—");
+    fld("预估价",e.estimate!=null?money(e.estimate):"—");
+    fld("定金比例",(e.depositRate!=null)?e.depositRate+"%":"—");
+    fld("网批挂价",e.onlinePrice!=null?money(e.onlinePrice):"—");
+    fld("购买数量",(e.buyQty!=null)?e.buyQty:"—");
+    fld("发货数量",(e.shipQty!=null)?e.shipQty:"—");
+  }
+  fld("备注",(e.remark)?esc(e.remark):"—");
+  document.getElementById("pdBody").innerHTML=
+    '<div class="pd-top"><div class="pd-img">'+IMG_SVG+'</div>'
+    +'<div class="pd-nm">'+(e.nonstd?'<span style="color:#d93b3b">[非标]</span> ':"")+esc(e.name)+'</div>'
+    +'<div class="pd-sub">'+esc(e.model)+' · '+esc(e.sku)+(e.id&&e.id!=="--"?" · "+esc(e.id):"")+'</div>'
+    +'<div style="margin-top:8px"><span class="tag gray">'+esc(e.cate)+'</span></div></div>'
+    +'<div class="pd-fields">'+rows.join("")+'</div>'
+    +'<div class="pd-btns"><button class="pd-btn" onclick="closePd()">确定</button></div>';
+  document.getElementById("pdMask").classList.add("on");
+}
+function closePd(e){if(e&&e.target!==document.getElementById("pdMask"))return;document.getElementById("pdMask").classList.remove("on");}
+
+/* ================= 项目凭证 ================= */
+function certFileHtml(f){
+  var eye='<svg class="view-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2.5 12s3.4-5 9.5-5 9.5 5 9.5 5-3.4 5-9.5 5-9.5-5-9.5-5Z"/><circle cx="12" cy="12" r="2.5"/></svg>';
+  var ext=f.t==="docx"||f.t==="doc"?"word":(f.t==="xls"||f.t==="xlsx"?"xls":(f.t==="img"?"png":"pdf"));
+  var displayName="附件名称附件名称."+ext;
+  if(f.t==="img"){
+    return '<span class="cf img" onclick="toast(\'原型占位：预览图片\')"><span class="imgph">img</span><span class="nm">'+displayName+'</span>'+eye+'</span>';
+  }
+  return '<span class="cf" onclick="toast(\'原型占位：预览附件\')">'+fileIcon(f.t)+'<span class="nm">'+displayName+'</span>'+eye+'</span>';
+}
+function renderCert(){
+  document.getElementById("certNote").textContent=C[curKey].certNote;
+  var h="";
+  CERT.forEach(function(g){
+    var files=g.files.length?g.files:[{t:"pdf",n:"附件名称附件名称.pdf"}];
+    h+='<div class="cert-group"><div class="gl">'+(g.req?'<span class="req">*</span>':"")+esc(g.label)+'</div>'
+      +'<div class="cert-files">'+files.map(certFileHtml).join("")+'</div></div>';
+  });
+  document.getElementById("certGroups").innerHTML=h;
+  document.getElementById("certFold").textContent=certFoldOpen?"收起⌃":"展开⌄";
+  document.getElementById("certBody").style.display=certFoldOpen?"":"none";
+}
+function toggleCertFold(){certFoldOpen=!certFoldOpen;renderCert();}
+
+/* ================= 基本信息 ================= */
+function copyNo(){
+  var t=HDR.pjNo;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){toast("已复制批价单号");},function(){toast("原型占位：复制批价单号");});}
+  else{toast("原型占位：复制批价单号");}
+}
+function renderBasic(){
+  var rows=[
+    ["批价单号",esc(HDR.pjNo)+'<button class="copy-mini" onclick="copyNo()">复制</button>'],
+    ["创建时间",esc(HDR.created)],
+    ["经销商名称",esc(HDR.dealer)],
+    ["保证金类型",esc(HDR.deposit)],
+    ["业务线",esc(HDR.line)],
+    ["价格类型",esc(HDR.priceType)]
+  ];
+  document.getElementById("basicInfo").innerHTML=rows.map(function(r){
+    return '<div class="kv-row"><span class="k">'+r[0]+'</span><span class="v">'+r[1]+'</span></div>';
+  }).join("");
+}
+
+/* ================= T1 汇总渲染 ================= */
+function renderDetail(){
+  var d=C[curKey];
+  // 驳回条
+  var rc=document.getElementById("rejectCard");
+  if(d.reject){
+    rc.style.display="block";
+    document.getElementById("rejectTxt").textContent=d.reject;
+    document.getElementById("rejectTime").textContent=d.rejectTime;
+  }else{rc.style.display="none";}
+  foldOpen=false;certFoldOpen=true;
+  renderEquip();renderCert();renderBasic();
+}
+
+/* ================= T2 审批进度 ================= */
+function pillCls(st){
+  if(st==="通过"||st==="已通过")return ["#E8F5E9","#2E7D32"];
+  if(st==="驳回"||st==="已驳回")return ["#FFEBEE","#D32F2F"];
+  if(st==="已取消"||st==="已关闭"||st==="已取消")return ["#ECEFF1","#546E7A"];
+  return ["#E3F2FD","#1565C0"];
+}
+function renderProgress(){
+  var al=debugEmptyProgress?[]:(C[curKey].al||[]);
+  var h="";
+  al.forEach(function(a,i){
+    var c=pillCls(a.status);
+    var icon=statusIconSvg(a.status);
+    h+='<div class="al-card"><div class="al-left">'
+      +'<div class="al-hd"><span class="al-type">'+esc(a.type)+'</span><span class="al-status" style="color:'+c[1]+'"><span class="al-status-icon">'+icon+'</span>'+esc(a.status)+'</span></div>'
+      +'<div class="al-dates">'
+      +'<div class="d"><span class="lbl">更新时间</span><span>'+esc(a.updated)+'</span></div>'
+      +'<div class="d"><span class="lbl">创建时间</span><span>'+esc(a.created)+'</span></div>'
+      +'</div></div>'
+      +'<div class="al-right">'
+      +'<button class="af-link" onclick="openAf('+i+')">审批流程 <span class="arr">›</span></button></div>'
+      +'</div>';
+  });
+  document.getElementById("alList").innerHTML=al.length?h:
+    '<div class="ap-empty"><div class="ico"><svg viewBox="0 0 48 48" width="46" height="46" fill="none" stroke="currentColor" stroke-width="2" color="#d8dde4"><rect x="8" y="14" width="32" height="26" rx="4"/><path d="M8 22h32"/><path d="M16 30h16"/></svg></div>暂无记录</div>';
+}
+function statusIconSvg(st){
+  if(st==="通过"||st==="已通过")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16.5 9"/></svg>';
+  if(st==="已驳回"||st==="驳回")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 17h.01"/></svg>';
+  if(st==="已取消"||st==="已关闭")return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></svg>';
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+}
+function switchPanel(p,b){
+  document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+  b.classList.add("active");
+  document.querySelectorAll(".panel").forEach(function(x){x.classList.remove("on");});
+  document.getElementById(p+"Panel").classList.add("on");
+  window.scrollTo(0,0);
+}
+
+/* ================= 审批流程弹层 ================= */
+function afSvg(){
+  var cols={d:"#1a9c5c",c:"#0868d7",p:"#cfd6df",r:"#e34d59",cc:"#9aa1ab"};
+  var nodes=C[curKey].ap||[{n:"经销商提交",st:"d"},{n:"办事处内勤",st:"c"},{n:"工程科内勤",st:"p"}];
+  var y0=36,dy=104;
+  var html='<svg viewBox="0 0 260 '+(nodes.length*104+30)+'" xmlns="http://www.w3.org/2000/svg" style="width:100%">';
+  for(var i=0;i<nodes.length;i++){
+    var n=nodes[i],col=cols[n.st]||cols.p,label=n.st==="d"?"已提交":(n.st==="c"?"审批中":(n.st==="r"?"已驳回":(n.st==="cc"?"已关闭":"待审批")));
+    if(i>0)html+='<path d="M130 '+(y0-44+dy*i)+' v26" stroke="#dfe3ea" stroke-width="2" marker-end="url(#arr)"/>';
+    html+='<rect x="46" y="'+y0+'" width="168" height="52" rx="10" fill="#fff" stroke="'+col+'" stroke-width="2"/>'
+      +'<text x="130" y="'+(y0+24)+'" text-anchor="middle" font-size="13" fill="#333">'+esc(n.n)+'</text>'
+      +'<text x="130" y="'+(y0+42)+'" text-anchor="middle" font-size="11" fill="'+col+'">'+label+(n.t&&n.t!=="待审批"?" · "+esc(n.t):"")+'</text>';
+    y0+=dy;
+  }
+  html+='<defs><marker id="arr" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#c9cfd8"/></marker></defs></svg>';
+  return html;
+}
+function renderAfFlow(){
+  document.getElementById("afFlowBody").innerHTML=
+    '<div class="af-flow-card" onclick="openZoom()"><div class="af-placeholder">图片点击可放大</div></div>'
+    +'<div class="af-flow-note">流程图占位 · 图片点击可放大</div>';
+}
+function renderAfNode(){
+  var ap=C[curKey].ap||[];
+  var h="";
+  ap.forEach(function(n,i){
+    var cls=n.st==="d"?"done":(n.st==="c"?"cur":"pend");
+    var label=n.st==="d"?"已完成":(n.st==="c"?"审批中（当前）":(n.st==="r"?"已驳回":(n.st==="cc"?"已关闭":"待审批")));
+    var c=n.st==="d"?["#E8F5E9","#2E7D32"]:(n.st==="c"?["#E3F2FD","#1565C0"]:(n.st==="r"?["#FFEBEE","#D32F2F"]:(n.st==="cc"?["#ECEFF1","#546E7A"]:["#ECEFF1","#546E7A"])));
+    h+='<div class="af-node '+cls+'"><span class="dot">'+(n.st==="d"?"✓":(n.st==="c"?"":" "))+'</span>'
+      +'<div class="nd"><div class="t"><span class="nm">'+esc(n.n)+'</span><span class="pill" style="background:'+c[0]+';color:'+c[1]+'">'+label+'</span></div>'
+      +'<div class="s">节点类型：岗位<br>岗位编号：1003338888<br>岗位名称：'+esc(n.n)+'<br>审批人：员工1（账号1）、员工2（账号2）'
+      +(n.t&&n.t!=="待审批"?"<br>处理时间："+esc(n.t):"")+'</div></div></div>';
+  });
+  document.getElementById("afNodeBody").innerHTML=h;
+}
+function openAf(idx){
+  renderAfFlow();renderAfNode();
+  afTab("flow",document.querySelector(".af-tab"));
+  document.getElementById("afMask").classList.add("on");
+}
+function closeAf(e){if(e&&e.target!==document.getElementById("afMask"))return;document.getElementById("afMask").classList.remove("on");}
+function afTab(tab,btn){
+  document.querySelectorAll(".af-tab").forEach(function(x){x.classList.remove("active");});
+  btn.classList.add("active");
+  document.getElementById("afFlowBody").style.display=tab==="flow"?"":"none";
+  document.getElementById("afNodeBody").style.display=tab==="node"?"":"none";
+}
+function openZoom(){renderZoomBody();document.getElementById("zoomWrap").classList.add("on");}
+function renderZoomBody(){
+  document.getElementById("zoomBody").innerHTML='<div class="af-placeholder" style="height:70vh;background:#e9e9e9;border-radius:8px">图片占位</div>';
+}
+function closeZoom(e){if(e&&e.target!==document.getElementById("zoomWrap"))return;document.getElementById("zoomWrap").classList.remove("on");}
+
+/* ================= 底部操作 ================= */
+function ftBtnHtml(act){
+  if(act==="操作")return '<button class="ft-btn primary" onclick="openOps()">操作<span class="cv">▾</span></button>';
+  if(act==="放弃提货")return '<button class="ft-btn ghost" onclick="showAbd()">放弃提货</button>';
+  return '<button class="ft-btn primary" onclick="doAction(\''+act+'\')">'+act+'</button>';
+}
+function renderFooter(){
+  var d=C[curKey],ft=document.getElementById("footer");
+  var c=d.pill;
+  document.getElementById("ftState").innerHTML='<span class="ft-status-pill" style="background:'+c[0]+';color:'+c[1]+'">'+esc(d.main)+'</span>';
+  var btnHtml="";
+  if(d.ft==="abd")btnHtml=ftBtnHtml("放弃提货");
+  else if(d.ft==="ops")btnHtml=ftBtnHtml("操作");
+  document.getElementById("ftBtns").innerHTML=btnHtml;
+  ft.classList.toggle("on",d.ft==="abd"||d.ft==="ops"||d.ft==="pill");
+}
+/* 更多操作 sheet */
+function openOps(){
+  var ops=C[curKey].ops||[];
+  var h="";
+  ops.forEach(function(a){
+    var cls=(a==="放弃提货")?"":"primary";
+    h+='<button class="sheet-btn '+cls+'" onclick="doAction(\''+a+'\')">'+a+'</button>';
+  });
+  document.getElementById("opsList").innerHTML=h;
+  document.getElementById("opsMask").classList.add("on");
+}
+function closeOps(e){if(e&&e.target!==document.getElementById("opsMask"))return;document.getElementById("opsMask").classList.remove("on");}
+function doAction(a){
+  closeOps();
+  if(a==="去提货"){toast("原型占位：跳转「批价单-去提货」");return;}
+  if(a==="提货延期"){toast("原型占位：进入「提货延期申请」");return;}
+  if(a==="放弃提货"){showAbd();return;}
+  if(a==="再次申请批价"){toast("原型占位：再次申请批价");return;}
+  if(a==="重新提交"){toast("原型占位：驳回后重新提交");return;}
+  toast("原型占位："+a);
+}
+function showAbd(){document.getElementById("opsMask").classList.remove("on");document.getElementById("abdDialog").classList.add("on");}
+function closeAbd(){document.getElementById("abdDialog").classList.remove("on");}
+function confirmAbd(){closeAbd();toast("原型占位：放弃提货→批价单已关闭");}
+/* 右上更多 */
+function toggleMore(e){e.stopPropagation();document.getElementById("moreMenu").classList.toggle("on");}
+document.addEventListener("click",function(e){
+  var mw=document.querySelector(".more-wrap");
+  if(mw&&!mw.contains(e.target))document.getElementById("moreMenu").classList.remove("on");
+});
+function doCopyNew(){document.getElementById("moreMenu").classList.remove("on");toast("原型占位：复制新建批价单");}
+
+/* ================= 初始化 ================= */
+(function init(){
+  var sel=document.getElementById("stateSelect");
+  SUBMAP.forEach(function(m){
+    var og=document.createElement("optgroup");og.label=m[0];
+    (m.length>1?m.slice(1):[""]).forEach(function(s){
+      var key=m.length>1?m[0]+"-"+s:m[0];
+      var o=document.createElement("option");o.value=key;o.text=m.length>1?(m[0]+" → "+s):m[0];
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  var demoOg=document.createElement("optgroup");
+  demoOg.label="设计稿演示（非业务状态）";
+  var emptyOpt=document.createElement("option");
+  emptyOpt.value="__EMPTY_PROGRESS__";
+  emptyOpt.text="审批进度 → 暂无记录";
+  demoOg.appendChild(emptyOpt);
+  sel.appendChild(demoOg);
+  sel.value="待提货";
+  renderAll();
+})();
+</script>
+</body>
+</html>
