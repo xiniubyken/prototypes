@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-批价单详情</title>
+<style>
+:root{
+  --blue:#0868d7;--bg:#f5f6f7;--text:#222;--line:#ececec;--red:#ff5158;--green:#1a9c5c;
+  --orange:#ff6a00;--gray:#8f959e;--safe-bottom:env(safe-area-inset-bottom)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button{font:inherit;cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:84px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.status-icons{display:flex;gap:5px;align-items:center;font-size:10px}
+.signal{letter-spacing:-2px;font-size:13px}.wifi{font-size:12px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 4px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:sticky;top:0;z-index:20}
+.back{width:40px;height:40px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.bell{position:absolute;right:12px;width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center}
+.bell svg{width:26px;height:26px;color:#333}
+.bell .dot{position:absolute;right:7px;top:8px;width:10px;height:10px;border-radius:50%;background:#ff2d2d;border:2px solid #fff}
+.summary{background:#fff;padding:12px 16px 14px;border-bottom:8px solid #f2f3f5}
+.sum-no{display:flex;align-items:center;gap:6px;font-size:18px;font-weight:700;line-height:1.3}
+.sum-no .lbl{font-size:12px;font-weight:400;color:var(--gray)}
+.chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:12px;white-space:nowrap}
+.chip.gray{background:#f0f2f5;color:#444}
+.chip.blue{background:#e7f0ff;color:var(--blue)}
+.chip.orange{background:#fff3e2;color:#d46b08}
+.chip.green{background:#e8f5e9;color:var(--green)}
+.sum-name{margin-top:8px;font-size:16px;color:#333;font-weight:700;line-height:1.45}
+.sum-sub{margin-top:4px;font-size:13px;color:#888;line-height:1.45}
+.expiry{margin-top:10px;font-size:13px;color:var(--orange);display:none;line-height:1.45}
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:56px;z-index:15}
+.tab{flex:1;height:46px;border:0;background:#fff;color:#8c8c8c;font-size:16px;position:relative}
+.tab.on{color:var(--blue);font-weight:700}
+.tab.on:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:34px;height:4px;background:var(--blue);border-radius:4px}
+.content{padding:0 0 18px}
+.panel{display:none}
+.panel.on{display:block}
+.section{background:#fff;margin-top:12px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;font-size:18px;font-weight:700;border-bottom:1px solid #f1f1f1}
+.sec-sub{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0;font-size:14px;color:#7f7f7f}
+.add-btn{border:0;background:var(--blue);color:#fff;border-radius:18px;padding:0 14px;height:32px;font-size:13px;font-weight:700}
+.sec-toggle{border:0;background:transparent;font-size:18px;color:#9aa1ab;padding:0 2px;line-height:1}
+.sec-body{padding:0 12px 12px}
+.sec-note{margin:0 12px 12px;background:#fafbfc;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.7;color:#333;white-space:pre-line}
+.dev-list{padding:4px 12px 0}
+.dev-card{display:flex;gap:10px;padding:10px;border-radius:12px;background:#f7f8fa;margin-bottom:8px}
+.thumb{width:64px;height:64px;border-radius:8px;background:#fff;border:1px solid #eef0f3;display:grid;place-items:center;flex:0 0 auto;overflow:hidden}
+.thumb svg{width:44px;height:44px;color:#ccd2da}
+.dev-main{flex:1;min-width:0}
+.dev-l1{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700;line-height:1.25}
+.dev-tag{flex:0 0 auto;font-size:12px;color:#ff4d4f;background:#ffe7e7;border-radius:3px;padding:2px 5px}
+.dev-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dev-model{margin-top:4px;font-size:12px;color:#a2a2a2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev-price{margin-top:6px;font-size:13px;color:#444}
+.dev-price b{font-weight:700}
+.dev-qty{margin-left:auto;align-self:flex-end;font-size:16px;color:#999;white-space:nowrap;padding-left:10px}
+.fold-wrap{display:flex;justify-content:center;padding:4px 0 10px}
+.fold-btn{border:0;background:transparent;color:#9da3ad;font-size:14px;padding:0;display:inline-flex;align-items:center;gap:4px}
+.sum-line{display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding:8px 14px 14px;border-top:1px solid #f1f1f1;text-align:right}
+.sum-line .row{font-size:14px;color:#777}
+.sum-line b{font-size:16px;color:#333}
+.sum-line .amt{color:var(--orange);font-weight:700}
+.sum-line .apv{color:var(--orange);font-weight:700}
+.empty{padding:30px 14px;color:var(--gray);text-align:center;font-size:13px}
+.kv{padding:2px 14px 6px}
+.kv-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f6f6f6;font-size:14px}
+.kv-row:last-child{border-bottom:0}
+.kv-row .k{color:var(--gray);flex:0 0 92px}
+.kv-row .v{flex:1;min-width:0;color:#333;word-break:break-all;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.copy-mini{border:0;background:#eef3fb;color:var(--blue);border-radius:6px;font-size:11px;padding:2px 9px;flex:0 0 auto}
+.file-list{padding:0 12px 12px}
+.cert-group{padding:12px 0;border-top:1px solid #f2f3f5}
+.cert-group:first-child{border-top:0}
+.cert-title{font-size:13px;font-weight:600;color:#333;padding-bottom:8px}
+.cert-title .req{color:var(--red);margin-right:2px}
+.file-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f7f8fa;border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.file-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.file-icon{width:24px;height:24px;flex:0 0 auto}
+.file-icon svg{width:24px;height:24px;display:block}
+.file-name{font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview{font-size:12px;color:var(--blue);text-decoration:none;flex:0 0 auto}
+.progress-list{padding:12px 14px 18px}
+.progress-card{background:#fff;border-radius:14px;padding:16px 14px 14px;margin-bottom:10px;position:relative}
+.progress-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid #edf0f3}
+.progress-type{font-size:19px;font-weight:700}
+.progress-status{font-size:18px;font-weight:700;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.progress-meta{margin-top:14px;display:grid;gap:10px;font-size:15px;color:#666}
+.progress-meta .line{display:flex;gap:6px}
+.progress-meta .lbl{color:#777;flex:0 0 auto}
+.progress-btn-wrap{display:flex;justify-content:flex-end;margin-top:18px}
+.progress-btn{height:58px;min-width:170px;border:2px solid var(--blue);background:#fff;color:var(--blue);border-radius:28px;font-size:19px;font-weight:700;padding:0 24px}
+.pill{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.sp{background:#e7f0ff;color:var(--blue)}
+.pill.ok{background:#e8f5e9;color:var(--green)}
+.pill.yl{background:#fff3e2;color:#d46b08}
+.pill.cc{background:#eceff1;color:#607080}
+.al-empty{padding:48px 0;text-align:center;color:var(--gray);font-size:13px}
+.al-empty .ico{font-size:40px;line-height:1;color:#d8dde4;margin-bottom:8px}
+.footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:9px 14px calc(9px + var(--safe-bottom));z-index:30;display:none;align-items:center;gap:10px}
+.footer.on{display:flex}
+.ft-state{display:inline-flex;align-items:center;font-size:14px;font-weight:700}
+.ft-ops{flex:1;display:flex;justify-content:flex-end}
+.ft-btn{height:42px;border:0;border-radius:21px;padding:0 26px;font-size:15px;font-weight:700;white-space:nowrap}
+.ft-btn.primary{background:var(--blue);color:#fff}
+.ft-btn.ghost{background:#fff;color:var(--red);border:1px solid #ffc9c9}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:none;align-items:flex-end;justify-content:center}
+.mask.on{display:flex}
+.mask.center{align-items:center}
+.sheet{width:min(428px,100%);background:#f7f8fa;border-radius:16px 16px 0 0;max-height:86vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.sheet.white{background:#fff}
+.sheet .sh{display:flex;align-items:center;justify-content:center;padding:16px 48px 8px;font-size:16px;font-weight:700;background:#fff;position:relative;flex:0 0 auto}
+.sheet .x{position:absolute;right:14px;top:10px;width:34px;height:34px;border:0;background:transparent;color:#999;font-size:30px;line-height:1;font-weight:200}
+.sheet-body{overflow-y:auto;padding:12px 16px 18px;flex:1}
+.sheet-body.white{background:#fff}
+.af-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);flex:0 0 auto}
+.af-tab{flex:1;height:42px;border:0;background:#fff;color:#999;font-size:15px;position:relative}
+.af-tab.active{color:var(--blue);font-weight:700}
+.af-tab.active:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:30px;height:3px;background:var(--blue);border-radius:3px}
+.af-flow-card{background:#fff;border-radius:10px;padding:14px;cursor:pointer}
+.af-placeholder{height:280px;background:#ececec;display:grid;place-items:center;font-size:18px;font-weight:700;color:#555;border-radius:8px}
+.af-flow-note{text-align:center;font-size:12px;color:var(--gray);margin-top:8px}
+.af-node-type{font-size:13px;font-weight:600;color:#333;margin-bottom:12px}
+.af-node{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px}
+.af-node .dot{width:20px;height:20px;border-radius:50%;flex:0 0 auto;margin-top:2px;display:grid;place-items:center;color:#fff;font-size:11px}
+.af-node.done .dot{background:var(--green)}
+.af-node.cur .dot{background:var(--blue);box-shadow:0 0 0 4px rgba(8,104,215,.15)}
+.af-node.pend .dot{background:#cfd6df}
+.af-node .nd{flex:1;min-width:0}
+.af-node .nd .t{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.af-node .nd .s{font-size:12px;color:var(--gray);margin-top:4px;line-height:1.7}
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:120;display:none;padding:40px 14px 24px;overflow:auto}
+.zoom.on{display:block}
+.z-close{position:absolute;top:10px;right:14px;color:#fff;background:rgba(255,255,255,.16);border:0;width:38px;height:38px;border-radius:50%;font-size:22px}
+.z-tip{color:#dfe3ea;text-align:center;font-size:13px;margin-top:10px}
+.dialog{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);padding:30px}
+.dialog.on{display:flex}
+.dbox{background:#fff;border-radius:14px;width:min(320px,100%);padding:22px 20px 18px;text-align:center}
+.dbox .di{font-size:34px;line-height:1}
+.dbox .dm{margin-top:10px;font-size:15px;color:#333;line-height:1.7}
+.dbox .dm b{color:#d94343}
+.dbtns{display:flex;gap:10px;margin-top:18px}
+.dbtn{flex:1;height:42px;border-radius:21px;border:0;font-size:15px}
+.dbtn.cancel{background:#f2f3f5;color:#666}
+.dbtn.confirm{background:var(--red);color:#fff;font-weight:600}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;z-index:200;display:none;white-space:nowrap;max-width:86%}
+.toast.on{display:block}
+.demo-tools{display:none;position:fixed;top:12px;left:12px;z-index:140;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;box-shadow:0 5px 18px rgba(0,0,0,.12);gap:7px;align-items:center;font-size:12px;color:#333}
+.demo-tools select{max-width:190px;padding:4px;border:1px solid #ddd;border-radius:4px;font-size:12px}
+.demo-tools .dt-hint{color:#888}
+@media (min-width:700px){.demo-tools{display:flex}.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+.reject-card{margin:0 12px 12px;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:10px;padding:10px 14px}
+.reject-card .rb{font-size:13px;color:#D32F2F;line-height:1.75;white-space:pre-line}
+.reject-card .rtt{font-size:12px;color:#C62828;margin-top:6px;text-align:right}
+.pill.rd{background:#FFEBEE;color:#D32F2F}.pill.am{background:#FFF8E1;color:#B45309}.pill.gr{background:#ECEFF1;color:#546E7A}
+.chip.gray2{background:#ECEFF1;color:#546E7A}
+.pd2-head{display:flex;gap:12px;align-items:center;padding:14px 0 12px;border-bottom:1px solid #f1f1f1}
+.pd2-thumb{width:96px;height:96px;border-radius:10px;background:#f2f3f5;border:1px solid #eef0f3;display:grid;place-items:center;color:#c3cad3;flex:0 0 auto;overflow:hidden}
+.pd2-thumb svg{width:64px;height:64px}
+.pd2-name{font-size:17px;font-weight:700;line-height:1.4;display:inline}
+.pd2-cate{display:inline-flex;margin:8px 0 0;border-radius:4px;background:#e7f0ff;color:var(--blue);padding:2px 8px;font-size:12px}
+.pd2-rows{margin-top:6px}
+.pd2-row{display:flex;justify-content:space-between;gap:12px;padding:9px 2px;border-bottom:1px dashed #f0f1f3;font-size:14px}
+.pd2-row .k{color:#8f959e;flex:0 0 auto}
+.pd2-row .v{color:#333;font-weight:600;text-align:right;word-break:break-all}
+.pd2-row .v.amt{color:var(--orange)}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi">◉</span><span class="battery"></span></span></div>
+  <header class="nav">
+    <button class="back" onclick="toast('原型占位：返回批价单列表')" aria-label="返回"><i></i></button>
+    <div class="nav-title">批价单详情</div>
+    <button class="bell" onclick="toast('原型占位：消息')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4a5 5 0 0 0-5 5v2.7c0 .8-.2 1.6-.6 2.3L5 16h14l-1.4-2c-.4-.7-.6-1.5-.6-2.3V9a5 5 0 0 0-5-5Z"/><path d="M10 18a2 2 0 0 0 4 0"/></svg><span class="dot"></span></button>
+  </header>
+  <div class="demo-tools"><span class="dt-hint">状态：</span><select id="stateSelect" onchange="setState(this.value)"></select></div>
+
+  <div class="summary">
+    <div class="sum-no"><span class="lbl">批价单</span><span id="pjNo">粤东GCDT202606250001-PJ001</span></div>
+    <div class="chips" id="chips"></div>
+    <div class="sum-name" id="projectName">前海商业综合体空调项目</div>
+    <div class="sum-sub" id="projectSub">展示完整超出回行</div>
+    <div class="expiry" id="expiryRow"></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab on" data-panel="detail" onclick="switchPanel('detail',this)">批价单详情</button>
+    <button class="tab" data-panel="progress" onclick="switchPanel('progress',this)">审批进度</button>
+  </nav>
+
+  <div class="content">
+    <div class="panel on" id="detailPanel">
+      <div class="reject-card" id="rejectCard" style="display:none">
+        <div class="rb" id="rejectBody"></div>
+        <div class="rtt" id="rejectTime"></div>
+      </div>
+      <div class="section">
+        <div class="sec-hd">设备清单</div>
+        <div class="sec-sub"><span>已添加：<b style="color:#4a72c3" id="devCount">5</b> 项</span></div>
+        <div class="dev-list" id="devList"></div>
+        <div class="fold-wrap"><button class="fold-btn" id="devFoldBtn" onclick="toggleDevFold()">展示全部 <span>⌄</span></button></div>
+        <div class="sum-line" id="sumLine"></div>
+      </div>
+
+      <div class="section">
+        <div class="sec-hd"><span>项目凭证</span><button class="sec-toggle" id="certToggle" onclick="toggleCertFold()">⌄</button></div>
+        <div id="certBody">
+          <div class="sec-body">
+            <div style="font-size:12px;color:var(--gray);padding:0 2px 8px;">项目凭证备注</div>
+            <div class="sec-note" id="certNote"></div>
+          </div>
+          <div class="file-list" id="certList"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="sec-hd">基本信息</div>
+        <div class="kv" id="basicInfo"></div>
+      </div>
+    </div>
+
+    <div class="panel" id="progressPanel">
+      <div class="progress-list" id="progressList"></div>
+    </div>
+  </div>
+
+  <div class="footer" id="footer">
+    <div class="ft-state" id="ftState"></div>
+    <div class="ft-ops" id="ftOps"></div>
+  </div>
+</div>
+
+<div class="mask" id="flowMask" onclick="closeFlow(event)">
+  <div class="sheet white" onclick="event.stopPropagation()">
+    <div class="sh">审批流程<button class="x" onclick="closeFlow()">×</button></div>
+    <div class="af-tabs">
+      <button class="af-tab active" onclick="flowTab('flow',this)">审批流程</button>
+      <button class="af-tab" onclick="flowTab('node',this)">当前节点</button>
+    </div>
+    <div class="sheet-body white" id="flowBody"></div>
+    <div class="sheet-body white" id="nodeBody" style="display:none"></div>
+    <div class="sheet-body white" style="padding-top:0">
+      <button class="ft-btn primary" style="width:100%;float:none" onclick="closeFlow()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="zoom" id="zoomWrap" onclick="closeZoom(event)">
+  <button class="z-close" onclick="closeZoom()">×</button>
+  <div id="zoomBody" onclick="event.stopPropagation()"></div>
+  <div class="z-tip">点击空白处关闭</div>
+</div>
+
+<div class="dialog" id="voidDialog" onclick="if(event.target===this)closeVoid()">
+  <div class="dbox">
+    <div class="di">⚠️</div>
+    <div class="dm">确定 <b>作废</b> 之后无法撤销，要继续吗？</div>
+    <div class="dbtns">
+      <button class="dbtn cancel" onclick="closeVoid()">取 消</button>
+      <button class="dbtn confirm" onclick="confirmVoid()">确 认</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="prodMask" onclick="closeProd(event)">
+  <div class="sheet white" onclick="event.stopPropagation()">
+    <div class="sh">商品详情<button class="x" onclick="closeProd()">×</button></div>
+    <div class="sheet-body white" id="prodBody"></div>
+    <div class="sheet-body white" style="padding-top:0"><button class="ft-btn primary" style="width:100%;float:none" onclick="closeProd()">确定</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const IMG_SVG='<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="10" y="14" width="44" height="32" rx="4"/><path d="M18 36l9-10 7 8 7-5 5 7"/><circle cx="24" cy="24" r="3"/></svg>';
+const FILE_ICON={
+  pdf:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#D32F2F" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  img:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#f39b29" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#f39b29" stroke-width="1.5" stroke-linecap="round"/></svg>'
+};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function money(n){return '¥'+Number(n||0).toLocaleString('zh-CN');}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('on'),1800);}
+const DEV_PENDING=[
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:null,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:null,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
+  {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:null,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
+  {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:null,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
+  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',price:38000,qty:1,code:'--',id:'GID-30001',point:'—',approve:null,online:null,depositRate:10,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0,rpoint:null}
+];
+const DEV_APPROVED=[
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:40000,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.5},
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:53000,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0},
+  {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:8200,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0},
+  {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:11500,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0},
+  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-002',price:38000,qty:1,code:'SKU-DZ-002',id:'GID-30001',point:'—',approve:37500,online:38000,depositRate:10,estimate:null,remark:'按图纸定制-已完结',buyQty:0,shipQty:0,rpoint:null}
+];
+function devOf(buy,ship){
+  return DEV_APPROVED.map(function(e,i){
+    var o={};for(var k in e)o[k]=e[k];
+    o.buyQty=(buy&&buy[i])||0;o.shipQty=(ship&&ship[i])||0;return o;
+  });
+}
+const CERT_GROUPS=[
+  {label:'合同扫描件',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'中标通知书',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'采购订单/成交通知书',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'客户资质证明',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'区域授权函',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'项目进度说明',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'发票凭证（已付/未付）',req:false,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'验收报告（阶段性/最终）',req:false,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'技术方案确认书',req:false,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'条码文件',req:false,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'工程图纸',req:false,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'招投标材料',req:false,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'},
+  {label:'销司其他附件',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'}
+];
+const D_PROJ='前海商业综合体空调项目',D_SUB='展示完整超出回行',D_LINE='中央空调-批价',D_TYPE='常规价';
+const D_BASIC=[['批价单号','粤东GCDT202606250001-PJ001'],['创建时间','2026-06-25 10:30'],['经销商名称','家经部观察正式环境账号'],['保证金类型','比例保证金-A（10%）'],['业务线','中央空调'],['价格类型','常规价']];
+const D_EXP='提货有效期：剩余29天 2026-06-27 至 2026-09-25';
+const STATES={
+  '审批中-价格审批':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'审批中',chip2:'价格审批',devices:DEV_PENDING,certNote:'经销商提交的项目凭证材料，包含合同扫描件、中标通知书等。\n\n审核进度：\n1. 销司已初审通过\n2. 工程部复审中\n3. 待价格审批确认',progress:[{type:'工程批价',status:'审批中',created:'2026-06-25 10:30:00',updated:'--'}],footer:'pill'}),
+  '审批中-二次批价':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'审批中',chip2:'二次批价',devices:DEV_PENDING,certNote:'批价申请被驳回后，经销商调整申请价格后重新提交，等待二次批价审批。',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'二次批价',status:'审批中',created:'2026-07-01 14:20:00',updated:'--'}],footer:'pill'}),
+  '审批中-销司作废':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'审批中',chip2:'销司作废',devices:DEV_PENDING,certNote:'销司作废申请：作废审批流确认中，通过后批价单关闭。',progress:[{type:'工程批价',status:'已驳回',created:'2026-06-25 10:30:00',updated:'2026-07-01 17:30:00'},{type:'作废',status:'审批中',created:'2026-07-02 09:00:00',updated:'--'}],footer:'pill'}),
+  '审批中-提货延期':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'审批中',chip2:'提货延期',devices:DEV_APPROVED,certNote:'提货延期申请：项目工期调整，需延长提货有效期。',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'审批中',created:'2026-07-03 11:00:00',updated:'--'}],footer:'pill'}),
+  '已驳回':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:'驳回有效期：剩余30天 2026-06-26 至 2026-07-26',totalQty:23,totalAmt:556000,approveAmt:null,main:'已驳回',chip2:'',devices:DEV_PENDING,certNote:'批价申请已被驳回。\n\n驳回原因：\n1. 项目凭证不完整，缺少合同扫描件\n2. 申请价格与市场价差异较大\n3. 请补充完整材料后重新提交',progress:[{type:'工程批价',status:'已驳回',created:'2026-06-25 10:30:00',updated:'2026-06-26 16:45:00'}],footer:'void',reject:'申请价格偏离市场价格过多，GMV5系列申请价高于网批挂网价5%以上，不符合批价政策要求。请重新核算成本后再次提交。',rejectTime:'2026-06-26 16:45'}),
+  '待提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:D_EXP,totalQty:23,totalAmt:556000,approveAmt:531100,main:'待提货',chip2:'',devices:DEV_APPROVED,certNote:'批价审批已通过，等待经销商提货',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 14:20:00',updated:'2026-07-02 11:00:00'}],footer:'void'}),
+  '部分提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:D_EXP,totalQty:23,totalAmt:556000,approveAmt:531100,main:'部分提货',chip2:'',devices:devOf([5,3,4,2,0],[3,3,4,1,0]),certNote:'部分商品已提货，剩余可继续提货',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 14:20:00',updated:'2026-07-02 11:00:00'}],footer:'pill'}),
+  '已完结':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'已完结',chip2:'',devices:devOf([5,3,8,6,1],[5,3,8,6,1]),certNote:'全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 10:00:00',updated:'2026-07-05 11:20:00'}],footer:'pill'}),
+  '已关闭-放弃提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'已关闭',chip2:'放弃提货',devices:DEV_APPROVED,certNote:'批价单已关闭 — 放弃提货\n\n来源：经销商主动放弃（批价单无购买数量）',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-26 11:00:00'}],footer:'pill'}),
+  '已关闭-提货有效期到期':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'已关闭',chip2:'提货有效期到期',devices:DEV_APPROVED,certNote:'批价单已关闭 — 提货有效期到期\n\n来源：系统自动（提货有效期到期且未完成提货）',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'已驳回',created:'2026-09-15 10:00:00',updated:'2026-09-20 15:00:00'}],footer:'pill'}),
+  '已关闭-项目联动':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'已关闭',chip2:'项目联动',devices:DEV_PENDING,certNote:'批价单已关闭 — 项目联动关闭\n\n来源：关联工程项目单「粤东GCDT202606250001」作废审批通过，本批价单同步关闭',progress:[{type:'工程批价',status:'已取消',created:'2026-06-25 10:30:00',updated:'2026-07-05 14:20:00'}],footer:'pill'}),
+  '已关闭-销司作废':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'已关闭',chip2:'销司作废',devices:DEV_PENDING,certNote:'批价单已关闭 — 销司作废\n\n来源：销司发起作废，经审批流确认后关闭',progress:[{type:'工程批价',status:'已取消',created:'2026-06-25 10:30:00',updated:'2026-07-03 10:00:00'},{type:'作废',status:'通过',created:'2026-07-02 09:00:00',updated:'2026-07-03 10:00:00'}],footer:'pill'})
+};
+const STATE_ORDER=['审批中-价格审批','审批中-二次批价','审批中-销司作废','审批中-提货延期','已驳回','待提货','部分提货','已完结','已关闭-放弃提货','已关闭-提货有效期到期','已关闭-项目联动','已关闭-销司作废'];
+let curKey='审批中-价格审批';
+let devFoldOpen=false;
+let toastTimer=null;
+
+function setState(key){curKey=key;var sel=document.getElementById('stateSelect');if(sel)sel.value=key;closeAll();renderAll();}
+function closeAll(){['flowMask','zoomWrap','voidDialog'].forEach(id=>document.getElementById(id).classList.remove('on'));}
+function renderAll(){renderHead();renderDetail();renderProgress();renderFooter();}
+
+function renderHead(){
+  const d=STATES[curKey];
+  document.getElementById('pjNo').textContent='粤东GCDT202606250001-PJ001';
+  document.getElementById('projectName').textContent=d.project;
+  document.getElementById('projectSub').textContent=d.subline||'';
+  document.getElementById('projectSub').style.display=d.subline?'block':'none';
+  const chips=[
+    `<span class="chip gray">${esc(d.line)}</span>`,
+    d.chip2?`<span class="chip ${d.main==='待提货'||d.main==='已完结'?'green':(d.main==='已驳回'?'orange':(d.main==='已关闭'?'gray2':'blue'))}">${esc(d.chip2)}</span>`:'',
+    `<span class="chip blue">${esc(d.priceType)}</span>`
+  ].join('');
+  document.getElementById('chips').innerHTML=chips;
+  const ex=document.getElementById('expiryRow');
+  if(d.expiry){ex.style.display='block';ex.textContent=d.expiry;}else{ex.style.display='none';ex.textContent='';}
+}
+
+function renderDevices(){
+  const d=STATES[curKey],list=d.devices||[];
+  const dc=document.getElementById('devCount');if(dc)dc.textContent=list.length;
+  const shown=devFoldOpen?list.length:Math.min(3,list.length);
+  const html=list.slice(0,shown).map((e,idx)=>`
+    <div class="dev-card" onclick="openProd(list.indexOf(e))">
+      <div class="thumb">${IMG_SVG}</div>
+      <div class="dev-main">
+        <div class="dev-l1"><span class="dev-tag" style="${e.nonstd?'':'display:none'}">非</span><span class="dev-name">${esc(e.name)}</span></div>
+        <div class="dev-model">${esc(e.model)}</div>
+        <div class="dev-price">申请价格：<b>${money(e.price)}</b></div>
+      </div>
+      <div class="dev-qty">×${e.qty}</div>
+    </div>`).join('');
+  document.getElementById('devList').innerHTML=list.length?html:'<div class="empty">暂无设备数据</div>';
+  const btn=document.getElementById('devFoldBtn');
+  btn.style.display=list.length>3?'inline-flex':'none';
+  btn.innerHTML=devFoldOpen?'收起全部 <span>⌃</span>':'展示全部 <span>⌄</span>';
+  const approveText=d.approveAmt==null?'待批复':money(d.approveAmt);
+  document.getElementById('sumLine').innerHTML=`
+    <div class="row">总数量：<b>${d.totalQty}台</b></div>
+    <div class="row">总申请金额：<b class="amt">${money(d.totalAmt)}</b></div>
+    <div class="row">批复总金额：<b class="apv">${approveText}</b></div>`;
+}
+function toggleDevFold(){devFoldOpen=!devFoldOpen;renderDevices();}
+
+function renderCert(){
+  const d=STATES[curKey];
+  document.getElementById('certNote').textContent=d.certNote;
+  const groups=CERT_GROUPS;
+  document.getElementById('certList').innerHTML=groups.map(g=>`
+    <div class="cert-group">
+      <div class="cert-title">${g.req?'<span class="req">*</span>':''}${esc(g.label)}</div>
+      <div class="file-row">
+        <div class="file-left">
+          <span class="file-icon">${FILE_ICON[g.kind]||FILE_ICON.pdf}</span>
+          <span class="file-name">${esc(g.file)}</span>
+        </div>
+        <a class="preview" href="javascript:void(0)" onclick="toast('原型占位：预览文件')">预览</a>
+      </div>
+    </div>`).join('');
+  document.getElementById('certBody').style.display=certOpen?'block':'none';
+  document.getElementById('certToggle').textContent=certOpen?'⌃':'⌄';
+}
+let certOpen=true;
+function toggleCertFold(){certOpen=!certOpen;document.getElementById('certBody').style.display=certOpen?'block':'none';document.getElementById('certToggle').textContent=certOpen?'⌃':'⌄';}
+
+function renderBasic(){
+  const d=STATES[curKey];
+  document.getElementById('basicInfo').innerHTML=d.basic.map((r,i)=>`
+    <div class="kv-row">
+      <span class="k">${esc(r[0])}</span>
+      <span class="v">${i===0?`${esc(r[1])}<button class="copy-mini" onclick="copyNo()">复制</button>`:esc(r[1])}</span>
+    </div>`).join('');
+}
+function openProd(idx){
+  const d=STATES[curKey];
+  const e=(d.devices||[])[idx];if(!e)return;
+  const full=['待提货','部分提货','已完结','已关闭'].indexOf(d.main)>=0;
+  const rows=[['SKU码',e.code],['型号',e.model],['商品ID',e.id],['申请数量',e.qty]];
+  if(full){
+    rows.push(['申请价格',money(e.price)]);
+    rows.push(['批复价格',e.approve!=null?money(e.approve):'待批复']);
+    rows.push(['批复点位',e.rpoint!=null?e.rpoint+'%':'—']);
+    rows.push(['预估价',e.estimate!=null?money(e.estimate):'—']);
+    rows.push(['定金比例',(e.depositRate||0)+'%']);
+    rows.push(['网批挂网价',e.online!=null?money(e.online):'—']);
+    rows.push(['购买数量',e.buyQty]);
+    rows.push(['发货数量',e.shipQty]);
+    rows.push(['商品行备注',e.remark||'—']);
+  }else{
+    rows.push(['申请价格',money(e.price)]);
+    rows.push(['申请点位',e.point]);
+    rows.push(['商品行备注',e.remark||'—']);
+  }
+  var head='<div class="pd2-head"><div class="pd2-thumb">'+IMG_SVG+'</div><div style="min-width:0">'
+    +(e.nonstd?'<span style="display:inline-flex;background:#ffe7e7;color:#ff4d4f;border-radius:3px;font-size:13px;padding:2px 6px;margin-right:6px">非</span>':'')
+    +'<span class="pd2-name">'+esc(e.name)+'</span>'
+    +(e.cate?'<div class="pd2-cate">'+esc(e.cate)+'</div>':'')
+    +'</div></div>';
+  var body=head+'<div class="pd2-rows">'+rows.map(function(r){
+    return '<div class="pd2-row"><span class="k">'+esc(r[0])+'</span><span class="v'+(String(r[0]).indexOf('价格')>=0?' amt':'')+'">'+esc(String(r[1]))+'</span></div>';
+  }).join('')+'</div>';
+  document.getElementById('prodBody').innerHTML=body;
+  document.getElementById('prodMask').classList.add('on');
+}
+function closeProd(e){
+  if(e&&e.target!==document.getElementById('prodMask'))return;
+  document.getElementById('prodMask').classList.remove('on');
+}
+function copyNo(){
+  const txt='粤东GCDT202606250001-PJ001';
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast('已复制批价单号'),()=>toast('原型占位：复制批价单号'));}else toast('原型占位：复制批价单号');
+}
+
+function renderReject(){
+  const d=STATES[curKey],card=document.getElementById('rejectCard');
+  if(!card)return;
+  if(d.reject){
+    card.style.display='block';
+    document.getElementById('rejectBody').textContent=d.reject;
+    document.getElementById('rejectTime').textContent=d.rejectTime||'';
+  }else{
+    card.style.display='none';
+  }
+}
+function renderDetail(){renderReject();renderDevices();renderCert();renderBasic();}
+
+function renderProgress(){
+  const d=STATES[curKey];
+  const html=(d.progress||[]).map((p,i)=>`
+    <div class="progress-card">
+      <div class="progress-head">
+        <div class="progress-type">${esc(p.type)}</div>
+        <div class="progress-status ${p.status==='已驳回'||p.status==='已取消'?'pill cc':(p.status==='通过'?'pill ok':(p.status==='待审批'?'pill yl':'pill sp'))}">${esc(p.status)}</div>
+      </div>
+      <div class="progress-meta">
+        <div class="line"><span class="lbl">创建时间：</span><span>${esc(p.created)}</span></div>
+        <div class="line"><span class="lbl">更新时间：</span><span>${esc(p.updated)}</span></div>
+      </div>
+      <div class="progress-btn-wrap"><button class="progress-btn" onclick="openFlow(${i})">审批进度</button></div>
+    </div>`).join('');
+  document.getElementById('progressList').innerHTML=html||'<div class="al-empty"><div class="ico">◌</div>暂无记录</div>';
+}
+
+function renderFooter(){
+  const d=STATES[curKey],ft=document.getElementById('footer');
+  const pillClass=d.main==='待提货'||d.main==='已完结'?'ok':(d.main==='已驳回'?'rd':(d.main==='部分提货'?'am':(d.main==='已关闭'?'gr':'sp')));
+  document.getElementById('ftState').innerHTML=`<span class="pill ${pillClass}">${esc(d.main)}</span>`;
+  const ops=document.getElementById('ftOps');
+  if(d.footer==='void'){
+    ops.innerHTML='<button class="ft-btn primary" onclick="openVoid()">作废</button>';
+  }else{
+    ops.innerHTML='';
+  }
+  ft.classList.add('on');
+}
+
+function switchPanel(panel,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById(panel+'Panel').classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function openFlow(){renderFlow();renderNode();document.getElementById('flowMask').classList.add('on');}
+function closeFlow(e){if(e&&e.target!==document.getElementById('flowMask'))return;document.getElementById('flowMask').classList.remove('on');}
+function flowTab(tab,btn){
+  document.querySelectorAll('.af-tab').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('flowBody').style.display=tab==='flow'?'block':'none';
+  document.getElementById('nodeBody').style.display=tab==='node'?'block':'none';
+}
+function renderFlow(){
+  document.getElementById('flowBody').innerHTML='<div class="af-flow-card" onclick="openZoom()"><div class="af-placeholder">流程图占位</div></div><div class="af-flow-note">图片点击可放大</div>';
+}
+function renderNode(){
+  const posts=[
+    {code:'P-001',name:'办事处内勤',staff:'张经理（zhanggl）、李助理（lizl）'},
+    {code:'P-002',name:'工程科内勤',staff:'王科长（wangkz）、赵专员（zhaozy）'},
+    {code:'P-003',name:'销司主管',staff:'刘主管（liuzg）'},
+    {code:'P-004',name:'大区经理',staff:'陈经理（chenjl）'}
+  ];
+  document.getElementById('nodeBody').innerHTML=
+    '<div class="af-node-type">节点类型：岗位</div>'
+    +posts.map(function(p){
+      return '<div class="af-node cur"><span class="dot">✓</span><div class="nd">'
+        +'<div class="t"><span>'+esc(p.name)+'</span><span class="pill sp">'+esc(p.code)+'</span></div>'
+        +'<div class="s">岗位编号：'+esc(p.code)+'<br>岗位名称：'+esc(p.name)+'<br>员工：'+esc(p.staff)+'</div>'
+        +'</div></div>';
+    }).join('');
+}
+function openZoom(){document.getElementById('zoomBody').innerHTML='<div class="af-placeholder" style="height:70vh">图片占位</div>';document.getElementById('zoomWrap').classList.add('on');}
+function closeZoom(e){if(e&&e.target!==document.getElementById('zoomWrap'))return;document.getElementById('zoomWrap').classList.remove('on');}
+function openVoid(){document.getElementById('voidDialog').classList.add('on')}
+function closeVoid(){document.getElementById('voidDialog').classList.remove('on')}
+function confirmVoid(){closeVoid();toast('已发起销司作废审批');setState('审批中-销司作废');}
+
+function initStateTools(){
+  const sel=document.getElementById('stateSelect');
+  STATE_ORDER.forEach(k=>{
+    const o=document.createElement('option');
+    o.value=k;o.text=k;
+    sel.appendChild(o);
+  });
+  sel.value=curKey;
+}
+
+function renderAll(){renderHead();renderDetail();renderProgress();renderFooter();}
+certOpen=true;
+initStateTools();renderAll();
+</script>
+</body>
+</html>
