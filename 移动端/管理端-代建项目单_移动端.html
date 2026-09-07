@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-代客申请</title>
+<!--
+  管理端-代客申请（移动端工作稿）
+  设计稿目录：C:\Users\23727\Desktop\商用工程-管理\Y-工程单-代客申请
+  对齐原则：设计稿控制视觉与交互，PC 控制业务与状态；先选经销商，再录入表单；新建/代客申请/状态分支要对齐 PC 的逻辑。
+-->
+<style>
+:root{--blue:#0868d7;--bg:#f5f6f7;--text:#292929;--line:#ececec;--red:#ff5158;--safe-bottom:env(safe-area-inset-bottom)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:86px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.signal{letter-spacing:-2px;font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative}
+.back{width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);max-width:calc(100% - 90px);overflow:hidden;text-overflow:ellipsis;font-size:19px;font-weight:700;white-space:nowrap}
+.notice{margin:10px 12px 0;background:#fff;border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.7}
+.notice.copy{border:1px solid #ffe1a8;background:#fffbf0}
+.notice.reject{border:1px solid #f4bfbf;background:#fff2f2}
+.notice .t{display:flex;align-items:center;justify-content:space-between;font-weight:700;margin-bottom:6px}
+.notice .t:before{width:20px;height:20px;border:3px solid currentColor;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;margin-right:8px;font-size:14px;line-height:1;font-weight:800}
+.notice .t span:first-child{flex:1}
+.notice.copy .t{color:#333}.notice.copy .t:before{content:"!";color:#ff6800}
+.notice.reject .t{color:#333}.notice.reject .t:before{content:"×";color:#ff5158}
+.notice .arr{width:9px;height:9px;border-right:2px solid #b9b9b9;border-bottom:2px solid #b9b9b9;transform:rotate(45deg);transition:.2s}
+.notice.collapsed .body{display:none}
+.notice.collapsed .arr{transform:rotate(225deg)}
+.body p{margin:3px 0;color:#555}.body p b{color:#333}.body .hl{color:var(--red);font-weight:600}
+.scroll{padding:12px 14px 24px}
+.card{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:15px 16px;border-bottom:1px solid var(--line);cursor:pointer}
+.ch .t{font-size:16px;font-weight:700}.ch .t .star{color:var(--red)}
+.ch .meta{font-size:13px;color:#8f959e}
+.ch.collapsed~.cb{display:none}
+.chev{width:10px;height:10px;border-right:2px solid #b9b9b9;border-bottom:2px solid #b9b9b9;transform:rotate(225deg);margin:5px 2px 0 0;transition:.2s}
+.ch.collapsed .chev{transform:rotate(45deg);margin:0 2px 5px 0}
+.cb{padding:12px 16px}
+.fi{margin-bottom:14px}.fi:last-child{margin-bottom:2px}
+.lab{font-size:13px;color:#555;margin-bottom:6px}
+.lab .req{color:var(--red)}.lab .opt{color:#8f959e;font-weight:400}
+.in{width:100%;border:1px solid #e4e7ec;border-radius:9px;padding:11px 12px;font-size:15px;background:#fff;color:#333;outline:none}
+.selrow{width:100%;border:1px solid #e4e7ec;border-radius:9px;padding:11px 12px;font-size:15px;background:#fff;color:#333;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:left}
+.selrow .ph{color:#a2a2a2}
+.selrow .val{color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.selrow .arr{width:8px;height:8px;border-right:2px solid #b9b9b9;border-bottom:2px solid #b9b9b9;transform:rotate(45deg) translateY(-2px);flex:0 0 auto}
+.tip{font-size:12px;color:#a2a2a2;margin-top:5px;line-height:1.5}
+.upload-file-name{font-size:12px;color:#666;margin-top:6px;word-break:break-all}
+.file-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.file-item{display:flex;align-items:center;gap:8px;background:#f7f7f7;border-radius:8px;padding:8px 10px;font-size:12px;color:#666}
+.file-item .file-icon{width:24px;height:24px;border-radius:5px;background:#e8f1ff;color:var(--blue);display:grid;place-items:center;font-size:11px;font-weight:700}
+.file-item .file-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.gchip{padding:7px 14px;border-radius:17px;background:#f3f4f6;color:#555;font-size:14px;border:1px solid transparent;cursor:pointer}
+.gchip.on{background:#e8f1ff;color:var(--blue);border-color:var(--blue);font-weight:600}
+.inline{display:flex;gap:8px}
+.inline .in{flex:1}
+.inline button{flex:0 0 auto;border:0;border-radius:8px;padding:0 14px;background:#eef3fb;color:var(--blue);font-size:13px;height:44px}
+.contact-box{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.contact-tabs{display:flex;border:1px solid #dfe3ea;border-radius:16px;overflow:hidden}
+.contact-tabs button{height:30px;padding:0 12px;border:0;background:#fff;color:#8f959e;font-size:12px}
+.contact-tabs button+button{border-left:1px solid #dfe3ea}
+.contact-tabs button.on{background:#e8f1ff;color:var(--blue);font-weight:600}
+.contact-box .in{width:100%;text-align:right}
+.contact-box .tip{width:100%;text-align:right;margin:0}
+.unit-field{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.unit-field .in{min-width:0;flex:1}
+.unit{color:#333;font-size:14px;white-space:nowrap}
+.empty-prod{padding:22px 0;text-align:center;color:#a2a2a2;font-size:14px}
+.addbox{display:flex;gap:10px;margin-top:4px}
+.addbox button{flex:1;height:42px;border:1.5px dashed #c5cae9;border-radius:8px;background:#fafbfc;color:#5a5a5a;font-size:14px}
+.addbox button.hl{color:var(--blue);border-color:#a9c6ef}
+.prod{display:flex;gap:12px;align-items:center;background:#f6f7f9;border-radius:12px;padding:11px 12px;margin-bottom:8px;cursor:pointer}
+.pimg{width:52px;height:52px;border-radius:8px;background:#fff;display:grid;place-items:center;flex:0 0 auto;border:1px solid var(--line)}
+.pimg svg{width:26px;height:26px;color:#c9ced6}
+.pmain{flex:1;min-width:0}
+.p1{display:flex;justify-content:space-between;gap:8px}
+.pn{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pn .nst{display:inline-block;color:var(--red);background:#ffe7e7;border-radius:3px;font-size:12px;font-weight:400;padding:2px 5px;margin-right:5px}
+.pq{color:var(--blue);font-weight:700;font-size:14px;white-space:nowrap}
+.ps{font-size:13px;color:#a2a2a2;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pp{font-size:13px;color:#444;margin-top:3px}.pp b{color:var(--red);font-weight:600}
+.state-ext{border-top:1px dashed #e8eaee;margin-top:10px;padding-top:12px}
+.ext-t{font-size:13px;font-weight:700;color:#7a5b12;margin-bottom:10px}
+.tagline{font-size:12px;color:#8f959e;padding:2px 0}
+.cnt{color:var(--blue)}
+.subbtn{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + var(--safe-bottom));z-index:30}
+.note{font-size:12px;color:#8f959e;text-align:center;padding-bottom:6px}
+.sub{width:100%;height:46px;border:0;border-radius:24px;background:var(--blue);color:#fff;font-size:16px;font-weight:700}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:17px 17px 0 0;padding:16px 16px calc(16px + var(--safe-bottom));max-height:90vh;display:flex;flex-direction:column}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;margin-bottom:10px;flex-shrink:0}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px}
+.sheet-bd{flex:1;overflow-y:auto;padding-bottom:6px}
+.optrow{width:100%;border:0;background:#fff;padding:14px 4px;font-size:16px;color:#333;text-align:left;border-bottom:1px solid #f3f4f6}
+.optrow:last-child{border-bottom:0}
+.optrow:active{background:#f6f8fb}
+.optrow .cur{color:var(--blue)}
+.searchbar{display:flex;gap:8px;margin-bottom:12px}
+.searchbar input{flex:1;border:1px solid #e4e7ec;border-radius:9px;padding:9px 12px;font-size:14px;outline:none}
+.searchbar button{border:0;border-radius:9px;padding:0 16px;background:#eef3fb;color:var(--blue);font-size:14px}
+.prow{display:flex;gap:10px;align-items:center;background:#f6f7f9;border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer}
+.prow .cbox{width:20px;height:20px;border-radius:50%;border:2px solid #c9ced6;flex:0 0 auto;display:grid;place-items:center}
+.prow.on .cbox{border-color:var(--blue);background:var(--blue)}
+.prow.on .cbox:after{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
+.prow .pmain{flex:1}
+.sheet-foot{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--line);flex-shrink:0}
+.sheet-foot .cntT{font-size:14px;color:#8f959e}.sheet-foot .cntT b{color:var(--blue)}
+.btns{display:flex;gap:10px;flex-shrink:0}
+.btn{height:44px;border:0;border-radius:22px;font-size:15px;font-weight:700;padding:0 26px}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.gray{background:#f0f1f3;color:#333}
+.btn.redline{background:#fff;color:var(--red);border:1px solid #f3c1c1}
+.s2btn{width:100%;height:48px;border:0;border-radius:24px;background:var(--blue);color:#fff;font-size:16px;font-weight:700;margin-top:10px}
+.s2btn.ghost{background:#fff;color:#333;border:2px solid #e1e5eb;margin-top:0}
+.crumb{display:flex;gap:4px;align-items:center;font-size:14px;color:#8f959e;margin-bottom:10px;flex-shrink:0}
+.crumb b{color:var(--blue);font-weight:700}
+.crumb .sep{color:#d3d7de}
+.pd-hd{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.pd-img{width:84px;height:84px;border-radius:12px;background:#f2f3f5;display:grid;place-items:center;border:1px solid var(--line);flex:0 0 auto}
+.pd-img svg{width:40px;height:40px;color:#c9ced6}
+.pd-name{font-size:18px;font-weight:700;line-height:1.4}
+.pd-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.pd-row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #f0f1f3;font-size:14px}
+.pd-row:last-child{border-bottom:0}
+.pd-row .l{color:#8f959e;flex:0 0 auto}.pd-row .r{text-align:right;word-break:break-all;color:#333;min-width:0}
+.pd-card{background:#fff;border-radius:18px;padding:14px 18px;margin-bottom:12px}
+.pd-card .pd-row{font-size:16px;padding:12px 0}
+.pd-card .pd-row .l{font-size:16px;color:#666}
+.pd-card .pd-row .r{font-size:16px}
+.pd-inline-input{border:0;background:transparent;flex:1;min-width:0;text-align:right;font-size:16px;outline:none}
+.pd-inline-edit{width:18px;height:18px;border:2px solid #aaa;border-radius:3px;transform:skew(-12deg);flex:0 0 auto}
+.pd-edit-row{display:flex;align-items:center;gap:10px;border-bottom:1px solid #eee;padding:12px 0}
+.pd-edit-row:last-child{border-bottom:0}
+.pd-edit-row .l{width:92px;flex:0 0 auto;font-size:16px;color:#666}
+.pd-edit-row .pd-control{flex:1;min-width:0;height:48px;border:0;border-radius:16px;background:#f5f5f5;padding:0 14px;text-align:right;font-size:18px;outline:none}
+.pd-edit-row textarea.pd-control{height:84px;padding-top:12px;resize:none;text-align:left}
+.pd-stepper{display:flex;align-items:center;justify-content:flex-end;gap:14px;flex:1}
+.pd-stepper button{border:0;background:transparent;color:#ff5c0a;font-size:30px;line-height:1;padding:0 4px}
+.pd-stepper input{width:112px;height:48px;border:0;border-radius:16px;background:#f5f5f5;text-align:center;font-size:20px}
+.pd-actions{display:flex;gap:14px;padding-top:4px}
+.pd-actions .btn{height:52px;flex:1;font-size:20px;border-radius:28px}
+.pd-actions .btn.blue{background:var(--blue)}
+.pd-actions .btn.redline{border:2px solid var(--blue);color:var(--blue)}
+.pd-actions .btn:only-child{max-width:52%;margin:0 auto}
+.pd-select-value{border:0;background:#fff!important;border-radius:0!important;padding-right:0!important}
+.pd-select-value .arr{display:inline-block;width:9px;height:9px;border-right:2px solid #bbb;border-bottom:2px solid #bbb;transform:rotate(-45deg);margin-left:10px}
+.dlg-wrap{position:fixed;inset:0;background:rgba(0,0,0,.44);display:none;align-items:center;justify-content:center;z-index:80;padding:18px}
+.dlg-wrap.show{display:flex}
+.dlg{width:min(330px,100%);background:#fff;border-radius:14px;padding:22px 18px 18px;text-align:center}
+.dlg-msg{font-size:15px;line-height:1.7;color:#333}
+.dlg-btns{display:flex;justify-content:center;margin-top:20px}
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;white-space:nowrap}
+.toast.show{display:block}
+.biz-check-wrap{display:flex;flex-direction:column;gap:5px;min-width:0}
+.biz-check-status{display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap;min-height:0;font-size:12px;line-height:1.5}
+.biz-check-input.state-verified,.biz-check-input.state-confirmed{border-color:#2e7d32!important;background:#f1f8f1!important}
+.biz-check-input.state-unmatched,.biz-check-input.state-failed{border-color:#d32f2f!important;background:#fff5f5!important}
+.biz-verified,.biz-confirmed{color:#2e7d32;font-weight:600}
+.biz-failed,.biz-unmatched{color:#d32f2f}
+.biz-tag{display:inline-flex;align-items:center;gap:3px;background:#ffe0e0;color:#c62828;padding:2px 7px;border-radius:4px;max-width:100%;word-break:break-all}
+.biz-tag .tag-del{cursor:pointer;font-weight:700;font-size:14px;line-height:1;margin-left:2px}
+.biz-confirm-link{color:var(--blue);cursor:pointer;text-decoration:underline}
+.biz-info-wrap{position:fixed;inset:0;background:rgba(0,0,0,.44);display:none;align-items:center;justify-content:center;z-index:90;padding:18px}
+.biz-info-wrap.show{display:flex}
+.biz-info-dlg{width:min(360px,100%);max-height:82vh;overflow:auto;text-align:left}
+.biz-info-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:12px}
+.biz-info-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid #f0f1f3;font-size:13px;line-height:1.45}
+.biz-info-row:last-child{border-bottom:0}
+.biz-info-label{width:96px;flex:0 0 auto;color:#8f959e}
+.biz-info-value{flex:1;min-width:0;color:#333;word-break:break-all}
+.biz-info-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.biz-info-actions .btn{height:42px;border-radius:22px;padding:0 18px}
+.demo-tools{display:none;position:fixed;top:8px;left:8px;z-index:120;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;gap:7px;align-items:center;font-size:12px}
+.demo-tools select{padding:4px;border:1px solid #ddd;border-radius:4px}
+@media (min-width:700px){.demo-tools{display:flex}.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+
+.dealer-trigger{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:18px 14px;border-bottom:1px solid #eee;cursor:pointer;background:#fff;
+}
+.dealer-trigger-title{font-size:18px;font-weight:700;color:#1f2329}
+.dealer-trigger-link{font-size:16px;font-weight:600;color:#0868d7;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.dealer-trigger-link:after{content:'›';font-size:22px;line-height:1;color:#b9b9b9}
+.dealer-trigger-sub{font-size:13px;color:#8f959e;margin-top:8px;line-height:1.5}
+.dealer-selected{
+  padding:14px 16px;background:#fff;border-bottom:8px solid #f5f6f7;
+}
+.dealer-selected-name{font-size:15px;font-weight:700;color:#1f2329;line-height:1.4}
+.dealer-selected-meta{margin-top:6px;font-size:12px;color:#8f959e;line-height:1.7}
+.dealer-selected-tags{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.dealer-tag{font-size:12px;line-height:1;padding:4px 8px;border-radius:4px;background:#f2f4f7;color:#666}
+.dealer-change{font-size:14px;font-weight:600;color:#0868d7;white-space:nowrap}
+.dealer-change:after{content:'›';font-size:20px;color:#b9b9b9;vertical-align:middle;margin-left:2px}
+.section-block{background:#fff;border-bottom:8px solid #f5f6f7}
+.section-title{
+  padding:14px 16px;font-size:16px;font-weight:700;color:#1f2329;border-bottom:1px solid #eee;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.section-title .sub{font-size:12px;color:#8f959e;font-weight:400}
+.section-title .chev{width:10px;height:10px;border-right:2px solid #b9b9b9;border-bottom:2px solid #b9b9b9;transform:rotate(225deg);transition:.2s;margin-left:8px}
+.section-body{padding:0 16px}
+.field-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-height:56px;padding:15px 0;border-bottom:1px solid #eee}
+.field-row:last-child{border-bottom:0}
+.field-label{font-size:15px;color:#666;line-height:1.45;flex:0 0 132px}
+.field-label .req{color:#ff5158}
+.field-value{flex:1;min-width:0;text-align:right;font-size:15px;color:#333;line-height:1.45}
+.field-action{flex:0 0 auto;color:#0868d7;font-size:15px;font-weight:600}
+.field-action.small{font-size:14px}
+.field-hint{font-size:12px;color:#a2a2a2;line-height:1.4;margin-top:4px;text-align:right}
+.field-note{font-size:12px;color:#a2a2a2;line-height:1.4;margin-top:6px}
+.biz-inline{display:flex;align-items:center;gap:8px}
+.biz-inline .in{flex:1;min-width:0;text-align:right}
+.biz-inline .check{height:36px;padding:0 16px;border:1px solid #0868d7;border-radius:18px;background:#fff;color:#0868d7;font-size:14px;font-weight:600;flex:0 0 auto}
+.biz-status{font-size:13px;line-height:1.5;text-align:right;margin-top:6px}
+.biz-status.ok{color:#16a34a}
+.biz-status.bad{color:#ff5a52}
+.biz-status.link{color:#0868d7}
+.biz-status.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;background:#ffe3e3;color:#c62828}
+.biz-status.tag .x{font-size:16px;font-weight:700}
+.contact-inline{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.contact-mode{color:#333}
+.contact-mode:after{content:'˅';font-size:16px;color:#b9b9b9;margin-left:2px}
+.unit-inline{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.unit-inline .in{width:96px;text-align:right}
+.unit-inline .unit{font-size:15px;color:#333}
+.addr-inline{display:flex;align-items:center;justify-content:flex-end;gap:4px}
+.addr-inline .arr{width:8px;height:8px;border-right:2px solid #b9b9b9;border-bottom:2px solid #b9b9b9;transform:rotate(-45deg)}
+.product-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid #eee;
+}
+.product-head-left{display:flex;align-items:center;gap:10px}
+.product-count{font-size:12px;color:#8f959e}
+.add-btn{
+  height:30px;padding:0 14px;border:1px solid #0868d7;border-radius:16px;background:#fff;color:#0868d7;
+  font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:4px;
+}
+.add-btn:after{content:'›';font-size:18px;line-height:1}
+.product-list{padding:0 16px}
+.prod-item{
+  display:flex;gap:10px;align-items:flex-start;padding:12px 0;border-bottom:1px solid #f0f0f0;position:relative;
+}
+.prod-item:last-child{border-bottom:0}
+.prod-thumb{width:58px;height:58px;border-radius:8px;background:#f3f4f6;flex:0 0 auto;display:grid;place-items:center;color:#c1c6cf;font-size:12px}
+.prod-main{flex:1;min-width:0}
+.prod-title{font-size:14px;font-weight:600;color:#1f2329;line-height:1.35}
+.prod-title .tag{display:inline-block;font-size:11px;line-height:1;color:#ff5a52;background:#ffe6e6;border-radius:3px;padding:2px 4px;margin-right:4px;vertical-align:2px}
+.prod-sub{font-size:12px;color:#8f959e;line-height:1.4;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-price{font-size:12px;color:#666;margin-top:6px}
+.prod-price b{font-size:14px;color:#0868d7}
+.prod-stepper{display:flex;align-items:center;gap:0;border:1px solid #dfe3ea;border-radius:18px;overflow:hidden;flex:0 0 auto;margin-top:22px}
+.prod-stepper button{width:34px;height:32px;border:0;background:#fff;color:#666;font-size:24px;line-height:1}
+.prod-stepper input{width:46px;height:32px;border:0;border-left:1px solid #dfe3ea;border-right:1px solid #dfe3ea;text-align:center;font-size:15px;outline:none}
+.prod-stepper.compact{margin-top:0}
+.prod-add-actions{display:flex;gap:12px;padding:16px}
+.prod-add-actions .choice{flex:1;height:48px;border:0;border-radius:24px;background:#0868d7;color:#fff;font-size:16px;font-weight:700}
+.foot-summary{padding:12px 16px 0;text-align:right;font-size:12px;color:#666;line-height:1.6}
+.foot-summary b{color:#0868d7}
+.foot-summary .amt{color:#ff6b00;font-size:14px;font-weight:700}
+.bottom-submit{
+  position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);
+  background:#fff;border-top:1px solid #eee;padding:10px 16px calc(10px + var(--safe-bottom));z-index:60
+}
+.bottom-tip{font-size:12px;color:#8f959e;text-align:left;padding-bottom:8px}
+.bottom-btn{width:100%;height:46px;border:0;border-radius:23px;background:#0868d7;color:#fff;font-size:16px;font-weight:700}
+.bottom-btn[disabled]{background:#d8d8d8;color:#fff}
+.mask[data-type="dealer"] .sheet{padding-top:14px}
+.sheet-body .dealer-list{display:flex;flex-direction:column;gap:14px}
+.dealer-card{
+  position:relative;border:1.5px solid #dfe3ea;border-radius:0;background:#fff;padding:14px 14px 16px
+}
+.dealer-card.on{border-color:#0868d7}
+.dealer-card.selected:after{
+  content:'已选';position:absolute;right:0;top:0;background:#0868d7;color:#fff;font-size:14px;font-weight:700;
+  width:72px;height:46px;display:flex;align-items:center;justify-content:center
+}
+.dealer-card-name{font-size:18px;font-weight:700;color:#1f2329;line-height:1.35;padding-right:70px}
+.dealer-card-meta{margin-top:14px;padding-top:12px;border-top:1px solid #efefef;font-size:14px;color:#666;line-height:1.9}
+.dealer-card-meta span{color:#333}
+.dealer-card.on .dealer-card-name{color:#1f2329}
+.dealer-picker-foot{display:flex;gap:16px;padding-top:14px}
+.dealer-picker-foot .choice{flex:1;height:48px;border-radius:24px;font-size:16px;font-weight:700}
+.choice-gray{border:1px solid #d9d9d9;background:#fff;color:#333}
+.choice-blue{border:0;background:#0868d7;color:#fff}
+.collapsed{display:none}
+.section-block.collapsed .section-body{display:none}
+.section-block.collapsed .chev{transform:rotate(45deg)}
+
+/* Design-alignment overrides */
+.phone{background:#f3f3f3}
+.phone .scroll{padding:0 0 18px}
+.phone .card{border:0;border-radius:0;margin:0 0 8px;background:#fff}
+.phone .ch{min-height:56px;padding:0 18px;background:#fff;border-bottom:1px solid #ededed}
+.phone .ch .t{font-size:16px}
+.phone .cb{padding:0 18px}
+.phone .cb>.fi{display:grid;grid-template-columns:minmax(118px,1fr) minmax(0,1.45fr);align-items:center;min-height:58px;margin:0;border-bottom:1px solid #ededed;gap:10px}
+.phone .cb>.fi:last-child{border-bottom:0}
+.phone .cb>.fi .lab{margin:0;font-size:14px;color:#666;white-space:nowrap}
+.phone .cb>.fi .lab .req{font-size:14px}
+.phone .cb>.fi .in,.phone .cb>.fi .selrow{border:0;border-radius:0;padding:0;height:auto;min-height:56px;text-align:right;background:transparent}
+.phone .cb>.fi .in{font-size:14px}
+.phone .cb>.fi .in::placeholder{color:#b8b8b8}
+.phone .cb>.fi .selrow{justify-content:flex-end;color:#333}
+.phone .cb>.fi .selrow .ph{color:#b8b8b8}
+.phone .cb>.fi .selrow .arr{margin-left:8px}
+.phone .cb>.fi .inline{justify-content:flex-end}
+.phone .cb>.fi .inline .in{min-width:0;text-align:right}
+.phone .cb>.fi .inline button{height:30px;padding:0 12px;border:1px solid #9ebfec;border-radius:16px;background:#fff}
+.phone .cb>.fi .tip{grid-column:2;text-align:right;margin:-10px 0 10px}
+.phone .cb>.fi .chips{justify-content:flex-end}
+.phone .cb>.fi .gchip{padding:7px 14px}
+.phone .cb>.fi .gchip:not(.on){display:none}
+.phone .cb>.fi .gchip.on{border:0;background:transparent;color:#333;font-weight:400;padding-right:0}
+.phone .cb>.fi .gchip.on:after{content:"›";color:#bbb;font-size:20px;margin-left:8px;vertical-align:-2px}
+.phone .cb>.fi:has(textarea){display:block;padding:12px 0}
+.phone .cb>.fi:has(textarea) .lab{display:flex;justify-content:space-between;margin-bottom:8px}
+.phone .cb>.fi:has(textarea) .in{display:block;background:#f5f5f5;border:0;border-radius:10px;padding:12px;height:112px;text-align:left}
+.phone .cb>.fi:has(.s2btn){display:block;padding:12px 0}
+.phone .cb>.fi:has(.s2btn) .lab{margin-bottom:8px}
+.phone .cb>.fi:has(.s2btn) .s2btn{width:62px;height:62px!important;border:0;border-radius:10px;background:#f4f4f4;color:#999;font-size:0;margin:0}
+.phone .cb>.fi:has(.s2btn) .s2btn:before{content:"+";font-size:30px;font-weight:300}
+.phone .cb>.fi:has(.s2btn) .tip{display:block;text-align:left;margin:10px 0 0}
+.phone .cb>.fi:has(.s2btn) .tip + .file-list{display:block}
+.phone .cb>.fi .state-ext{display:contents}
+.phone .addbox{margin:0;padding:12px 0 14px}
+.phone .addbox button{height:36px;border:0;border-radius:20px;background:var(--blue);color:#fff;font-weight:700}
+.phone .addbox button:not(:first-child){display:none}
+.phone .addbox button:first-child:after{content:"  ›";font-size:20px;vertical-align:-1px}
+.phone .prod-headline{display:flex;align-items:center;justify-content:space-between;min-height:58px;border-bottom:1px solid #ededed;color:#999;font-size:16px}
+.phone .prod-headline b{color:var(--blue);font-weight:600}
+.phone .prod-headline button{height:36px;border:0;border-radius:20px;padding:0 15px;background:var(--blue);color:#fff;font-size:15px;font-weight:700}
+.phone .prod-headline button b{color:#fff;font-size:21px;vertical-align:-1px}
+.phone .prod{position:relative;padding:12px 10px;border-radius:10px;margin:10px 0;background:#f6f7f9}
+.phone .prod .pmain{padding-right:78px}
+.phone .prod .p1{align-items:flex-start}
+.phone .prod .pq{display:none}
+.phone .prod-stepper{position:absolute;right:10px;bottom:11px;display:flex;align-items:center;gap:8px}
+.phone .prod-stepper button{border:0;background:transparent;color:#ff5d15;font-size:22px;line-height:1;padding:0 2px}
+.phone .prod-stepper input{width:58px;height:32px;border:1px solid #ddd;border-radius:7px;background:#fff;text-align:center;font-size:15px}
+.phone .prod-summary{border-top:1px solid #ededed;padding:10px 0 4px;text-align:right;color:#777;font-size:14px}
+.phone .prod-summary .expand{display:block;width:100%;border:0;background:transparent;text-align:center;color:#999;padding:4px 0 10px;font-size:14px}
+.phone .prod-summary .amount{color:#ff5d15;font-size:16px;margin-left:8px}
+.phone .empty-prod{padding:18px 0 20px;text-align:left;color:#999}
+.phone .empty-prod{display:flex;align-items:center;justify-content:space-between}
+.phone .empty-prod button{height:36px;border:0;border-radius:20px;padding:0 15px;background:var(--blue);color:#fff;font-size:15px;font-weight:700}
+.phone .empty-prod button b{font-size:21px;vertical-align:-1px}
+.phone .status-ext-row{display:contents}
+.phone .state-ext .ext-t{display:none}
+.phone .state-ext{border-top:0;margin:0;padding:0}
+.phone .state-ext .fi{display:grid}
+.phone .state-ext .tip{grid-column:1 / -1;text-align:left}
+.phone .state-ext .fi:has(.s2btn){display:block;padding:12px 0}
+.phone .state-ext .fi:has(.s2btn) .lab{display:flex;justify-content:space-between;margin-bottom:8px}
+.phone .state-ext .fi:has(.s2btn) .s2btn{width:62px;height:62px!important;border:0;border-radius:10px;background:#f4f4f4;color:#999;font-size:0;margin:0}
+.phone .state-ext .fi:has(.s2btn) .s2btn:before{content:"+";font-size:30px;font-weight:300}
+.phone .subbtn{display:flex;align-items:center;gap:12px;padding:10px 16px calc(10px + var(--safe-bottom))}
+.phone .subbtn .note{flex:1;padding:0;text-align:left;white-space:nowrap}
+.phone .subbtn .sub{width:154px;flex:0 0 154px}
+.phone .subbtn .sub:disabled{background:#c8c8c8;color:#fff}
+.phone .notice{border-radius:0;margin:0;padding:12px 18px}
+.phone .notice .t{font-size:14px}
+.phone .notice .body p{font-size:13px}
+.phone .contact-box{align-items:stretch;gap:0;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;row-gap:4px}
+.phone .contact-tabs{border:0;border-radius:0;overflow:visible;align-self:center}
+.phone .contact-tabs button{height:auto;padding:0;background:transparent;color:#333;font-size:14px;white-space:nowrap}
+.phone .contact-tabs button+button{display:none}
+.phone .contact-tabs button.on:after{content:"⌄";color:#999;margin-left:6px}
+.phone .contact-tabs button.on{background:transparent;color:#333;font-weight:400}
+.phone .contact-box .in{grid-column:2;border:0!important;background:transparent;text-align:right;height:32px;min-height:32px;padding:0;font-size:14px}
+.phone .contact-box .tip{grid-column:2;text-align:right;margin:0;white-space:nowrap}
+.phone .unit-field{width:100%;grid-column:2}
+.phone .unit-field .in{width:auto}
+#stateExtBox .chips{display:flex!important;justify-content:flex-end;gap:8px}
+#stateExtBox .gchip{display:inline-block!important;min-width:54px;text-align:center;padding:7px 16px;background:#f3f4f6;color:#777;border:1px solid transparent}
+#stateExtBox .gchip.on{background:#e8f1ff;color:var(--blue);border-color:var(--blue)}
+.sheet{border-radius:22px 22px 0 0;padding:18px 0 calc(16px + var(--safe-bottom))}
+.sheet-hd{padding:0 22px 12px;font-size:20px;justify-content:center;position:relative}
+.sheet-x{position:absolute;right:18px;top:-2px;background:transparent;font-size:32px;width:36px;height:36px}
+.sheet-bd{padding:0}
+.optrow{min-height:58px;padding:14px 40px;border-bottom:1px solid #eee;font-size:18px;color:#666}
+.optrow .cur{color:#333;font-weight:600}
+.optrow .cur:after{content:"✓";float:right;color:var(--blue);font-size:27px;line-height:20px}
+#pickMask .sheet,#addrMask .sheet{max-height:86vh}
+#pickMask .sheet-bd,#addrMask .sheet-bd{max-height:calc(86vh - 74px)}
+.crumb{padding:0 40px 12px;font-size:18px;min-height:30px}
+.crumb b{color:var(--blue)}
+.crumb .sep{color:#333}
+.addr-index{position:absolute;right:18px;top:122px;display:grid;gap:7px;padding:9px 7px;border-radius:18px;background:#f0f1f3;color:#999;font-size:12px;text-align:center}
+.addr-index button{border:0;background:transparent;color:#999;font-size:12px;padding:0;line-height:1;cursor:pointer}
+.prov-group .prov-letter{font-size:18px;font-weight:700;padding:14px 40px 4px;color:#333}
+#addrMask .sheet{position:relative}
+#addrMask .sheet-hd{font-size:20px}
+#addrMask .optrow{padding-left:40px}
+#typeMask .sheet{padding:72px 40px 40px}
+#typeMask .sheet-hd{padding:0 0 28px}
+#typeMask .sheet-hd>span{display:none}
+#typeMask .s2btn{height:54px;margin-top:10px;border-radius:28px;font-size:20px}
+#nsMask .sheet{max-height:92vh}
+#nsMask .sheet-bd{padding:0 18px;overflow-y:auto}
+#nsMask .fi{display:grid;grid-template-columns:minmax(118px,1fr) minmax(0,1.45fr);align-items:center;min-height:60px;margin:0;border-bottom:1px solid #ededed;gap:10px}
+#nsMask .fi .lab{margin:0;font-size:16px;color:#666;white-space:nowrap}
+#nsMask .fi .in,#nsMask .fi .selrow{border:0;border-radius:0;padding:0;height:auto;min-height:58px;text-align:right;background:transparent;font-size:16px}
+#nsMask .fi .selrow{justify-content:flex-end}
+#nsMask .fi .selrow .arr{margin-left:8px}
+#nsMask .pd-actions{padding:12px 18px calc(4px + var(--safe-bottom));margin:0 -18px -18px;background:#fff}
+#stdMask{align-items:stretch;background:#fff}
+#pickMask{z-index:100}
+#stdMask .sheet{width:min(428px,100%);height:100%;max-height:none;border-radius:0;padding:0;background:#f5f5f5}
+#stdMask .sheet-hd{height:58px;padding:0 16px;margin:0;background:#fff;border-bottom:1px solid #eee;font-size:20px}
+#stdMask .std-back{position:absolute;left:12px;top:5px;border:0;background:transparent;font-size:38px;font-weight:300;line-height:1;color:#333;padding:0}
+#stdMask .sheet-hd .sheet-x{display:none}
+#stdMask .sheet-bd{padding:0 12px 90px}
+#stdMask .searchbar{padding:14px 0 12px}
+#stdMask .searchbar{position:relative}
+#stdMask .searchbar:before{content:"";position:absolute;left:17px;top:26px;width:13px;height:13px;border:3px solid #b9b9b9;border-radius:50%;z-index:1}
+#stdMask .searchbar:after{content:"";position:absolute;left:30px;top:40px;width:8px;height:3px;background:#b9b9b9;transform:rotate(45deg);border-radius:2px;z-index:1}
+#stdMask .searchbar input{height:44px;border:0;border-radius:24px;background:#e9e9e9;padding-left:54px;font-size:16px}
+#stdMask .searchbar button{display:none}
+#stdMask .prow{position:relative;min-height:150px;border-radius:18px;background:#fff;padding:14px 14px;margin-bottom:12px}
+#stdMask .prow.disabled{opacity:.42;cursor:not-allowed}
+#stdMask .prow.disabled .cbox{border-color:#d5d5d5;background:#f1f1f1}
+#stdMask .prow.disabled .prod-stepper{display:none}
+#stdMask .prow.disabled:after{content:"已添加";position:absolute;right:16px;top:16px;color:#999;font-size:13px}
+#stdMask .prow .cbox{width:26px;height:26px;border-radius:50%;border:2px solid #bbb}
+#stdMask .prow.on .cbox{background:#ff6a00;border-color:#ff6a00}
+#stdMask .prow.on .cbox:after{content:"✓";width:auto;height:auto;background:transparent;color:#fff;font-size:18px;line-height:20px}
+#stdMask .prow .pmain{padding-right:0}
+#stdMask .prow .pimg{width:104px;height:104px;background:#f2f3f5}
+#stdMask .prow .pmain{padding-bottom:42px}
+#stdMask .prod-stepper,.selected-full .prod-stepper{position:absolute;right:14px;bottom:12px;display:flex;align-items:center;gap:10px}
+#stdMask .prod-stepper button,.selected-full .prod-stepper button{border:0;background:transparent;color:#ff5c0a;font-size:28px;line-height:1;padding:0 4px}
+#stdMask .prod-stepper input,.selected-full .prod-stepper input{width:112px;height:48px;border:0;border-radius:16px;background:#f5f5f5;text-align:center;font-size:20px}
+#stdMask .sheet-foot{position:absolute;left:0;right:0;bottom:0;background:#fff;padding:12px 16px calc(12px + var(--safe-bottom));border-top:1px solid #eee}
+#stdMask .sheet-foot .cntT{font-size:18px;color:var(--blue);background:#f5f5f5;border-radius:14px;padding:15px 18px;min-width:150px;cursor:pointer}
+#stdMask .sheet-foot .cntT:after{content:"⌃";color:#aaa;font-size:24px;margin-left:18px;vertical-align:-2px}
+#stdMask .sheet-foot .btn{height:48px;border-radius:25px;font-size:18px;padding:0 24px}
+.selected-full{position:fixed;inset:0;display:none;z-index:90;background:rgba(0,0,0,.46);align-items:flex-end;justify-content:center}
+.selected-full.show{display:flex}
+.selected-panel{width:min(428px,100%);height:88vh;background:#f5f5f5;border-radius:22px 22px 0 0;position:relative;overflow:hidden}
+.selected-full .selected-nav{height:64px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:20px;font-weight:700;position:relative}
+.selected-full .selected-nav .delete-all{border:0;background:transparent;color:#222;font-size:18px;font-weight:700;padding:0;display:flex;align-items:center;gap:8px}
+.selected-full .selected-nav .trash-icon{width:24px;height:24px;color:#777;display:inline-flex}
+.selected-full .selected-nav .trash-icon svg{width:24px;height:24px}
+.selected-full .selected-nav .selected-x{border:0;background:transparent;color:#666;font-size:34px;line-height:1;padding:0}
+.selected-full .selected-list{padding:12px 16px 90px;overflow:auto;height:calc(100% - 64px)}
+.selected-full .selected-list .prow{position:relative;min-height:150px}
+.selected-full .selected-list .pimg{width:62px;height:62px}
+.selected-full .selected-list .prow{padding-right:74px}
+.selected-full .selected-list .chosen-delete{position:absolute;right:0;top:0;bottom:0;width:62px;border:0;border-radius:0 18px 18px 0;background:#ff5c0a;color:#fff;font-size:15px;font-weight:700}
+.selected-full .selected-foot{position:absolute;left:0;right:0;bottom:0;padding:12px 16px calc(12px + var(--safe-bottom));background:#fff;display:flex;justify-content:flex-end}
+.selected-full .selected-foot button{height:48px;border:0;border-radius:25px;padding:0 24px;font-size:18px;font-weight:700}
+.selected-full .selected-foot .confirm{background:var(--blue);color:#fff}
+.selected-full .selected-foot .delete{display:none}
+#pdMask .sheet{max-height:92vh}
+#pdMask .sheet-bd{overflow-y:auto;padding:0 2px 4px}
+#pdMask .sheet-hd>span{display:none}
+.phone .biz-check-wrap{grid-column:2}
+.phone .biz-check-status{justify-content:flex-end;text-align:right}
+</style>
+</head>
+<body>
+<div class="demo-tools" data-debug><span>场景演示</span><select id="sceneSel" onchange="scene(this.value)"></select></div>
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
+  <header class="nav"><button class="back" onclick="toast('原型占位：返回')" aria-label="返回"><i></i></button><div class="nav-title" id="navTitle">代客申请</div></header>
+
+  <div class="scroll">
+    <div class="dealer-trigger" onclick="openDealerSheet()">
+      <div style="min-width:0;flex:1">
+        <div class="dealer-trigger-title">选择经销商</div>
+        <div class="dealer-trigger-sub">点击“选择经销商”打开弹窗，从经销商列表中检索并确认</div>
+      </div>
+      <div class="dealer-trigger-link">选择经销商</div>
+    </div>
+    <div class="dealer-selected" id="dealerSelectedArea" style="display:none;">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+        <div style="min-width:0;flex:1">
+          <div class="dealer-selected-name" id="dealerDispName">--</div>
+          <div class="dealer-selected-meta">经销商账号：<span id="dealerDispAccount">--</span></div>
+          <div class="dealer-selected-meta">经销商电话：<span id="dealerDispPhone">--</span></div>
+          <div class="dealer-selected-meta">销售区域：<span id="dealerDispArea">--</span></div>
+          <div class="dealer-selected-tags"><span class="dealer-tag">中央空调</span><span class="dealer-tag">中央空调</span></div>
+        </div>
+        <div class="dealer-change" onclick="openDealerSheet()">更换经销商</div>
+      </div>
+    </div>
+
+    <div id="formWrap" style="display:none;">
+      <div class="section-block">
+        <div class="section-body" style="padding-top:14px;padding-bottom:6px;">
+          <div class="field-row" style="min-height:38px;padding:0;border-bottom:0;">
+            <div class="field-label"><span class="req">*</span>业务线：</div>
+            <div class="field-value"><span class="field-action small" id="v_biz" onclick="openPick('biz')">中央空调</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="product-head">
+          <div class="product-head-left"><div class="section-title" style="padding:0;border:0;">设备清单</div><div class="product-count" id="prodCnt">已添加：3/99</div></div>
+          <button class="add-btn" onclick="openType()">添加商品</button>
+        </div>
+        <div class="product-list" id="prodList"></div>
+        <div class="foot-summary" id="prodSummary"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title" onclick="this.nextElementSibling.classList.toggle('collapsed')"><span>使用方信息</span><span class="chev"></span></div>
+        <div class="section-body" id="usageForm"></div>
+        <div class="section-body" id="stateExtBox" style="padding-top:0"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-title" onclick="this.nextElementSibling.classList.toggle('collapsed')"><span>基本信息</span><span class="chev"></span></div>
+        <div class="section-body">
+          <div class="field-row"><div class="field-label"><span class="req">*</span>项目类型</div><div class="field-value">单体项目</div></div>
+          <div class="field-row"><div class="field-label">项目单号</div><div class="field-value" id="basicOrderNo">提交后自动生成</div></div>
+          <div class="field-row"><div class="field-label">经销商名称</div><div class="field-value" id="m5BaseDealerName">未选择</div></div>
+          <div class="field-row"><div class="field-label">经销商电话</div><div class="field-value" id="m5BaseDealerPhone">未选择</div></div>
+        </div>
+      </div>
+
+      <div class="section-block" style="margin-bottom:0;">
+        <div class="section-title" onclick="this.nextElementSibling.classList.toggle('collapsed')"><span>其他信息</span><span class="chev"></span></div>
+        <div class="section-body">
+          <div class="field-row" style="display:block;padding-bottom:12px;">
+            <div class="field-label" style="display:flex;justify-content:space-between;align-items:center;width:100%;max-width:none;margin-bottom:10px;">
+              <span>备注</span><span class="sub" id="rmCnt">0/500</span>
+            </div>
+            <textarea class="in" rows="3" style="width:100%;resize:none;background:#f7f7f7;border-radius:10px;height:118px;text-align:left;padding:12px" maxlength="500" placeholder="选填，最多500字符，不允许纯空格/制表符/换行符" oninput="document.getElementById('rmCnt').textContent=this.value.length+'/500'"></textarea>
+          </div>
+          <div class="field-row" style="display:block;border-bottom:0;padding-top:6px;">
+            <div class="field-label" style="width:100%;max-width:none;margin-bottom:10px;">附件</div>
+            <button class="s2btn ghost" onclick="document.getElementById('mainFiles').click()" style="width:62px;height:62px;border:0;border-radius:10px;background:#f4f4f4;color:#999;font-size:0;margin:0">+</button>
+            <input type="file" id="mainFiles" hidden multiple onchange="renderMainFiles(this)" accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.xls,.xlsx">
+            <div class="tip" style="font-size:12px;color:#8f959e;margin-top:10px;line-height:1.5;">支持扩展名：PNG / JPG / PDF / Word / Excel，单个不超过10MB，最多10个</div>
+            <div class="file-list" id="mainFilesList" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-submit">
+    <div class="bottom-tip" id="submitNote">提交后直接进入跟进中，无审批流程</div>
+    <button class="bottom-btn" id="submitBtn" disabled onclick="doSubmit()">提交</button>
+  </div>
+</main>
+
+<!-- 经销商选择弹层 -->
+<div class="mask" id="dealerMask" data-type="dealer" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>选择经销商</span><button class="sheet-x" onclick="closeSh('dealerMask')">×</button></div>
+    <div class="sheet-bd">
+      <div class="searchbar" style="margin:0 16px 14px;">
+        <input id="dealerKw" placeholder="请输入经销商名称、账号" oninput="renderDealers()">
+      </div>
+      <div class="sheet-body" style="padding:0 16px;">
+        <div class="dealer-list" id="dealerList"></div>
+        <div class="dealer-picker-foot">
+          <button class="choice choice-gray" onclick="resetDealerPick()">删除</button>
+          <button class="choice choice-blue" onclick="confirmDealer()">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 通用单选弹层 -->
+<div class="mask" id="pickMask" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span id="pickTitle"></span><button class="sheet-x" onclick="closeSh('pickMask')">×</button></div>
+    <div class="sheet-bd" id="pickOpts"></div>
+  </div>
+</div>
+<!-- 省市区级联地址 -->
+<div class="mask" id="addrMask" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>请选择地址区域</span><button class="sheet-x" onclick="closeSh('addrMask')">×</button></div>
+    <div class="crumb" id="addrCrumb"></div>
+    <div class="sheet-bd" id="addrOpts"></div>
+    <div class="addr-index" id="addrIndex"></div>
+  </div>
+</div>
+<!-- 添加类型 -->
+  <div class="mask" id="typeMask" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()"><div class="sheet-hd"><span>添加商品</span><button class="sheet-x" onclick="closeSh('typeMask')">×</button></div>
+    <button class="s2btn" onclick="closeSh('typeMask');openStandard()">添加标准商品</button><div style="height:10px"></div>
+    <button class="s2btn" onclick="closeSh('typeMask');openNonstd()">添加非标商品</button></div>
+</div>
+<!-- 标准商品选择 -->
+<div class="mask" id="stdMask" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><button class="std-back" onclick="closeSh('stdMask');openType()" aria-label="返回">‹</button><span>添加商品</span><button class="sheet-x" onclick="closeSh('stdMask')">×</button></div>
+    <div class="sheet-bd"><div class="searchbar"><input id="stdKw" placeholder="请输入商品名称、SKU编码、型号搜索" oninput="renderStd()"><button onclick="renderStd()">搜索</button></div><div id="stdRows"></div></div>
+    <div class="sheet-foot"><span class="cntT" onclick="openSelectedStd()">已选 <b id="stdCnt">0</b> 款</span><button class="btn blue" onclick="confirmStd()">确认添加</button></div>
+  </div>
+</div>
+<!-- 新建非标商品 -->
+<div class="mask" id="nsMask" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>新建非标商品</span><button class="sheet-x" onclick="closeSh('nsMask')">×</button></div>
+    <div class="sheet-bd" id="nsForm"></div>
+    <div class="pd-actions"><button class="btn redline" onclick="closeSh('nsMask')">删除</button><button class="btn blue" onclick="confirmNs()">确认</button></div>
+  </div>
+</div>
+<!-- 商品详情弹层 -->
+<div class="mask" id="pdMask" onclick="closeSh(this)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>商品详情</span><button class="sheet-x" onclick="closeSh('pdMask')">×</button></div>
+    <div class="sheet-bd" id="pdBody"></div>
+    <div class="pd-actions" id="pdActions"></div>
+  </div>
+</div>
+
+<!-- 标准商品已选商品整页 -->
+<div class="selected-full" id="selectedMask">
+  <div class="selected-panel">
+    <div class="selected-nav"><button class="delete-all" onclick="clearChosen()"><span class="trash-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></span>全部删除</button><button class="selected-x" onclick="closeSelected()">×</button></div>
+  <div class="selected-list" id="selectedList"></div>
+    <div class="selected-foot"><button class="confirm" onclick="confirmSelected()">确认添加</button></div>
+  </div>
+</div>
+<!-- 通用确认弹窗 -->
+<div class="dlg-wrap" id="dlgWrap" onclick="closeDlg(event)">
+  <div class="dlg" onclick="event.stopPropagation()">
+    <div class="dlg-msg" id="dlgMsg"></div>
+    <div class="dlg-btns"><button class="btn gray" onclick="closeDlg()">取消</button><button class="btn blue" style="margin-left:10px" id="dlgOk" onclick="dlgOk()">确认</button></div>
+  </div>
+</div>
+<!-- 工商信息确认弹窗：对应 PC 的天眼查命中后确认流程 -->
+<div class="biz-info-wrap" id="bizInfoWrap" onclick="closeBizInfo(event)">
+  <div class="dlg biz-info-dlg" onclick="event.stopPropagation()">
+    <div class="biz-info-title">工商信息确认</div>
+    <div id="bizInfoBody"></div>
+    <div class="biz-info-actions">
+      <button class="btn gray" type="button" onclick="closeBizInfo()">关闭</button>
+      <button class="btn blue" type="button" onclick="confirmBizInfo()">确认无误</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+/* 数据源 */
+var BIZ_OPTS=["中央空调","冷链"];
+var CATEGORY_OPTS=["中央空调","多联机","新风","冷水机组","精密空调","机房空调","船用空调","移动空调"];
+var CUST_OPTS=["客户","供应商","设计院","工程商","总包","其他"];
+var INDUSTRY_OPTS=["房地产","酒店/宾馆","医院","学校","政府/公共机构","商超/零售","工业厂房","其他"];
+var EXEC_OPTS=["珠海华鸿电器销售有限公司","广州天河制冷设备有限公司","深圳前海智能空调工程有限公司","某分销商A","某分销商B"];
+
+var ADDR={ "贵州省":{ "贵阳市":["云岩区","南明区"] }, "广东省":{ "珠海市":["香洲区","斗门区","金湾区"], "广州市":["天河区","越秀区"], "深圳市":["南山区","福田区"] },
+ "广西省":{"南宁市":["青秀区","兴宁区"]},"甘肃省":{"兰州市":["城关区","七里河区"]},"河北省":{"石家庄市":["长安区","桥西区"]},"河南省":{"郑州市":["金水区","中原区"]},
+ "湖北省":{"武汉市":["武昌区","洪山区"]},"湖南省":{"长沙市":["岳麓区","雨花区"]},"海南省":{"海口市":["美兰区","龙华区"]},"黑龙江省":{"哈尔滨市":["南岗区","道里区"]} };
+var STREET_ADDR={
+  "广东省":{
+    "珠海市":{
+      "香洲区":["拱北街道","吉大街道","翠香街道"],
+      "斗门区":["井岸街道","白蕉镇"],
+      "金湾区":["三灶镇","红旗镇"]
+    },
+    "广州市":{
+      "天河区":["冼村街道","石牌街道"],
+      "越秀区":["北京街道","六榕街道"]
+    },
+    "深圳市":{
+      "南山区":["粤海街道","桃源街道"],
+      "福田区":["福田街道","莲花街道"]
+    }
+  },
+  "贵州省":{"贵阳市":{"云岩区":["大营路街道","黔灵镇"],"南明区":["新华路街道","遵义路街道"]}},
+  "广西省":{"南宁市":{"青秀区":["中山街道","新竹街道"],"兴宁区":["民生街道","朝阳街道"]}},
+  "甘肃省":{"兰州市":{"城关区":["张掖路街道","东岗西路街道"],"七里河区":["西园街道","建兰路街道"]}},
+  "河北省":{"石家庄市":{"长安区":["建北街道","育才街道"],"桥西区":["东里街道","维明街道"]}},
+  "河南省":{"郑州市":{"金水区":["经八路街道","丰产路街道"],"中原区":["建设路街道","棉纺路街道"]}},
+  "湖北省":{"武汉市":{"武昌区":["积玉桥街道","中南路街道"],"洪山区":["珞南街道","关山街道"]}},
+  "湖南省":{"长沙市":{"岳麓区":["岳麓街道","梅溪湖街道"],"雨花区":["圭塘街道","侯家塘街道"]}},
+  "海南省":{"海口市":{"美兰区":["白龙街道","蓝天街道"],"龙华区":["金贸街道","滨海街道"]}},
+  "黑龙江省":{"哈尔滨市":{"南岗区":["花园街道","革新街道"],"道里区":["兆麟街道","建国街道"]}}
+};
+var PROVS=["贵州省","广东省","广西省","甘肃省","河北省","河南省","湖北省","湖南省","海南省","黑龙江省"];
+var PROV_INDEX=["A","B","C","F","G","H","J","L","N","Q","S","T","X","Y","Z"];
+var PROV_GROUPS={G:["贵州省","广东省","广西省","甘肃省"],H:["河北省","河南省","湖北省","湖南省","海南省","黑龙江省"]};
+var CATALOG=[
+  {name:"格力 GMV-H140WL/A1 多联式空调",sku:"SKU-CEN-140A1",model:"GMV-H140WL/A1",net:"¥18500.00",cate:"船用空调"},
+  {name:"格力 GMV-H280WL/A1 多联机组",sku:"SKU-MLJ-280A1",model:"GMV-H280WL/A1",net:"¥22000.00",cate:"多联机"},
+  {name:"格力 FGR3.5Pd/C1N 新风机",sku:"SKU-XF-35C1N",model:"FGR3.5Pd/C1N",net:"¥3800.00",cate:"新风"}
+];
+var DEALERS=[
+  {name:"珠海华鸿电器销售有限公司",account:"GC-ZH-20180045",phone:"13544852210",area:"广东-珠海",tags:["中央空调","中央空调"]},
+  {name:"广州天河制冷设备有限公司",account:"GC-GZ-20190012",phone:"13987654321",area:"广东-广州",tags:["中央空调","冷链"]},
+  {name:"深圳前海智能空调工程有限公司",account:"GC-SZ-20200033",phone:"0755-86001234",area:"广东-深圳、广东-东莞",tags:["中央空调","冷链"]}
+];
+
+var vals={biz:"中央空调",cust:"",industry:"",exec:"",prov:"",city:"",dist:"",street:"",status:"",failReason:""};
+var pstate="", hasContract="", contactMode="mobile", chosen={}, rows=[], pdIndex=-1, categoryTarget="", productExpanded=false;
+var dealerState={selected:null,filtered:DEALERS.slice(),active:null};
+var usageData={
+  projectName:"",customerName:"珠海华邑酒店有限公司",purchaseUnit:"珠海华邑酒店有限公司",leader:"",
+  contactMobile:"",contactTel:"",equipAmount:"",area:"",volume:"",detailAddress:""
+};
+var contractData={customer:"",amount:""};
+var bizState={
+  customerName:{status:"idle",originalVal:""},
+  purchaseUnit:{status:"idle",originalVal:""},
+  signCustomer:{status:"idle",originalVal:""}
+};
+var bizInfoName="";
+var BIZ_DEMO_NAMES=["珠海华邑酒店有限公司","华邑酒店","珠海华邑"];
+function isBizDemoHit(value){
+  var normalized=String(value||"").replace(/\s+/g,"");
+  return BIZ_DEMO_NAMES.some(function(name){return normalized.indexOf(name.replace(/\s+/g,""))!==-1;});
+}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
+function toast(m){var el=document.getElementById("toast");el.textContent=m;el.classList.add("show");clearTimeout(window.__tt);window.__tt=setTimeout(function(){el.classList.remove("show");},1500);}
+function closeSh(id){var el=typeof id==="string"?document.getElementById(id):id;if(el)el.classList.remove("show");}
+function openSh(id){document.getElementById(id).classList.add("show");}
+function getBizInput(name){
+  var wrap=document.querySelector('.biz-check-wrap[data-biz-name="'+name+'"]');
+  return wrap?wrap.querySelector(".biz-check-input"):null;
+}
+function resetBizState(name){
+  if(!bizState[name])return;
+  bizState[name]={status:"idle",originalVal:""};
+  renderBizStatus(name);
+}
+function onBizFieldChange(name){
+  var st=bizState[name],input=getBizInput(name);
+  if(!st||!input)return;
+  var value=input.value.trim();
+  if(value===st.originalVal&&st.status==="idle")return;
+  st.status="idle";
+  st.originalVal=value;
+  renderBizStatus(name);
+  syncSubmitState();
+}
+function renderBizStatus(name){
+  var st=bizState[name],input=getBizInput(name),statusEl=document.getElementById("bizStatus_"+name);
+  if(!st||!input||!statusEl)return;
+  input.classList.remove("state-verified","state-unmatched","state-failed","state-confirmed");
+  statusEl.innerHTML="";
+  if(st.status==="verified"){
+    input.classList.add("state-verified");
+    statusEl.innerHTML='<span class="biz-verified">✓ 工商校验通过</span>';
+  }else if(st.status==="failed"){
+    input.classList.add("state-failed");
+    statusEl.innerHTML='<span class="biz-failed">工商校验失败，请重新核对企业名称</span>';
+  }else if(st.status==="unmatched"){
+    input.classList.add("state-unmatched");
+    statusEl.innerHTML='<span class="biz-tag">'+esc(st.originalVal)+'<span class="tag-del" onclick="removeBizTag(\''+name+'\')">×</span></span>'
+      +'<span class="biz-unmatched">非查找结果，如名称正确</span>'
+      +'<span class="biz-confirm-link" onclick="confirmBizName(\''+name+'\')">点击确认</span>';
+  }else if(st.status==="confirmed"){
+    input.classList.add("state-confirmed");
+    statusEl.innerHTML='<span class="biz-confirmed">✓ 已手动确认 · '+esc(st.originalVal)+'</span>';
+  }
+}
+function openDealerSheet(){
+  dealerState.filtered=DEALERS.slice();
+  renderDealers();
+  openSh("dealerMask");
+}
+function renderDealers(){
+  var kw=(document.getElementById("dealerKw")&&document.getElementById("dealerKw").value||"").trim().toLowerCase();
+  dealerState.filtered=DEALERS.filter(function(d){
+    return !kw || d.name.toLowerCase().indexOf(kw)>=0 || d.account.toLowerCase().indexOf(kw)>=0;
+  });
+  var list=document.getElementById("dealerList");
+  if(!list)return;
+  list.innerHTML=dealerState.filtered.map(function(d){
+    var selected=dealerState.selected&&dealerState.selected.account===d.account;
+    return '<div class="dealer-card '+(selected?'selected ':'')+' '+(dealerState.active&&dealerState.active.account===d.account?'on':'')+'" onclick="pickDealer(\''+esc(d.account)+'\')">'
+      +'<div class="dealer-card-name">'+esc(d.name)+'</div>'
+      +'<div class="dealer-card-meta">'
+      +'经销商账号：<span>'+esc(d.account)+'</span><br>'
+      +'经销商电话：<span>'+esc(d.phone)+'</span><br>'
+      +'销售区域：<span>'+esc(d.area)+'</span>'
+      +'</div>'
+      +'</div>';
+  }).join("")||'<div class="empty-prod">暂无匹配结果</div>';
+}
+function pickDealer(account){
+  var d=DEALERS.filter(function(x){return x.account===account;})[0];
+  if(!d)return;
+  dealerState.active=d;
+  renderDealers();
+}
+function resetDealerPick(){
+  dealerState.active=null;
+  renderDealers();
+}
+function confirmDealer(){
+  var d=dealerState.active||dealerState.selected;
+  if(!d){toast("请先选择一个经销商");return;}
+  dealerState.selected=d;
+  usageData.projectName=usageData.projectName||"珠海某酒店中央空调采购项目";
+  usageData.customerName=usageData.customerName||"珠海华邑酒店有限公司";
+  usageData.purchaseUnit=usageData.purchaseUnit||"珠海华邑酒店有限公司";
+  usageData.contactMobile=usageData.contactMobile||"13800999988";
+  usageData.leader=usageData.leader||"张建华";
+  vals.exec=d.name;
+  document.getElementById("dealerDispName").textContent=d.name;
+  document.getElementById("dealerDispAccount").textContent=d.account;
+  document.getElementById("dealerDispPhone").textContent=d.phone;
+  document.getElementById("dealerDispArea").textContent=d.area;
+  document.getElementById("dealerSelectedArea").style.display="";
+  document.getElementById("formWrap").style.display="";
+  document.getElementById("m5BaseDealerName").textContent=d.name;
+  document.getElementById("m5BaseDealerPhone").textContent=d.phone;
+  closeSh("dealerMask");
+  refreshVals();
+  renderUsage();
+  renderStateExt();
+  syncSubmitState();
+}
+function onBizCheck(name){
+  var st=bizState[name],input=getBizInput(name);
+  if(!st||!input)return;
+  var value=input.value.trim();
+  if(!value){toast("请先输入企业名称");return;}
+  st.originalVal=value;
+  if(isBizDemoHit(value)){
+    st.status="verified";
+    renderBizStatus(name);
+    toast("工商校验通过");
+  }else{
+    st.status="unmatched";
+    renderBizStatus(name);
+    toast("未匹配到工商信息");
+  }
+  syncSubmitState();
+}
+function confirmBizName(name){
+  var st=bizState[name];
+  if(!st)return;
+  st.status="confirmed";
+  renderBizStatus(name);
+  syncSubmitState();
+}
+function removeBizTag(name){
+  var st=bizState[name],input=getBizInput(name);
+  if(!st)return;
+  st.status="idle";
+  if(input)input.value=st.originalVal;
+  renderBizStatus(name);
+  syncSubmitState();
+}
+function openBizInfo(name){
+  var st=bizState[name],input=getBizInput(name);
+  if(!st||!input)return;
+  var value=input.value.trim();
+  if(!value){toast("请先输入企业名称");return;}
+  st.originalVal=value;
+  document.getElementById("bizInfoBody").innerHTML=
+    '<div class="biz-info-row"><span class="biz-info-label">企业名称</span><span class="biz-info-value">'+esc(value)+'</span></div>'
+   +'<div class="biz-info-row"><span class="biz-info-label">统一社会信用代码</span><span class="biz-info-value">91440400MA5XXXXXX1K</span></div>'
+   +'<div class="biz-info-row"><span class="biz-info-label">法定代表人</span><span class="biz-info-value">王建国</span></div>'
+   +'<div class="biz-info-row"><span class="biz-info-label">注册资本</span><span class="biz-info-value">5000 万元人民币</span></div>'
+   +'<div class="biz-info-row"><span class="biz-info-label">成立日期</span><span class="biz-info-value">2010-03-15</span></div>'
+   +'<div class="biz-info-row"><span class="biz-info-label">登记机关</span><span class="biz-info-value">珠海市市场监督管理局</span></div>';
+  bizInfoName=name;
+  document.getElementById("bizInfoWrap").classList.add("show");
+}
+function closeBizInfo(e){
+  if(e&&e.target!==document.getElementById("bizInfoWrap"))return;
+  document.getElementById("bizInfoWrap").classList.remove("show");
+}
+function confirmBizInfo(){
+  var st=bizState[bizInfoName];
+  if(!st)return;
+  st.status="verified";
+  renderBizStatus(bizInfoName);
+  closeBizInfo();
+  syncSubmitState();
+  toast("工商校验通过");
+}
+function onTianyanCheck(name){
+  var st=bizState[name],input=getBizInput(name);
+  if(!st||!input)return;
+  var value=input.value.trim();
+  if(!value){toast("请先输入企业名称");return;}
+  st.originalVal=value;
+  if(!isBizDemoHit(value)){
+    st.status="failed";
+    renderBizStatus(name);
+    toast("工商校验失败，请重新核对企业名称");
+  }else{
+    openBizInfo(name);
+  }
+  syncSubmitState();
+}
+function refreshVals(){
+  [["biz","请选择"],["cust","请选择"],["industry","请选择"],["exec","请选择"],["status","请选择"],["failReason","请选择"]].forEach(function(pair){
+    var el=document.getElementById("v_"+pair[0]); if(!el)return;
+    var v=vals[pair[0]];
+    el.textContent=v||pair[1];
+    el.classList.toggle("ph",!v);
+  });
+  var el=document.getElementById("v_prov");
+  if(el){var path=[vals.prov,vals.city,vals.dist,vals.street].filter(Boolean).join(" / ");
+    el.textContent=path||"请选择省/市/区/街道";el.classList.toggle("ph",!path);}
+}
+/* 通用单选 */
+var picker=null;
+function openPick(kind){
+  var meta={biz:["选择业务线",BIZ_OPTS],cust:["选择客户类型",CUST_OPTS],industry:["选择行业大类",INDUSTRY_OPTS],exec:["选择执行单位",EXEC_OPTS],status:["选择项目状态",["跟进中","已中标","已签单","已丢单","已流标"]],failReason:["选择丢单原因",["产品原因","技术原因","价格原因"]],category:["选择品类",CATEGORY_OPTS]}[kind];
+  if(!meta)return;
+  picker=kind; document.getElementById("pickTitle").textContent=meta[0];
+  document.getElementById("pickOpts").innerHTML=meta[1].map(function(o){
+    var on=o===vals[kind];
+    return '<button class="optrow" onclick="pickChoose(\''+esc(o)+'\')">'+(on?'<span class="cur">':"")+esc(o)+(on?'</span>':"")+'</button>';
+  }).join("");
+  openSh("pickMask");
+}
+function pickChoose(o){
+  if(picker==="category"){
+    if(categoryTarget==="ns"){
+      var hidden=document.getElementById("ns_cate"), visible=document.getElementById("v_ns_cate");
+      if(hidden)hidden.value=o;
+      if(visible){visible.textContent=o;visible.classList.remove("ph");}
+    }else if(categoryTarget==="pd"&&rows[pdIndex]){
+      rows[pdIndex].cate=o;
+      openPd(pdIndex);
+    }
+    closeSh("pickMask");
+    return;
+  }
+  if(picker==="status"){
+    captureUsage();
+    captureContract();
+    var previousStatus=pstate;
+    if(previousStatus!==o){
+      // 状态专属数据不跨状态带入，主表单数据保持不变。
+      if(o!=="已签单"){
+        hasContract="";
+        contractData={customer:"",amount:""};
+        resetBizState("signCustomer");
+      }
+      if(o!=="已丢单")vals.failReason="";
+    }
+    pstate=o;
+    vals.status=o;
+    refreshVals();
+    renderStateExt();
+  }else{
+    vals[picker]=o;
+    refreshVals();
+    renderUsage();
+    renderStateExt();
+  }
+  closeSh("pickMask");
+}
+/* 地址级联 */
+var addrLevel=0; // 0省份 1城市 2区 3街道
+function renderAddr(level){
+  addrLevel=level;
+  var cr='<span class="crumb" style="margin:0">';
+  var p=vals.prov?("<b onclick=\"renderAddr(0)\">"+esc(vals.prov)+"</b>"):"<b>请选择</b>";
+  cr+=p;
+  if(level>=1&&vals.prov){cr+='<span class="sep">›</span>'+(vals.city?"<b onclick=\"renderAddr(1)\">"+esc(vals.city)+"</b>":"<b>请选择</b>");}
+  if(level>=2&&vals.city){cr+='<span class="sep">›</span>'+(vals.dist?"<b onclick=\"renderAddr(2)\">"+esc(vals.dist)+"</b>":"<b>请选择</b>");}
+  if(level>=3&&vals.dist){cr+='<span class="sep">›</span><span>'+esc(vals.street||"请选择")+'</span>';}
+  cr+='</span>';
+  document.getElementById("addrCrumb").innerHTML=cr;
+  document.getElementById("addrIndex").innerHTML=level===0?PROV_INDEX.map(function(x){return '<button type="button" onclick="jumpProv(\''+x+'\')">'+x+'</button>';}).join(""):"";
+  var opts="";
+  if(level===0){
+    opts=Object.keys(PROV_GROUPS).map(function(letter){return '<div class="prov-group" data-letter="'+letter+'"><div class="prov-letter">'+letter+'</div>'+PROV_GROUPS[letter].map(function(p){return '<button class="optrow" onclick="addrPick(0,\''+p+'\')">'+esc(p.replace(/省$/,""))+'</button>';}).join("")+'</div>';}).join("");
+  }
+  else if(level===1){opts=Object.keys(ADDR[vals.prov]||{}).map(function(c){return '<button class="optrow" onclick="addrPick(1,\''+c+'\')">'+esc(c)+'</button>';}).join("");}
+  else if(level===2){opts=(ADDR[vals.prov]&&ADDR[vals.prov][vals.city]||[]).map(function(d){return '<button class="optrow" onclick="addrPick(2,\''+d+'\')">'+esc(d)+'</button>';}).join("");}
+  else{opts=(STREET_ADDR[vals.prov]&&STREET_ADDR[vals.prov][vals.city]&&STREET_ADDR[vals.prov][vals.city][vals.dist]||["中心街道","工业园街道","开发区街道"]).map(function(s){return '<button class="optrow" onclick="addrPick(3,\''+s+'\')">'+esc(s)+'</button>';}).join("");}
+  document.getElementById("addrOpts").innerHTML=opts||'<div class="empty-prod">暂无</div>';
+  document.getElementById("addrMask").classList.add("show");
+}
+function addrPick(lv,v){
+  if(lv===0){vals.prov=v;vals.city="";vals.dist="";vals.street="";renderAddr(1);}
+  else if(lv===1){vals.city=v;vals.dist="";vals.street="";renderAddr(2);}
+  else if(lv===2){vals.dist=v;vals.street="";renderAddr(3);}
+  else{vals.street=v;closeSh("addrMask");refreshVals();renderUsage();}
+}
+function openAddr(){renderAddr(0);}
+function jumpProv(letter){
+  var el=document.querySelector('#addrOpts .prov-group[data-letter="'+letter+'"]');
+  if(el)el.scrollIntoView({block:"start"});
+}
+/* 标准商品 */
+function renderStd(){
+  var k=document.getElementById("stdKw").value.trim();
+  var list=CATALOG.map(function(c,i){return {c:c,i:i};}).filter(function(item){var c=item.c;return !k||c.name.indexOf(k)>=0||c.sku.indexOf(k)>=0||c.model.indexOf(k)>=0;});
+  document.getElementById("stdRows").innerHTML=list.map(function(item){
+    var c=item.c, i=item.i;
+    var added=rows.some(function(r){return !r.nst&&r.sku===c.sku;});
+    var disabled=added&&!chosen[i];
+    return '<div class="prow '+(chosen[i]?"on ":"")+(disabled?"disabled":"")+'" '+(disabled?'aria-disabled="true"': 'onclick="toggleChosen('+i+')"')+'><span class="cbox"></span><div class="pimg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4 3 3L16 12l4 4"/></svg></div><div class="pmain">'
+     +'<div style="font-weight:600">'+esc(c.name)+'</div><div class="ps" style="color:#a2a2a2">'+esc(c.model)+' · '+esc(c.sku)+'</div>'
+     +'<div class="pp">网批售价：<b>'+esc(c.net)+'</b></div><div class="prod-stepper" onclick="event.stopPropagation()"><button type="button" onclick="changeChosenQty('+i+',-1)">−</button><input value="'+esc(chosen[i]||1)+'" onchange="setChosenQty('+i+',this.value)"><button type="button" onclick="changeChosenQty('+i+',1)">＋</button></div></div></div>';
+  }).join("");
+  document.getElementById("stdCnt").textContent=Object.keys(chosen).length;
+}
+function toggleChosen(i){
+  if(rows.some(function(r){return !r.nst&&r.sku===CATALOG[i].sku;}))return;
+  if(chosen[i])delete chosen[i];else chosen[i]=1;
+  renderStd();
+}
+function changeChosenQty(i,delta){if(!chosen[i])return;chosen[i]=Math.max(1,Math.min(9999999,(parseInt(chosen[i],10)||1)+delta));renderStd();}
+function setChosenQty(i,v){if(!chosen[i])return;chosen[i]=Math.max(1,Math.min(9999999,parseInt(v,10)||1));renderStd();}
+function openType(){openSh("typeMask");}
+function openStandard(){closeSh("typeMask");openSh("stdMask");renderStd();}
+function renderSelectedStd(){
+  var selected=Object.keys(chosen).map(Number);
+  document.getElementById("selectedList").innerHTML=selected.length?selected.map(function(i){
+    var c=CATALOG[i];
+    return '<div class="prow on"><div class="pimg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4 3 3L16 12l4 4"/></svg></div><div class="pmain"><div style="font-weight:600">'+esc(c.name)+'</div><div class="ps">'+esc(c.model)+' · '+esc(c.sku)+'</div><div class="pp">网批售价：<b>'+esc(c.net)+'</b></div><div class="prod-stepper" onclick="event.stopPropagation()"><button type="button" onclick="changeChosenQty('+i+',-1)">−</button><input value="'+esc(chosen[i])+'" onchange="setChosenQty('+i+',this.value)"><button type="button" onclick="changeChosenQty('+i+',1)">＋</button></div></div><button type="button" class="chosen-delete" onclick="event.stopPropagation();deleteChosen('+i+')">删除</button></div>';
+  }).join(""):'<div class="empty-prod">暂无已选商品</div>';
+}
+function openSelectedStd(){renderSelectedStd();document.getElementById("selectedMask").classList.add("show");}
+function closeSelected(){document.getElementById("selectedMask").classList.remove("show");}
+function clearChosen(){chosen={};renderStd();renderSelectedStd();}
+function deleteChosen(i){delete chosen[i];renderStd();renderSelectedStd();}
+function confirmSelected(){closeSelected();confirmStd();}
+function confirmStd(){if(rows.length>=99){toast("已达最大99条限制");return;}
+  var sel=Object.keys(chosen).map(Number).filter(function(i){
+    return !rows.some(function(r){return !r.nst&&r.sku===CATALOG[i].sku;});
+  });
+  if(!sel.length){dlg("选择商品异常，请重新选择",function(){return;},true);return;}
+  sel.forEach(function(i){rows.push({name:CATALOG[i].name,sku:CATALOG[i].sku,price:CATALOG[i].net,qty:chosen[i]||1,nst:false,model:CATALOG[i].model,point:"—",remark:"—",cate:CATALOG[i].cate,net:CATALOG[i].net});});
+  chosen={};closeSh("stdMask");renderProds();
+}
+/* 非标 */
+function nsField(lab,ph,id,required,value){return '<div class="fi"><div class="lab">'+lab+(required?' <span class="req">*</span>':"")+'</div><input class="in" id="ns_'+id+'" value="'+esc(value||"")+'" placeholder="'+ph+'"></div>';}
+function nsCategoryField(){return '<div class="fi"><div class="lab">品类</div><input type="hidden" id="ns_cate" value=""><button type="button" class="selrow" onclick="openCategoryPick(\'ns\')"><span class="val ph" id="v_ns_cate">请选择</span><span class="arr"></span></button></div>';}
+function renderNs(){document.getElementById("nsForm").innerHTML=nsCategoryField()
+  +'<div class="fi"><div class="lab">商品名称</div><input class="in" id="ns_name" value="定制机" readonly></div>'
+  +'<div class="fi"><div class="lab">SKU编码</div><input class="in" id="ns_sku" value="--" readonly></div>'
+  +nsField("型号","请输入","model",false,"")+nsField("申请数量","请输入","qty",false,"")+nsField("申请价格","请输入","price",false,"")+nsField("申请点位","请输入","point",false,"")+nsField("商品行备注","请输入(限50字符)","remark",false,"");}
+function openNonstd(){openSh("nsMask");renderNs();}
+function openCategoryPick(target){
+  categoryTarget=target;
+  picker="category";
+  var current=target==="ns"?(document.getElementById("ns_cate")||{}).value:(rows[pdIndex]||{}).cate||"";
+  document.getElementById("pickTitle").textContent="选择品类";
+  document.getElementById("pickOpts").innerHTML=CATEGORY_OPTS.map(function(o){return '<button class="optrow" onclick="pickChoose(\''+esc(o)+'\')">'+(o===current?'<span class="cur">':"")+esc(o)+(o===current?'</span>':"")+'</button>';}).join("");
+  openSh("pickMask");
+}
+function confirmNs(){var g=function(id){var e=document.getElementById("ns_"+id);return e?e.value.trim():"";};if(rows.length>=99){toast("已达最大99条限制");return;}
+  var qty=parseInt(g("qty"),10);
+  rows.push({name:g("name")||"定制机",sku:g("sku")||"--",price:g("price")||"0",qty:isFinite(qty)&&qty>0?qty:1,nst:true,model:g("model")||"-",point:g("point")||"—",remark:g("remark")||"—",cate:g("cate")||"中央空调",net:"—"});
+  closeSh("nsMask");renderProds();}
+function changeRowQty(i,delta){if(!rows[i])return;rows[i].qty=Math.max(1,Math.min(9999999,(parseInt(rows[i].qty,10)||1)+delta));renderProds();}
+function setRowQty(i,v){if(!rows[i])return;var n=Math.max(1,Math.min(9999999,parseInt(v,10)||1));rows[i].qty=n;renderProds();}
+function toggleProductExpanded(){productExpanded=!productExpanded;renderProds();}
+function renderProds(){
+  document.getElementById("prodCnt").textContent="已添加："+rows.length+"/99";
+  var addbox=document.querySelector(".addbox");
+  if(addbox)addbox.style.display="none";
+
+  var empty='<div class="empty-prod"><span>尚未添加商品，请点击上方“添加商品”</span></div>';
+  var visibleRows=productExpanded||rows.length<=3?rows:rows.slice(0,3);
+  document.getElementById("prodList").innerHTML=rows.length?visibleRows.map(function(r){
+    var i=rows.indexOf(r);
+    return '<div class="prod" onclick="openPd('+i+')"><div class="pimg"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4 3 3L16 12l4 4"/></svg></div>'
+    +'<div class="pmain"><div class="p1"><div class="pn">'+(r.nst?'<span class="nst">非</span>':"")+esc(r.name)+'</div><div class="pq">'+esc(r.qty)+'</div></div>'
+    +'<div class="ps">'+esc(r.model||r.sku)+'</div><div class="pp">申请价格：<b>'+esc(r.price)+'</b></div></div>'
+    +'<div class="prod-stepper" onclick="event.stopPropagation()"><button type="button" onclick="changeRowQty('+i+',-1)">−</button><input value="'+esc(r.qty)+'" onchange="setRowQty('+i+',this.value)"><button type="button" onclick="changeRowQty('+i+',1)">＋</button></div></div>';
+  }).join(""):empty;
+  var totalQty=rows.reduce(function(sum,r){return sum+(parseInt(r.qty,10)||0);},0);
+  var totalAmt=rows.reduce(function(sum,r){return sum+(parseFloat(String(r.price).replace(/[^\d.]/g,""))||0)*(parseInt(r.qty,10)||0);},0);
+  document.getElementById("prodSummary").innerHTML=(rows.length>3?'<button type="button" class="expand" onclick="toggleProductExpanded()">'+(productExpanded?"⌃ 收起":"⌄ 展开")+'</button>':"")+ '<div>总套数：<b>'+totalQty+'套</b></div><div>总申请金额：<span class="amount">¥'+totalAmt.toFixed(2)+'</span></div>';
+  syncSubmitState();
+}
+function pdInfoRow(label,value){return '<div class="pd-row"><span class="l">'+esc(label)+'</span><span class="r">'+esc(value||"—")+'</span></div>';}
+function pdEditInput(label,id,value,ph,extra){
+  return '<div class="pd-edit-row"><span class="l">'+esc(label)+'</span><input class="pd-control" id="'+id+'" value="'+esc(value||"")+'" placeholder="'+esc(ph||"")+'" '+(extra||"")+'></div>';
+}
+function openPd(i){
+  var r=rows[i];if(!r)return;
+  pdIndex=i;
+  var top='<div class="pd-card"><div class="pd-hd"><div class="pd-img"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4 3 3L16 12l4 4"/></svg></div><div class="pd-name">'+(r.nst?'<span class="nst" style="color:var(--red);background:#ffe7e7;border-radius:3px;font-size:16px;padding:4px 8px;margin-right:6px">非</span>':"")+esc(r.name)+'</div></div>';
+  if(r.nst){
+    top+=pdInfoRow("SKU编码",r.sku||"—")+'<div class="pd-row"><span class="l">型号</span><input class="pd-inline-input" id="pdModel" value="'+esc(r.model||"")+'" placeholder="请输入"><span class="pd-inline-edit"></span></div>';
+  }else{
+    top+=pdInfoRow("SKU编码",r.sku||"—")+pdInfoRow("品类",r.cate||"—")+pdInfoRow("型号",r.model||"—")+pdInfoRow("网批售价",r.net||"—");
+  }
+  top+='</div><div class="pd-card">';
+  if(r.nst)top+='<div class="pd-edit-row"><span class="l">品类</span><button class="pd-control pd-select-value" id="pdCate" type="button" onclick="openCategoryPick(\'pd\')">'+esc(r.cate||"中央空调")+'<span class="arr"></span></button></div>';
+  top+='<div class="pd-edit-row"><span class="l">申请数量</span><div class="pd-stepper"><button type="button" onclick="changePdQty(-1)">−</button><input id="pdQty" value="'+esc(r.qty||1)+'" inputmode="numeric"><button type="button" onclick="changePdQty(1)">＋</button></div></div>';
+  top+=pdEditInput("申请价格","pdPrice",String(r.price||"").replace(/[¥￥]/g,""),"请输入","inputmode=\"decimal\"");
+  top+='<div class="pd-edit-row"><span class="l">申请点位</span><div class="pd-stepper"><input id="pdPoint" value="'+esc(r.point==="—"?"":r.point||"")+'" placeholder="请输入" inputmode="decimal" onchange="syncPdPriceFromPoint()"><span class="unit">%</span></div></div>';
+  top+='<div class="pd-edit-row"><span class="l">商品行备注</span><textarea class="pd-control" id="pdRemark" placeholder="请输入(限50字符)">'+esc(r.remark==="—"?"":r.remark||"")+'</textarea></div></div>';
+  document.getElementById("pdBody").innerHTML=top;
+  document.getElementById("pdActions").innerHTML=r.nst
+    ?'<button class="btn redline" onclick="deletePd()">删除</button><button class="btn blue" onclick="confirmPd()">确认</button>'
+    :'<button class="btn redline" onclick="deletePd()">删除</button><button class="btn blue" onclick="confirmPd()">确定</button>';
+  openSh("pdMask");
+}
+function changePdQty(delta){var input=document.getElementById("pdQty");if(!input)return;input.value=Math.max(1,Math.min(9999999,(parseInt(input.value,10)||1)+delta));}
+function syncPdPriceFromPoint(){
+  var r=rows[pdIndex],point=document.getElementById("pdPoint"),price=document.getElementById("pdPrice");
+  if(!r||r.nst||!point||!price||!r.net||!point.value.trim())return;
+  var web=parseFloat(String(r.net).replace(/[^\d.]/g,""))||0;
+  var pointValue=parseFloat(point.value);
+  if(!isFinite(pointValue)||!web)return;
+  price.value=(web*(100-pointValue)/100).toFixed(2);
+}
+function confirmPd(){
+  var r=rows[pdIndex];if(!r)return;
+  var q=document.getElementById("pdQty"),price=document.getElementById("pdPrice"),point=document.getElementById("pdPoint"),remark=document.getElementById("pdRemark"),cate=document.getElementById("pdCate");
+  r.qty=Math.max(1,Math.min(9999999,parseInt(q&&q.value,10)||1));
+  var p=(price&&price.value||"").trim();
+  r.point=(point&&point.value||"").trim()||"—";
+  if(r.nst){
+    var model=document.getElementById("pdModel");
+    r.model=(model&&model.value||"").trim()||"—";
+  }
+  if(!r.nst&&r.point!=="—"&&isFinite(parseFloat(r.point))&&r.net){
+    var web=parseFloat(String(r.net).replace(/[^\d.]/g,""))||0;
+    r.price="¥"+(web*(100-parseFloat(r.point))/100).toFixed(2);
+  }else{
+    r.price=p?(p.indexOf("¥")===0?p:"¥"+p):"—";
+  }
+  r.remark=(remark&&remark.value||"").trim()||"—";
+  if(cate)r.cate=cate.textContent.trim()||r.cate;
+  closeSh("pdMask");renderProds();
+}
+function deletePd(){if(pdIndex<0)return;rows.splice(pdIndex,1);pdIndex=-1;closeSh("pdMask");renderProds();}
+/* 表单渲染（一字段一行 + 弹层选择） */
+function fi(label,inner,opt){return '<div class="fi"><div class="lab">'+label+(opt?' <span class="opt">'+opt+'</span>':"")+'</div>'+inner+'</div>';}
+function selRow(kind,id,ph){return '<button class="selrow" onclick="openPick(\''+kind+'\')"><span class="val ph" id="v_'+id+'">'+esc(ph||"请选择")+'</span><span class="arr"></span></button>';}
+function contactField(){
+  var mobile=contactMode==="mobile";
+  var contactValue=mobile?usageData.contactMobile:usageData.contactTel;
+  return '<div class="contact-box"><div class="contact-tabs">'
+    +'<button type="button" class="'+(mobile?"on":"")+'" onclick="switchContact(\'mobile\')">联系手机</button>'
+    +'<button type="button" class="'+(!mobile?"on":"")+'" onclick="switchContact(\'tel\')">固定电话</button></div>'
+    +'<input class="in" id="contactInput" value="'+esc(contactValue)+'" placeholder="'+(mobile?"请输入，11位数字，1开头":"如：07561234567")+'" maxlength="'+(mobile?11:20)+'" inputmode="tel">'
+    +'<div class="tip">'+(mobile?"11 位数字，须以 1 开头":"7-12位数字或“-”，不可含空格")+'</div></div>';
+}
+function unitField(ph,unit,id){
+  return '<div class="unit-field"><input class="in" id="'+esc(id||"")+'" value="'+esc(id&&usageData[id]||"")+'" placeholder="'+esc(ph)+'" inputmode="decimal"><span class="unit">'+esc(unit)+'</span></div>';
+}
+function captureUsage(){
+  var read=function(id){var el=document.getElementById(id);return el?el.value:"";};
+  if(document.getElementById("u_projectName"))usageData.projectName=read("u_projectName");
+  if(document.getElementById("u_customerName"))usageData.customerName=read("u_customerName");
+  if(document.getElementById("u_purchaseUnit"))usageData.purchaseUnit=read("u_purchaseUnit");
+  if(document.getElementById("u_leader"))usageData.leader=read("u_leader");
+  if(document.getElementById("u_detailAddress"))usageData.detailAddress=read("u_detailAddress");
+  if(document.getElementById("equipAmount"))usageData.equipAmount=read("equipAmount");
+  if(document.getElementById("area"))usageData.area=read("area");
+  if(document.getElementById("volume"))usageData.volume=read("volume");
+  if(document.getElementById("contactInput")){
+    usageData[contactMode==="mobile"?"contactMobile":"contactTel"]=read("contactInput");
+  }
+}
+function captureContract(){
+  var customer=document.getElementById("signCustomer"),amount=document.getElementById("signAmount");
+  if(customer)contractData.customer=customer.value;
+  if(amount)contractData.amount=amount.value;
+}
+function renderUsage(){
+  captureUsage();
+  var h="";
+  h+=fi("项目名称 <span class=\"req\">*</span>",'<input class="in" id="u_projectName" value="'+esc(usageData.projectName)+'" placeholder="请输入项目名称，最多100个字符" maxlength="100">');
+  h+=fi("客户类型 <span class=\"req\">*</span>",selRow("cust","cust","请选择"));
+  h+=fi("客户名称 <span class=\"req\">*</span>",'<div class="biz-inline biz-check-wrap" data-biz-name="customerName"><input class="in biz-check-input" id="u_customerName" value="'+esc(usageData.customerName)+'" placeholder="请输入客户名称" title="请输入客户名称" oninput="onBizFieldChange(\'customerName\')"><button class="check" type="button" onclick="onBizCheck(\'customerName\')">核对</button></div><div class="biz-status" id="bizStatus_customerName"></div>');
+  h+=fi("采购单位 <span class=\"req\">*</span>",'<div class="biz-inline biz-check-wrap" data-biz-name="purchaseUnit"><input class="in biz-check-input" id="u_purchaseUnit" value="'+esc(usageData.purchaseUnit)+'" placeholder="请输入采购单位" title="请输入采购单位" oninput="onBizFieldChange(\'purchaseUnit\')"><button class="check" type="button" onclick="onBizCheck(\'purchaseUnit\')">核对</button></div><div class="biz-status" id="bizStatus_purchaseUnit"></div>');
+  h+=fi("行业大类 <span class=\"req\">*</span>",selRow("industry","industry","请选择"));
+  h+=fi("使用方负责人 <span class=\"req\">*</span>",'<input class="in" id="u_leader" value="'+esc(usageData.leader)+'" placeholder="请输入">');
+  h+=fi("联系方式 <span class=\"req\">*</span>",contactField());
+  h+=fi("项目预计设备金额 <span class=\"req\">*</span>",unitField("请输入","万元","equipAmount"));
+  if(vals.biz!=="冷链"){h+=fi("空调面积 <span class=\"req\">*</span>",unitField("请输入","m²","area"));}
+  if(vals.biz==="冷链"){h+=fi("容积 <span class=\"req\">*</span>",unitField("请输入","m³","volume"),"业务线=冷链时必填");}
+  h+=fi("项目地址 <span class=\"req\">*</span>",'<button class="selrow" onclick="openAddr()"><span class="val ph" id="v_prov">请选择省/市/区/街道</span><span class="arr"></span></button>');
+  h+=fi("详细地址",'<input class="in" id="u_detailAddress" value="'+esc(usageData.detailAddress)+'" placeholder="请输入" maxlength="50">');
+  h+=fi("跨区类型",'<button class="selrow"><span class="val" style="color:#8f959e">非跨区</span></button>','根据项目地址自动判断');
+  h+=fi("执行单位 <span class=\"req\">*</span>",selRow("exec","exec","请选择"));
+  h+=fi("项目状态 <span class=\"req\">*</span>",selRow("status","status","请选择"));
+  document.getElementById("usageForm").innerHTML=h;
+  refreshVals();
+  renderBizStatus("customerName");
+  renderBizStatus("purchaseUnit");
+  syncContact();
+  syncSubmitState();
+}
+function renderStateChips(){
+  vals.status=pstate;
+  var el=document.getElementById("v_status");
+  if(el){el.textContent=pstate;el.classList.remove("ph");}
+}
+function syncContact(){
+  var box=document.querySelector(".contact-box");
+  if(!box)return;
+  var mobile=contactMode==="mobile";
+  var tabs=box.querySelectorAll(".contact-tabs button");
+  if(tabs[0])tabs[0].classList.toggle("on",mobile);
+  if(tabs[1])tabs[1].classList.toggle("on",!mobile);
+
+  var input=box.querySelector("#contactInput");
+  if(input){
+    input.value=mobile?usageData.contactMobile:usageData.contactTel;
+    input.placeholder=mobile?"请输入，11位数字，1开头":"如：07561234567";input.maxLength=mobile?11:20;
+  }
+  var tip=box.querySelector(".tip");
+  if(tip)tip.textContent=mobile?"11 位数字，须以 1 开头":"7-12位数字或“-”，不可含空格";
+}
+function switchContact(type){
+  captureUsage();
+  contactMode=type==="tel"?"tel":"mobile";
+  syncContact();
+}
+function syncSubmitState(){
+  captureUsage();
+  captureContract();
+  var btn=document.getElementById("submitBtn");
+  if(!btn)return;
+  var fileReady=function(id){var el=document.getElementById(id);return !!(el&&el.files&&el.files.length);};
+  var contact=contactMode==="mobile"?usageData.contactMobile:usageData.contactTel;
+  var ready=!!dealerState.selected&&rows.length>0
+    &&!!usageData.projectName.trim()
+    &&!!vals.cust&&!!usageData.customerName.trim()&&!!usageData.purchaseUnit.trim()
+    &&!!vals.industry&&!!usageData.leader.trim()&&!!contact.trim()
+    &&!!usageData.equipAmount.trim()
+    &&(vals.biz==="冷链"?!!usageData.volume.trim():!!usageData.area.trim())
+    &&!!vals.prov&&!!vals.city&&!!vals.dist&&!!vals.street&&!!vals.exec&&!!vals.status;
+  if(pstate==="已签单")ready=ready&&!!hasContract;
+  if(pstate==="已丢单")ready=ready&&!!vals.failReason;
+  if(pstate==="已中标")ready=ready&&fileReady("file_b");
+  if(pstate==="已签单"){
+    if(hasContract==="是")ready=ready&&fileReady("file_c");
+    if(hasContract==="否")ready=ready&&fileReady("file_n");
+    ready=ready&&!!contractData.customer.trim()&&!!contractData.amount.trim();
+  }
+  if(pstate==="已丢单")ready=ready&&fileReady("file_f");var bizPass=function(n){var st=bizState[n];return !st||st.status==="verified"||st.status==="confirmed"||st.status==="idle";};ready=ready&&bizPass("customerName")&&bizPass("purchaseUnit")&&(pstate!=="已签单"||bizPass("signCustomer"));
+  btn.disabled=!ready;
+  btn.setAttribute("aria-disabled",ready?"false":"true");
+}
+function upBtn(tag){
+  return '<div class="upload-wrap"><button class="s2btn ghost" style="height:42px" onclick="document.getElementById(\'file_'+tag+'\').click()">上传文件</button>'
+    +'<input type="file" id="file_'+tag+'" hidden onchange="showUpload(this,\'fileName_'+tag+'\');syncSubmitState()" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx">'
+    +'<div class="upload-file-name" id="fileName_'+tag+'"></div></div>';
+}
+function showUpload(input,targetId){
+  var target=document.getElementById(targetId);
+  if(target)target.textContent=input.files&&input.files[0]?"已选择："+input.files[0].name:"";
+}
+function renderMainFiles(input){
+  var files=Array.prototype.slice.call(input.files||[]).slice(0,10),box=document.getElementById("mainFilesList");
+  if(!box)return;
+  box.innerHTML=files.map(function(file){
+    var ext=(file.name.split(".").pop()||"文件").toUpperCase().slice(0,4);
+    return '<div class="file-item"><span class="file-icon">'+esc(ext)+'</span><span class="file-name">'+esc(file.name)+'</span><span>◉</span></div>';
+  }).join("");
+}
+function renderStateExt(){
+  var box=document.getElementById("stateExtBox"),html="";
+  if(pstate==="已中标"){html='<div class="state-ext"><div class="ext-t">项目状态 · 已中标</div>'+fi("中标通知书 <span class=\"req\">*</span>",upBtn("b"))+'<div class="tip" style="margin-top:-8px">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx，单个文件不超过20MB</div></div>';}
+  else if(pstate==="已签单"){
+    html='<div class="state-ext"><div class="ext-t">项目状态 · 已签单</div>'
+     +'<div class="fi"><div class="lab">是否有合同 <span class="req">*</span></div><div class="chips" id="hcChips"></div></div><div id="hcRows"></div></div>';
+  }else if(pstate==="已丢单"){
+    html='<div class="state-ext"><div class="ext-t">项目状态 · 已丢单</div>'
+     +fi("丢单原因 <span class=\"req\">*</span>",selRow("failReason","failReason","请选择"))
+     +fi("丢单报告 <span class=\"req\">*</span>",upBtn("f"))+'</div>';
+  }
+  box.innerHTML=html||""; rebuildHc(); renderContractRows(); syncSubmitState();
+}
+function rebuildHc(){var c=document.getElementById("hcChips");if(!c)return;c.innerHTML=["是","否"].map(function(x){var on=hasContract===x;return '<span class="gchip '+(on?"on":"")+'" onclick="captureContract();hasContract=\''+x+'\';rebuildHc();renderContractRows();syncSubmitState()">'+x+'</span>';}).join("");}
+function renderContractRows(){var box=document.getElementById("hcRows");if(!box)return;var h="";
+  if(hasContract==="是")h+=fi("合同附件 <span class=\"req\">*</span>",upBtn("c"))+'<div class="tip" style="margin-top:-8px">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>';
+  if(hasContract==="否")h+=fi("无合同签单说明 <span class=\"req\">*</span>",upBtn("n"))+'<div class="tip" style="margin-top:-8px">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>';
+  if(pstate==="已签单"){h+=fi("合同客户 <span class=\"req\">*</span>",'<div class="biz-check-wrap" data-biz-name="signCustomer"><div class="inline"><input class="in biz-check-input" id="signCustomer" value="'+esc(contractData.customer)+'" placeholder="演示请输入：珠海华邑酒店有限公司" title="演示请输入：珠海华邑酒店有限公司" oninput="onBizFieldChange(\'signCustomer\')"><button type="button" onclick="onTianyanCheck(\'signCustomer\')">工商校验</button></div><div class="biz-check-status" id="bizStatus_signCustomer"></div></div>');h+=fi("签单金额 <span class=\"req\">*</span>",'<div class="unit-field"><input class="in" id="signAmount" value="'+esc(contractData.amount)+'" placeholder="请输入" inputmode="decimal"><span class="unit">元</span></div>');}
+  box.innerHTML=h;
+  renderBizStatus("signCustomer");
+}
+/* 通用确认弹窗 */
+var dlgOkFn=null;
+function dlg(msg,ok,noCancel){document.getElementById("dlgMsg").textContent=msg;dlgOkFn=ok||function(){};document.getElementById("dlgWrap").classList.add("show");}
+function closeDlg(e){if(e&&e.target!==document.getElementById("dlgWrap"))return;document.getElementById("dlgWrap").classList.remove("show");}
+function dlgOk(){var f=dlgOkFn;closeDlg();if(f)f();}
+function doSubmit(){
+  var btn=document.getElementById("submitBtn");
+  if(btn&&btn.disabled){toast("请先完善必填信息并添加商品");return;}
+  dlg("确定提交代客申请吗？",function(){toast("原型占位：已提交，直接进入跟进中");});
+}
+/* 场景（演示） */
+function scene(s){
+  document.getElementById("navTitle").textContent="代客申请";
+  document.getElementById("sceneSel").value=s;
+  document.getElementById("submitNote").textContent="提交后直接进入跟进中，无审批流程";
+  document.getElementById("submitBtn").textContent="提交";
+}
+(function init(){
+  document.getElementById("sceneSel").innerHTML='<option value="new">代客申请</option>';
+  document.getElementById("sceneSel").value="new";
+  rows=[
+    {name:"非常好用的冷静王变频挂机a",sku:"KFR-35GW/(35512)FNhAa-B3",price:"¥3555",qty:281,nst:false,model:"KFR-35GW/(35512)FNhAa-B3",point:"—",remark:"—",cate:"中央空调",net:"¥3555"},
+    {name:"非常好用的冷静王变频挂机a",sku:"KFR-35GW/(35512)FNhAa-B3",price:"¥3555",qty:281,nst:false,model:"KFR-35GW/(35512)FNhAa-B3",point:"—",remark:"—",cate:"中央空调",net:"¥3555"},
+    {name:"非常好用的冷静王变频挂机非常好用…",sku:"KFR-35GW/(35512)FNhAa-B3B3B3B...",price:"¥3555",qty:281,nst:false,model:"KFR-35GW/(35512)FNhAa-B3B3B3B...",point:"—",remark:"—",cate:"中央空调",net:"¥3555"}
+  ];
+  dealerState.selected=null;
+  dealerState.active=null;
+  usageData.projectName="珠海某酒店中央空调采购项目";
+  usageData.customerName="珠海华邑酒店有限公司";
+  usageData.purchaseUnit="珠海华邑酒店有限公司";
+  usageData.leader="张建华";
+  usageData.contactMobile="13800999988";
+  usageData.equipAmount="198.5";
+  usageData.area="3200";
+  usageData.detailAddress="广东省珠海市香洲区水湾路街道";
+  vals.cust="客户";
+  vals.industry="酒店/宾馆";
+  vals.exec="";
+  vals.prov=""; vals.city=""; vals.dist=""; vals.street=""; vals.status="";
+  pstate="";
+  renderProds();renderUsage();renderStateExt();refreshVals();scene("new");
+})();
+</script>
+</body>
+</html>
