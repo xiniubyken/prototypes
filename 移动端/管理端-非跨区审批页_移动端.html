@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-非跨区审批页_移动端</title>
+<style>
+:root{
+  --blue:#1672f7;
+  --blue-deep:#0f5dd0;
+  --blue-bg:#eef4ff;
+  --green:#18a558;
+  --red:#e53935;
+  --orange:#ed6c02;
+  --gray:#8f959e;
+  --line:#eceff3;
+  --line2:#f2f4f7;
+  --bg:#f5f6fa;
+  --card:#fff;
+  --text:#1f2329;
+  --text2:#646a73;
+  --safe-bottom:env(safe-area-inset-bottom);
+  --page-max:430px;
+  font-synthesis-weight:none;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#edf4ff 0%,#f5f6fa 24%,#f5f6fa 100%);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  overflow-x:hidden;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.phone{
+  width:100%;
+  max-width:var(--page-max);
+  min-height:100vh;
+  margin:0 auto;
+  background:var(--bg);
+  position:relative;
+  overflow:hidden;
+  padding-bottom:96px;
+}
+.statusbar{
+  height:25px;
+  padding:4px 18px 0;
+  background:#fff;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  font-size:12px;
+  font-weight:700;
+}
+.signal{letter-spacing:-2px;font-size:13px}
+.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{
+  height:52px;
+  padding:0 8px 0 10px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  position:relative;
+}
+.back{
+  width:34px;height:34px;border:0;background:transparent;
+  display:grid;place-items:center;color:#333;border-radius:8px;flex:0 0 auto
+}
+.back i{
+  width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;
+  transform:rotate(45deg);display:inline-block
+}
+.nav-title{
+  flex:1;
+  text-align:center;
+  font-size:18px;
+  font-weight:700;
+  white-space:nowrap;
+  padding-right:34px;
+}
+.nav-more{
+  position:absolute;
+  right:8px;
+  top:9px;
+  width:34px;height:34px;
+  border:0;
+  background:transparent;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  color:#333;
+  flex:0 0 auto;
+}
+.nav-more span{
+  font-size:18px;
+  line-height:1;
+  transform:translateY(-1px);
+  letter-spacing:-2px;
+}
+.meta{
+  background:#fff;
+  padding:11px 14px 12px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.meta-txt{flex:1;min-width:0;font-size:15px;font-weight:700;line-height:1.4;word-break:break-all}
+.meta-sub{color:var(--gray);font-weight:400}
+.pill{
+  flex:0 0 auto;
+  border-radius:5px;
+  padding:3px 10px;
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.pill.in{background:#e6f0ff;color:#2f6fd6}
+.pill.pass{background:#e8f6ea;color:var(--green)}
+.pill.reject{background:#fdf0ef;color:var(--red)}
+.pill.cancel{background:#f0f2f4;color:var(--gray)}
+.tabs{
+  display:flex;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:25;
+}
+.tab{
+  flex:1;
+  border:0;
+  background:#fff;
+  padding:13px 6px 12px;
+  font-size:16px;
+  color:#8f959e;
+  position:relative;
+}
+.tab.on{color:var(--blue);font-weight:700}
+.tab.on:after{
+  content:"";
+  position:absolute;
+  left:50%;transform:translateX(-50%);
+  bottom:0;width:44px;height:3px;border-radius:3px 3px 0 0;background:var(--blue)
+}
+.panel{display:none;padding:12px 14px 0}
+.panel.on{display:block}
+.section{
+  background:var(--card);
+  border-radius:14px;
+  margin-bottom:12px;
+  overflow:hidden;
+  box-shadow:0 1px 0 rgba(0,0,0,.02);
+}
+.section-hd{
+  padding:12px 14px;
+  border-bottom:1px solid var(--line2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.section-hd-left{display:flex;align-items:center;gap:8px;min-width:0}
+.bar{width:4px;height:15px;border-radius:2px;background:var(--blue);flex:0 0 auto}
+.section-title{font-size:16px;font-weight:700}
+.section-sub{font-size:12px;color:var(--gray);font-weight:400}
+.section-hd-btn{
+  border:1px solid #d7e4fb;
+  background:#fff;
+  color:var(--blue);
+  height:32px;
+  border-radius:16px;
+  padding:0 14px;
+  font-size:13px;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+}
+.section-bd{padding:4px 14px 12px}
+.row{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  padding:11px 0;
+  border-top:1px solid var(--line2);
+}
+.row:first-child{border-top:0}
+.lab{
+  flex:0 0 40%;
+  max-width:40%;
+  min-width:0;
+  color:var(--text2);
+  font-size:14px;
+  line-height:1.5;
+}
+.lab.req:before{content:"*";color:#e53935;margin-right:2px}
+.val{
+  flex:1 1 60%;
+  min-width:0;
+  text-align:right;
+  color:var(--text);
+  font-size:14px;
+  font-weight:600;
+  line-height:1.5;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+.val.muted{color:var(--text2);font-weight:400}
+.val.multiline{text-align:right;font-weight:600}
+.copy{
+  margin-left:6px;
+  border:0;
+  background:transparent;
+  color:var(--blue);
+  font-size:13px;
+  font-weight:700;
+  padding:0;
+}
+.mini-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  height:20px;
+  padding:0 7px;
+  border-radius:10px;
+  background:var(--blue-bg);
+  color:var(--blue);
+  font-size:12px;
+  font-weight:700;
+}
+.select-like{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  color:#1f2329;
+  min-width:0;
+  max-width:100%;
+}
+.select-like .chev{color:#b2b7c1;font-size:16px;line-height:1}
+.inline-line{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.edit-btn{
+  padding:6px 10px;
+  border:1px solid #cfe0f8;
+  border-radius:6px;
+  color:var(--blue);
+  background:#fff;
+  font-size:12px;
+  font-weight:700;
+}
+.chip{
+  display:inline-flex;
+  align-items:center;
+  height:22px;
+  padding:0 9px;
+  border-radius:11px;
+  font-size:12px;
+  font-weight:700;
+}
+.chip.ok{background:#e8f6ea;color:var(--green)}
+.chip.warn{background:#fff2e6;color:var(--orange)}
+.chip.gray{background:#f0f2f4;color:var(--gray)}
+.chip.red{background:#fdf0ef;color:var(--red)}
+.field-box{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+.input, select.input, textarea.input{
+  width:100%;
+  border:1px solid #d8dee7;
+  border-radius:10px;
+  background:#fff;
+  color:var(--text);
+  outline:none;
+}
+select.input,input.input{height:40px;padding:0 12px;font-size:14px}
+textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line-height:1.6}
+.soft{
+  background:#f6f7f9;
+  border-radius:10px;
+  padding:10px 12px;
+  color:#4a5057;
+  font-size:13px;
+  line-height:1.75;
+  word-break:break-all;
+}
+.attach-list{display:flex;flex-direction:column;gap:8px}
+.attach{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#f5f6fa;
+  border:1px solid #eef0f3;
+  border-radius:10px;
+  padding:9px 10px;
+  font-size:13px;
+}
+.attach .ico{
+  width:26px;height:26px;border-radius:6px;display:grid;place-items:center;flex:0 0 auto;font-size:14px
+}
+.ico.img{background:#e7f2ff;color:#1672f7}
+.ico.doc{background:#eef6ff;color:#0c63d6}
+.ico.pdf{background:#fff1ed;color:#e65100}
+.ico.xls{background:#eaf8ef;color:#18a558}
+.attach .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attach .size{color:var(--gray);font-size:12px}
+.attach .pv{color:var(--blue);font-size:12px;font-weight:700}
+
+/* 设备清单 */
+.equip-hd{
+  padding:12px 14px;
+  border-bottom:1px solid var(--line2);
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.equip-hd-left{min-width:0}
+.equip-title{font-size:16px;font-weight:700;line-height:1.3}
+.equip-sub{font-size:12px;color:#9aa0a6;margin-top:4px}
+.equip-sub b{color:#8f959e}
+.equip-add{
+  height:36px;
+  padding:0 14px;
+  border-radius:18px;
+  border:1px solid #d7e4fb;
+  background:#fff;
+  color:var(--blue);
+  font-size:14px;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  white-space:nowrap;
+}
+.equip-wrap{padding:12px 14px 10px}
+.equip-list{display:flex;flex-direction:column;gap:12px}
+.equip-item{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+}
+.thumb{
+  width:96px;
+  height:96px;
+  border-radius:12px;
+  background:
+    linear-gradient(145deg,#f9fafc 0%,#eef1f5 46%,#ffffff 100%);
+  box-shadow:inset 0 0 0 1px #f0f2f6;
+  position:relative;
+  flex:0 0 auto;
+  overflow:hidden;
+}
+.thumb:before{
+  content:"";
+  position:absolute;inset:18px 18px 26px;
+  background:linear-gradient(180deg,#fff 0%,#f5f6fa 100%);
+  border-radius:8px;
+  box-shadow:0 6px 14px rgba(0,0,0,.08);
+}
+.thumb:after{
+  content:"图片";
+  position:absolute;left:10px;top:10px;
+  font-size:10px;color:#c0c4cc;
+}
+.equip-main{flex:1;min-width:0}
+.equip-top{
+  display:flex;
+  align-items:flex-start;
+  gap:6px;
+}
+.non-badge{
+  width:22px;height:22px;border-radius:4px;background:#ffe9e7;color:#e53935;
+  display:inline-grid;place-items:center;font-size:13px;font-weight:700;flex:0 0 auto
+}
+.equip-name{
+  flex:1;
+  min-width:0;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.4;
+  word-break:break-all;
+  margin-right:4px;
+}
+.equip-mid{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:10px;
+}
+.equip-price{font-size:14px;color:var(--text2);font-weight:400}
+.equip-price b{color:#1f2329;font-weight:600}
+.stepper{
+  display:inline-flex;
+  align-items:center;
+  border:1px solid #d7dbe2;
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+  flex:0 0 auto;
+}
+.step-btn{
+  width:32px;height:32px;border:0;background:#fff;color:#7b8089;font-size:24px;line-height:1
+}
+.step-val{
+  width:42px;height:32px;border:0;border-left:1px solid #d7dbe2;border-right:1px solid #d7dbe2;
+  text-align:center;font-size:15px;font-weight:700;color:#1f2329;outline:none
+}
+.equip-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  padding:10px 0 4px;
+  color:var(--gray);
+  font-size:14px;
+  font-weight:600;
+}
+.equip-toggle .arrow{display:inline-block;transition:.2s;font-size:11px}
+.equip-toggle.open{color:var(--blue)}
+.equip-toggle.open .arrow{transform:rotate(180deg)}
+.equip-sum{
+  border-top:1px solid var(--line);
+  margin-top:8px;
+  padding-top:10px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:8px;
+  color:#8f959e;
+  font-size:13px;
+}
+.equip-sum b{color:#1f2329;font-weight:700}
+.equip-sum .money{color:#ff6d00;font-weight:700;font-size:16px}
+.hidden{display:none !important}
+
+.record-head{
+  padding:12px 14px;
+  border-bottom:1px solid var(--line2);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+.switch-row{display:flex;align-items:center;gap:8px;color:var(--text2);font-size:13px}
+.switch{position:relative;width:42px;height:23px;flex:0 0 auto}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.slider{position:absolute;inset:0;background:#c9ced8;border-radius:12px;transition:.2s}
+.slider:before{content:"";position:absolute;left:3px;top:3px;width:17px;height:17px;border-radius:50%;background:#fff;transition:.2s}
+.switch input:checked + .slider{background:var(--blue)}
+.switch input:checked + .slider:before{transform:translateX(19px)}
+.sw-txt{font-size:12px;color:var(--blue);font-weight:700}
+.record-list{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.record{
+  background:#fafbfd;
+  border:1px solid #eef0f3;
+  border-radius:12px;
+  padding:12px 12px 10px;
+}
+.record-top{display:flex;align-items:center;gap:8px}
+.record-name{font-size:14px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.record-time{font-size:12px;color:var(--gray);flex:0 0 auto}
+.badge{
+  flex:0 0 auto;
+  border-radius:4px;
+  font-size:12px;
+  font-weight:700;
+  padding:2px 8px;
+}
+.badge.pass{background:#e8f6ea;color:var(--green)}
+.badge.reject{background:#fdf0ef;color:var(--red)}
+.badge.cancel{background:#f0f2f4;color:var(--gray)}
+.record-opinion{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.record-opinion-note{
+  background:#fff;
+  border:1px solid #eef0f3;
+  border-radius:8px;
+  padding:7px 9px;
+  font-size:13px;
+  line-height:1.55;
+  color:#4a5057;
+  word-break:break-all;
+}
+.record-opinion-attach{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.record-opinion-attach-title,
+.record-inner-attach-title{
+  font-size:12px;
+  color:#8f959e;
+  line-height:1.4;
+}
+.record-opinion-attach-list{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.record-opinion-expand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 0 0;
+}
+.record-opinion-expand .toggle{
+  color:var(--blue);
+  font-size:12px;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+}
+.record-inner{
+  margin-top:8px;
+  border-top:1px dashed #dfe2e9;
+  padding-top:7px;
+  display:none;
+}
+.record-inner.on{
+  display:block;
+}
+.record-inner-hd{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  font-weight:700;
+  color:#676d77;
+  margin-bottom:4px;
+}
+.record-inner-note{
+  background:#fff;
+  border:1px solid #eef0f3;
+  border-radius:8px;
+  padding:7px 9px;
+  font-size:13px;
+  color:#4a5057;
+  line-height:1.5;
+  word-break:break-all;
+}
+.record-attach-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:#fff;
+  border:1px solid #eef0f3;
+  border-radius:8px;
+  padding:7px 9px;
+  font-size:11px;
+}
+.empty{
+  background:#fff;
+  border-radius:14px;
+  padding:44px 0;
+  text-align:center;
+  color:#a6adb6;
+  font-size:14px;
+}
+
+/* 底部操作栏 */
+.foot{
+  position:fixed;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:min(var(--page-max),100%);
+  background:#fff;
+  border-top:1px solid var(--line);
+  padding:10px 16px calc(10px + var(--safe-bottom));
+  display:flex;
+  align-items:center;
+  gap:12px;
+  z-index:40;
+}
+.foot-status{
+  flex:0 0 auto;
+  min-width:58px;
+  height:26px;
+  border-radius:6px;
+  display:inline-grid;
+  place-items:center;
+  padding:0 10px;
+  background:#eef4ff;
+  color:#2f6fd6;
+  font-size:12px;
+  font-weight:700;
+}
+.foot-btn{
+  flex:1;
+  height:44px;
+  border-radius:22px;
+  border:0;
+  background:var(--blue);
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+}
+.foot-btn .chev{font-size:11px}
+
+/* sheet / modal */
+.mask{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.46);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  z-index:80;
+}
+.mask.show{display:flex}
+.sheet{
+  width:min(var(--page-max),100%);
+  background:#fff;
+  border-radius:17px 17px 0 0;
+  display:flex;
+  flex-direction:column;
+  max-height:90vh;
+  overflow:hidden;
+}
+.sheet-hd{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:17px;
+  font-weight:700;
+  padding:16px 18px 10px;
+}
+.sheet-x{
+  border:0;
+  background:#f3f4f6;
+  color:#777;
+  border-radius:50%;
+  width:28px;height:28px;
+  font-size:18px;line-height:1
+}
+.sheet-bd{flex:1;min-height:0;padding:0 18px 4px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet-ft{
+  display:flex;
+  gap:10px;
+  padding:12px 18px calc(12px + var(--safe-bottom));
+  border-top:1px solid #f0f1f3;
+}
+.dlg-btn{
+  flex:1;
+  height:46px;
+  border-radius:23px;
+  font-size:16px;
+  font-weight:700;
+  border:0;
+}
+.dlg-btn.blue{background:var(--blue);color:#fff}
+.dlg-btn.red{background:#fff;color:var(--red);border:1px solid #f0c8c6}
+.dlg-btn.gray{background:#fff;color:#333;border:1px solid #dde2ea}
+.warn-bar{
+  display:flex;align-items:flex-start;gap:8px;
+  padding:12px 14px;background:#fffbe6;border-radius:8px;margin-bottom:14px;
+  color:#b45309;font-size:13px;line-height:1.55
+}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.helper{font-size:11px;color:#9aa0a6;margin-top:4px;line-height:1.5}
+.file-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+}
+.file-zone{
+  border:1px dashed #c9ced8;
+  border-radius:10px;
+  background:#fafbfc;
+  height:42px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#8f959e;
+  font-size:13px;
+}
+.flow-tabs{
+  display:flex;
+  margin:0 18px;
+  background:#f2f4f7;
+  border-radius:10px;
+  padding:3px;
+  gap:3px;
+}
+.flow-tab{
+  flex:1;
+  height:38px;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:#8b8b8b;
+  font-size:15px;
+}
+.flow-tab.on{background:#fff;color:var(--blue);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.flow-body{padding:14px 18px 8px;overflow-y:auto}
+.flow-steps{padding:4px 2px 12px}
+.flow-step{
+  display:grid;
+  grid-template-columns:30px minmax(0,1fr);
+  gap:12px;
+  position:relative;
+  padding:6px 0 18px;
+}
+.flow-step:last-child{padding-bottom:6px}
+.flow-step:not(:last-child):before{
+  content:"";
+  position:absolute;
+  left:14px;
+  top:34px;
+  bottom:0;
+  width:2px;
+  background:#e3e6ea;
+}
+.dot{
+  width:28px;height:28px;border-radius:50%;
+  border:2px solid #c9ced6;background:#fff;
+  display:grid;place-items:center;
+  color:#aab2bd;font-size:12px;font-weight:700
+}
+.flow-step.done .dot{background:#e9f9f0;border-color:#28b978;color:#16a567}
+.flow-step.current .dot{background:#e8f1ff;border-color:var(--blue);color:var(--blue)}
+.flow-step.stop .dot{background:#fdecea;border-color:#d9665d;color:#c62828}
+.flow-name{font-size:16px;font-weight:600;line-height:1.4}
+.flow-meta{font-size:13px;color:#999;margin-top:3px}
+.flow-note{text-align:center;color:#b9b9b9;font-size:13px;padding:2px 0 6px}
+.flow-svg{
+  background:#fff;
+  border:1px solid #eef0f3;
+  border-radius:12px;
+  padding:12px 8px 8px;
+  cursor:zoom-in;
+}
+.flow-svg svg{display:block;width:100%;height:auto}
+.zoom{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.88);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:120;
+  padding:22px;
+}
+.zoom.show{display:flex}
+.zoom-box{
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
+  max-width:94vw;
+  max-height:86vh;
+  overflow:auto;
+}
+.zoom-close{
+  position:absolute;
+  top:14px;
+  right:18px;
+  border:0;
+  background:transparent;
+  color:#fff;
+  font-size:44px;
+  font-weight:200;
+  line-height:1;
+}
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:calc(92px + var(--safe-bottom));
+  transform:translateX(-50%) scale(.96);
+  background:rgba(17,24,39,.92);
+  color:#fff;
+  font-size:13px;
+  padding:10px 14px;
+  border-radius:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:.18s ease;
+  z-index:150;
+}
+.toast.show{opacity:1;transform:translateX(-50%) scale(1)}
+.demo-tools{
+  display:none;
+  position:fixed;
+  top:10px;
+  left:10px;
+  z-index:200;
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:8px 10px;
+  gap:12px;
+  align-items:center;
+  font-size:12px;
+  box-shadow:0 4px 14px rgba(0,0,0,.12);
+}
+.demo-tools label{color:#666}
+.demo-tools select{border:1px solid #c9ced8;border-radius:5px;padding:3px 4px;color:#333}
+.action-sheet{
+  width:min(var(--page-max),100%);
+  background:#fff;
+  border-radius:17px 17px 0 0;
+  display:flex;
+  flex-direction:column;
+  padding:16px 18px calc(14px + var(--safe-bottom));
+  gap:10px;
+}
+.action-sheet .act-btn{
+  height:52px;
+  border-radius:26px;
+  border:1px solid #dfe3ea;
+  background:#fff;
+  color:#333;
+  font-size:16px;
+  font-weight:700;
+}
+.action-sheet .act-btn.primary{
+  background:var(--blue);
+  border-color:var(--blue);
+  color:#fff;
+}
+.screen-mask{
+  position:fixed;
+  inset:0;
+  background:#f5f6fa;
+  z-index:95;
+  display:none;
+}
+.screen-mask.show{display:block}
+.screen{
+  width:100%;
+  max-width:var(--page-max);
+  height:100vh;
+  margin:0 auto;
+  background:#f5f6fa;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+.screen-search{
+  background:#fff;
+  padding:10px 14px 12px;
+  border-bottom:1px solid var(--line);
+}
+.search-input{
+  width:100%;
+  height:40px;
+  border:0;
+  outline:none;
+  border-radius:20px;
+  background:#f1f3f6;
+  padding:0 14px;
+  font-size:14px;
+}
+.screen-scroll{
+  flex:1;
+  min-height:0;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:12px 14px 92px;
+}
+.screen-bottom{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  width:min(var(--page-max),100%);
+  background:#fff;
+  border-top:1px solid var(--line);
+  padding:10px 14px calc(10px + var(--safe-bottom));
+}
+.screen-bottom-bar{display:flex;align-items:center;gap:10px}
+.wide-btn{
+  height:44px;
+  border-radius:22px;
+  border:1px solid #d7e4fb;
+  background:#fff;
+  color:var(--blue);
+  font-size:15px;
+  font-weight:700;
+}
+.wide-btn.blue{background:var(--blue);border-color:var(--blue);color:#fff}
+.wide-btn.ghost{background:#fff;color:var(--blue)}
+.std-card{
+  background:#fff;
+  border-radius:14px;
+  padding:12px 12px;
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:10px;
+  border:1.5px solid transparent;
+}
+.std-card.selected{border-color:#ff8a00;background:#fffaf5}
+.std-check{
+  width:22px;
+  height:22px;
+  border:2px solid #c9ced8;
+  border-radius:50%;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+}
+.std-card.selected .std-check{background:#ff8a00;border-color:#ff8a00}
+.std-card.selected .std-check:after{content:"✓";color:#fff;font-size:15px;font-weight:700}
+.prod-img{
+  width:70px;
+  height:70px;
+  border-radius:10px;
+  background:#f4f6f8;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+}
+.prod-img svg{width:58px;height:42px}
+.std-main{flex:1;min-width:0}
+.std-name{
+  font-size:15px;
+  font-weight:700;
+  color:#1f2329;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.std-model{
+  font-size:12px;
+  color:#8f959e;
+  margin-top:3px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.std-net{font-size:12px;color:#8f959e;margin-top:6px}
+.std-net b{color:#ff6d00;font-size:14px}
+.std-stepper{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+  margin-top:8px;
+}
+.std-stepper button{
+  width:28px;
+  height:28px;
+  border:0;
+  background:#fff3e8;
+  color:#ff6d00;
+  border-radius:50%;
+  font-size:18px;
+  line-height:1;
+}
+.std-stepper input{
+  width:58px;
+  height:30px;
+  border:0;
+  border-radius:9px;
+  background:#f4f6f8;
+  text-align:center;
+}
+.selected-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-size:16px;
+  font-weight:700;
+  margin:2px 0 12px;
+}
+.delete-all{
+  border:0;
+  background:transparent;
+  color:#8f959e;
+  font-size:13px;
+}
+.selected-card{position:relative}
+.selected-card .remove-one{
+  position:absolute;
+  right:10px;
+  top:10px;
+  border:0;
+  background:#fff2e8;
+  color:#ff6d00;
+  border-radius:12px;
+  padding:4px 9px;
+  font-size:12px;
+}
+.login-page{
+  position:fixed;
+  inset:0;
+  background:#fff;
+  z-index:90;
+  display:none;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.login-page.show{display:block}
+.login-page .nav{
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+.login-nav .nav-title{padding-right:0}
+.login-body{padding-bottom:18px}
+.login-top{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 18px 12px;
+  border-bottom:1px solid #eef0f3;
+}
+.login-top .assoc{
+  font-size:15px;
+  color:#333;
+  font-weight:700;
+}
+.login-tabs{
+  display:flex;
+  border-bottom:1px solid var(--line);
+  background:#fff;
+}
+.login-tab{
+  flex:1;
+  border:0;
+  background:#fff;
+  padding:12px 6px 10px;
+  font-size:15px;
+  color:#8f959e;
+  position:relative;
+}
+.login-tab.on{color:var(--blue);font-weight:700}
+.login-tab.on:after{
+  content:"";
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:0;
+  width:48px;
+  height:4px;
+  border-radius:4px 4px 0 0;
+  background:var(--blue);
+}
+.login-panel{display:none;padding:0 14px 18px}
+.login-panel.on{display:block}
+.login-card{
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 1px 0 rgba(0,0,0,.03);
+  margin:12px 0 0;
+  overflow:hidden;
+}
+.login-card-hd{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 14px 12px;
+}
+.login-card-name{font-size:15px;font-weight:700;min-width:0;flex:1}
+.login-card-time{font-size:12px;color:#a0a6ae;white-space:nowrap}
+.login-card-toggle{font-size:14px;color:#a0a6ae;margin-left:4px}
+.login-card-toggle.on{color:var(--blue)}
+.login-card-bd{
+  border-top:1px solid #eef0f3;
+  padding:12px 14px 14px;
+}
+.login-line{
+  font-size:14px;
+  line-height:1.7;
+  color:#6b7078;
+  margin-bottom:8px;
+}
+.login-box{
+  background:#f7f8fa;
+  border-radius:12px;
+  padding:14px;
+  margin-top:10px;
+}
+.login-label{
+  font-size:14px;
+  color:#7c8088;
+  font-weight:700;
+  margin-bottom:8px;
+}
+.login-order{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.login-order:last-child{margin-bottom:0}
+.login-order .ls-badge{display:inline-flex;align-items:center}
+.login-page .hidden{display:none !important}
+.approve-login-single{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:10px 12px;
+  background:#f5f6fa;
+  border:1px solid #eef0f3;
+  border-radius:10px;
+}
+.approve-login-icon{
+  width:28px;
+  height:28px;
+  border-radius:8px;
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  background:#16b364;
+}
+.approve-login-main{flex:1;min-width:0}
+.approve-login-chip{
+  display:inline-flex;
+  align-items:center;
+  border-radius:4px;
+  overflow:hidden;
+  font-size:12px;
+  font-weight:700;
+}
+.approve-login-chip .num{
+  min-width:30px;
+  height:24px;
+  padding:0 8px;
+  display:inline-grid;
+  place-items:center;
+  color:#fff;
+  background:#16b364;
+}
+.approve-login-chip .txt{
+  height:24px;
+  padding:0 10px;
+  display:inline-grid;
+  place-items:center;
+  border:1px solid #bce8cb;
+  background:#effaf3;
+  color:#16b364;
+}
+.approve-login-code{
+  margin-top:6px;
+  font-size:12px;
+  color:#8f959e;
+  word-break:break-all;
+}
+@media (min-width:700px){
+  .demo-tools{display:flex}
+  .phone{box-shadow:0 0 28px rgba(0,0,0,.15)}
+}
+@media (max-width:360px){
+  .nav-title{font-size:17px}
+  .section-title{font-size:15px}
+  .equip-name{font-size:14px}
+}
+</style>
+</head>
+<body>
+<div class="demo-tools" style="display:none">
+  <label>审批状态
+    <select id="demoState" onchange="setApprovalState(this.value)">
+      <option value="in">审批中</option>
+      <option value="pass">已通过</option>
+      <option value="reject">已驳回</option>
+    </select>
+  </label>
+</div>
+
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span><span class="signal">▮▮▮</span> <span style="font-size:12px">◉</span> <span class="battery"></span></span></div>
+  <header class="nav">
+    <button class="back" aria-label="返回" onclick="toast('原型占位：返回上一页')"><i></i></button>
+    <div class="nav-title">审批—非跨区登录</div>
+    <button class="nav-more" aria-label="更多" onclick="openActionMenu()"><span>⋮</span></button>
+  </header>
+
+  <div class="meta">
+    <div class="meta-txt"><span id="objNo">粤东GCDT202506250001</span> <span class="meta-sub" id="objName">（希望小学A项目）</span></div>
+    <span class="pill in" id="approvalPill">审批中</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-panel="doc" onclick="switchPanel('doc',this)">单据信息</button>
+    <button class="tab" data-panel="rec" onclick="switchPanel('rec',this)">审批记录</button>
+  </div>
+
+  <section class="panel on" id="docPanel">
+    <div class="section">
+      <div class="section-bd" style="padding-top:10px">
+        <div class="row" style="border-top:0;padding-top:6px">
+          <div class="lab req">业务线：</div>
+          <div class="val">
+            中央空调
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="equip-hd">
+        <div class="equip-hd-left">
+          <div class="equip-title">设备清单</div>
+          <div class="equip-sub">已添加：<b>4</b>/99</div>
+        </div>
+        <button class="equip-add" onclick="openAddChooser()">添加商品 <span style="font-size:16px">›</span></button>
+      </div>
+      <div class="equip-wrap">
+        <div class="equip-list" id="equipList"></div>
+        <div class="equip-toggle" id="equipToggle" onclick="toggleEquip()"><span id="equipToggleTxt">展示全部</span> <span class="arrow">⌄</span></div>
+        <div class="equip-sum">
+          <div>总套数： <b>28</b> 套</div>
+          <div>总申请金额： <span class="money">¥156,400.00</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" id="usageSection">
+      <div class="section-hd" onclick="toggleSection('usageSection',this)">
+        <div class="section-hd-left"><div class="bar"></div><div class="section-title">使用方信息</div></div>
+        <div class="section-sub">展开中 <span style="font-size:13px">⌃</span></div>
+      </div>
+      <div class="section-bd" id="usageBody">
+        <div class="row"><div class="lab req">项目名称</div><div class="val"><input class="input" id="usageProjectName" value="希望小学A项目" style="height:36px;text-align:right"></div></div>
+        <div class="row"><div class="lab req">客户类型</div><div class="val"><select class="input" id="usageCustomerType" style="height:36px;text-align:right"><option>客户</option><option>经销商</option><option>代理商</option><option>其他</option></select></div></div>
+        <div class="row"><div class="lab req">行业大类</div><div class="val"><select class="input" id="usageIndustry" style="height:36px;text-align:right"><option>酒店/宾馆</option><option>商场/写字楼</option><option>工厂/园区</option><option>学校/医院</option></select></div></div>
+        <div class="row"><div class="lab req">客户名称</div><div class="val">珠海华邑酒店有限公司 <button class="copy" onclick="copyText('珠海华邑酒店有限公司')">复制</button></div></div>
+        <div class="row"><div class="lab req">采购单位</div><div class="val">珠海华邑酒店有限公司 <button class="copy" onclick="copyText('珠海华邑酒店有限公司')">复制</button></div></div>
+        <div class="row"><div class="lab req">使用方负责人</div><div class="val">张建华</div></div>
+        <div class="row"><div class="lab req">联系方式 <span class="section-sub">（二选一）</span></div><div class="val">137 9876 5432 <span class="mini-badge">手机</span></div></div>
+        <div class="row"><div class="lab req">项目预计设备金额（万元）</div><div class="val">198.50</div></div>
+        <div class="row"><div class="lab req">空调面积（㎡）</div><div class="val">3,200</div></div>
+        <div class="row"><div class="lab req">项目地址</div><div class="val multiline">广东省 珠海市 香洲区 香洲街道 迎宾北路1888号华邑酒店</div></div>
+        <div class="row"><div class="lab">跨区类型</div><div class="val"><span class="chip gray">非跨区</span></div></div>
+        <div class="row"><div class="lab req">执行单位</div><div class="val">珠海某安装工程队（当前经销商）</div></div>
+
+        <div class="section" style="margin:6px 0 0;box-shadow:none;border:1px solid #f0f2f6">
+          <div class="section-bd" style="padding:0">
+            <div class="row" style="padding:12px 0">
+              <div class="lab req">项目状态</div>
+              <div class="val">
+                <select class="input" id="projectState" onchange="toggleProjectState(this.value)" style="height:36px;text-align:right">
+                  <option value="">请选择</option>
+                  <option value="跟进中">跟进中</option>
+                  <option value="已中标" selected>已中标</option>
+                  <option value="已签单">已签单</option>
+                  <option value="已丢单">已丢单</option>
+                  <option value="已流标">已流标</option>
+                </select>
+              </div>
+            </div>
+            <div id="stateBidBlock" class="row" style="padding-top:0;border-top:1px solid var(--line2)">
+              <div class="lab req">中标通知书</div>
+              <div class="val">
+                <div class="file-zone" onclick="toast('原型占位：上传中标通知书')">📎 上传文件</div>
+                <div class="helper">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx，单个文件不超过20MB</div>
+              </div>
+            </div>
+            <div id="stateSignBlock" class="hidden">
+              <div class="row" style="padding-top:0;border-top:1px solid var(--line2)">
+                <div class="lab req">是否有合同</div>
+                <div class="val">
+                  <select class="input" id="hasContract" onchange="toggleSignFields(this.value)" style="height:36px;text-align:right">
+                    <option value="">请选择</option>
+                    <option value="yes">是</option>
+                    <option value="no">否</option>
+                  </select>
+                </div>
+              </div>
+              <div id="signYesBlock" class="hidden">
+                <div class="row" style="padding-top:0;border-top:1px solid var(--line2)">
+                  <div class="lab req">合同附件</div>
+                  <div class="val">
+                    <div class="file-zone" onclick="toast('原型占位：上传合同附件')">📎 上传文件</div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="lab req">合同客户</div>
+                  <div class="val">
+                    <div class="field-box">
+                      <input class="input" id="contractCustomer" placeholder="请输入客户名称" style="max-width:180px;height:36px">
+                      <button class="edit-btn" onclick="toast('演示：工商校验')">工商校验</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="lab req">签单金额（元）</div>
+                  <div class="val"><input class="input" id="signAmount" placeholder="0.00" type="number" style="height:36px;text-align:right"></div>
+                </div>
+              </div>
+              <div id="signNoBlock" class="hidden">
+                <div class="row" style="padding-top:0;border-top:1px solid var(--line2)">
+                  <div class="lab req">无合同签单说明</div>
+                  <div class="val">
+                    <div class="file-zone" onclick="toast('原型占位：上传无合同说明')">📎 上传文件</div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="lab req">合同客户</div>
+                  <div class="val">
+                    <div class="field-box">
+                      <input class="input" placeholder="请输入客户名称" style="max-width:180px;height:36px">
+                      <button class="edit-btn" onclick="toast('演示：工商校验')">工商校验</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="lab req">签单金额（元）</div>
+                  <div class="val"><input class="input" placeholder="0.00" type="number" style="height:36px;text-align:right"></div>
+                </div>
+              </div>
+            </div>
+            <div id="stateLoseBlock" class="hidden">
+              <div class="row" style="padding-top:0;border-top:1px solid var(--line2)">
+                <div class="lab req">丢单原因</div>
+                <div class="val">
+                  <select class="input" style="height:36px;text-align:right">
+                    <option value="">请选择丢单原因</option>
+                    <option>产品原因</option>
+                    <option>技术原因</option>
+                    <option>价格原因</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row">
+                <div class="lab req">丢单报告</div>
+                <div class="val">
+                  <div class="file-zone" onclick="toast('原型占位：上传丢单报告')">📎 上传文件</div>
+                  <div class="helper">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx，单个文件不超过20MB</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="section">
+    <div class="section-hd" onclick="toggleSection('basicWrap',this)">
+      <div class="section-hd-left"><div class="bar"></div><div class="section-title">基本信息</div></div>
+      <div class="section-sub">展开中 <span style="font-size:13px">⌄</span></div>
+    </div>
+    <div class="section-bd" id="basicWrap">
+      <div class="row"><div class="lab">项目单号</div><div class="val">粤东GCDT202506250001 <button class="copy" onclick="copyText('粤东GCDT202506250001')">复制</button></div></div>
+      <div class="row"><div class="lab">登录顺序</div><div class="val"><span class="mini-badge">1</span> 登录成功 <button class="copy" onclick="openLoginOrder()">查看</button></div></div>
+      <div class="row"><div class="lab">登录时间</div><div class="val">2026-06-25 10:30</div></div>
+      <div class="row"><div class="lab">经销商名称</div><div class="val">XX商贸有限公司</div></div>
+      <div class="row"><div class="lab">经销商电话</div><div class="val">0756-*****88</div></div>
+      <div class="row"><div class="lab">业务线</div><div class="val">中央空调</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-hd" onclick="toggleSection('otherWrap',this)">
+      <div class="section-hd-left"><div class="bar"></div><div class="section-title">其他信息</div></div>
+      <div class="section-sub">展开中 <span style="font-size:13px">⌄</span></div>
+    </div>
+    <div class="section-bd" id="otherWrap">
+      <div class="row" style="align-items:flex-start">
+        <div class="lab">备注</div>
+        <div class="val"><div class="soft">本项目为五星级酒店翻新，施工需避开营业时段，建议夜间10点后施工。</div></div>
+      </div>
+      <div class="row" style="align-items:flex-start">
+        <div class="lab">附件</div>
+        <div class="val">
+          <div class="attach-list">
+            <div class="attach" onclick="toast('原型占位：预览 现场勘察照片_20260625.jpg')"><span class="ico img">📷</span><span class="name">现场勘察照片_20260625.jpg</span><span class="pv">预览</span></div>
+            <div class="attach" onclick="toast('原型占位：预览 平面布置图_v3.pdf')"><span class="ico pdf">📄</span><span class="name">平面布置图_v3.pdf</span><span class="pv">预览</span></div>
+            <div class="attach" onclick="toast('原型占位：下载 项目需求说明书.docx')"><span class="ico doc">📄</span><span class="name">项目需求说明书.docx</span><span class="pv">下载</span></div>
+            <div class="attach" onclick="toast('原型占位：下载 设备报价清单.xlsx')"><span class="ico xls">📊</span><span class="name">设备报价清单.xlsx</span><span class="pv">下载</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </section>
+
+  <section class="panel" id="recPanel">
+    <div class="section">
+      <div class="record-head">
+        <div class="section-hd-left"><div class="bar"></div><div class="section-title">审批记录</div></div>
+        <div class="switch-row">
+          <span>展示所有信息：</span>
+          <label class="switch">
+            <input type="checkbox" id="showAllSwitch" checked onchange="toggleShowAll(this.checked)">
+            <span class="slider"></span>
+          </label>
+          <span class="sw-txt" id="showAllTxt">开</span>
+        </div>
+      </div>
+      <div class="record-list" id="recordList"></div>
+    </div>
+  </section>
+
+  <div class="foot" id="footBar">
+    <button class="foot-btn" style="background:#fff;color:var(--red);border:1px solid #f0c8c6" onclick="openOpinion('reject')">驳回</button>
+    <button class="foot-btn" onclick="openOpinion('approve')">通过</button>
+  </div>
+</main>
+
+<div class="mask" id="opinionMask" onclick="closeMask(event,'opinionMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span id="opinionTitle">通过审批</span><button class="sheet-x" onclick="closeOpinion()">×</button></div>
+    <div class="sheet-bd">
+      <div class="warn-bar">⚠️ <span id="opinionMsg">确定通过此审批吗？请填写审批意见</span></div>
+      <div class="form-group" id="loginOrderFormGroup">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <label class="form-label" style="margin:0">登录顺序：</label>
+          <div class="approve-login-chip"><span class="num">1</span><span class="txt">登录成功</span></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">备注</label>
+        <textarea class="input" id="opinionRemark" maxlength="200" placeholder="请输入审批意见，最多200字"></textarea>
+        <div class="helper"><span id="remarkCount">0</span>/200</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">附件</label>
+        <div class="file-row">
+          <div class="file-zone" style="flex:1" onclick="toast('原型占位：上传附件')">⬆ 上传</div>
+        </div>
+        <div class="attach-list">
+          <div class="attach"><span class="ico pdf">📄</span><span class="name">文件A.docx</span><span class="pv" onclick="toast('原型占位：删除 文件A.docx')">删除</span></div>
+          <div class="attach"><span class="ico doc">📄</span><span class="name">文件B.docx</span><span class="pv" onclick="toast('原型占位：删除 文件B.docx')">删除</span></div>
+        </div>
+        <div class="helper">支持扩展名：.png .jpg .pdf .docx .excel，每文件大小不超过10M，上传数量不超过5</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">非公开信息（仅管理端权限展示）</label>
+        <div class="soft">
+          <div>内部备注：</div>
+          <textarea class="input" id="internalRemark" maxlength="200" placeholder="选填，最多200字" style="margin:6px 0 10px;min-height:70px"></textarea>
+          <div>内部附件：</div>
+          <div class="file-row" style="margin-top:6px">
+            <div class="file-zone" style="flex:1" onclick="toast('原型占位：上传内部附件')">⬆ 上传</div>
+          </div>
+          <div class="helper">*取消或关闭弹窗，不会删除备注信息</div>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-ft">
+      <button class="dlg-btn gray" onclick="closeOpinion()">取消</button>
+      <button class="dlg-btn blue" onclick="submitOpinion()">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="zoom" id="zoomMask" onclick="closeZoom(event)">
+  <button class="zoom-close" onclick="closeZoom()" aria-label="关闭">×</button>
+  <div class="zoom-box" id="zoomBox"></div>
+</div>
+
+<div class="mask" id="addMask" onclick="closeMask(event,'addMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-bd" style="padding-top:24px">
+      <button class="dlg-btn blue" style="width:100%;margin-bottom:12px" onclick="openStdPicker('browse')">添加标准商品</button>
+      <button class="dlg-btn blue" style="width:100%" onclick="openNonStdForm()">添加非标商品</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen-mask" id="stdMask">
+  <div class="screen">
+    <header class="nav"><button class="back" onclick="closeStdPicker()"><i></i></button><div class="nav-title">添加商品</div></header>
+    <div class="screen-search"><input class="search-input" id="stdKeyword" placeholder="请输入商品名称、SKU编码、型号搜索" oninput="renderStdScreen()"></div>
+    <div class="screen-scroll" id="stdScreenBody"></div>
+    <div class="screen-bottom" id="stdScreenFooter"></div>
+  </div>
+</div>
+
+<div class="mask" id="nonStdMask" onclick="closeMask(event,'nonStdMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>添加非标商品</span><button class="sheet-x" onclick="closeNonStdForm()">×</button></div>
+    <div class="sheet-bd">
+      <div class="form-group"><label class="form-label">品类</label><select class="input" style="height:40px"><option>中央空调</option><option>多联机</option><option>新风</option></select></div>
+      <div class="form-group"><label class="form-label">商品名称</label><input class="input" placeholder="请输入商品名称" style="height:40px;padding:0 12px"></div>
+      <div class="form-group"><label class="form-label">型号</label><input class="input" placeholder="请输入型号" style="height:40px;padding:0 12px"></div>
+      <div class="form-group"><label class="form-label">SKU编码</label><input class="input" placeholder="请输入SKU编码" style="height:40px;padding:0 12px"></div>
+      <div class="form-group"><label class="form-label">商品ID</label><input class="input" placeholder="请输入商品ID" style="height:40px;padding:0 12px"></div>
+      <div class="form-group"><label class="form-label">申请数量</label><input class="input" type="number" placeholder="0" style="height:40px;padding:0 12px;text-align:right"></div>
+      <div class="form-group"><label class="form-label">申请价格</label><input class="input" type="number" placeholder="0.00" style="height:40px;padding:0 12px;text-align:right"></div>
+      <div class="form-group"><label class="form-label">申请点位</label><input class="input" type="number" placeholder="0%" style="height:40px;padding:0 12px;text-align:right"></div>
+      <div class="form-group"><label class="form-label">备注</label><textarea class="input" placeholder="选填备注"></textarea></div>
+    </div>
+    <div class="sheet-ft">
+      <button class="dlg-btn gray" onclick="closeNonStdForm()">取消</button>
+      <button class="dlg-btn blue" onclick="toast('原型占位：添加非标商品')">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="mask" id="prodMask" onclick="closeMask(event,'prodMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span id="prodTitle">商品详情</span><button class="sheet-x" onclick="closeProductDetail()">×</button></div>
+    <div class="sheet-bd">
+      <div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0 10px">
+        <div class="thumb" style="width:96px;height:96px"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:17px;font-weight:700;line-height:1.45;word-break:break-all" id="prodName">天丽变频冷暖正1.5匹3级能能能能能能能能</div>
+        </div>
+      </div>
+      <div class="row"><div class="lab">品类</div><div class="val"><span class="select-like" onclick="toast('原型占位：品类选择')">中央空调 <span class="chev">›</span></span></div></div>
+      <div class="row"><div class="lab">SKU编码</div><div class="val" id="prodSku">SPU10001001</div></div>
+      <div class="row"><div class="lab">型号</div><div class="val" id="prodModel">KFR-35GW/(35512)FNa-B3</div></div>
+      <div class="row"><div class="lab">申请数量</div><div class="val">
+        <div style="display:flex;justify-content:flex-end"><div class="stepper"><button class="step-btn" onclick="stepQtyDetail(-1,event)">−</button><input class="step-val" id="detailQty" value="281"><button class="step-btn" onclick="stepQtyDetail(1,event)">+</button></div></div>
+      </div></div>
+      <div class="row"><div class="lab">申请价格</div><div class="val"><span id="prodPrice">¥9999999</span> <button class="copy" onclick="toast('原型占位：编辑申请价格')">✎</button></div></div>
+      <div class="row"><div class="lab">申请点位</div><div class="val"><span id="prodPoint">20.00%</span> <button class="copy" onclick="toast('原型占位：编辑申请点位')">✎</button></div></div>
+      <div class="row"><div class="lab">商品行备注</div><div class="val"><div class="soft">备注信息超出回行展示备注信息超出回行展示</div> <button class="copy" onclick="toast('原型占位：编辑备注')">✎</button></div></div>
+    </div>
+    <div class="sheet-ft">
+      <button class="dlg-btn gray" onclick="toast('原型占位：删除商品')">删除</button>
+      <button class="dlg-btn blue" onclick="closeProductDetail()">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="login-page" id="loginPage">
+  <header class="nav login-nav">
+    <button class="back" aria-label="返回" onclick="closeLoginOrder()"><i></i></button>
+    <div class="nav-title">登录顺序</div>
+  </header>
+  <div class="login-body">
+    <div class="login-tabs">
+      <button class="login-tab on" onclick="switchLoginTab('assoc',this)">关联工程信息</button>
+      <button class="login-tab" onclick="switchLoginTab('record',this)">修改记录</button>
+    </div>
+    <div class="login-panel on" id="loginAssoc">
+      <div class="login-top">
+        <div class="assoc">关联编号：GL02202407180001</div>
+      </div>
+      <div class="login-card">
+        <div class="login-card-hd">
+          <div class="login-card-name"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010001</div>
+        </div>
+        <div class="login-card-bd">
+          <div class="login-line">经销商名称： 深圳前海经销商</div>
+          <div class="login-line">工程状态： 待提货</div>
+          <div class="login-line">登录时间： 2026-08-10 12:30:20</div>
+          <div class="login-line">业务经理： 张三三</div>
+        </div>
+      </div>
+      <div class="login-card">
+        <div class="login-card-hd">
+          <div class="login-card-name"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div>
+        </div>
+        <div class="login-card-bd">
+          <div class="login-line">经销商名称： 深圳前海经销商</div>
+          <div class="login-line">工程状态： 待提货</div>
+          <div class="login-line">登录时间： 2026-08-10 12:30:20</div>
+          <div class="login-line">业务经理： 张三三</div>
+        </div>
+      </div>
+      <div class="login-card">
+        <div class="login-card-hd">
+          <div class="login-card-name"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div>
+        </div>
+        <div class="login-card-bd">
+          <div class="login-line">经销商名称： 深圳前海经销商</div>
+          <div class="login-line">工程状态： 待提货</div>
+          <div class="login-line">登录时间： 2026-08-10 12:30:20</div>
+          <div class="login-line">业务经理： 张三三</div>
+        </div>
+      </div>
+    </div>
+    <div class="login-panel hidden" id="loginRecord">
+      <div class="login-card" style="margin-top:12px">
+        <div class="login-card-hd">
+          <div class="login-card-name">李思思</div>
+          <div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle on">⌃</span></div>
+        </div>
+        <div class="login-card-bd">
+          <div class="login-line">备注信息备注信息备注信息备注信息备注信息备注信息备注信息显示完整</div>
+          <div class="login-box">
+            <div class="login-label">原顺序：</div>
+            <div class="login-order"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span><span>GC01202401010001</span></div>
+            <div class="login-order"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div>
+            <div class="login-order"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div>
+          </div>
+          <div class="login-box">
+            <div class="login-label">修改后顺序：</div>
+            <div class="login-order"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span><span>GC01202401010001</span></div>
+            <div class="login-order"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div>
+            <div class="login-order"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="login-card">
+        <div class="login-card-hd"><div class="login-card-name">张三三</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle">⌄</span></div></div>
+      </div>
+      <div class="login-card">
+        <div class="login-card-hd"><div class="login-card-name">张三三</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle">⌄</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot" style="position:sticky;bottom:0;left:auto;transform:none;width:100%;border-top:1px solid #eef0f3;z-index:6">
+    <button class="foot-btn" onclick="closeLoginOrder()">确认</button>
+  </div>
+</div>
+
+<div class="zoom" id="previewMask" onclick="closePreview(event)">
+  <button class="zoom-close" onclick="closePreview()" aria-label="关闭">×</button>
+  <div class="zoom-box" id="previewBox"></div>
+</div>
+
+<div class="mask" id="actionMask" onclick="closeMask(event,'actionMask')">
+  <div class="action-sheet" onclick="event.stopPropagation()">
+    <button class="act-btn" onclick="closeActionMenu(); openApprovalFlow()">审批流程</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const toastEl=document.getElementById('toast');
+const equipList=document.getElementById('equipList');
+const equipToggle=document.getElementById('equipToggle');
+const equipToggleTxt=document.getElementById('equipToggleTxt');
+const approvalPill=document.getElementById('approvalPill');
+let equipExpanded=false;
+let currentOpinionMode='approve';
+let currentProductType='std';
+let recordVariant='full';
+let loginTab='assoc';
+let stdMode='browse';
+let selectedStd={};
+const PRODUCTS=[
+  {id:'P200001',name:'清凉风2级50柜机清凉风2级50柜机',model:'KFR-35GW/(35519) 1级35文艺灰',cate:'中央空调',sku:'SPU1001001',series:'清凉风系列',net:1000},
+  {id:'P100004',name:'格力 GMV-H224WL/A1 多联机组',model:'GMV-H224WL/A1',cate:'多联机',sku:'SKU-MLJ-224A1',series:'GMV系列',net:19800},
+  {id:'P100002',name:'格力 KFRd-120LW/NhGb1B 柜机',model:'KFRd-120LW/NhGb1B',cate:'中央空调',sku:'SKU-GJ-120GB',series:'NhGb系列',net:7600},
+  {id:'P100003',name:'格力 FGR5Pd/NhBa1 吊顶式新风',model:'FGR5Pd/NhBa1',cate:'新风',sku:'SKU-XF-5NBA1',series:'NhBa系列',net:4200}
+];
+const equipData=[
+  {std:false,title:'天丽变频冷暖正1.5匹3级能能能能能能能能',price:'¥3555',qty:281,sku:'SPU10001001',model:'KFR-35GW/(35512)FNa-B3',point:'20.00%',remark:'备注信息超出回行展示备注信息超出回行展示'},
+  {std:true,title:'时光绘 35 1.5P KFR50LW/5505-55 天丽变频冷暖正1.5匹3级1.5匹3级3级…',price:'¥3555',qty:281,sku:'SKU-GM-5505',model:'KFR50LW/5505-55',point:'20.00%',remark:'',},
+  {std:true,title:'时光绘 35 1.5P KFR50LW/5505-55 天丽变频冷暖正1.5匹3级1.5匹3级3级…',price:'¥3555',qty:281,sku:'SKU-GM-5505-2',model:'KFR50LW/5505-55',point:'20.00%',remark:''},
+  {std:true,title:'时光绘 35 1.5P KFR50LW/5505-55 天丽变频冷暖正1.5匹3级1.5匹3级3级…',price:'¥3555',qty:281,sku:'SKU-GM-5505-3',model:'KFR50LW/5505-55',point:'20.00%',remark:''}
+];
+const recordsFull=[
+  {name:'张三三',st:'pass',stTxt:'通过',memo:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',attach:2,attachFiles:['审批材料_01.pdf','现场照片_01.jpg'],inner:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',innerAttach:['文件A.docx','文件B.docx']},
+  {name:'张三三',st:'pass',stTxt:'通过',memo:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',attach:3,attachFiles:['审批材料_02.pdf','补充说明_02.docx','报价确认单_02.xlsx'],inner:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',innerAttach:['文件A.docx','文件B.docx']},
+  {name:'张三三',st:'pass',stTxt:'通过',memo:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',attach:2,attachFiles:['现场勘察图纸_03.pdf','设备清单_03.xlsx'],inner:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',innerAttach:['文件A.docx','文件B.docx']},
+  {name:'张三三',st:'pass',stTxt:'通过',memo:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',attach:0,attachFiles:[],inner:'暂无信息',innerAttach:[]},
+  {name:'张三三',st:'reject',stTxt:'驳回',memo:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',attach:1,attachFiles:['驳回附件_01.pdf'],inner:'驳回后需重新走流程',innerAttach:['文件C.docx']}
+];
+const recordsEmptyNote=recordsFull.map((r,i)=>i===0?{...r,inner:'暂无信息',innerAttach:[]}:r);
+const recordsEmpty=[];
+let currentRecords=recordsFull;
+
+function toast(txt){
+  toastEl.textContent=txt;
+  toastEl.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>toastEl.classList.remove('show'),1400);
+}
+function showMask(id){document.getElementById(id).classList.add('show')}
+function hideMask(id){document.getElementById(id).classList.remove('show')}
+function switchPanel(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('docPanel').classList.toggle('on',name==='doc');
+  document.getElementById('recPanel').classList.toggle('on',name==='rec');
+}
+function toggleSection(id,hd){
+  const body=document.getElementById(id)||document.querySelector('#'+id+' .section-bd');
+  const sub=hd?hd.querySelector('.section-sub'):document.querySelector('#'+id+' .section-sub');
+  if(!body||!sub) return;
+  const on=!body.classList.contains('hidden');
+  body.classList.toggle('hidden',on);
+  sub.innerHTML=on?'收起中 <span style="font-size:13px">⌃</span>':'展开中 <span style="font-size:13px">⌄</span>';
+  sub.style.color=on?'var(--blue)':'var(--gray)';
+}
+function renderEquip(){
+  equipList.innerHTML=equipData.map((item,idx)=>{
+    if(!equipExpanded && idx>2) return '';
+    return `
+      <div class="equip-item" data-idx="${idx}" onclick="openProductDetail('${item.std?'std':'non'}',${idx})">
+        <div class="thumb"></div>
+        <div class="equip-main">
+          <div class="equip-top">
+            ${item.std?'':'<span class="non-badge">非</span>'}
+            <div class="equip-name">${item.title}</div>
+          </div>
+          <div class="equip-mid" onclick="event.stopPropagation()">
+            <div class="equip-price">申请价格：<b>${item.price}</b></div>
+            <div class="stepper">
+              <button class="step-btn" onclick="stepQtyItem(${idx},-1,event)">−</button>
+              <input class="step-val" value="${item.qty}" onchange="setQty(${idx},this.value)">
+              <button class="step-btn" onclick="stepQtyItem(${idx},1,event)">+</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join('') || '<div class="empty">暂无商品</div>';
+  equipToggleTxt.textContent=equipExpanded?'收起全部':'展示全部';
+  equipToggle.classList.toggle('open',equipExpanded);
+}
+function toggleEquip(){
+  equipExpanded=!equipExpanded;
+  renderEquip();
+}
+function stepQtyItem(idx,delta,e){
+  if(e) e.stopPropagation();
+  const n=Math.max(1,parseInt(equipData[idx].qty||0,10)+delta);
+  equipData[idx].qty=n;
+  renderEquip();
+}
+function setQty(idx,val){
+  equipData[idx].qty=Math.max(1,parseInt(val||1,10)||1);
+  renderEquip();
+}
+function toggleProjectState(val){
+  document.getElementById('stateBidBlock').classList.toggle('hidden',val!=='已中标');
+  document.getElementById('stateSignBlock').classList.toggle('hidden',val!=='已签单');
+  document.getElementById('stateLoseBlock').classList.toggle('hidden',val!=='已丢单');
+}
+function toggleSignFields(val){
+  document.getElementById('signYesBlock').classList.toggle('hidden',val!=='yes');
+  document.getElementById('signNoBlock').classList.toggle('hidden',val!=='no');
+}
+function toggleShowAll(on){
+  document.getElementById('showAllTxt').textContent=on?'开':'关';
+  document.querySelectorAll('.record').forEach(card=>{
+    const inner=card.querySelector('.record-inner');
+    const expand=card.querySelector('.record-opinion-expand');
+    if(inner) inner.classList.toggle('on',on);
+    if(expand) expand.classList.toggle('hidden',!on);
+    if(inner && !on) inner.classList.remove('on');
+    if(on && expand) expand.querySelector('.toggle').innerHTML='展开 <span class="arrow">⌄</span>';
+  });
+}
+function setRecordVariant(v){
+  recordVariant=v;
+  currentRecords=v==='empty'?recordsEmpty:(v==='emptyNote'?recordsEmptyNote:recordsFull);
+  renderRecords();
+}
+function renderRecords(){
+  const list=document.getElementById('recordList');
+  if(!currentRecords.length){
+    list.innerHTML='<div class="empty"><div style="font-size:16px;color:#8f959e;font-weight:700">暂无记录</div><div style="margin-top:8px">暂无记录</div></div>';
+    return;
+  }
+  list.innerHTML=currentRecords.map((r,i)=>{
+    const badge=r.st==='pass'?'pass':r.st==='reject'?'reject':'cancel';
+    return `
+      <div class="record">
+        <div class="record-top">
+          <div class="record-name">${r.name}</div>
+          <div class="badge ${badge}">${r.stTxt}</div>
+        </div>
+        <div class="record-opinion">
+          <div class="record-opinion-note">${r.memo}</div>
+          ${r.attachFiles&&r.attachFiles.length?`
+            <div class="record-opinion-attach">
+              <div class="record-opinion-attach-list">
+                ${r.attachFiles.map(f=>`<div class="record-attach-item"><span class="ico doc">📄</span><span class="name">${f}</span><span class="pv" onclick="openAttachView(${i})">预览</span></div>`).join('')}
+              </div>
+            </div>`:''
+          }
+        </div>
+        <div class="record-opinion-expand" onclick="toggleOpinionExpand(this)">
+          <span class="toggle">展开 <span class="arrow">⌄</span></span>
+        </div>
+        <div class="record-inner">
+          <div class="record-inner-hd">内部信息</div>
+          <div class="record-inner-note">${r.inner||'暂无信息'}</div>
+          ${r.innerAttach.length?`
+            <div class="record-inner-attach">
+              <div class="record-inner-attach-title">内部附件</div>
+              <div class="record-opinion-attach-list">
+                ${r.innerAttach.map(f=>`<div class="record-attach-item"><span class="ico doc">📄</span><span class="name">${f}</span><span class="pv" onclick="toast('原型占位：预览 ${f}')">预览</span></div>`).join('')}
+              </div>
+            </div>`:''
+          }
+        </div>
+      </div>`;
+  }).join('');
+}
+function toggleOpinionExpand(el){
+  const card=el.closest('.record');
+  if(!card) return;
+  const inner=card.querySelector('.record-inner');
+  if(!inner) return;
+  const on=inner.classList.toggle('on');
+  el.querySelector('.toggle').innerHTML=on?'收起 <span class="arrow">⌃</span>':'展开 <span class="arrow">⌄</span>';
+}
+function openOpinionView(idx){
+  const r=currentRecords[idx];
+  document.getElementById("previewBox").innerHTML=`
+    <div style="width:min(300px,100%);background:#fff;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.35);padding:22px 18px;text-align:center">
+      <div style="font-size:46px">📄</div>
+      <div style="font-size:14px;font-weight:600;color:#1f2329;margin-top:12px;line-height:1.5;word-break:break-all">审批意见-${r.name}</div>
+      <div style="font-size:12px;color:#8f959e;margin-top:5px">${r.time}</div>
+      <div style="margin-top:16px;background:#f6f7f9;border:1px dashed #c9ced8;border-radius:8px;padding:10px;font-size:12px;color:#8f959e;line-height:1.6">这是审批意见查看的原型占位预览</div>
+    </div>`;
+  document.getElementById("previewMask").classList.add("show");
+}
+function openAttachView(idx){
+  const r=currentRecords[idx];
+  const files=r.attachFiles||[];
+  document.getElementById("previewBox").innerHTML=`
+    <div style="width:min(340px,100%);background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.35);padding:18px 16px;text-align:left">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:16px;font-weight:700;color:#1f2329">附件查看</div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:#8f959e;line-height:1.6">以下为该审批记录的附件列表，点击可逐个预览。</div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        ${files.map((f,idx)=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e8ebf0;border-radius:10px;background:#fafbfc">
+            <span style="width:28px;height:28px;border-radius:8px;background:#eaf2ff;color:#2b6de8;display:grid;place-items:center;font-size:15px;flex:0 0 auto">📄</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:#1f2329;word-break:break-all">附件${idx+1}：${f}</div>
+              <div style="font-size:12px;color:#8f959e;margin-top:2px">审批记录附件</div>
+            </div>
+            <span class="more" onclick="toast('原型占位：预览 ${f}')">预览</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById("previewMask").classList.add("show");
+}
+function closePreview(e){
+  if(e && e.target!==e.currentTarget && e.type==='click') return;
+  document.getElementById('previewMask').classList.remove('show');
+}
+function openOpinion(mode){
+  currentOpinionMode=mode;
+  document.getElementById('opinionTitle').textContent=mode==='approve'?'通过审批':'驳回审批';
+  document.getElementById('opinionMsg').textContent=mode==='approve'?'确定通过此审批吗？请填写审批意见':'确定驳回此审批吗？请填写审批意见';
+  document.querySelector('#opinionMask .dlg-btn.blue').textContent=mode==='approve'?'确定通过':'确定驳回';
+  document.getElementById('opinionMask').classList.add('show');
+}
+function closeOpinion(){document.getElementById('opinionMask').classList.remove('show')}
+function submitOpinion(){
+  const txt=document.getElementById('opinionRemark').value.trim();
+  if(!txt){toast(currentOpinionMode==='approve'?'请填写审批意见':'驳回时必须填写备注');return}
+  approvalPill.textContent=currentOpinionMode==='approve'?'已通过':'已驳回';
+  approvalPill.className='pill '+(currentOpinionMode==='approve'?'pass':'reject');
+  toast(currentOpinionMode==='approve'?'原型占位：审批通过':'原型占位：已驳回');
+  closeOpinion();
+}
+function openZoom(){
+  document.getElementById('zoomBox').innerHTML=document.querySelector('.flow-svg').outerHTML;
+  document.getElementById('zoomMask').classList.add('show');
+}
+function closeZoom(e){
+  if(e && e.target!==e.currentTarget && e.type==='click') return;
+  document.getElementById('zoomMask').classList.remove('show');
+}
+function closeMask(e,id){
+  if(typeof e==='string'){
+    id=e;
+    e=null;
+  }
+  if(e && e.target!==e.currentTarget) return;
+  const mask=document.getElementById(id);
+  if(mask) mask.classList.remove('show');
+}
+function openAddChooser(){document.getElementById('addMask').classList.add('show')}
+function openBatchImport(){toast('原型占位：批量导入未开放')}
+function openStdPicker(mode){stdMode=mode||'browse';closeMask('addMask');if(stdMode==='browse')selectedStd={};var kw=document.getElementById('stdKeyword');if(kw)kw.value='';renderStdScreen();showMask('stdMask')}
+function closeStdPicker(){closeMask('stdMask')}
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]})}
+function money(v){return '¥'+(Number(v)||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function clampQty(v){return Math.max(1,Math.min(9999999,parseInt(v,10)||1))}
+function productSvg(){return '<svg viewBox=\"0 0 120 80\" fill=\"none\"><rect x=\"17\" y=\"28\" width=\"86\" height=\"27\" rx=\"8\" fill=\"#f5f5f5\" stroke=\"#ddd\"/><path d=\"M20 47c10 4 58 7 81-1\" stroke=\"#bbb\" stroke-width=\"3\" stroke-linecap=\"round\"/><path d=\"M26 31l7-10h57l9 10\" stroke=\"#d8d8d8\" stroke-width=\"4\" stroke-linejoin=\"round\"/><path d=\"M31 57h58\" stroke=\"#cfcfcf\" stroke-width=\"3\" stroke-linecap=\"round\"/></svg>'}
+function stdFiltered(){var k=(document.getElementById("stdKeyword").value||"").trim();return PRODUCTS.filter(function(p){return !k||[p.name,p.model,p.sku].join("|").indexOf(k)>=0})}
+function selectedCount(){return Object.keys(selectedStd).filter(function(k){return selectedStd[k]>0}).length}
+function selectedQty(id){return selectedStd[id]||1}
+function toggleStdById(id){if(selectedStd[id])delete selectedStd[id];else selectedStd[id]=1;renderStdScreen()}
+function changeStdQty(id,d){selectedStd[id]=clampQty((selectedStd[id]||1)+d);renderStdScreen()}
+function setStdQty(id,v){selectedStd[id]=clampQty(v);renderStdScreen()}
+function stdCard(p,selected,isSelectedPage){return '<div class="std-card '+(selected?"selected ":"")+(isSelectedPage?"selected-card":"")+'" onclick="toggleStdById(\''+esc(p.id)+'\')"><span class="std-check"></span><div class="prod-img">'+productSvg()+'</div><div class="std-main"><div class="std-name">'+esc(p.name)+'</div><div class="std-model">'+esc(p.model)+'</div><div class="std-net">网批售价：<b>'+money(p.net)+'</b></div><div class="std-stepper" onclick="event.stopPropagation()"><button onclick="changeStdQty(\''+esc(p.id)+'\',-1)">−</button><input value="'+selectedQty(p.id)+'" onchange="setStdQty(\''+esc(p.id)+'\',this.value)"><button onclick="changeStdQty(\''+esc(p.id)+'\',1)">＋</button></div></div>'+(isSelectedPage?'<button class="remove-one" onclick="event.stopPropagation();delete selectedStd[\''+esc(p.id)+'\'];renderStdScreen()">删除</button>':"")+'</div>'}
+function renderStdScreen(){var body=document.getElementById("stdScreenBody"),footer=document.getElementById("stdScreenFooter");if(!body||!footer)return;var selectedPage=stdMode==="selected";if(selectedPage){var rows=PRODUCTS.filter(function(p){return selectedStd[p.id]});body.innerHTML='<div class="selected-head"><span>已选商品</span><button class="delete-all" onclick="selectedStd={};renderStdScreen()"><span>♲</span> 全部删除</button></div>'+(rows.length?rows.map(function(p){return stdCard(p,true,true)}).join(""):'<div style="text-align:center;color:#999;padding:80px 0">暂无已选商品</div>')}else{var rows=stdFiltered();body.innerHTML=rows.map(function(p){return stdCard(p,!!selectedStd[p.id],false)}).join("")||'<div style="text-align:center;color:#999;padding:80px 0">暂无商品</div>'}footer.innerHTML='<div class="screen-bottom-bar"><button class="wide-btn ghost" style="flex:1" onclick="openStdPicker(\'selected\')">已选'+selectedCount()+'款 <span style="color:#aaa">⌃</span></button><button class="wide-btn blue" style="flex:1.25" onclick="confirmStd()">确认添加</button></div>'}
+function confirmStd(){
+  var added=Object.keys(selectedStd);
+  if(!added.length){toast('请先选择商品');return}
+  added.forEach(function(id){
+    var p=PRODUCTS.find(function(x){return x.id===id});
+    if(!p) return;
+    var old=equipData.find(function(x){return x.id===id});
+    if(old){
+      old.qty=selectedStd[id];
+    }else{
+      equipData.push({id:p.id,std:true,title:p.name,price:money(p.net),qty:selectedStd[id],sku:p.sku,model:p.model,point:'0.00%',remark:''});
+    }
+  });
+  selectedStd={};
+  closeMask('stdMask');
+  renderEquip();
+  toast('已添加商品');
+}
+function openNonStdForm(){document.getElementById('nonStdMask').classList.add('show');document.getElementById('addMask').classList.remove('show')}
+function closeNonStdForm(){document.getElementById('nonStdMask').classList.remove('show')}
+function openProductDetail(type,idx){
+  currentProductType=type;
+  const item=equipData[idx];
+  document.getElementById('prodTitle').textContent='商品详情';
+  document.getElementById('prodName').textContent=item.title;
+  document.getElementById('prodSku').textContent=item.sku||'SPU10001001';
+  document.getElementById('prodModel').textContent=item.model||'KFR-35GW/(35512)FNa-B3';
+  document.getElementById('detailQty').value=item.qty||1;
+  document.getElementById('prodPrice').textContent=item.price||'¥9999999';
+  document.getElementById('prodPoint').textContent=item.point||'20.00%';
+  document.getElementById('prodMask').classList.add('show');
+  document.getElementById('addMask').classList.remove('show');
+  document.getElementById('stdMask').classList.remove('show');
+  document.getElementById('nonStdMask').classList.remove('show');
+}
+function closeProductDetail(){document.getElementById('prodMask').classList.remove('show')}
+function stepQtyDetail(delta,e){
+  if(e) e.stopPropagation();
+  const el=document.getElementById('detailQty');
+  el.value=Math.max(1,parseInt(el.value||1,10)+delta);
+}
+function setApprovalState(v){
+  if(v==='in'){approvalPill.textContent='审批中';approvalPill.className='pill in'}
+  if(v==='pass'){approvalPill.textContent='已通过';approvalPill.className='pill pass'}
+  if(v==='reject'){approvalPill.textContent='已驳回';approvalPill.className='pill reject'}
+}
+function toggleSignFieldsOnLoad(){toggleProjectState(document.getElementById('projectState').value)}
+function switchLoginTab(name,btn){
+  loginTab=name;
+  document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('loginAssoc').classList.toggle('hidden',name!=='assoc');
+  document.getElementById('loginRecord').classList.toggle('hidden',name!=='record');
+}
+function openLoginOrder(){document.getElementById('loginPage').classList.add('show')}
+function closeLoginOrder(){document.getElementById('loginPage').classList.remove('show')}
+function openActionMenu(){document.getElementById('actionMask').classList.add('show')}
+function closeActionMenu(){document.getElementById('actionMask').classList.remove('show')}
+function openApprovalFlow(){
+  closeActionMenu();
+  document.getElementById('zoomBox').innerHTML=document.querySelector('.flow-svg').outerHTML;
+  document.getElementById('zoomMask').classList.add('show');
+}
+function copyText(text){
+  const ok=(t)=>navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject();
+  ok(text).then(()=>toast('复制成功')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');toast('复制成功')}catch(err){toast('复制失败')}
+    ta.remove();
+  });
+}
+function renderAll(){renderEquip();renderRecords();toggleProjectState(document.getElementById('projectState').value);}
+document.querySelector('#opinionRemark').addEventListener('input',e=>document.getElementById('remarkCount').textContent=e.target.value.length);
+document.querySelector('#projectState').addEventListener('change',e=>toggleProjectState(e.target.value));
+renderAll();
+toggleSignFieldsOnLoad();
+</script>
+</body>
+</html>
+
+
+
+
+
