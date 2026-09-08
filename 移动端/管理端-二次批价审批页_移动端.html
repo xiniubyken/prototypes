@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-二次批价审批页</title>
+<style>
+:root{
+  --blue:#0868d7;--bg:#f5f6f7;--text:#232323;--line:#ececec;--muted:#8f959e;--orange:#ff6a00;--red:#ff5158;--green:#19b86b;
+  --safe-bottom:env(safe-area-inset-bottom);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);position:relative;padding-bottom:86px;overflow:hidden}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.status-icons{display:flex;gap:7px;align-items:center}.signal{letter-spacing:-2px;font-size:13px}.wifi{font-size:13px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 12px 0 14px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:relative;z-index:2}
+.back{width:34px;height:34px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap;max-width:74%;overflow:hidden;text-overflow:ellipsis}
+.more{position:absolute;right:12px;width:34px;height:34px;border:0;background:transparent;color:#333;font-size:28px;line-height:1}
+.summary{background:#fff;padding:16px 18px 14px;border-bottom:8px solid #f2f3f5}
+.sum-no{font-size:19px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum-sub{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:12px;white-space:nowrap}
+.chip.gray{background:#f0f2f5;color:#444}.chip.blue{background:#e7f0ff;color:var(--blue)}.chip.orange{background:#fff3e2;color:#d46b08}.chip.green{background:#e8f5e9;color:#1a9c5c}
+.project-name{margin-top:10px;font-size:17px;font-weight:700;line-height:1.45;color:#333}
+.project-meta{margin-top:4px;font-size:14px;color:#888;line-height:1.5}
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.tab{flex:1;height:48px;border:0;background:#fff;color:#8f959e;font-size:16px;position:relative}
+.tab.on{color:var(--blue);font-weight:700}
+.tab.on:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:34px;height:4px;background:var(--blue);border-radius:4px}
+.content{padding:0 0 18px}
+.panel{display:none}.panel.on{display:block}
+.section{background:#fff;margin-top:12px}
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;font-size:18px;font-weight:700;border-bottom:1px solid #f1f1f1}
+.section-head .toggle{border:0;background:transparent;font-size:18px;color:#9aa1ab;padding:0 2px;line-height:1}
+.section-body{padding:0 18px 12px}
+.section-body.hidden{display:none}
+.sec-note{margin:0 18px 12px;background:#fafbfc;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.7;color:#888}
+.kv{padding:2px 0 6px}
+.kv-row{display:flex;align-items:flex-start;gap:8px;padding:7px 0;font-size:14px;line-height:1.5}
+.kv-row .k{color:var(--muted);flex:0 0 92px}
+.kv-row .v{flex:1;min-width:0;color:#333;word-break:break-all}
+.copy-mini{margin-left:6px;border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:700;padding:0}
+.price-trigger{display:inline-flex;align-items:center;gap:4px;color:var(--blue);font-size:16px;font-weight:700;border:0;background:transparent;padding:0}
+.price-trigger .chev{color:#b2b7c1;font-size:16px;line-height:1}
+.equip-top{display:flex;align-items:center;justify-content:space-between;min-height:59px;border-bottom:1px solid var(--line);font-size:16px;color:#888}
+.equip-top b{color:var(--blue)}
+.add-btn{height:36px;border:0;border-radius:20px;background:var(--blue);color:#fff;padding:0 14px;font-size:14px;font-weight:700}
+.equip-card{display:flex;gap:11px;background:#f6f7f9;border-radius:12px;padding:11px 10px;margin:10px 0;min-height:108px}
+.prod-img{width:67px;height:67px;border-radius:9px;background:#fff;display:grid;place-items:center;flex:0 0 auto;border:1px solid #f0f0f0;overflow:hidden}
+.prod-img svg{width:55px;height:40px}
+.equip-main{min-width:0;flex:1;padding-right:72px}
+.equip-title{font-size:15px;font-weight:700;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.equip-sub{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.equip-price{font-size:13px;margin-top:4px}.equip-price b{font-weight:600;color:#444}
+.nonstd{display:inline-block;color:var(--red);background:#ffe7e7;border-radius:3px;font-size:12px;font-weight:500;padding:2px 5px;margin-right:5px;vertical-align:1px}
+.stepper{position:absolute;right:8px;bottom:10px;display:flex;align-items:center;gap:6px}
+.stepper button{border:0;background:transparent;color:var(--orange);font-size:23px;line-height:1;padding:0 3px}
+.stepper input{width:58px;height:32px;border:1px solid #ddd;border-radius:7px;background:#fff;text-align:center;font-size:15px;padding:0 3px}
+.equip-wrap{position:relative}
+.expand-row{text-align:center;color:#999;font-size:13px;padding:6px 0 11px;cursor:pointer}
+.expand-row span{display:inline-block;transform:rotate(0deg);font-size:17px;margin-right:3px}
+.summary-line{border-top:1px solid var(--line);padding:10px 0 12px;text-align:right;color:#777;font-size:14px;line-height:1.8}
+.summary-line .amount{color:var(--orange);font-size:16px;margin-left:8px}
+.cert-row{padding:11px 0;border-bottom:1px solid #f0f0f0}
+.cert-label{font-size:13px;margin-bottom:8px}
+.cert-actions{display:flex;gap:7px;flex-wrap:wrap}
+.plus-btn{width:38px;height:38px;border:0;border-radius:8px;background:#f4f4f4;color:#aaa;font-size:25px;line-height:1}
+.file-chip{display:flex;align-items:center;gap:6px;max-width:100%;background:#f6f7f9;border-radius:8px;padding:7px 8px;font-size:11px;color:#666}
+.file-chip .file-name{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-chip .del{border:0;background:#fff;color:#888;font-size:17px}
+.attach-note{padding:12px 0}.attach-tip{font-size:11px;color:#aaa;line-height:1.5;margin-top:8px}
+.attach-file{display:flex;align-items:center;gap:8px;margin-top:8px;background:#f6f7f9;border-radius:8px;padding:8px;font-size:12px}
+.file-badge{width:24px;height:24px;border-radius:5px;background:#ffe7e7;color:#f34b51;display:grid;place-items:center;font-size:10px;font-weight:700}
+.status-pill{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.st-ap{background:#e7f0ff;color:#1565c0}.st-ok{background:#e8f5e9;color:#2e7d32}.st-rj{background:#ffe9e9;color:#d32f2f}
+.record-tools{display:flex;align-items:center;justify-content:space-between;padding:12px 18px 6px}
+.record-tools .hint{font-size:18px;font-weight:700}
+.record-tools .toggle-wrap{display:flex;align-items:center;gap:10px;color:#333;font-size:14px;font-weight:700}
+.toggle-switch{width:58px;height:32px;border-radius:16px;background:#e1e4ea;position:relative;transition:.15s}
+.toggle-switch:before{content:"";position:absolute;left:4px;top:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.16);transition:.15s}
+.toggle-switch.on{background:#d7ecff}.toggle-switch.on:before{left:28px;background:#0868d7}
+.record-stack{padding:2px 0 10px}
+.record-list{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.record-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.record-name{font-size:18px;font-weight:700;line-height:1.35}
+.record-status{font-size:18px;font-weight:700}
+.record-copy{margin-top:18px;color:#333;font-size:15px;line-height:1.65}
+.record-meta{display:flex;align-items:center;justify-content:space-between;margin-top:14px;color:#999;font-size:13px}
+.record-attach-toggle{display:flex;align-items:center;gap:4px;color:#888}
+.record-attach-toggle .caret{font-size:20px;line-height:1}
+.record-private-divider{display:flex;align-items:center;gap:10px;margin:16px 0 10px;color:#888;font-size:13px}
+.record-private-divider:before,.record-private-divider:after{content:"";height:1px;background:#e6e9ef;flex:1}
+.record-private-divider span{flex:0 0 auto}
+.attachment-box{margin-top:14px;background:#f5f5f5;border-radius:10px;padding:12px}
+.attach-item{display:flex;align-items:center;gap:10px;padding:10px 4px}
+.attach-item svg{width:34px;height:34px;flex:0 0 auto}
+.attach-item .name{flex:1;min-width:0;font-size:13px;line-height:1.4;color:#333}
+.attach-item .act{color:var(--blue);font-size:13px;font-weight:700;margin-left:10px}
+.record-status.pass{color:#19b86b}.record-status.reject{color:#ff3f3f}.record-status.cancel{color:#aaa}
+.record-section{padding-bottom:10px}
+.footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + var(--safe-bottom));z-index:30;display:flex;align-items:center;gap:12px}
+.footer .action{margin-left:0;border:0;border-radius:16px;height:52px;padding:0 18px;background:var(--blue);color:#fff;font-size:17px;font-weight:700;flex:1;min-width:0}
+.footer .action.ghost{background:#fff;color:var(--blue);border:1px solid #cfe0f8}
+.footer .menu{border:0;background:#fff;color:var(--blue);font-size:13px;font-weight:700}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.46);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.mask.show{display:flex}
+.sheet{width:min(428px,100%);background:#fff;border-radius:18px 18px 0 0;display:flex;flex-direction:column;max-height:90vh;overflow:hidden}
+.sheet-hd{display:flex;justify-content:space-between;align-items:center;font-size:17px;font-weight:700;padding:16px 18px 10px;flex:0 0 auto}
+.sheet-x{border:0;background:#f4f4f4;color:#777;border-radius:50%;width:28px;height:28px;font-size:18px}
+.sheet-bd{flex:1;min-height:0;padding:2px 18px 4px;overflow-y:auto}
+.af-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);flex:0 0 auto}
+.af-tab{flex:1;height:42px;border:0;background:#fff;color:#999;font-size:15px;position:relative}
+.af-tab.active{color:var(--blue);font-weight:700}
+.af-tab.active:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:30px;height:3px;background:var(--blue);border-radius:3px}
+.af-flow-card{background:#fff;border-radius:10px;padding:14px;cursor:pointer}
+.af-placeholder{height:280px;background:#ececec;display:grid;place-items:center;font-size:18px;font-weight:700;color:#555;border-radius:8px}
+.af-flow-note{text-align:center;font-size:12px;color:var(--muted);margin-top:8px}
+.af-node-type{font-size:13px;font-weight:600;color:#333;margin-bottom:12px}
+.af-node{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px}
+.af-node .dot{width:20px;height:20px;border-radius:50%;flex:0 0 auto;margin-top:2px;display:grid;place-items:center;color:#fff;font-size:11px}
+.af-node.done .dot{background:var(--green)}.af-node.cur .dot{background:var(--blue);box-shadow:0 0 0 4px rgba(8,104,215,.15)}.af-node.pend .dot{background:#cfd6df}
+.af-node .nd{flex:1;min-width:0}
+.af-node .nd .t{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.af-node .nd .s{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.7}
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:120;display:none;padding:40px 14px 24px;overflow:auto}
+.zoom.show{display:block}
+.z-close{position:absolute;top:10px;right:14px;color:#fff;background:rgba(255,255,255,.16);border:0;width:38px;height:38px;border-radius:50%;font-size:22px}
+.z-tip{color:#dfe3ea;text-align:center;font-size:13px;margin-top:10px}
+.dialog{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);padding:30px}
+.dialog.show{display:flex}
+.dbox{background:#fff;border-radius:14px;width:min(330px,100%);padding:22px 20px 18px;text-align:center}
+.dbox .di{font-size:34px;line-height:1}
+.dbox .dm{margin-top:10px;font-size:15px;color:#333;line-height:1.7}
+.dbox .dm b{color:#d94343}
+.dbtns{display:flex;gap:10px;margin-top:18px}
+.dbtn{flex:1;height:42px;border-radius:21px;border:0;font-size:15px}
+.dbtn.cancel{background:#f2f3f5;color:#666}.dbtn.confirm{background:var(--red);color:#fff;font-weight:600}
+#pdMask,#refPdMask{background:rgba(0,0,0,.48)}
+#pdMask .sheet,#refPdMask .sheet{background:#f2f3f5;padding:0 0 calc(18px + var(--safe-bottom));border-radius:18px 18px 0 0;max-height:90vh;overflow-y:auto}
+.pd-card{margin:64px 16px 0;padding:22px 18px 4px;background:#fff;border-radius:16px}
+.pd-head{display:grid;grid-template-columns:120px minmax(0,1fr);gap:16px;align-items:center;margin-bottom:16px}
+.pd-img{width:120px;height:120px;border-radius:12px;background:#f6f7f9;display:grid;place-items:center;border:1px solid var(--line)}
+.pd-img svg{width:56px;height:56px;color:#c9ced6}
+.pd-name{font-size:19px;font-weight:700;line-height:1.4;word-break:break-all}
+.pd-cate{display:inline-block;margin-top:8px;padding:3px 10px;background:#eef2fb;color:var(--blue);font-size:13px;border-radius:4px}
+.pd-fields{border-top:1px solid var(--line);padding-top:2px}
+.pd-row{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid #f2f3f5;font-size:16px;line-height:1.5}
+.pd-row:last-child{border-bottom:0}
+.pd-row .l{color:#8b8b8b;flex:0 0 auto;white-space:nowrap}
+.pd-row .l:after{content:"："}
+.pd-row .r{text-align:right;word-break:break-word;color:#333;min-width:0}
+.pd-input,.pd-select,.pd-ta{width:100%;border:1px solid #e4e7eb;border-radius:10px;background:#fff;outline:none;font-size:15px;color:#333;padding:0 12px;height:40px;box-sizing:border-box}
+.pd-input[readonly],.pd-select:disabled,.pd-ta[readonly]{background:#f5f6fa;color:#8f959e;cursor:not-allowed}
+.pd-select{padding-right:28px}
+.pd-ta{height:72px;resize:vertical;line-height:1.5;padding-top:8px;padding-bottom:8px}
+.pd-stepper{display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.pd-stepper button{border:0;background:transparent;color:var(--orange);font-size:24px;line-height:1;padding:0 2px}
+.pd-stepper input{width:72px;text-align:center}
+.pd-row.remark{align-items:flex-start}
+.pd-row.remark .r{text-align:left}
+.pd-foot{display:flex;gap:10px;padding:16px 16px 4px}
+.pd-btn{flex:1;height:50px;border:0;border-radius:28px;font-size:18px;font-weight:700}
+.pd-ok{background:#0864cf;color:#fff}
+.pd-del{background:#fff;border:1px solid #ffd0d0;color:#d14343}
+.pd-del.locked{background:#f3f4f6;border-color:#e5e7eb;color:#b4b9c2}
+.review-sheet{width:min(428px,100%);background:#fff;border-radius:18px 18px 0 0;display:flex;flex-direction:column;max-height:92vh;overflow:hidden}
+.review-title{font-size:18px;font-weight:700;text-align:center;padding:16px 16px 10px;flex:0 0 auto}
+.review-tabs{display:flex;margin:0 16px;background:#f2f4f7;border-radius:10px;padding:3px;gap:3px;flex:0 0 auto}
+.review-tabs button{flex:1;height:38px;border:0;border-radius:8px;background:transparent;color:#8b8b8b;font-size:15px}
+.review-tabs button.active{background:#fff;color:var(--blue);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.review-body{flex:1;overflow-y:auto;padding:14px 16px 8px}
+.review-block{margin-bottom:14px}
+.review-label{font-size:16px;font-weight:700;margin-bottom:8px;color:#333}
+.review-copy{font-size:18px;font-weight:700;line-height:1.6;color:#333}
+.review-copy .hot{color:var(--blue)}.review-copy .danger{color:var(--red)}
+.review-area{width:100%;height:195px;border:1px solid #e4e7eb;border-radius:10px;padding:12px;font-size:14px;resize:none;outline:none}
+.review-note{font-size:12px;color:#999;margin-top:10px;line-height:1.6}
+.login-row{display:flex;align-items:center;gap:10px;font-size:16px;margin-top:14px}
+.login-row .chip{padding:4px 10px;border-radius:4px;font-size:13px}
+.uploader{margin-top:14px}
+.upload-btn{width:96px;height:96px;border:0;border-radius:10px;background:#f5f6f8;color:#b9c3d0;font-size:50px;line-height:1}
+.upload-help{font-size:12px;color:#999;line-height:1.6;margin-top:10px}
+.review-actions{display:flex;gap:10px;padding:12px 16px calc(12px + var(--safe-bottom));border-top:1px solid #f2f3f5;flex:0 0 auto}
+.review-actions .dbtn{height:46px;border-radius:24px}
+.review-actions .cancel{background:#fff;border:1px solid #ddd;color:#444}
+.review-actions .confirm{background:var(--blue);color:#fff}
+.login-sheet{width:min(428px,100%);background:#fff;border-radius:18px 18px 0 0;display:flex;flex-direction:column;max-height:92vh;overflow:hidden}
+.login-title{font-size:18px;font-weight:700;text-align:center;padding:16px 16px 10px;flex:0 0 auto}
+.login-info{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px 12px;font-size:14px;color:#666}
+.login-info .edit{color:var(--blue);font-weight:700}
+.login-tabs{display:flex;margin:0 16px;background:#f2f4f7;border-radius:10px;padding:3px;gap:3px;flex:0 0 auto}
+.login-tabs button{flex:1;height:38px;border:0;border-radius:8px;background:transparent;color:#8b8b8b;font-size:15px}
+.login-tabs button.active{background:#fff;color:var(--blue);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.login-body{flex:1;overflow-y:auto;padding:14px 16px 8px}
+.login-table{width:100%;border-collapse:collapse;font-size:13px}
+.login-table th,.login-table td{padding:10px 6px;border-bottom:1px solid #f0f1f3;text-align:left;vertical-align:top}
+.login-table th{font-size:12px;color:#8f959e;font-weight:600;background:#fafbfc}
+.ls-badge{display:inline-flex;align-items:center;border-radius:4px;overflow:hidden}
+.ls-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;color:#fff;font-weight:700}
+.ls-num.ok{background:#19b86b}.ls-num.sub{background:#ff9f43}
+.ls-txt{display:inline-flex;align-items:center;justify-content:center;padding:0 9px;height:24px;border:1px solid currentColor;border-left:0;font-size:12px;font-weight:700}
+.ls-txt.ok{color:#19b86b}.ls-txt.sub{color:#ff9f43}
+.record-private{margin-top:12px;background:#f7f8fa;border-radius:10px;padding:12px}
+.record-private-title{font-size:13px;font-weight:700;color:#333;margin-bottom:8px}
+.record-private-note{font-size:13px;color:#666;line-height:1.6;white-space:pre-wrap}
+.record-private-empty{font-size:13px;color:#999;line-height:1.6}
+.record-private-files{margin-top:10px}
+.record-private-file{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #eef0f3}
+.record-private-file:first-child{border-top:0}
+.record-private-file .name{flex:1;min-width:0;font-size:13px;line-height:1.4;color:#333}
+.record-private-file .act{color:var(--blue);font-size:13px;font-weight:700;margin-left:10px}
+.record-note-block{background:#f5f6f7;border-radius:12px;padding:12px 12px 10px}
+.record-note-text{font-size:15px;line-height:1.6;color:#333}
+.record-attachments{margin-top:10px}
+.record-attachments.hidden{display:none}
+.record-attachment{display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:10px 0 0}
+.record-attachment + .record-attachment{margin-top:8px;border-top:1px solid #eef0f3;padding-top:8px}
+.record-attachment svg{width:34px;height:34px;flex:0 0 auto}
+.record-attachment .name{flex:1;min-width:0;font-size:13px;line-height:1.4;color:#333}
+.record-attachment .act{color:var(--blue);font-size:13px;font-weight:700;margin-left:10px}
+.detail-fields{background:#fff;border-radius:16px;padding:0 18px;margin-bottom:12px}
+.detail-edit{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;color:#9fa6b2;flex:0 0 auto}
+.detail-edit svg{width:16px;height:16px;display:block}
+.action-sheet{width:min(428px,100%);background:#fff;border-radius:18px 18px 0 0;padding:16px 18px calc(16px + var(--safe-bottom));display:flex;flex-direction:column;gap:12px}
+.action-item{min-height:54px;border-bottom:1px solid #f0f1f3;display:flex;align-items:center;justify-content:space-between;font-size:16px;color:#333}
+.action-item:last-child{border-bottom:0}
+.action-item .sub{font-size:12px;color:#999;margin-top:4px}
+.price-sheet{width:min(428px,100%);background:#fff;border-radius:18px 18px 0 0;display:flex;flex-direction:column;max-height:80vh;overflow:hidden}
+.price-title{font-size:18px;font-weight:700;text-align:center;padding:16px 16px 10px;flex:0 0 auto}
+.price-list{padding:8px 16px 16px;display:grid;gap:10px;overflow:auto}
+.price-option{min-height:46px;border:1px solid #e4e7eb;border-radius:10px;background:#fff;text-align:left;padding:10px 12px;font-size:15px;color:#333}
+.price-option.on{border-color:var(--blue);background:#f0f6ff;color:var(--blue);font-weight:700}
+.price-note{font-size:12px;color:#999;line-height:1.5;padding:0 16px 14px}
+.screen-mask{position:fixed;inset:0;background:#f5f6f7;z-index:110;display:none;overflow:hidden}
+.screen-mask.show{display:block}
+.screen{width:min(428px,100%);height:100%;margin:0 auto;background:var(--bg);display:flex;flex-direction:column}
+.screen .nav{position:sticky;top:0;z-index:3}
+.screen-search{background:#fff;padding:12px 14px;border-bottom:1px solid var(--line)}
+.search-input{width:100%;height:38px;border:0;background:#f3f4f6;border-radius:19px;padding:0 14px;font-size:14px;outline:none}
+.screen-scroll{flex:1;overflow:auto;padding:12px 14px 16px}
+.screen-bottom{background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(10px + var(--safe-bottom))}
+.screen-bottom-bar{display:flex;gap:10px}
+.wide-btn{height:46px;border:0;border-radius:24px;font-size:16px;font-weight:700}
+.wide-btn.ghost{background:#fff;border:1px solid #d9e0ea;color:#333}
+.wide-btn.blue{background:var(--blue);color:#fff}
+.std-card{display:flex;align-items:flex-start;gap:10px;background:#fff;border-radius:12px;padding:12px 10px;margin-bottom:10px;position:relative;border:1px solid transparent}
+.std-card.selected{border-color:#cfe0f8;background:#f3f8ff}
+.std-check{width:18px;height:18px;border-radius:50%;border:2px solid #cfd6df;flex:0 0 auto;margin-top:16px;position:relative;background:#fff}
+.std-card.selected .std-check{border-color:var(--blue);background:var(--blue)}
+.std-card.selected .std-check:after{content:"";position:absolute;left:4px;top:1px;width:5px;height:8px;border-right:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(45deg)}
+.std-main{flex:1;min-width:0;position:relative;padding-right:4px}
+.std-name{font-size:15px;font-weight:700;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.std-model{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}
+.std-net{font-size:13px;margin-top:4px}
+.std-net b{font-weight:700;color:#444}
+.std-stepper{position:absolute;right:0;bottom:0;display:flex;align-items:center;gap:6px}
+.std-stepper button{border:0;background:transparent;color:var(--orange);font-size:23px;line-height:1;padding:0 3px}
+.std-stepper input{width:58px;height:32px;border:1px solid #ddd;border-radius:7px;background:#fff;text-align:center;font-size:15px;padding:0 3px}
+.selected-head{display:flex;align-items:center;justify-content:space-between;font-size:14px;color:#666;margin:2px 0 10px}
+.delete-all{border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:700;padding:0;display:flex;align-items:center;gap:4px}
+.remove-one{position:absolute;right:10px;top:12px;border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:700}
+.form-group{margin-bottom:12px}
+.form-label{display:block;font-size:14px;color:#666;margin-bottom:6px}
+.input{width:100%;border:1px solid #e4e7eb;border-radius:10px;background:#fff;outline:none;font-size:14px}
+.sheet-ft{display:flex;gap:10px;padding:12px 16px calc(12px + var(--safe-bottom));border-top:1px solid #f2f3f5;flex:0 0 auto}
+.sheet-ft .dlg-btn{flex:1;height:46px;border-radius:24px}
+.sheet-ft .gray{background:#fff;border:1px solid #ddd;color:#444}
+.sheet-ft .blue{background:var(--blue);color:#fff}
+.btn-block{height:46px;border:0;border-radius:24px;font-size:16px;font-weight:700}
+.btn-block.blue{background:var(--blue);color:#fff}
+.login-page{position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(428px,100%);height:100%;background:var(--bg);z-index:115;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.login-page.show{display:block}
+.login-page .nav{position:sticky;top:0}
+.login-page .nav-title{padding-right:0}
+.login-body{padding:12px 14px 30px}
+.login-top{background:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;margin-bottom:12px}
+.login-top .assoc{color:#8b8b8b}
+.login-tabs{display:flex;background:#fff;border-radius:14px;padding:4px;margin-bottom:12px;gap:4px}
+.login-tab{flex:1;height:40px;border:0;border-radius:10px;background:transparent;color:#8b8b8b;font-size:15px}
+.login-tab.on{background:var(--blue);color:#fff;font-weight:700}
+.login-panel{display:none}
+.login-panel.on{display:block}
+.login-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.login-card-hd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.login-card-name{font-size:15px;font-weight:700;min-width:0;flex:1}
+.login-card-time{font-size:12px;color:#a0a6ae;white-space:nowrap}
+.login-card-toggle{font-size:14px;color:#a0a6ae;margin-left:4px}
+.login-card-toggle.on{color:var(--blue)}
+.login-card-bd{padding-top:10px}
+.login-line{font-size:14px;color:#555;line-height:1.7}
+.login-box{margin-top:10px;background:#f7f8fa;border-radius:10px;padding:12px}
+.login-label{font-size:13px;font-weight:700;color:#666;margin-bottom:8px}
+.login-order{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:#333;padding:7px 0}
+.login-order:last-child{padding-bottom:0}
+.ls-badge{display:inline-flex;align-items:center;border-radius:4px;overflow:hidden}
+.ls-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;color:#fff;font-weight:700}
+.ls-num.ok{background:#19b86b}.ls-num.sub{background:#ff9f43}
+.ls-txt{display:inline-flex;align-items:center;justify-content:center;padding:0 9px;height:24px;border:1px solid currentColor;border-left:0;font-size:12px;font-weight:700}
+.ls-txt.ok{color:#19b86b}.ls-txt.sub{color:#ff9f43}
+.toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;z-index:200;display:none;white-space:nowrap;max-width:86%}
+.toast.show{display:block}
+
+
+/* Approval records intentionally reuse the non-cross-region approval card pattern. */
+.record-section{padding:12px 14px 14px;display:flex;flex-direction:column;gap:10px}
+.record{background:#fafbfd;border:1px solid #eef0f3;border-radius:12px;padding:12px 12px 10px}
+.record-top{display:flex;align-items:center;gap:8px}
+.record .record-name{font-size:14px;font-weight:700;line-height:1.4;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.record-time{font-size:12px;color:var(--muted);flex:0 0 auto}
+.record .badge{flex:0 0 auto;display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700}
+.record .badge.pass{background:#e8f6ea;color:var(--green)}
+.record .badge.reject{background:#fdf0ef;color:var(--red)}
+.record .badge.cancel{background:#f0f2f4;color:var(--muted)}
+.record-opinion{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.record-opinion-note{background:#fff;border:1px solid #eef0f3;border-radius:8px;padding:7px 9px;font-size:13px;color:#4a5057;line-height:1.5;word-break:break-all}
+.record-opinion-attach{display:flex;flex-direction:column;gap:4px}
+.record-opinion-attach-title,.record-inner-attach-title{font-size:12px;color:#8f959e;line-height:1.4}
+.record-opinion-attach-list{display:flex;flex-direction:column;gap:4px}
+.record-opinion-expand{display:flex;align-items:center;justify-content:center;padding:5px 0 0}
+.record-opinion-expand .toggle{color:var(--blue);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:3px}
+.record-inner{margin-top:8px;border-top:1px dashed #dfe2e9;padding-top:7px;display:none}
+.record-inner.on{display:block}
+.record-inner-hd{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#676d77;margin-bottom:4px}
+.record-inner-note{background:#fff;border:1px solid #eef0f3;border-radius:8px;padding:7px 9px;font-size:13px;color:#4a5057;line-height:1.5;word-break:break-all}
+.record-attach-item{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #eef0f3;border-radius:8px;padding:8px;font-size:12px}
+.record-attach-item .ico{width:22px;height:22px;display:grid;place-items:center;flex:0 0 auto}
+.record-attach-item .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333}
+.record-attach-item .pv{color:var(--blue);font-weight:700;flex:0 0 auto}
+</style>
+</head>
+<body>
+<main class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi">◉</span><span class="battery"></span></span></div>
+  <header class="nav">
+    <button class="back" onclick="toast('原型占位：返回')" aria-label="返回"><i></i></button>
+    <div class="nav-title">二次批价审批页</div>
+    <button class="more" onclick="openActionSheet()">⋮</button>
+  </header>
+  <div class="summary">
+    <div class="sum-no">项目单号 粤东GCDT202606250001...</div>
+    <div class="sum-sub"><span class="chip gray">中央空调</span><span class="chip blue">审批中</span></div>
+    <div class="project-name">某商业综合体空调项目 展示完整超出回行</div>
+    <div class="project-meta">经销商：珠海华鸿电器销售有限公司</div>
+  </div>
+  <nav class="tabs">
+    <button class="tab on" data-panel="detail" onclick="switchPanel('detail',this)">单据信息</button>
+    <button class="tab" data-panel="record" onclick="switchPanel('record',this)">审批记录</button>
+    <button class="tab" data-panel="ref" onclick="switchPanel('ref',this)">关联项目参考</button>
+  </nav>
+  <div class="content">
+    <div class="panel on" id="detailPanel">
+      <div class="section">
+        <div class="section-head"><span>价格类型</span><button class="price-trigger" id="priceTypeBtn" onclick="openPricePicker()"><span id="priceTypeText">常规价</span><span class="chev">›</span></button></div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span>设备清单</span><button class="add-btn" onclick="openAddChooser()">添加商品 &gt;</button></div>
+        <div class="section-body">
+          <div id="equipCount" style="font-size:14px;color:#999;margin-bottom:6px">已添加：5 项</div>
+          <div id="equipHost"></div>
+          <div class="expand-row" id="equipFoldBtn" onclick="toggleEquipFold()"><span>⌄</span>展示全部</div>
+          <div class="summary-line" id="equipSummary"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span>项目凭证</span><button class="toggle" id="certBtn" onclick="toggleCert()">⌄</button></div>
+        <div class="section-body" id="certBody">
+          <div class="sec-note">项目凭证备注<br>本项目为某商业综合体空调改造项目，合同扫描件、项目进度说明及发票凭证详见上传附件。</div>
+          <div id="certHost"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span>附件与备注</span><button class="toggle" id="attachBtn" onclick="toggleAttach()">⌄</button></div>
+        <div class="section-body" id="attachBody">
+          <div class="attach-note">
+            <div style="font-size:13px;margin-bottom:7px">备注</div>
+            <textarea readonly style="width:100%;height:95px;border:0;background:#f5f5f5;border-radius:10px;padding:10px;font-size:13px;resize:none;outline:none">本项目为五星级酒店翻新，施工需避开营业时段，建议夜间10点后施工。</textarea>
+            <div style="font-size:13px;margin-top:15px">附件</div>
+            <div id="attachHost"></div>
+            <div class="attach-tip">支持扩展名：png jpg jpeg pdf docx excel，单个文件大小不超过10M，上传数量不超过5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" id="recordPanel">
+      <div class="record-tools">
+        <div class="hint">显示所有信息</div>
+        <div class="toggle-switch" id="recordToggle" onclick="toggleRecordDisplay()"></div>
+      </div>
+      <div class="record-section" id="recordHost"></div>
+    </div>
+    <div class="panel" id="refPanel">
+      <div class="section">
+        <div class="section-head"><span>基本信息</span><button class="toggle">⌄</button></div>
+        <div class="section-body">
+          <div class="kv" id="basicHost"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span>使用方信息</span><button class="toggle">⌄</button></div>
+        <div class="section-body">
+          <div class="kv" id="usageHost"></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-head"><span>项目设备清单</span><button class="toggle">⌄</button></div>
+        <div class="section-body">
+          <div id="refEquipHost"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    <button class="action ghost" onclick="openReview('reject')">驳回</button>
+    <button class="action" onclick="openReview('pass')">通过</button>
+  </div>
+</main>
+
+<div class="mask" id="afMask" onclick="closeAf(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>审批流程</span><button class="sheet-x" onclick="closeAf()">×</button></div>
+    <div class="af-tabs">
+      <button class="af-tab active" onclick="afTab('flow',this)">审批流程</button>
+      <button class="af-tab" onclick="afTab('node',this)">当前节点</button>
+    </div>
+    <div class="sheet-bd">
+      <div id="afFlowBody"></div>
+      <div id="afNodeBody" style="display:none"></div>
+    </div>
+    <div style="padding:10px 16px calc(2px + var(--safe-bottom));border-top:1px solid #f2f3f5"><button class="action" style="width:100%;margin-left:0">确认</button></div>
+  </div>
+</div>
+
+<div class="zoom" id="zoomWrap" onclick="closeZoom(event)">
+  <button class="z-close" onclick="closeZoom()" aria-label="关闭">×</button>
+  <div class="zoom-box" id="zoomBody"></div>
+  <div class="z-tip">点击空白处关闭</div>
+</div>
+
+<div class="dialog" id="reviewMask" onclick="closeReview(event)">
+  <div class="review-sheet" onclick="event.stopPropagation()">
+    <div class="review-title" id="reviewTitle">审批意见</div>
+    <div class="review-tabs">
+      <button class="active" id="reviewTab1" onclick="reviewTab('opinion',this)">审批意见</button>
+      <button id="reviewTab2" onclick="reviewTab('private',this)">非公开信息</button>
+    </div>
+    <div class="review-body">
+      <div id="reviewOpinion"></div>
+      <div id="reviewPrivate" style="display:none"></div>
+    </div>
+    <div class="review-actions">
+      <button class="dbtn cancel" onclick="closeReview()">取消</button>
+      <button class="dbtn confirm" onclick="submitReview()">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="dialog" id="pdMask" onclick="closePd(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div id="pdBody"></div>
+  </div>
+</div>
+
+<div class="dialog" id="refPdMask" onclick="closeRefPd(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div id="refPdBody"></div>
+  </div>
+</div>
+
+<div class="dialog" id="actionMask" onclick="if(event.target===this)closeActionSheet()">
+  <div class="action-sheet" onclick="event.stopPropagation()">
+    <div class="action-item" onclick="openFlow();closeActionSheet()"><div><div>审批流程</div><div class="sub">查看流程图与当前节点</div></div><span style="color:#bbb;font-size:22px">›</span></div>
+  </div>
+</div>
+
+<div class="login-page" id="loginPage">
+  <header class="nav">
+    <button class="back" aria-label="返回" onclick="closeLogin()"><i></i></button>
+    <div class="nav-title">登录顺序</div>
+  </header>
+  <div class="login-body">
+    <div class="login-tabs">
+      <button class="login-tab on" id="loginTab1" onclick="loginTab('assoc',this)">关联工程信息</button>
+      <button class="login-tab" id="loginTab2" onclick="loginTab('record',this)">修改记录</button>
+    </div>
+    <div class="login-panel on" id="loginAssoc"></div>
+    <div class="login-panel" id="loginRecord"></div>
+  </div>
+</div>
+
+<div class="mask" id="priceMask" onclick="closePricePicker(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>价格类型</span><button class="sheet-x" onclick="closePricePicker()">×</button></div>
+    <div class="sheet-bd">
+      <div class="price-list" id="priceList"></div>
+    </div>
+    <div class="price-note">请选择与 PC 及设计稿一致的价格类型。</div>
+  </div>
+</div>
+
+<div class="mask" id="addMask" onclick="closeMask(event,'addMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-bd" style="padding-top:24px">
+      <button class="btn-block blue" style="width:100%;margin-bottom:12px" onclick="openStdPicker('add')">添加标准商品</button>
+      <button class="btn-block blue" style="width:100%" onclick="openNonStdForm()">添加非标虚拟商品</button>
+    </div>
+  </div>
+</div>
+
+<div class="screen-mask" id="stdMask">
+  <div class="screen">
+    <header class="nav"><button class="back" onclick="closeStdPicker()"><i></i></button><div class="nav-title">添加商品</div></header>
+    <div class="screen-search"><input class="search-input" id="stdKeyword" placeholder="请输入商品名称、SKU编码、型号搜索" oninput="renderStdScreen()"></div>
+    <div class="screen-scroll" id="stdScreenBody"></div>
+    <div class="screen-bottom" id="stdScreenFooter"></div>
+  </div>
+</div>
+
+<div class="mask" id="nonStdMask" onclick="closeMask(event,'nonStdMask')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-hd"><span>添加非标虚拟商品</span><button class="sheet-x" onclick="closeNonStdForm()">×</button></div>
+    <div class="sheet-bd" id="nonStdBody"></div>
+    <div class="sheet-ft">
+      <button class="dlg-btn gray" onclick="closeNonStdForm()">取消</button>
+      <button class="dlg-btn blue" onclick="confirmNonStd()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const IMG='<svg viewBox="0 0 120 80" fill="none"><rect x="17" y="28" width="86" height="27" rx="8" fill="#f5f5f5" stroke="#ddd"/><path d="M20 47c10 4 58 7 81-1" stroke="#bbb" stroke-width="3" stroke-linecap="round"/><path d="M26 31l7-10h57l9 10" stroke="#d8d8d8" stroke-width="4" stroke-linejoin="round"/><path d="M31 57h58" stroke="#cfcfcf" stroke-width="3" stroke-linecap="round"/></svg>';
+const PD_IMG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4 3 3L16 12l4 4"/></svg>';
+const FILES=['合同扫描件','中标通知书','采购订单/成交通知书','客户资质证明','区域授权函','项目进度说明','发票凭证（已付/未付）','验收报告（阶段性/最终）','技术方案确认书','条码文件','工程图纸','招投标材料','销司其他附件'];
+const EQUI=[
+  {id:'P100001',n:'GMV5多联机 10HP',m:'GMV-450WM/A',p:42000,origPrice:46000,approve:41500,point:8.5,q:5,origQty:5,purchaseQty:5,saleType:'常规价',nonstd:false,bind:true,sku:'SKU-GMV5-10HP',range:'¥41,500 ~ ¥48,000',resetPoint:1.5,depositRate:10,onlinePrice:48000,estimate:43200,cate:'多联机',remark:'--'},
+  {id:'P100100',n:'定制机-非标控制柜',m:'非标-DZ-001',p:38000,origPrice:38000,approve:null,point:0,q:1,origQty:1,purchaseQty:1,saleType:'买断价',nonstd:true,bind:false,sku:'SKU-NON-001',range:'--',resetPoint:'--',depositRate:15,onlinePrice:null,estimate:null,cate:'定制设备',remark:'按图纸定制'},
+  {id:'P100002',n:'格力 KFRd-120LW/NhGb1B 柜机',m:'KFRd-120LW/NhGb1B',p:7600,origPrice:8000,approve:7500,point:9,q:8,origQty:8,purchaseQty:8,saleType:'常规价',nonstd:false,bind:true,sku:'SKU-GJ-120GB',range:'¥7,500 ~ ¥8,500',resetPoint:2,depositRate:10,onlinePrice:8500,estimate:7650,cate:'中央空调',remark:''},
+  {id:'P100003',n:'格力 FGR5Pd/NhBa1 吊顶式新风',m:'FGR5Pd/NhBa1',p:4200,origPrice:4500,approve:4000,point:11,q:10,origQty:10,purchaseQty:10,saleType:'特价',nonstd:false,bind:true,sku:'SKU-XF-5NBA1',range:'¥4,000 ~ ¥5,000',resetPoint:2.5,depositRate:10,onlinePrice:5000,estimate:4500,cate:'新风',remark:''},
+  {id:'P100004',n:'格力 GMV-H224WL/A1 多联机组',m:'GMV-H224WL/A1',p:19800,origPrice:22000,approve:19500,point:13,q:3,origQty:3,purchaseQty:3,saleType:'打包价',nonstd:false,bind:true,sku:'SKU-MLJ-224A1',range:'¥19,500 ~ ¥22,500',resetPoint:3,depositRate:15,onlinePrice:22500,estimate:20250,cate:'多联机',remark:''}
+];
+const REF_EQ=[{n:'天丽变频冷暖正1.5匹3级能能能',m:'天丽-15m',p:3555,q:100,nonstd:true},{n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,q:100},{n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,q:100}];
+const BASIC=[['项目单号','粤东GCDT202606250001','copy'],['经销商名称','家经部观察正式环境账号','copy'],['经销商电话','137 1234 5678',''],['业务线','中央空调',''],['项目状态','审批中',''],['登录时间','2026-06-25 10:30',''],['项目类型','单体项目',''],['保证金类型','比例保证金-A（10%）',''],['登录顺序','1-登录成功','view']];
+const USAGE=[['项目名称','名称名称名称名称名称名称名称','copy'],['客户类型','地产公司',''],['客户名称','XX建设工程有限公司',''],['采购单位','XX商业管理有限公司',''],['行业大类','商业综合体',''],['使用方负责人','马芸',''],['联系方式','138****5678',''],['预计设备金额','¥500万元',''],['空调面积','8,000 m²',''],['项目地址','广东省珠海市香洲区前山街道南沙湾社区光明巷街道122号',''],['跨区类型','否',''],['跨区编号','省外跨区',''],['执行单位','XX工程服务有限公司','']];
+const RECORDS=[{name:'张三三',st:'pass',stText:'通过',remark:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',privateRemark:'内部备注信息内部备注信息内部备注信息内部备注信息',privateFiles:['内部附件A.docx','内部附件B.pdf'],attach:[['pdf','这是一个文件名这是一个文件名这是一个文件名.pdf'],['docx','这是一个文件名这是一个文件名这是一个文件名.docx']]},{name:'张三三',st:'reject',stText:'驳回',remark:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',privateRemark:'内部备注信息内部备注信息内部备注信息内部备注信息',privateFiles:['内部附件A.docx','内部附件B.pdf'],attach:[['pdf','这是一个文件名这是一个文件名这是一个文件名.pdf'],['docx','这是一个文件名这是一个文件名这是一个文件名.docx']]},{name:'张三三',st:'cancel',stText:'已取消',remark:'备注信息备注信息备注信息备注信息备注信息备注信息备注信息备注信息',time:'2026-06-29 15:22',privateRemark:'内部备注信息内部备注信息内部备注信息内部备注信息',privateFiles:[],attach:[]}];
+const NODES=[{n:'经销商提交',s:'done',m:'2026-06-25 10:30'},{n:'销售公司初审',s:'done',m:'2026-06-26 09:12'},{n:'工程部复审',s:'cur',m:'处理中'},{n:'价格审批',s:'pend',m:'待进入'}];
+const PRICE_TYPES=[{id:'regular',label:'常规价'},{id:'buyout',label:'买断价'},{id:'special',label:'特价'},{id:'sample',label:'样机'},{id:'package',label:'打包价'},{id:'hold',label:'暂扣价'},{id:'parts',label:'配件'},{id:'one-ticket',label:'一票价'}];
+const PRODUCTS=[
+  {id:'BND-001',name:'格力 GMV-H224WL/A1 多联机组',model:'GMV-H224WL/A1',sku:'SKU-BIND-224A1',net:19800,cate:'多联机',onlinePrice:22500},
+  {id:'BND-002',name:'格力 KFRd-120LW/NhGb1B 柜机',model:'KFRd-120LW/NhGb1B',sku:'SKU-BIND-120GB',net:7600,cate:'中央空调',onlinePrice:8500},
+  {id:'BND-003',name:'格力 FGR5Pd/NhBa1 吊顶式新风',model:'FGR5Pd/NhBa1',sku:'SKU-BIND-5NBA1',net:4200,cate:'新风',onlinePrice:5000}
+];
+const equipData=EQUI.map((x,i)=>({
+  id:x.id || 'existing-'+i,
+  title:x.n,
+  model:x.m,
+  sku:x.sku || (x.nonstd ? '--' : 'SPU10001001'),
+  price:money(x.p),
+  origPrice:x.origPrice ? money(x.origPrice) : '--',
+  qty:x.q,
+  origQty:x.origQty || 0,
+  purchaseQty:x.purchaseQty || 0,
+  saleType:x.saleType || '常规价',
+  point:x.point+'%',
+  remark:x.remark && x.remark !== '--' ? x.remark : '',
+  nonstd:!!x.nonstd,
+  approve:x.nonstd ? '待绑定商品后填写' : money(x.approve || x.p),
+  range:x.nonstd ? '--' : (x.range || '¥41,500 ~ ¥48,000'),
+  resetPoint:x.nonstd ? '--' : ((x.resetPoint != null ? x.resetPoint : 2.5) + '%'),
+  depositRate:(x.depositRate != null ? x.depositRate : 10) + '%',
+  onlinePrice:x.nonstd ? '' : money(x.onlinePrice || 48000),
+  estimate:x.nonstd ? '待绑定商品后填写' : money(x.estimate || x.p),
+  cate:x.cate || '中央空调',
+  bind: x.bind !== false
+}));
+let priceType='regular',selectedStdId=null,stdMode='add',bindTargetIndex=-1,currentProductIndex=0,nonStdSeq=1,equipFold=true,certFold=true,attachFold=true,recordAll=true,recordAttachOpen=[false,true,false],cur='审批中',reviewMode='pass';
+function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]))}
+function money(v){return '¥'+Number(v||0).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function parseMoney(v){return Number(String(v||'0').replace(/[^\d.-]/g,''))||0}
+function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');clearTimeout(window._t);window._t=setTimeout(()=>e.classList.remove('show'),1600)}
+function setState(v){cur=v;renderAll()}
+function switchPanel(panel,btn){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));btn.classList.add('on');document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));document.getElementById(panel+'Panel').classList.add('on');window.scrollTo(0,0)}
+function closeMask(e,id){if(typeof e==='string'){id=e;e=null}if(e&&e.target!==e.currentTarget)return;const el=document.getElementById(id);if(el)el.classList.remove('show')}
+function openPricePicker(){const list=document.getElementById('priceList');if(list){list.innerHTML=PRICE_TYPES.map(x=>`<button class="price-option ${x.id===priceType?'on':''}" onclick="setPriceType('${x.id}')">${esc(x.label)}</button>`).join('')}document.getElementById('priceMask').classList.add('show')}
+function closePricePicker(e){if(e&&e.target!==document.getElementById('priceMask'))return;document.getElementById('priceMask').classList.remove('show')}
+function setPriceType(id){priceType=id;renderDetail();closePricePicker()}
+function openAddChooser(){document.getElementById('addMask').classList.add('show')}
+function openStdPicker(mode,targetIndex){stdMode=mode||'add';bindTargetIndex=typeof targetIndex==='number'?targetIndex:-1;closeMask('addMask');if(stdMode!=='selected')selectedStdId=null;const kw=document.getElementById('stdKeyword');if(kw)kw.value='';renderStdScreen();document.getElementById('stdMask').classList.add('show')}
+function closeStdPicker(){closeMask('stdMask')}
+function stdFiltered(){const k=(document.getElementById('stdKeyword')?.value||'').trim();return PRODUCTS.filter(p=>!k||[p.name,p.model,p.sku].join('|').indexOf(k)>=0)}
+function selectedCount(){return selectedStdId?1:0}
+function existingSkuSet(){return new Set(equipData.map(x=>String(x.sku||'').trim()).filter(Boolean))}
+function toggleStdById(id){
+  const p=PRODUCTS.find(x=>x.id===id);
+  if(!p)return;
+  const sku=String(p.sku||'').trim();
+  if(existingSkuSet().has(sku) && selectedStdId!==id){toast('该SKU已在列表中，不能重复选择');return}
+  selectedStdId = selectedStdId===id ? null : id;
+  renderStdScreen()
+}
+function stdCard(p,selected){const exists=existingSkuSet().has(String(p.sku||'').trim())&&!selected;return `<div class="std-card ${selected?'selected ':''}${exists?' disabled':''}" onclick="toggleStdById('${esc(p.id)}')"><span class="std-check"></span><div class="prod-img">${IMG}</div><div class="std-main"><div class="std-name">${esc(p.name)}</div><div class="std-model">${esc(p.model)}</div><div class="std-net">网批售价：<b>${money(p.net)}</b>${exists?'<span style="margin-left:8px;color:#999;font-size:12px">已存在</span>':''}</div></div></div>`}
+function renderStdScreen(){const body=document.getElementById('stdScreenBody'),footer=document.getElementById('stdScreenFooter');if(!body||!footer)return;const rows=stdFiltered();body.innerHTML=rows.length?rows.map(p=>stdCard(p,selectedStdId===p.id)).join(''):'<div style="text-align:center;color:#999;padding:80px 0">暂无商品</div>';footer.innerHTML='<div class="screen-bottom-bar"><button class="wide-btn ghost" style="flex:1" onclick="closeStdPicker()">取消</button><button class="wide-btn blue" style="flex:1.25" onclick="confirmStd()">'+(stdMode==='bind'?'确认绑定':'确认添加')+'</button></div>'}
+function confirmStd(){if(!selectedStdId){toast('请先选择商品');return}const p=PRODUCTS.find(x=>x.id===selectedStdId);if(!p)return;const sku=String(p.sku||'').trim();if(stdMode!=='bind' && existingSkuSet().has(sku)){toast('该SKU已在列表中，不能重复选择');return}if(stdMode==='bind' && bindTargetIndex>=0){const item=equipData[bindTargetIndex];if(!item){closeStdPicker();return}item.bind=true;item.nonstd=true;item.boundProductName=p.name;item.boundProductCate=p.cate||item.cate||'中央空调';item.boundProductModel=p.model;item.boundProductSku=p.sku;item.boundProductId=p.id;item.boundOnlinePrice=p.onlinePrice||0;item.onlinePrice=money(p.onlinePrice||0);item.range='¥0 ~ '+money(p.onlinePrice||0);item.approve='';item.estimate='';item.cate=p.cate||item.cate||'中央空调';item.saleType=item.saleType||'买断价';closeStdPicker();renderDetail();toast('已绑定真实商品');return}equipData.push({id:p.id,title:p.name,model:p.model,sku:p.sku,price:money(p.net),origPrice:'--',qty:1,origQty:0,purchaseQty:0,saleType:'常规价',point:'0.00%',remark:'',nonstd:false,bind:true,approve:'',range:'¥0 ~ '+money(p.onlinePrice||0),resetPoint:'0%',depositRate:'10%',onlinePrice:money(p.onlinePrice||0),estimate:'',cate:p.cate||'中央空调'});selectedStdId=null;bindTargetIndex=-1;closeStdPicker();renderDetail();toast('已添加商品')}
+function openNonStdForm(){document.getElementById('nonStdBody').innerHTML=`<div class="form-group"><label class="form-label">品类</label><select class="input" id="nonStdCate" style="height:40px"><option>中央空调</option><option>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option></select></div><div class="form-group"><label class="form-label">型号</label><input class="input" id="nonStdModel" placeholder="输入型号" style="height:40px;padding:0 12px"></div><div class="form-group"><label class="form-label">申请数量</label><input class="input" id="nonStdQty" type="number" placeholder="1" style="height:40px;padding:0 12px;text-align:right"></div><div class="form-group"><label class="form-label">申请价格</label><input class="input" id="nonStdPrice" type="number" placeholder="0.00" style="height:40px;padding:0 12px;text-align:right"></div><div class="form-group"><label class="form-label">申请点位</label><input class="input" id="nonStdPoint" type="number" placeholder="0%" style="height:40px;padding:0 12px;text-align:right"></div><div class="form-group"><label class="form-label">定金比例</label><input class="input" id="nonStdDepositRate" type="number" placeholder="10%" style="height:40px;padding:0 12px;text-align:right"></div><div class="form-group"><label class="form-label">网批挂网价</label><input class="input" id="nonStdOnlinePrice" type="number" placeholder="0.00" style="height:40px;padding:0 12px;text-align:right"></div><div class="form-group"><label class="form-label">备注</label><textarea class="input" id="nonStdRemark" placeholder="选填备注" style="min-height:78px;padding:10px 12px"></textarea></div>`;document.getElementById('nonStdMask').classList.add('show');document.getElementById('addMask').classList.remove('show')}
+function closeNonStdForm(){document.getElementById('nonStdMask').classList.remove('show')}
+function confirmNonStd(){const model=(document.getElementById('nonStdModel')?.value||'').trim()||'非标型号';const qty=Math.max(1,parseInt(document.getElementById('nonStdQty')?.value,10)||1);const priceVal=(document.getElementById('nonStdPrice')?.value||'');const pointVal=(document.getElementById('nonStdPoint')?.value||'');const depositVal=(document.getElementById('nonStdDepositRate')?.value||'');const onlineVal=(document.getElementById('nonStdOnlinePrice')?.value||'');const remark=(document.getElementById('nonStdRemark')?.value||'').trim();const price='¥'+(priceVal?Number(priceVal).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2}):'0.00');equipData.push({id:'',title:'定制机',model,sku:'',price,origPrice:'--',qty,origQty:0,purchaseQty:0,saleType:'买断价',point:(pointVal?Number(pointVal).toFixed(2):'0.00')+'%',remark,nonstd:true,bind:false,approve:'待绑定商品后填写',range:'--',resetPoint:'--',depositRate:(depositVal?Number(depositVal):10)+'%',onlinePrice:onlineVal?money(onlineVal):'',estimate:'待绑定商品后填写',cate:(document.getElementById('nonStdCate')?.value||'中央空调')});closeNonStdForm();renderDetail();toast('已添加非标虚拟商品')}
+function toggleEquipFold(){equipFold=!equipFold;renderDetail()}
+function toggleCert(){certFold=!certFold;renderDetail()}
+function toggleAttach(){attachFold=!attachFold;renderDetail()}
+function toggleRecordDisplay(){recordAll=!recordAll;renderRecord()}
+function toggleRecordAttach(idx){recordAttachOpen[idx]=!recordAttachOpen[idx];renderRecord()}
+function renderHead(){}
+function toggleOpinionExpand(el){
+  const card=el.closest('.record');
+  if(!card) return;
+  const inner=card.querySelector('.record-inner');
+  if(!inner) return;
+  const on=inner.classList.toggle('on');
+  el.querySelector('.toggle').innerHTML=on?'收起 <span class="arrow">⌃</span>':'展开 <span class="arrow">⌄</span>';
+}
+function openOpinionView(idx){
+  const r=RECORDS[idx];
+  document.getElementById("previewBox").innerHTML=`
+    <div style="width:min(300px,100%);background:#fff;border-radius:6px;box-shadow:0 8px 30px rgba(0,0,0,.35);padding:22px 18px;text-align:center">
+      <div style="font-size:46px">📄</div>
+      <div style="font-size:14px;font-weight:600;color:#1f2329;margin-top:12px;line-height:1.5;word-break:break-all">审批意见-${r.name}</div>
+      <div style="font-size:12px;color:#8f959e;margin-top:5px">${r.time}</div>
+      <div style="margin-top:16px;background:#f6f7f9;border:1px dashed #c9ced8;border-radius:8px;padding:10px;font-size:12px;color:#8f959e;line-height:1.6">这是审批意见查看的原型占位预览</div>
+    </div>`;
+  document.getElementById("previewMask").classList.add("show");
+}
+function openAttachView(idx){
+  const r=RECORDS[idx];
+  const files=r.attach||[];
+  document.getElementById("previewBox").innerHTML=`
+    <div style="width:min(340px,100%);background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.35);padding:18px 16px;text-align:left">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="font-size:16px;font-weight:700;color:#1f2329">附件查看</div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:#8f959e;line-height:1.6">以下为该审批记录的附件列表，点击可逐个预览。</div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        ${files.map((f,idx)=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e8ebf0;border-radius:10px;background:#fafbfc">
+            <span style="width:28px;height:28px;border-radius:8px;background:#eaf2ff;color:#2b6de8;display:grid;place-items:center;font-size:15px;flex:0 0 auto">📄</span>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;color:#1f2329;word-break:break-all">附件${idx+1}：${f[1]}</div>
+              <div style="font-size:12px;color:#8f959e;margin-top:2px">审批记录附件</div>
+            </div>
+            <span class="more" onclick="toast('原型占位：预览 ${f[1]}')">预览</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById("previewMask").classList.add("show");
+}
+function renderDetail(){
+  const equip=equipFold?equipData.slice(0,3):equipData;
+  document.getElementById('equipCount').textContent=`已添加：${equipData.length} 项`;
+  document.getElementById('equipHost').innerHTML=equip.map((x,i)=>{
+    const isVirtualNonStd=!!x.nonstd && !x.bind;
+    const bindHint=isVirtualNonStd?'<span style="margin-left:8px;color:#999;font-size:12px">待绑定商品</span>':(x.nonstd?'<span style="margin-left:8px;color:#2e7d32;font-size:12px">已绑定真实商品</span>':'');
+    return `<div class="equip-wrap"><div class="equip-card batch-equip-card" onclick="openBatchProductDetail(${i})"><div class="prod-img">${IMG}</div><div class="equip-main"><div class="equip-title">${x.nonstd?'<span class="nonstd">非</span>':''}${esc(x.title)}</div><div class="equip-sub">${esc(x.model)}</div><div class="equip-price">申请价格：<b>${esc(x.price)}</b>${bindHint}</div></div><div style="position:absolute;right:10px;bottom:12px;color:#999">×${x.qty}</div></div></div>`;
+  }).join('');
+  document.getElementById('equipFoldBtn').innerHTML=equipFold?'<span>⌄</span>展示全部':'<span>⌃</span>收起';
+  const totalQty=equipData.reduce((sum,x)=>sum+(Number(x.qty)||0),0);
+  const totalAmt=equipData.reduce((sum,x)=>sum+(Number(x.qty)||0)*parseMoney(x.price),0);
+  document.getElementById('equipSummary').innerHTML=`<div>总数量：<b>${totalQty}台</b></div><div>总申请金额：<span class="amount">${money(totalAmt)}</span></div>`;
+  document.getElementById('certBtn').textContent=certFold?'⌄':'⌃';
+  document.getElementById('certBody').classList.toggle('hidden',!certFold);
+  document.getElementById('attachBtn').textContent=attachFold?'⌄':'⌃';
+  document.getElementById('attachBody').classList.toggle('hidden',!attachFold);
+  document.getElementById('certHost').innerHTML=FILES.map((n,i)=>`<div class="cert-row"><div class="cert-label">${i<5||i===5||i===12?'<span style="color:var(--red)">*</span>':''}${esc(n)}</div><div class="cert-actions"><button class="plus-btn">+</button></div></div>`).join('');
+  const attachItems=[['pdf','这是一个文件名这是一个文件名这是一个文件名.pdf'],['docx','这是一个文件名这是一个文件名这是一个文件名.docx']];
+  document.getElementById('attachHost').innerHTML=(attachFold?attachItems:attachItems.slice(0,1)).map(([t,n])=>`<div class="attach-file"><span class="file-badge">${t.toUpperCase().slice(0,3)}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(n)}</span><button style="border:0;background:#fff;color:var(--blue);font-size:13px;font-weight:700">预览</button></div>`).join('');
+  document.getElementById('priceTypeText').textContent=PRICE_TYPES.find(x=>x.id===priceType)?.label||'常规价';
+}
+function renderRecord(){
+  const body=document.getElementById('recordHost');
+  body.innerHTML=RECORDS.map((r,idx)=>{
+    const attachOpen=!!recordAttachOpen[idx];
+    const files=(r.attach||[]);
+    const privateFiles=(r.privateFiles||[]);
+    const hasPrivateText=!!String(r.privateRemark||'').trim();
+    const hasPrivateFiles=privateFiles.length>0;
+    const privateBody=!recordAll?'':(!hasPrivateText&&!hasPrivateFiles?'<div class="record-private-empty">暂无信息</div>':`
+      <div class="record-inner">
+        <div class="record-inner-hd">内部信息</div>
+        <div class="record-inner-note">${esc(r.privateRemark||'暂无信息')}</div>
+        ${hasPrivateFiles?`<div class="record-inner-attach">
+          <div class="record-inner-attach-title">内部附件</div>
+          <div class="record-opinion-attach-list">${privateFiles.map(n=>`<div class="record-attach-item"><span class="ico doc">📄</span><span class="name">${esc(n)}</span><span class="pv" onclick="toast('原型占位：预览 ${esc(n)}')">预览</span></div>`).join('')}</div>
+        </div>`:''}
+      </div>`);
+    return `
+      <div class="record">
+        <div class="record-top">
+          <div class="record-name">${esc(r.name)}</div>
+          <div class="record-time">${esc(r.time)}</div>
+          <div class="badge ${r.st}">${esc(r.stText)}</div>
+        </div>
+        <div class="record-opinion">
+          <div class="record-opinion-note">${esc(r.remark)}</div>
+          ${files.length?`<div class="record-opinion-attach">
+            <div class="record-opinion-attach-title">附件</div>
+            <div class="record-opinion-attach-list">${files.map(([t,n])=>`<div class="record-attach-item"><span class="ico doc">📄</span><span class="name">${esc(n)}</span><span class="pv" onclick="openAttachView(${idx})">预览</span></div>`).join('')}</div>
+          </div>`:''}
+        </div>
+        <div class="record-opinion-expand" onclick="toggleOpinionExpand(this)">
+          <span class="toggle">展开 <span class="arrow">⌄</span></span>
+        </div>
+        ${privateBody}
+      </div>`;
+  }).join('');
+  document.getElementById('recordToggle').classList.toggle('on',recordAll);
+  document.querySelectorAll('#recordHost .record-inner').forEach((inner,i)=>{
+    if(recordAll) inner.classList.add('on');
+    const toggle=inner.previousElementSibling?.querySelector('.toggle');
+    if(recordAll && toggle) toggle.innerHTML='收起 <span class="arrow">⌃</span>';
+  });
+}
+function renderRef(){
+  document.getElementById('basicHost').innerHTML=BASIC.map(([k,v,a])=>`<div class="kv-row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}${a==='copy'?'<button class="copy-mini">复制</button>':a==='view'?'<button class="copy-mini" onclick="openLogin()">查看</button>':''}</span></div>`).join('');
+  document.getElementById('usageHost').innerHTML=USAGE.map(([k,v])=>`<div class="kv-row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('');
+  document.getElementById('refEquipHost').innerHTML=REF_EQ.map((x,i)=>`<div class="equip-wrap"><div class="equip-card ref-equip-card" onclick="openRefProductDetail(${i})"><div class="prod-img">${IMG}</div><div class="equip-main"><div class="equip-title">${x.nonstd?'<span class="nonstd">非</span>':''}${esc(x.n)}</div><div class="equip-sub">${esc(x.m)}</div><div class="equip-price">申请价格：<b>${money(x.p)}</b> <span style="color:#4a72c3">×${x.q}</span></div></div></div></div>`).join('');
+}
+function renderAll(){renderDetail();renderRecord();renderRef();renderFlow();const footerState=document.querySelector('.footer .state');if(footerState)footerState.innerHTML=`<span class="status-pill st-ap">${esc(cur)}</span>`}
+function openFlow(){document.getElementById('afMask').classList.add('show')}
+function closeAf(e){if(e&&e.target!==document.getElementById('afMask'))return;document.getElementById('afMask').classList.remove('show')}
+function afTab(type,btn){document.querySelectorAll('.af-tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');document.getElementById('afFlowBody').style.display=type==='flow'?'block':'none';document.getElementById('afNodeBody').style.display=type==='node'?'block':'none'}
+function renderFlow(){document.getElementById('afFlowBody').innerHTML='<div class="af-flow-card" onclick="openZoom()"><div class="af-placeholder">图片点击可放大</div></div><div class="af-flow-note">图片点击可放大</div>';document.getElementById('afNodeBody').innerHTML='<div class="af-node-type">节点类型：岗位</div>'+NODES.map(n=>`<div class="af-node ${n.s==='done'?'done':n.s==='cur'?'cur':'pend'}"><span class="dot">${n.s==='done'?'✓':''}</span><div class="nd"><div class="t"><span>${esc(n.n)}</span><span class="status-pill ${n.s==='done'?'st-ok':n.s==='cur'?'st-ap':'st-rj'}">${n.s==='done'?'已完成':n.s==='cur'?'审批中':'待审批'}</span></div><div class="s">处理时间：${esc(n.m)}</div></div></div>`).join('')}
+function openZoom(){document.getElementById('zoomBody').innerHTML='<div class="af-placeholder" style="height:70vh">图片占位</div>';document.getElementById('zoomWrap').classList.add('show')}
+function closeZoom(e){if(e&&e.target!==document.getElementById('zoomWrap'))return;document.getElementById('zoomWrap').classList.remove('show')}
+let detailIndex=0;
+function openBatchProductDetail(idx){
+  currentProductIndex=idx;
+  const item=equipData[idx]||{title:'天丽变频冷暖正1.5匹3级能能能',model:'KFR-35GW/(35512)FNa-B3',sku:'SPU10001001',price:'¥9,999,999',qty:281,point:'20.00%',remark:'备注信息超出回行展示备注信息超出回行展示',nonstd:true,bind:false,approve:'待绑定商品后填写',range:'--',resetPoint:'--',depositRate:'10%',onlinePrice:'--',estimate:'待绑定商品后填写',cate:'中央空调',id:'NID-001'};
+  const isNonStd=!!item.nonstd;
+  const isBound=!!item.bind;
+  const canDelete=(Number(item.purchaseQty)||0)<=0;
+  const standardFields=[
+    ['销售类型',`<input class="pd-input" value="${esc(item.saleType||'常规价')}" readonly>`],
+    ['品类',`<input class="pd-input" value="${esc(item.cate||'中央空调')}" readonly>`],
+    ['商品名称',`<input class="pd-input" value="${esc(item.title)}" readonly>`],
+    ['型号',`<input class="pd-input" value="${esc(item.model)}" readonly>`],
+    ['SKU编码',`<input class="pd-input" value="${esc(item.sku)}" readonly>`],
+    ['商品ID',`<input class="pd-input" value="${esc(item.id||'--')}" readonly>`],
+    ['申请数量',`<div class="pd-stepper"><button onclick="detailQty(-1)">−</button><input id="detailQty" class="pd-input" value="${esc(item.qty)}"><button onclick="detailQty(1)">＋</button></div>`],
+    ['原申请数量',`<input class="pd-input" value="${esc(item.origQty||'--')}" readonly>`],
+    ['申请价格',`<input class="pd-input" value="${esc(item.price)}">`],
+    ['原申请价格',`<input class="pd-input" value="${esc(item.origPrice||'--')}" readonly>`],
+    ['申请点位',`<input class="pd-input" value="${esc(item.point)}">`],
+    ['批复价格',`<input class="pd-input" value="${esc(item.approve||'')}">`],
+    ['权限区间',`<input class="pd-input" value="${esc(item.range||'¥41,500 ~ ¥48,000')}" readonly>`],
+    ['批复点位%',`<input class="pd-input" value="${esc(item.resetPoint||'2.5%')}" readonly>`],
+    ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
+    ['网批挂网价',`<div style="font-size:15px;color:#333;line-height:1.5;text-align:right">${esc(item.onlinePrice||'¥48,000')}</div>`],
+    ['预估价',`<input class="pd-input" value="${esc(item.estimate||item.price)}">`],
+    ['备注',`<textarea class="pd-ta">${esc(item.remark||'')}</textarea>`]
+  ];
+  const virtualNonStdFields=[
+    ['销售类型',`<input class="pd-input" value="${esc(item.saleType||'买断价')}" readonly>`],
+    ['品类',`<select class="pd-select"><option${(item.cate||'中央空调')==='中央空调'?' selected':''}>中央空调</option><option${item.cate==='多联机'?' selected':''}>多联机</option><option${item.cate==='新风'?' selected':''}>新风</option><option${item.cate==='冷水机组'?' selected':''}>冷水机组</option><option${item.cate==='精密空调'?' selected':''}>精密空调</option><option${item.cate==='机房空调'?' selected':''}>机房空调</option></select>`],
+    ['商品名称',`<input class="pd-input" value="定制机" readonly>`],
+    ['型号',`<input class="pd-input" value="${esc(item.model)}">`],
+    ['SKU编码',`<div style="color:#8f959e;font-size:15px;line-height:1.5">--</div>`],
+    ['商品ID',`<input class="pd-input" value="${esc(item.id||'--')}" readonly>`],
+    ['申请数量',`<div class="pd-stepper"><button onclick="detailQty(-1)">−</button><input id="detailQty" class="pd-input" value="${esc(item.qty)}"><button onclick="detailQty(1)">＋</button></div>`],
+    ['原申请数量',`<input class="pd-input" value="${esc(item.origQty||'--')}" readonly>`],
+    ['申请价格',`<input class="pd-input" value="${esc(item.price)}">`],
+    ['原申请价格',`<input class="pd-input" value="${esc(item.origPrice||'--')}" readonly>`],
+    ['申请点位',`<input class="pd-input" value="${esc(item.point)}">`],
+    ['批复价格',`<div style="color:#b4b9c2;font-size:13px;line-height:1.5">待绑定商品后填写</div>`],
+    ['权限区间',`<input class="pd-input" value="--" readonly>`],
+    ['批复点位%',`<input class="pd-input" value="--" readonly>`],
+    ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
+    ['网批挂网价',`<input class="pd-input" value="${esc(item.onlinePrice||'')}" placeholder="输入挂网价">`],
+    ['预估价',`<div style="color:#b4b9c2;font-size:13px;line-height:1.5">待绑定商品后填写</div>`],
+    ['备注',`<textarea class="pd-ta">${esc(item.remark||'')}</textarea>`]
+  ];
+  const boundNonStdFields=[
+    ['销售类型',`<input class="pd-input" value="${esc(item.saleType||'买断价')}" readonly>`],
+    ['品类',`<input class="pd-input" value="${esc(item.boundProductCate||item.cate||'中央空调')}" readonly>`],
+    ['商品名称',`<input class="pd-input" value="${esc(item.boundProductName||'真实商品')}" readonly>`],
+    ['型号',`<input class="pd-input" value="${esc(item.boundProductModel||item.model)}" readonly>`],
+    ['SKU编码',`<input class="pd-input" value="${esc(item.boundProductSku||'--')}" readonly>`],
+    ['商品ID',`<input class="pd-input" value="${esc(item.boundProductId||'--')}" readonly>`],
+    ['申请数量',`<div class="pd-stepper"><button onclick="detailQty(-1)">−</button><input id="detailQty" class="pd-input" value="${esc(item.qty)}"><button onclick="detailQty(1)">＋</button></div>`],
+    ['原申请数量',`<input class="pd-input" value="${esc(item.origQty||'--')}" readonly>`],
+    ['申请价格',`<input class="pd-input" value="${esc(item.price)}">`],
+    ['原申请价格',`<input class="pd-input" value="${esc(item.origPrice||'--')}" readonly>`],
+    ['申请点位',`<input class="pd-input" value="${esc(item.point)}">`],
+    ['批复价格',`<input class="pd-input" value="${esc(item.approve||item.price)}">`],
+    ['权限区间',`<input class="pd-input" value="${esc(item.range||'¥0 ~ '+money(item.boundOnlinePrice||0))}" readonly>`],
+    ['批复点位%',`<input class="pd-input" value="${esc(item.resetPoint||'2.5%')}" readonly>`],
+    ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
+    ['网批挂网价',`<div style="font-size:15px;color:#333;line-height:1.5;text-align:right">${esc(item.boundOnlinePrice?money(item.boundOnlinePrice):(item.onlinePrice||'¥48,000'))}</div>`],
+    ['预估价',`<input class="pd-input" value="${esc(item.estimate||'')}" placeholder="请输入预估价">`],
+    ['备注',`<textarea class="pd-ta">${esc(item.remark||'')}</textarea>`]
+  ];
+  const fields=isNonStd?(isBound?boundNonStdFields:virtualNonStdFields):standardFields;
+  const deleteBtn=canDelete
+    ? `<button class="pd-btn pd-del" onclick="deleteCurrentProduct()">删除</button>`
+    : `<button class="pd-btn pd-del locked" disabled>删除</button>`;
+  const footerBtn=isNonStd?(isBound?`${deleteBtn}<button class="pd-btn pd-ok" onclick="closePd()">确定</button>`:`${deleteBtn}<button class="pd-btn pd-ok" onclick="bindRealProduct()">绑定商品</button>`):`${deleteBtn}<button class="pd-btn pd-ok" onclick="closePd()">确定</button>`;
+  document.getElementById('pdBody').innerHTML=`
+  <div class="pd-card">
+    <div class="pd-head">
+      <div class="pd-img">${PD_IMG}</div>
+      <div style="min-width:0"><div class="pd-name">${isNonStd?'<span class="nonstd" style="font-size:16px">非</span>':''}${esc(isNonStd?(isBound?item.boundProductName||'真实商品':'定制机'):item.title)}</div></div>
+    </div>
+    <div class="pd-fields">
+      ${fields.map(([label,control])=>`<div class="pd-row ${label==='备注'?'remark':''}"><span class="l">${label}</span><span class="r">${control}</span></div>`).join('')}
+    </div>
+  </div>
+  <div class="pd-foot">${footerBtn}</div>`;
+  document.getElementById('pdMask').classList.add('show');
+}
+function closePd(e){if(e&&e.target!==document.getElementById('pdMask'))return;document.getElementById('pdMask').classList.remove('show')}
+function detailQty(d){const el=document.getElementById('detailQty');el.value=Math.max(1,Number(el.value||1)+d)}
+function saveDetail(){closePd();toast('原型占位：保存商品批复')}
+function deleteCurrentProduct(){
+  const idx=currentProductIndex;
+  const item=equipData[idx];
+  if(!item)return;
+  if((Number(item.purchaseQty)||0)>0){
+    toast('购买数量大于0，不允许删除');
+    return;
+  }
+  equipData.splice(idx,1);
+  currentProductIndex=-1;
+  closePd();
+  renderDetail();
+  toast('已删除商品');
+}
+function bindRealProduct(){closePd();openStdPicker('bind',currentProductIndex)}
+function openRefProductDetail(idx){
+  const item=REF_EQ[idx];
+  if(!item)return;
+  const code=idx===0?'NID-REF-001':'GID-REF-00'+(idx+1);
+  const rows=[
+    ['SKU编码',item.nonstd?'--':'SKU-KFR50LW-5505'],
+    ['商品ID',code],
+    ['型号',item.m],
+    ['申请数量','×'+item.q],
+    ['申请价格',money(item.p)],
+    ['申请点位',item.nonstd?'8.50%':'9.00%'],
+    ['备注',item.nonstd?'待补充':'标准商品']
+  ];
+  document.getElementById('refPdBody').innerHTML=`
+  <div class="pd-card">
+    <div class="pd-head">
+      <div class="pd-img">${PD_IMG}</div>
+      <div style="min-width:0"><div class="pd-name">${item.nonstd?'<span class="nonstd" style="font-size:16px">非</span>':''}${esc(item.n)}</div><span class="pd-cate">中央空调</span></div>
+    </div>
+    <div class="pd-fields">
+      ${rows.map(([label,val])=>`<div class="pd-row ${label==='备注'?'remark':''}"><span class="l">${label}</span><span class="r">${esc(val)}</span></div>`).join('')}
+    </div>
+  </div>
+  <div class="pd-foot"><button class="pd-ok" onclick="closeRefPd()">确定</button></div>`;
+  document.getElementById('refPdMask').classList.add('show');
+}
+function closeRefPd(e){if(e&&e.target!==document.getElementById('refPdMask'))return;document.getElementById('refPdMask').classList.remove('show')}
+function openActionSheet(){document.getElementById('actionMask').classList.add('show')}
+function closeActionSheet(){document.getElementById('actionMask').classList.remove('show')}
+function openReview(mode){
+  reviewMode=mode;
+  closeActionSheet();
+  document.getElementById('reviewMask').classList.add('show');
+  document.getElementById('reviewTitle').textContent=mode==='pass'?'审批-通过':'审批-驳回';
+  document.getElementById('reviewTab1').classList.add('active');
+  document.getElementById('reviewTab2').classList.remove('active');
+  document.getElementById('reviewOpinion').innerHTML=`
+    <div class="review-block">
+      <div class="review-copy">确定<span class="${mode==='pass'?'hot':'danger'}">${mode==='pass'?'通过':'驳回'}</span>此审批吗？请填写审批意见</div>
+    </div>
+    <div class="review-block">
+      <textarea class="review-area" placeholder="请输入限于200字符" maxlength="200"></textarea>
+      <div class="review-note">*取消或关闭，不会删除备注信息</div>
+    </div>
+    <div class="review-block uploader">
+      <div class="review-label">附件</div>
+      <button class="upload-btn">+</button>
+      <div class="upload-help">支持扩展名：.png .jpg .pdf .docx .excel，每文件大小不超过10M，上传数量不超过5</div>
+      <div class="attachment-box">${['pdf','docx'].map(t=>`<div class="attach-item">${t==='pdf'?'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" fill="#ff6d00"/><path d="M7 8h10M7 12h10M7 16h7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>':'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" fill="#2f7ef7"/><path d="M7 8h10M7 12h10M7 16h7" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>'}<div class="name">这是一个文件名这是一个文件名这是一个文件名.${t}</div><div class="act">${mode==='pass'?'预览':'删除'}</div></div>`).join('')}</div>
+    </div>`;
+  document.getElementById('reviewPrivate').innerHTML=`
+    <div class="review-block">
+      <div class="review-label">非公开信息</div>
+      <textarea class="review-area" placeholder="请输入非公开备注" maxlength="200"></textarea>
+      <div class="review-note">该信息仅管理端可见</div>
+    </div>
+  `;
+}
+function reviewTab(tab,btn){
+  document.querySelectorAll('.review-tabs button').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('reviewOpinion').style.display=tab==='opinion'?'block':'none';
+  document.getElementById('reviewPrivate').style.display=tab==='private'?'block':'none';
+}
+function closeReview(e){if(e&&e.target!==document.getElementById('reviewMask'))return;document.getElementById('reviewMask').classList.remove('show')}
+function submitReview(){closeReview();toast('原型占位：'+(reviewMode==='pass'?'通过':'驳回'))}
+function openLogin(){document.getElementById('loginPage').classList.add('show');loginTab('assoc',document.getElementById('loginTab1'))}
+function closeLogin(){document.getElementById('loginPage').classList.remove('show')}
+function loginTab(tab,btn){
+  document.querySelectorAll('#loginPage .login-tabs button').forEach(x=>x.classList.remove('on'));
+  btn.classList.add('on');
+  const assocHTML=`<div class="login-top"><div class="assoc">关联编号：GL02202407180001</div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010001</div></div><div class="login-card-bd"><div class="login-line">经销商名称： 深圳前海经销商</div><div class="login-line">工程状态： 待提货</div><div class="login-line">登录时间： 2026-08-10 12:30:20</div><div class="login-line">业务经理： 张三三</div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div></div><div class="login-card-bd"><div class="login-line">经销商名称： 深圳前海经销商</div><div class="login-line">工程状态： 待提货</div><div class="login-line">登录时间： 2026-08-10 12:30:20</div><div class="login-line">业务经理： 张三三</div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div></div><div class="login-card-bd"><div class="login-line">经销商名称： 深圳前海经销商</div><div class="login-line">工程状态： 待提货</div><div class="login-line">登录时间： 2026-08-10 12:30:20</div><div class="login-line">业务经理： 张三三</div></div></div>`;
+  const recordHTML=`<div class="login-card" style="margin-top:12px"><div class="login-card-hd"><div class="login-card-name">李思思</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle on">⌃</span></div></div><div class="login-card-bd"><div class="login-line">备注信息备注信息备注信息备注信息备注信息备注信息备注信息显示完整</div><div class="login-box"><div class="login-label">原顺序：</div><div class="login-order"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div></div><div class="login-box"><div class="login-label">修改后顺序：</div><div class="login-order"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div></div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name">张三三</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle">⌄</span></div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name">张三三</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle">⌄</span></div></div></div>`;
+  document.getElementById('loginAssoc').innerHTML=assocHTML;
+  document.getElementById('loginRecord').innerHTML=recordHTML;
+  document.getElementById('loginAssoc').classList.toggle('on',tab==='assoc');
+  document.getElementById('loginRecord').classList.toggle('on',tab==='record');
+}
+function init(){renderAll();document.querySelector('.footer .action').onclick=()=>openReview('pass');document.querySelector('.footer .action.ghost').onclick=()=>openReview('reject');openFlow();closeAf();openPricePicker();closePricePicker()}
+init();
+</script>
+</body>
+</html>
+
+
+
+
