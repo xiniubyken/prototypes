@@ -57,15 +57,9 @@ a:hover{text-decoration:underline;}
 .search-item .date-range .dash{color:var(--text-aux);}
 .search-hint{font-size:11px;color:var(--text-aux);margin-top:1px;text-align:right;padding-right:0;}
 
-/* 隐藏展开字段 */
-.search-grid .expand-field{display:none;}
-.search-grid.expanded .expand-field{display:flex;}
-
 .search-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light);flex-wrap:wrap;}
 .search-footer-left{display:flex;align-items:center;gap:10px;}
 .search-footer-right{display:flex;align-items:center;gap:8px;}
-.search-expand-btn{font-size:13px;color:var(--primary);cursor:pointer;display:flex;align-items:center;gap:2px;user-select:none;white-space:nowrap;}
-.search-expand-btn:hover{text-decoration:underline;}
 
 /* ====== 按钮 ====== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:6px 16px;font-size:13px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap;}
@@ -100,7 +94,6 @@ a:hover{text-decoration:underline;}
 /* 操作链接 */
 .op-view{color:var(--primary);cursor:pointer;}
 .op-void{color:var(--danger);cursor:pointer;}
-.op-extend{color:var(--warning);cursor:pointer;}
 
 /* ====== 分页区 ====== */
 .pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;font-size:12px;color:var(--text-secondary);}
@@ -189,188 +182,15 @@ a:hover{text-decoration:underline;}
     <!-- ====== 搜索筛选区（全部整合，无独立工具条） ====== -->
     <div class="search-card">
       <div class="search-grid" id="searchGrid">
-        <!-- === 收起态 6 个字段 === -->
-        <div class="search-item">
-          <span class="label">项目单号</span>
-          <input type="text" class="global-input" placeholder="请输入">
-        </div>
-        <div class="search-item">
-          <span class="label">经销商名称</span>
-          <input type="text" class="global-input" placeholder="请输入">
-        </div>
-        <div class="search-item">
-          <span class="label">客户名称</span>
-          <input type="text" class="global-input" placeholder="请输入">
-        </div>
-        <div class="search-item">
-          <span class="label">采购单位</span>
-          <input type="text" class="global-input" placeholder="请输入">
-        </div>
-        <div class="search-item">
-          <span class="label">业务线</span>
-          <div class="ms-wrap">
-            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
-            <div class="ms-dropdown" id="bizLineDropdown">
-              <div class="ms-item"><input type="checkbox" value="中央空调"> <span class="ms-label">中央空调</span></div>
-              <div class="ms-item"><input type="checkbox" value="冷链"> <span class="ms-label">冷链</span></div>
-              <div class="ms-item"><input type="checkbox" value="净化工程"> <span class="ms-label">净化工程</span></div>
-              <div class="ms-item"><input type="checkbox" value="家用中央空调"> <span class="ms-label">家用中央空调</span></div>
-              <div class="ms-item"><input type="checkbox" value="商用热水"> <span class="ms-label">商用热水</span></div>
-              <div class="ms-item"><input type="checkbox" value="新风系统"> <span class="ms-label">新风系统</span></div>
-              <div class="ms-item"><input type="checkbox" value="地暖系统"> <span class="ms-label">地暖系统</span></div>
-              <div class="ms-item"><input type="checkbox" value="精密空调"> <span class="ms-label">精密空调</span></div>
-              <div class="ms-item"><input type="checkbox" value="机房空调"> <span class="ms-label">机房空调</span></div>
-              <div class="ms-item"><input type="checkbox" value="恒温恒湿"> <span class="ms-label">恒温恒湿</span></div>
-              <div class="ms-item"><input type="checkbox" value="冷水机组"> <span class="ms-label">冷水机组</span></div>
-              <div class="ms-item"><input type="checkbox" value="空气能热水"> <span class="ms-label">空气能热水</span></div>
-              <div class="ms-item"><input type="checkbox" value="壁挂炉"> <span class="ms-label">壁挂炉</span></div>
-              <div class="ms-item"><input type="checkbox" value="太阳能"> <span class="ms-label">太阳能</span></div>
-              <div class="ms-item"><input type="checkbox" value="泳池设备"> <span class="ms-label">泳池设备</span></div>
-              <div class="ms-item"><input type="checkbox" value="消防通风"> <span class="ms-label">消防通风</span></div>
-              <div class="ms-item"><input type="checkbox" value="全屋净水"> <span class="ms-label">全屋净水</span></div>
-              <div class="ms-item"><input type="checkbox" value="智能家居"> <span class="ms-label">智能家居</span></div>
-              <div class="ms-item"><input type="checkbox" value="其他"> <span class="ms-label">其他</span></div>
-            </div>
-          </div>
-        </div>
+        <!-- === 搜索条件：仅保留项目名称 === -->
         <div class="search-item">
           <span class="label">项目名称</span>
           <input type="text" class="global-input" placeholder="请输入">
         </div>
 
-        <!-- === 展开态追加字段 === -->
-        <div class="search-item expand-field">
-          <span class="label">客户类型</span>
-          <div class="ms-wrap">
-            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
-            <div class="ms-dropdown">
-              <div class="ms-item"><input type="checkbox" value="客户"> <span class="ms-label">客户</span></div>
-              <div class="ms-item"><input type="checkbox" value="供应商"> <span class="ms-label">供应商</span></div>
-              <div class="ms-item"><input type="checkbox" value="设计院"> <span class="ms-label">设计院</span></div>
-              <div class="ms-item"><input type="checkbox" value="工程商"> <span class="ms-label">工程商</span></div>
-              <div class="ms-item"><input type="checkbox" value="其他"> <span class="ms-label">其他</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">经销商账号</span>
-          <input type="text" class="global-input" placeholder="请输入">
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">项目状态</span>
-          <select>
-            <option>全部</option>
-            <option>审批中</option><option>已驳回</option><option>跟进中</option>
-            <option>已中标</option><option>已签单</option><option>已流标</option>
-            <option>已关闭</option><option>已完结</option>
-          </select>
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">销售公司</span>
-          <div class="ms-wrap">
-            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
-            <div class="ms-dropdown">
-              <div class="ms-item"><input type="checkbox" value="商用销司-华南"> <span class="ms-label">商用销司-华南</span></div>
-              <div class="ms-item"><input type="checkbox" value="商用销司-华东"> <span class="ms-label">商用销司-华东</span></div>
-              <div class="ms-item"><input type="checkbox" value="商用销司-华北"> <span class="ms-label">商用销司-华北</span></div>
-              <div class="ms-item"><input type="checkbox" value="商用销司-华中"> <span class="ms-label">商用销司-华中</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">项目地址</span>
-          <input type="text" class="global-input" placeholder="请输入" style="width:100%;">
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">登录时间</span>
-          <div class="date-range">
-            <input type="date"><span class="dash">~</span><input type="date">
-          </div>
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">关联编号</span>
-          <div class="assoc-search-wrap">
-            <input type="text" class="global-input" placeholder="输入筛选" onfocus="document.getElementById('assocDropdown').classList.add('open')">
-            <div class="assoc-search-dropdown" id="assocDropdown">
-              <div class="as-item"><input type="checkbox"><span>GL202606240001</span></div>
-              <div class="as-item"><input type="checkbox"><span>GL202606240003</span></div>
-              <div class="as-item"><input type="checkbox"><span>GL202606240004</span></div>
-              <div class="as-item"><input type="checkbox"><span>GL202606240005</span></div>
-              <div class="as-item"><input type="checkbox"><span>GL202606240008</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">登录状态</span>
-          <div class="ms-wrap">
-            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
-            <div class="ms-dropdown">
-              <div class="ms-item"><input type="checkbox" value="1-登录成功"> <span class="ms-label">1-登录成功</span></div>
-              <div class="ms-item"><input type="checkbox" value="2-候补登录"> <span class="ms-label">2-候补登录</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">商家类型</span>
-          <div class="ms-wrap">
-            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
-            <div class="ms-dropdown">
-              <div class="ms-item"><input type="checkbox" value="经销商"> <span class="ms-label">经销商</span></div>
-              <div class="ms-item"><input type="checkbox" value="服务商"> <span class="ms-label">服务商</span></div>
-              <div class="ms-item"><input type="checkbox" value="分销商"> <span class="ms-label">分销商</span></div>
-              <div class="ms-item"><input type="checkbox" value="卖场客户"> <span class="ms-label">卖场客户</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">行业大类</span>
-          <div class="ms-wrap">
-            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
-            <div class="ms-dropdown">
-              <div class="ms-item"><input type="checkbox" value="学校"> <span class="ms-label">学校</span></div>
-              <div class="ms-item"><input type="checkbox" value="酒店"> <span class="ms-label">酒店</span></div>
-              <div class="ms-item"><input type="checkbox" value="医院"> <span class="ms-label">医院</span></div>
-              <div class="ms-item"><input type="checkbox" value="商超"> <span class="ms-label">商超</span></div>
-              <div class="ms-item"><input type="checkbox" value="办公楼"> <span class="ms-label">办公楼</span></div>
-              <div class="ms-item"><input type="checkbox" value="住宅"> <span class="ms-label">住宅</span></div>
-              <div class="ms-item"><input type="checkbox" value="厂房"> <span class="ms-label">厂房</span></div>
-              <div class="ms-item"><input type="checkbox" value="政府"> <span class="ms-label">政府</span></div>
-              <div class="ms-item"><input type="checkbox" value="交通"> <span class="ms-label">交通</span></div>
-              <div class="ms-item"><input type="checkbox" value="数据中心"> <span class="ms-label">数据中心</span></div>
-              <div class="ms-item"><input type="checkbox" value="体育馆"> <span class="ms-label">体育馆</span></div>
-              <div class="ms-item"><input type="checkbox" value="图书馆"> <span class="ms-label">图书馆</span></div>
-              <div class="ms-item"><input type="checkbox" value="博物馆"> <span class="ms-label">博物馆</span></div>
-              <div class="ms-item"><input type="checkbox" value="展览中心"> <span class="ms-label">展览中心</span></div>
-              <div class="ms-item"><input type="checkbox" value="机场"> <span class="ms-label">机场</span></div>
-              <div class="ms-item"><input type="checkbox" value="车站"> <span class="ms-label">车站</span></div>
-              <div class="ms-item"><input type="checkbox" value="码头"> <span class="ms-label">码头</span></div>
-              <div class="ms-item"><input type="checkbox" value="农业"> <span class="ms-label">农业</span></div>
-              <div class="ms-item"><input type="checkbox" value="养殖"> <span class="ms-label">养殖</span></div>
-              <div class="ms-item"><input type="checkbox" value="冷链物流"> <span class="ms-label">冷链物流</span></div>
-              <div class="ms-item"><input type="checkbox" value="餐饮"> <span class="ms-label">餐饮</span></div>
-              <div class="ms-item"><input type="checkbox" value="娱乐"> <span class="ms-label">娱乐</span></div>
-              <div class="ms-item"><input type="checkbox" value="教育"> <span class="ms-label">教育</span></div>
-              <div class="ms-item"><input type="checkbox" value="科研"> <span class="ms-label">科研</span></div>
-              <div class="ms-item"><input type="checkbox" value="金融"> <span class="ms-label">金融</span></div>
-              <div class="ms-item"><input type="checkbox" value="通信"> <span class="ms-label">通信</span></div>
-              <div class="ms-item"><input type="checkbox" value="其他"> <span class="ms-label">其他</span></div>
-            </div>
-          </div>
-        </div>
-        <!-- 原文重复保留：第二个项目名称 -->
-        <div class="search-item expand-field">
-          <span class="label">项目名称</span>
-          <input type="text" class="global-input" placeholder="请输入">
-        </div>
-        <div class="search-item expand-field">
-          <span class="label">项目预计设备金额</span>
-          <div class="range-inputs">
-            <input type="number" min="0" max="9999999" placeholder="最小值"><span class="dash">~</span><input type="number" min="0" max="9999999" placeholder="最大值"><span class="unit">万元</span>
-          </div>
-        </div>
       </div>
 
-      <!-- 搜索栏操作按钮：代客申请（左） + 查询/重置/展开收起（右） -->
+      <!-- 搜索栏操作按钮：代客申请（左） + 查询/重置（右） -->
       <div class="search-footer">
         <div class="search-footer-left">
           <button class="btn btn-primary" style="background:var(--success);border-color:var(--success);" onclick="jumpToDaijian()">代客申请</button>
@@ -378,9 +198,6 @@ a:hover{text-decoration:underline;}
         <div class="search-footer-right">
           <button class="btn btn-primary" onclick="demoSearch()">查询</button>
           <button class="btn btn-default" onclick="demoReset()">重置</button>
-          <span class="search-expand-btn" id="expandBtn" onclick="toggleSearch()">
-            展开 <span id="expandArrow">▼</span>
-          </span>
         </div>
       </div>
     </div>
@@ -507,24 +324,6 @@ document.querySelectorAll('.global-input').forEach(function(el) {
   });
 });
 
-/* ====== 搜索展开/收起 ====== */
-var searchExpanded = false;
-function toggleSearch() {
-  var grid = document.getElementById('searchGrid');
-  var arrow = document.getElementById('expandArrow');
-  var btn = document.getElementById('expandBtn');
-  searchExpanded = !searchExpanded;
-  if (searchExpanded) {
-    grid.classList.add('expanded');
-    arrow.textContent = '▲';
-    btn.firstChild.textContent = '收起 ';
-  } else {
-    grid.classList.remove('expanded');
-    arrow.textContent = '▼';
-    btn.firstChild.textContent = '展开 ';
-  }
-}
-
 /* ====== 多选下拉控件 v1（组件库版） ====== */
 var MultiSelect = (function() {
   function toggle(triggerEl) {
@@ -607,20 +406,6 @@ function jumpToDaijian() {
   alert('演示：跳转至代建项目单页面\n正式交付-html\\管理端-代建项目单.html');
 }
 
-/* ====== 登录延期 ====== */
-function demoExtendLogin(el) {
-  var row = el.closest('tr');
-  if (!row) return;
-  var cells = row.querySelectorAll('td');
-  var projectNo = cells[1] ? cells[1].textContent.trim() : '';
-  // 模拟业务逻辑：登录延期后，登录顺序变为2-候补登录（或递增序号）
-  var loginOrderCell = cells[17]; // 登录顺序在第18列（索引17）
-  if (loginOrderCell) {
-    loginOrderCell.textContent = '2-候补登录';
-  }
-  alert('演示：项目单 ' + projectNo + ' 登录延期成功，登录顺序变更为「2-候补登录」');
-}
-
 /* ====== 状态标签映射 ====== */
 var statusClassMap = {
   '审批中': 'st-approve',
@@ -643,7 +428,7 @@ var sampleRows = [
     totalAmount:'¥125,000', address:'广东省珠海市香洲区某路1号', loginTime:'2026-06-25 10:30',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606250001',
     projStatus:'跟进中', status:'审批中',
-    canVoid:false, canExtend:false
+    canVoid:false
   },
   {
     projectNo:'GC202606250002', dealer:'深圳格力贸易有限公司', account:'szgl01',
@@ -653,7 +438,7 @@ var sampleRows = [
     totalAmount:'¥290,000', address:'广东省深圳市南山区科技路8号', loginTime:'2026-06-24 14:20',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'-',
     projStatus:'跟进中', status:'已驳回',
-    canVoid:false, canExtend:false
+    canVoid:false
   },
   {
     projectNo:'GC202606250003', dealer:'广州格力销售服务中心', account:'gzgl88',
@@ -663,7 +448,7 @@ var sampleRows = [
     totalAmount:'¥80,000', address:'广东省广州市天河区体育路22号', loginTime:'2026-06-22 09:15',
     bizLine:'冷链', loginOrder:'1', relatedNo:'GL202606240003',
     projStatus:'跟进中', status:'跟进中',
-    canVoid:true, canExtend:true
+    canVoid:true
   },
   {
     projectNo:'GC202606250004', dealer:'东莞格力电器代理商', account:'dggl05',
@@ -673,7 +458,7 @@ var sampleRows = [
     totalAmount:'¥600,000', address:'广东省东莞市松山湖高新区科技路1号', loginTime:'2026-06-20 11:00',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606240004',
     projStatus:'已中标', status:'已中标',
-    canVoid:false, canExtend:true
+    canVoid:false
   },
   {
     projectNo:'GC202606250005', dealer:'佛山格力电器经销部', account:'fsgl12',
@@ -683,7 +468,7 @@ var sampleRows = [
     totalAmount:'¥1,050,000', address:'广东省佛山市顺德区大良街道某路5号', loginTime:'2026-06-18 16:45',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606240005',
     projStatus:'已签单', status:'已签单',
-    canVoid:false, canExtend:false
+    canVoid:false
   },
   {
     projectNo:'GC202606250006', dealer:'中山格力销售有限公司', account:'zsgl07',
@@ -693,7 +478,7 @@ var sampleRows = [
     totalAmount:'¥112,500', address:'广东省中山市火炬开发区康乐路10号', loginTime:'2026-06-15 08:30',
     bizLine:'中央空调', loginOrder:'2', relatedNo:'-',
     projStatus:'已流标', status:'已流标',
-    canVoid:true, canExtend:true
+    canVoid:true
   },
   {
     projectNo:'GC202606250007', dealer:'惠州格力电器有限公司', account:'hzgl03',
@@ -703,7 +488,7 @@ var sampleRows = [
     totalAmount:'¥45,000', address:'广东省惠州市惠城区西湖路18号', loginTime:'2026-06-10 13:20',
     bizLine:'冷链', loginOrder:'2', relatedNo:'-',
     projStatus:'已关闭', status:'已关闭',
-    canVoid:false, canExtend:false
+    canVoid:false
   },
   {
     projectNo:'GC202606250008', dealer:'江门格力电器服务中心', account:'jmgl09',
@@ -713,7 +498,7 @@ var sampleRows = [
     totalAmount:'¥440,000', address:'广东省江门市蓬江区建设路33号', loginTime:'2026-05-28 10:00',
     bizLine:'中央空调', loginOrder:'1', relatedNo:'GL202606240008',
     projStatus:'已完结', status:'已完结',
-    canVoid:false, canExtend:false
+    canVoid:false
   }
 ];
 
@@ -760,9 +545,6 @@ function renderTable() {
     ops += '<a class="op-view" onclick="alert(\'演示：进入工程单详情页\')">查看</a>';
     if (r.canVoid) {
       ops += '<a class="op-void" onclick="alert(\'演示：进入新建-作废页面\')">作废</a>';
-    }
-    if (r.canExtend) {
-      ops += '<a class="op-extend" onclick="demoExtendLogin(this)">登录延期</a>';
     }
 
     // 序号第一列，操作第二列
