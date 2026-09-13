@@ -623,13 +623,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="filter-item">
           <label>项目状态</label>
           <select class="filter-input">
-            <option value="">全部活态</option>
-            <option>审批中</option>
-            <option>已驳回</option>
+            <option value="">全部</option>
             <option>跟进中</option>
             <option>已中标</option>
             <option>已签单</option>
-            <option>已流标</option>
           </select>
         </div>
         <div class="filter-actions" style="grid-column:span 1;display:flex;align-items:flex-end;gap:6px;">
@@ -661,7 +658,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
       <!-- 分页 -->
       <div class="pagination-bar">
-        <div class="page-info" id="projectPageInfo">共 5 条</div>
+        <div class="page-info" id="projectPageInfo">共 4 条</div>
         <div class="page-controls">
           <span class="page-btn disabled">上一页</span>
           <span class="page-btn active">1</span>
@@ -812,11 +809,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
 // 工程项目单列表数据（仅演示活态）
 var projectListData = [
-  { id:'粤东GCDT202606250001', name:'某商业综合体空调项目', dealer:'珠海华鸿电器销售有限公司', biz:'中央空调', status:'审批中', pjCount:1, loginOrder:{ seq:1, label:'登录成功' } },
+  { id:'粤东GCDT202606250001', name:'某商业综合体空调项目', dealer:'珠海华鸿电器销售有限公司', biz:'中央空调', status:'跟进中', pjCount:1, loginOrder:{ seq:1, label:'登录成功' } },
   { id:'粤东GCDT202606250002', name:'天河区写字楼多联机改造', dealer:'广州天河制冷设备有限公司', biz:'多联机', status:'跟进中', pjCount:0, loginOrder:{ seq:2, label:'候补登录' } },
   { id:'粤东GCDT202606150003', name:'佛山某医院中央空调采购', dealer:'佛山南海格力专卖店', biz:'中央空调', status:'已中标', pjCount:2, loginOrder:{ seq:3, label:'候补登录' } },
-  { id:'粤东GCDT202606100004', name:'深圳前海办公楼新风系统', dealer:'深圳前海智能空调工程有限公司', biz:'新风', status:'已签单', pjCount:0, loginOrder:{ seq:4, label:'候补登录' } },
-  { id:'粤东GCDT202605280005', name:'中山某厂房冷链工程', dealer:'中山小榄格力专营店', biz:'冷链', status:'已流标', pjCount:0, loginOrder:{ seq:5, label:'候补登录' } }
+  { id:'粤东GCDT202606100004', name:'深圳前海办公楼新风系统', dealer:'深圳前海智能空调工程有限公司', biz:'新风', status:'已签单', pjCount:0, loginOrder:{ seq:4, label:'候补登录' } }
 ];
 
 // 选中后的完整项目数据（包含设备清单、使用方信息等）
@@ -826,15 +822,15 @@ var selectedProjectData = {
   dealer:'珠海华鸿电器销售有限公司',
   dealerPhone:'13812345678',
   biz:'中央空调',
-  status:'审批中',
-  statusClass:'st-approve',
+  status:'跟进中',
+  statusClass:'',
   pjCount:1,
   // 基本信息
   projectNo:'粤东GCDT202606250001',
   dealerName:'珠海华鸿电器销售有限公司',
   dealerPhone:'13812345678',
   bizType:'中央空调',
-  projectStatus:'审批中',
+  projectStatus:'跟进中',
   loginTime:'2026-06-25 10:30',
   projectType:'单体项目',
   bondType:'比例保证金-A（10%）',
@@ -891,11 +887,9 @@ function renderProjectList() {
   tbody.innerHTML = '';
   projectListData.forEach(function(p, i){
     var statusClass = '';
-    if(p.status === '审批中') statusClass = 'st-approve';
-    else if(p.status === '跟进中') statusClass = '';
+    if(p.status === '跟进中') statusClass = '';
     else if(p.status === '已中标') statusClass = 'st-approve';
     else if(p.status === '已签单') statusClass = 'st-reject';
-    else if(p.status === '已流标') statusClass = 'st-part';
 
     var tr = document.createElement('tr');
     tr.setAttribute('data-idx', i);
