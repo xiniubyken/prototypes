@@ -298,9 +298,7 @@ var secondaryTabConfig = {
     {key:'voidApply', label:'作废',        badge:'99+'}
   ],
   price: [
-    {key:'pLocal',     label:'非跨区批价', badge:'99+'},
-    // {key:'pInProvince',label:'省内跨区批价', badge:'99+'},  // 已移除
-    {key:'pOutProvince',label:'省外跨区批价', badge:'99+'},
+    {key:'pLocal',     label:'工程批价', badge:'99+'},
     {key:'rePrice',    label:'二次批价',    badge:'99+'},
     {key:'deliveryExt', label:'提货延期',    badge:'99+'},
     {key:'voidApply', label:'作废',        badge:'99+'}
@@ -371,32 +369,6 @@ var columnDefs = {
 
   /* ========== 价格审批类 ========== */
   pLocal: [
-    {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'120'},
-    {key:'salesCo',    label:'销售公司',     w:'130'},
-    {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'130'},
-    {key:'purUnit',    label:'采购单位',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'170'},
-    {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
-    {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
-    {key:'ops',        label:'操作',         w:'130'}
-  ],
-  pInProvince: [
-    {key:'seqNo',      label:'序号',         w:'60'},
-    {key:'projectNo',  label:'项目单号',     w:'120'},
-    {key:'salesCo',    label:'销售公司',     w:'130'},
-    {key:'dealerName', label:'经销商名称',   w:'140'},
-    {key:'useUnit',    label:'项目名称',     w:'130'},
-    {key:'purUnit',    label:'采购单位',     w:'120'},
-    {key:'address',    label:'项目地址',     w:'170'},
-    {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
-    {key:'status',     label:'状态',         w:'70'},
-    {key:'approveTime',label:'审批时间',     w:'110', sort:true},
-    {key:'ops',        label:'操作',         w:'130'}
-  ],
-  pOutProvince: [
     {key:'seqNo',      label:'序号',         w:'60'},
     {key:'projectNo',  label:'项目单号',     w:'120'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
@@ -501,20 +473,6 @@ var sampleData = {
     {no:'GCD1202111300003', co:'安徽销售公司', office:'合肥办事处C', dealer:'家电部顾家正环境编号', useUnit:'希望小学C项目', purUnit:'希望小学C项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:2, status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
     {no:'GCD1202111300004', co:'安徽销售公司', office:'合肥办事处D', dealer:'家电部顾家正环境编号', useUnit:'希望小学D项目', purUnit:'希望小学D项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:1, status:'通过', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:false},
     {no:'GCD1202111300005', co:'安徽销售公司', office:'合肥办事处E', dealer:'家电部顾家正环境编号', useUnit:'希望小学E项目', purUnit:'希望小学E项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:3, status:'驳回', time:'2021-12-12 12:21:21', ver:'3.0', canApprove:false}
-  ],
-  pInProvince: [
-    {no:'GCD1202111300001', co:'安徽销售公司', office:'合肥办事处A', dealer:'家电部顾家正环境编号', useUnit:'希望小学A项目', purUnit:'希望小学A项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', crossOffice:'粤东办事处', loginOrder:1, status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
-    {no:'GCD1202111300002', co:'安徽销售公司', office:'合肥办事处B', dealer:'家电部顾家正环境编号', useUnit:'希望小学B项目', purUnit:'希望小学B项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', crossOffice:'华南办事处', loginOrder:2, status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
-    {no:'GCD1202111300003', co:'安徽销售公司', office:'合肥办事处C', dealer:'家电部顾家正环境编号', useUnit:'希望小学C项目', purUnit:'希望小学C项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', crossOffice:'华东办事处', loginOrder:1, status:'通过', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:false},
-    {no:'GCD1202111300004', co:'安徽销售公司', office:'合肥办事处D', dealer:'家电部顾家正环境编号', useUnit:'希望小学D项目', purUnit:'希望小学D项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', crossOffice:'华中办事处', loginOrder:3, status:'驳回', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:false},
-    {no:'GCD1202111300005', co:'安徽销售公司', office:'合肥办事处E', dealer:'家电部顾家正环境编号', useUnit:'希望小学E项目', purUnit:'希望小学E项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', crossOffice:'粤东办事处', loginOrder:2, status:'驳回', time:'2021-12-12 12:21:21', ver:'3.0', canApprove:false}
-  ],
-  pOutProvince: [
-    {no:'GCD1202111300001', co:'安徽销售公司', office:'合肥办事处A', dealer:'家电部顾家正环境编号', useUnit:'希望小学A项目', purUnit:'希望小学A项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:1, status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
-    {no:'GCD1202111300002', co:'安徽销售公司', office:'合肥办事处B', dealer:'家电部顾家正环境编号', useUnit:'希望小学B项目', purUnit:'希望小学B项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:2, status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
-    {no:'GCD1202111300003', co:'安徽销售公司', office:'合肥办事处C', dealer:'家电部顾家正环境编号', useUnit:'希望小学C项目', purUnit:'希望小学C项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:3, status:'通过', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:false},
-    {no:'GCD1202111300004', co:'安徽销售公司', office:'合肥办事处D', dealer:'家电部顾家正环境编号', useUnit:'希望小学D项目', purUnit:'希望小学D项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:1, status:'驳回', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:false},
-    {no:'GCD1202111300005', co:'安徽销售公司', office:'合肥办事处E', dealer:'家电部顾家正环境编号', useUnit:'希望小学E项目', purUnit:'希望小学E项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:2, status:'驳回', time:'2021-12-12 12:21:21', ver:'3.0', canApprove:false}
   ],
   rePrice: [
     {no:'GCD1202111300001', co:'安徽销售公司', office:'合肥办事处A', dealer:'家电部顾家正环境编号', useUnit:'希望小学A项目', purUnit:'希望小学A项目采购组', addr:'广东省珠海市香洲区大水湾头111号天宝大厦...', loginOrder:1, status:'审批中', time:'2021-12-12 12:21:21', ver:'2.0', canApprove:true},
