@@ -589,6 +589,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
 .modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:560px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;}
 .modal-content.modal-lg{width:780px;}
+.modal-content.modal-xl{width:1080px;}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
 .modal-title{font-size:15px;font-weight:700;color:#1f2329;}
 .modal-close{font-size:22px;color:#8f959e;cursor:pointer;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;}
@@ -620,6 +621,21 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
 .page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
 .page-btn.disabled{color:#c5cae9;cursor:default;}
+/* 分页：每页条数 + 跳页 */
+.page-size select{height:26px;border:1px solid #e0e3ea;border-radius:3px;font-size:12px;color:#646a73;padding:0 4px;outline:none;background:#fff;cursor:pointer;}
+.page-size select:focus{border-color:#3b5998;}
+.page-jump{display:flex;align-items:center;gap:4px;font-size:12px;color:#646a73;margin-left:4px;}
+.page-jump input{width:40px;height:26px;border:1px solid #e0e3ea;border-radius:3px;text-align:center;font-size:12px;color:#646a73;outline:none;}
+.page-jump input:focus{border-color:#3b5998;}
+
+/* 添加经销商弹窗：搜索条件区（4 列网格，标签左置） */
+.dl-filter{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 20px;margin-bottom:16px;}
+.dl-filter-item{display:flex;align-items:center;gap:8px;min-width:0;}
+.dl-filter-item .dl-label{font-size:12px;color:#646a73;white-space:nowrap;flex-shrink:0;}
+.dl-filter-item .form-ctrl{flex:1;min-width:0;height:32px;}
+.dl-filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;}
+/* 添加经销商弹窗：字段说明行（仅演示字段规则，不参与选择/查询） */
+.dealer-note-row td{color:#8f959e;font-size:12px;}
 
 /* 导入控件 */
 .import-notice{background:#f5f6fa;border-radius:5px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#646a73;}
@@ -698,11 +714,11 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <div class="dealer-selected-info">
         <div class="dealer-selected-name" id="dealerDispName">--</div>
         <div class="dealer-selected-meta">
-          <span class="dealer-meta-item" id="dealerDispAccount">经销商账号：--</span>
+          <span class="dealer-meta-item" id="dealerDispAccount">主账号：--</span>
           <span class="dealer-meta-sep">|</span>
-          <span class="dealer-meta-item" id="dealerDispPhone">经销商电话：--</span>
+          <span class="dealer-meta-item" id="dealerDispOwner">业务负责人：--</span>
           <span class="dealer-meta-sep">|</span>
-          <span class="dealer-meta-item" id="dealerDispArea">销售区域：--</span>
+          <span class="dealer-meta-item" id="dealerDispOwnerPhone">业务负责人电话：--</span>
         </div>
       </div>
       <button class="dealer-change-btn" onclick="openDealerModal()">更换经销商</button>
@@ -1130,82 +1146,125 @@ html,body{height:100%;margin:0;overflow:hidden;}
 
 <!-- ===== 添加经销商弹窗 ===== -->
 <div class="modal-overlay" id="dealerModal" style="display:none;" onclick="if(event.target===this)closeDealerModal()">
-  <div class="modal-content modal-lg">
+  <div class="modal-content modal-xl">
     <div class="modal-header">
       <span class="modal-title">添加经销商</span>
       <span class="modal-close" onclick="closeDealerModal()">&times;</span>
     </div>
     <div class="modal-body">
-      <div style="display:flex;align-items:flex-end;gap:10px;margin-bottom:14px;">
-        <div class="form-item" style="flex:1;margin-bottom:0;">
-          <label class="form-label">经销商名称/账号</label>
-          <input type="text" class="form-ctrl" id="dealerSearchInput" placeholder="输入关键字搜索" maxlength="100">
+      <!-- 搜索条件：经销商名称 / 主账号 / 业务负责人电话 / 业务负责人 / 业务经理 -->
+      <div class="dl-filter">
+        <div class="dl-filter-item">
+          <span class="dl-label">经销商名称</span>
+          <input type="text" class="form-ctrl" id="dlfName" placeholder="请输入" maxlength="100">
         </div>
-        <button class="btn btn-primary btn-sm" onclick="searchDealer()" style="margin-bottom:1px;">查询</button>
-        <button class="btn btn-sm" onclick="resetDealerSearch()" style="margin-bottom:1px;">重置</button>
+        <div class="dl-filter-item">
+          <span class="dl-label">主账号</span>
+          <input type="text" class="form-ctrl" id="dlfAccount" placeholder="请输入" maxlength="100">
+        </div>
+        <div class="dl-filter-item">
+          <span class="dl-label">业务负责人电话</span>
+          <input type="text" class="form-ctrl" id="dlfOwnerPhone" placeholder="请输入经销商业务负责人电话" maxlength="100">
+        </div>
+        <div class="dl-filter-item">
+          <span class="dl-label">业务负责人</span>
+          <input type="text" class="form-ctrl" id="dlfOwner" placeholder="请输入经销商业务负责人姓名" maxlength="100">
+        </div>
+        <div class="dl-filter-item">
+          <span class="dl-label">业务经理</span>
+          <input type="text" class="form-ctrl" id="dlfManager" placeholder="请输入" maxlength="100">
+        </div>
+        <div class="dl-filter-actions" style="grid-column:4;">
+          <button class="btn btn-primary btn-sm" onclick="searchDealer()">查询</button>
+          <button class="btn btn-sm" onclick="resetDealerSearch()">重置</button>
+        </div>
       </div>
       <div class="product-table-wrap" style="max-height:300px;">
-        <table class="product-select-table" style="min-width:500px;">
+        <table class="product-select-table" style="min-width:900px;">
           <thead>
             <tr>
-              <th style="width:40px;text-align:center;">选择</th>
-              <th>经销商名称</th>
-              <th style="width:130px;">经销商账号</th>
-              <th style="width:130px;">经销商电话</th>
-              <th style="width:120px;">销售区域</th>
+              <th style="width:40px;text-align:center;"><input type="checkbox" onchange="toggleAllDealerRows(this)"></th>
+              <th>经销名称</th>
+              <th style="width:140px;">主账号</th>
+              <th style="width:200px;">业务负责人</th>
+              <th style="width:200px;">业务负责人电话</th>
+              <th style="width:200px;">业务经理</th>
             </tr>
           </thead>
           <tbody id="dealerListTbody">
             <tr data-did="1" onclick="selectDealerRow(this)">
-              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="1"></td>
-              <td>珠海华鸿电器销售有限公司</td>
-              <td>GC-ZH-20180045</td>
-              <td>13812345678</td>
-              <td>广东-珠海</td>
+              <td style="text-align:center;"><input type="checkbox" name="dealerChk" value="1" checked onclick="onDealerChk(this)"></td>
+              <td>测试股份有限公司LZY</td>
+              <td>V10999999999</td>
+              <td>张萌萌（取经销商公司的业务负责人）</td>
+              <td>经销商业务负责人电话，非账号电话</td>
+              <td>李某（当前管理经销商的业务经理姓名）</td>
+            </tr>
+            <!-- 字段说明行：仅说明列内文本规则，不参与选择/查询 -->
+            <tr class="dealer-note-row" style="pointer-events:none;">
+              <td style="text-align:center;"><input type="checkbox" disabled></td>
+              <td>显示全，可支持换行。</td>
+              <td>显示全，可支持换行。</td>
+              <td>显示全，可支持换行。</td>
+              <td>显示全，可支持换行。</td>
+              <td>显示全，可支持换行。</td>
             </tr>
             <tr data-did="2" onclick="selectDealerRow(this)">
-              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="2"></td>
-              <td>广州天河制冷设备有限公司</td>
-              <td>GC-GZ-20190012</td>
-              <td>13987654321</td>
-              <td>广东-广州</td>
+              <td style="text-align:center;"><input type="checkbox" name="dealerChk" value="2" onclick="onDealerChk(this)"></td>
+              <td>珠海华鸿电器销售有限公司</td>
+              <td>V10882018045</td>
+              <td>陈伟强（取经销商公司的业务负责人）</td>
+              <td>13812345678</td>
+              <td>林海东（当前管理经销商的业务经理姓名）</td>
             </tr>
             <tr data-did="3" onclick="selectDealerRow(this)">
-              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="3"></td>
-              <td>深圳前海智能空调工程有限公司</td>
-              <td>GC-SZ-20200033</td>
-              <td>0755-86001234</td>
-              <td>广东-深圳、广东-东莞</td>
+              <td style="text-align:center;"><input type="checkbox" name="dealerChk" value="3" onclick="onDealerChk(this)"></td>
+              <td>广州天河制冷设备有限公司</td>
+              <td>V10882019012</td>
+              <td>周敏（取经销商公司的业务负责人）</td>
+              <td>13987654321</td>
+              <td>林海东（当前管理经销商的业务经理姓名）</td>
             </tr>
             <tr data-did="4" onclick="selectDealerRow(this)">
-              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="4"></td>
-              <td>佛山南海格力专卖店</td>
-              <td>GC-FS-20180067</td>
-              <td>0757-86223388</td>
-              <td>广东-佛山</td>
+              <td style="text-align:center;"><input type="checkbox" name="dealerChk" value="4" onclick="onDealerChk(this)"></td>
+              <td>深圳前海智能空调工程有限公司</td>
+              <td>V10882020033</td>
+              <td>吴建国（取经销商公司的业务负责人）</td>
+              <td>0755-86001234</td>
+              <td>郑文斌（当前管理经销商的业务经理姓名）</td>
             </tr>
             <tr data-did="5" onclick="selectDealerRow(this)">
-              <td style="text-align:center;"><input type="radio" name="dealerRadio" value="5"></td>
-              <td>中山小榄格力专营店</td>
-              <td>GC-ZS-20210019</td>
-              <td>13760667890</td>
-              <td>广东-中山</td>
+              <td style="text-align:center;"><input type="checkbox" name="dealerChk" value="5" onclick="onDealerChk(this)"></td>
+              <td>佛山南海格力专卖店</td>
+              <td>V10882018067</td>
+              <td>黄小玲（取经销商公司的业务负责人）</td>
+              <td>0757-86223388</td>
+              <td>郑文斌（当前管理经销商的业务经理姓名）</td>
             </tr>
           </tbody>
         </table>
       </div>
       <div class="pagination-bar">
-        <div class="page-info">共 5 条</div>
+        <div class="page-info">共 200 条</div>
         <div class="page-controls">
-          <span class="page-btn disabled">上一页</span>
+          <span class="page-size"><select><option>10条/页</option><option>20条/页</option><option>50条/页</option></select></span>
+          <span class="page-btn disabled">&lt;</span>
           <span class="page-btn active">1</span>
-          <span class="page-btn disabled">下一页</span>
+          <span class="page-btn">2</span>
+          <span class="page-btn">3</span>
+          <span class="page-btn">4</span>
+          <span class="page-btn">5</span>
+          <span class="page-btn">6</span>
+          <span class="page-btn disabled">…</span>
+          <span class="page-btn">100</span>
+          <span class="page-btn disabled">&gt;</span>
+          <span class="page-jump">前往 <input type="number" value="1" min="1" max="100"> 页</span>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeDealerModal()">取消</button>
-      <button class="btn btn-primary" onclick="confirmDealer()">确定</button>
+      <button class="btn btn-primary" onclick="confirmDealer()">添加</button>
     </div>
   </div>
 </div>
@@ -1384,58 +1443,94 @@ function m5DealerConfirmClose(data) {
   // 经销商确认后的回调
 }
 /* ------ 经销商选择区 ------ */
-var currentDealerRow = null;  // 弹窗中当前选中的行
-var selectedDealerData = null; // 确认后的经销商数据
+var selectedDealerData = null; // 确认后的经销商数据（多选时取首条回填）
 
 function openDealerModal() {
-  currentDealerRow = null;
   // 清除弹窗中的选中状态
-  document.querySelectorAll('#dealerListTbody input[name="dealerRadio"]').forEach(function(r){ r.checked = false; });
+  document.querySelectorAll('#dealerListTbody input[name="dealerChk"]').forEach(function(c){ c.checked = false; });
   document.querySelectorAll('#dealerListTbody tr').forEach(function(tr){ tr.style.background = ''; });
   document.getElementById('dealerModal').style.display = 'flex';
 }
 function closeDealerModal() {
   document.getElementById('dealerModal').style.display = 'none';
 }
-function selectDealerRow(tr) {
-  // 高亮选中行
-  document.querySelectorAll('#dealerListTbody tr').forEach(function(r){ r.style.background = ''; });
-  tr.style.background = 'rgba(59,89,152,.06)';
-  var radio = tr.querySelector('input[name="dealerRadio"]');
-  if(radio) radio.checked = true;
-  currentDealerRow = tr;
+// 点击行内复选框：切换高亮
+function onDealerChk(chk) {
+  if (window.event && window.event.stopPropagation) window.event.stopPropagation();
+  var tr = chk.closest('tr');
+  if (tr) tr.style.background = chk.checked ? 'rgba(59,89,152,.06)' : '';
 }
+function selectDealerRow(tr) {
+  var chk = tr.querySelector('input[name="dealerChk"]');
+  if(!chk) return;                       // 字段说明行不可选
+  chk.checked = !chk.checked;
+  tr.style.background = chk.checked ? 'rgba(59,89,152,.06)' : '';
+}
+// 表头全选
+function toggleAllDealerRows(head) {
+  document.querySelectorAll('#dealerListTbody input[name="dealerChk"]').forEach(function(c){ c.checked = head.checked; });
+  document.querySelectorAll('#dealerListTbody tr').forEach(function(tr){
+    var c = tr.querySelector('input[name="dealerChk"]');
+    if(c) tr.style.background = c.checked ? 'rgba(59,89,152,.06)' : '';
+  });
+}
+// 查询条件：字段 → 表格列下标 + 输入框 id
+var DEALER_FILTERS = [
+  [1, 'dlfName'],        // 经销名称
+  [2, 'dlfAccount'],     // 主账号
+  [3, 'dlfOwner'],       // 业务负责人
+  [4, 'dlfOwnerPhone'],  // 业务负责人电话
+  [5, 'dlfManager']      // 业务经理
+];
 function searchDealer() {
-  var keyword = document.getElementById('dealerSearchInput').value.trim().toLowerCase();
+  var kws = DEALER_FILTERS.map(function(p){
+    var el = document.getElementById(p[1]);
+    return { col: p[0], kw: el ? (el.value || '').trim().toLowerCase() : '' };
+  }).filter(function(k){ return k.kw; });
   document.querySelectorAll('#dealerListTbody tr').forEach(function(tr) {
-    var text = tr.textContent.toLowerCase();
-    tr.style.display = (!keyword || text.indexOf(keyword) >= 0) ? '' : 'none';
+    if(tr.classList.contains('dealer-note-row')) return;   // 字段说明行不参与查询
+    var tds = tr.querySelectorAll('td');
+    var hit = kws.every(function(k){
+      var txt = tds[k.col] ? tds[k.col].textContent.toLowerCase() : '';
+      return txt.indexOf(k.kw) >= 0;
+    });
+    tr.style.display = hit ? '' : 'none';
   });
 }
 function resetDealerSearch() {
-  document.getElementById('dealerSearchInput').value = '';
+  DEALER_FILTERS.forEach(function(p){
+    var el = document.getElementById(p[1]);
+    if(el) el.value = '';
+  });
   document.querySelectorAll('#dealerListTbody tr').forEach(function(tr){ tr.style.display = ''; });
 }
 function confirmDealer() {
-  if(!currentDealerRow) { alert('请选择一个经销商'); return; }
-  var cells = currentDealerRow.querySelectorAll('td');
+  var checkedRows = [];
+  document.querySelectorAll('#dealerListTbody tr').forEach(function(tr){
+    var c = tr.querySelector('input[name="dealerChk"]');
+    if(c && c.checked) checkedRows.push(tr);
+  });
+  if(!checkedRows.length) { alert('请至少选择一个经销商'); return; }
+  var cells = checkedRows[0].querySelectorAll('td');
   selectedDealerData = {
-    name:   cells[1].textContent.trim(),
-    account:cells[2].textContent.trim(),
-    phone:  cells[3].textContent.trim(),
-    area:   cells[4].textContent.trim()
+    name:       cells[1].textContent.trim(),
+    account:    cells[2].textContent.trim(),
+    owner:      cells[3].textContent.trim(),
+    ownerPhone: cells[4].textContent.trim(),
+    manager:    cells[5].textContent.trim(),
+    count:      checkedRows.length
   };
+  // 回填基本信息卡片
+  document.getElementById('m5BaseDealerName').innerHTML  = '<span style="color:#1f2329;">' + selectedDealerData.name + '</span>';
+  document.getElementById('m5BaseDealerPhone').innerHTML = '<span style="color:#1f2329;">' + selectedDealerData.ownerPhone + '</span>';
   // 回填已选态
-  document.getElementById('dealerDispName').textContent   = selectedDealerData.name;
-  document.getElementById('dealerDispAccount').textContent = '经销商账号：' + selectedDealerData.account;
-  document.getElementById('dealerDispPhone').textContent   = '经销商电话：' + selectedDealerData.phone;
-  document.getElementById('dealerDispArea').textContent    = '销售区域：' + selectedDealerData.area;
+  document.getElementById('dealerDispName').textContent       = selectedDealerData.name;
+  document.getElementById('dealerDispAccount').textContent    = '主账号：' + selectedDealerData.account;
+  document.getElementById('dealerDispOwner').textContent      = '业务负责人：' + selectedDealerData.owner;
+  document.getElementById('dealerDispOwnerPhone').textContent = '业务负责人电话：' + selectedDealerData.ownerPhone;
   // 切换显示
   document.getElementById('dealerEmptyZone').style.display     = 'none';
   document.getElementById('dealerSelectedCard').style.display  = '';
-  // 回填基本信息卡片
-  document.getElementById('m5BaseDealerName').innerHTML  = '<span style="color:#1f2329;">' + selectedDealerData.name + '</span>';
-  document.getElementById('m5BaseDealerPhone').innerHTML = '<span style="color:#1f2329;">' + selectedDealerData.phone + '</span>';
   // 显示表单卡片 + 启用提交按钮
   document.getElementById('m5FormBody').style.display  = '';
   document.getElementById('btnSubmit').disabled = false;

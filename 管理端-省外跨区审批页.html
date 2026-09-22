@@ -514,7 +514,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <div class="equip-card-hd-left">
       <div class="fct-accent"></div>
       <span style="font-size:14px;font-weight:700;color:#1f2329;">设备清单</span>
-      <span style="font-size:12px;color:#8f959e;" id="equipCountLabel">已添加 4 / 99</span>
       <span class="equip-limit-tip" id="equipLimitTip" style="margin-left:8px;"></span>
     </div>
     <div class="equip-card-hd-right">
@@ -1536,7 +1535,6 @@ function addNonStdRow() {
   recalcSummary();
 }
 function updateEquipCount() {
-  document.getElementById('equipCountLabel').textContent = '已添加 '+equipCount+' / 99';
   var tip = document.getElementById('equipLimitTip');
   if(equipCount >= 99) {
     tip.textContent = '⚠ 已达上限'; tip.classList.add('warn');

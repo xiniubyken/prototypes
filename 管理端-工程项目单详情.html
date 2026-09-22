@@ -901,7 +901,7 @@ const C={
 },
 '跟进中':{
  b:'#E8F5E9/#2E7D32',
- d:{cr:{type:'省外跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',lt:'2026-06-25 10:30',v:{d:30,c:'#2E7D32'},ft:true,a:['签单确认','中标确认','丢标','流标','完结确认','作废'],ap:[
+ d:{cr:{type:'省外跨区',code:'GZ-2026-001'},lo:{seq:1,order:'登录成功'},op:{name:'白钰',account:'C2822006'},co:'广州办事处',lt:'2026-06-25 10:30',v:{d:30,c:'#2E7D32'},ft:true,a:['签单确认','中标确认','丢单','流标','完结确认','作废'],ap:[
   {n:'经销商提交',t:'2026-06-24 14:00',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'2026-06-24 18:30',r:'已通过',st:'d'},
   {n:'二级审批人·李总',t:'2026-06-25 10:00',r:'已通过',st:'d'}
@@ -1180,7 +1180,7 @@ function hideFail(){document.getElementById('failModal').classList.remove('mo-sh
 function doFailConfirm(){
  if(!document.getElementById('failReason').value){alert('请选择丢单原因');return}
  if(failFiles.length===0){document.getElementById('failReportErr').textContent='请上传丢单报告';return}
- hideFail();da('丢标 → 已丢单（原因：'+document.getElementById('failReason').value+'）')
+ hideFail();da('丢单 → 已丢单（原因：'+document.getElementById('failReason').value+'）')
 }
 
 /* ---- 4b. 流标二次确认弹窗（无需填写信息） ---- */
@@ -1387,7 +1387,7 @@ if(!d.ft){ft.style.display='none'}else{
  (d.a||[]).forEach(function(a){
   if(a==='签单确认') h+='<button class="btn bg" onclick="showSign()">'+a+'</button>';
   else if(a==='中标确认') h+='<button class="btn bg" onclick="showBid1()">'+a+'</button>';
-  else if(a==='丢标') h+='<button class="btn br" onclick="showFail()">'+a+'</button>';
+  else if(a==='丢单') h+='<button class="btn br" onclick="showFail()">'+a+'</button>';
   else if(a==='流标') h+='<button class="btn br" onclick="showFlowBid()">'+a+'</button>';
   else if(a==='完结确认') h+='<button class="btn bg" onclick="showCompleteConfirm()">'+a+'</button>';
   else if(a==='作废') h+='<button class="btn bd" onclick="showVoid()">'+a+'</button>';

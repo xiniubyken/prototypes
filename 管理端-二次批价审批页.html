@@ -577,7 +577,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="equip-card-hd-left">
           <div class="fct-accent"></div>
           <span style="font-size:14px;font-weight:700;color:#1f2329;">设备清单</span>
-          <span style="font-size:12px;color:#8f959e;" id="pjEquipCountLabel">已添加 5 项</span>
         </div>
         <div class="equip-card-hd-right">
           <div class="cfg-btn" onclick="openConfig()">
@@ -1730,7 +1729,6 @@ function renderEquipList() {
       '<td class="td-op" data-col="op">' + opHtml + '</td>';
     tbody.appendChild(tr);
   });
-  document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + selectedProjectData.equipList.length + ' 项';
   recalcSummary();
   syncColumnVisibility();
   autoCheckChanged();
@@ -1857,8 +1855,6 @@ function delEquipRow(el) {
   if(tr) {
     tr.remove();
     recalcSummary();
-    var count = document.querySelectorAll('#pjEquipTbody tr').length;
-    document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + count + ' 项';
     syncColumnVisibility();
   }
 }
@@ -1903,7 +1899,6 @@ function addNonStdRow() {
     depositRate: 10, onlinePrice: 0, estimatePrice: 0
   });
   recalcSummary();
-  document.getElementById('pjEquipCountLabel').textContent = '已添加 ' + selectedProjectData.equipList.length + ' 项';
   syncColumnVisibility();
 }
 

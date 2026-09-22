@@ -57,9 +57,15 @@ a:hover{text-decoration:underline;}
 .search-item .date-range .dash{color:var(--text-aux);}
 .search-hint{font-size:11px;color:var(--text-aux);margin-top:1px;text-align:right;padding-right:0;}
 
+/* 隐藏展开字段 */
+.search-grid .expand-field{display:none;}
+.search-grid.expanded .expand-field{display:flex;}
+
 .search-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-light);flex-wrap:wrap;}
 .search-footer-left{display:flex;align-items:center;gap:10px;}
 .search-footer-right{display:flex;align-items:center;gap:8px;}
+.search-expand-btn{font-size:13px;color:var(--primary);cursor:pointer;display:flex;align-items:center;gap:2px;user-select:none;white-space:nowrap;}
+.search-expand-btn:hover{text-decoration:underline;}
 
 /* ====== 按钮 ====== */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:6px 16px;font-size:13px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap;}
@@ -182,15 +188,188 @@ a:hover{text-decoration:underline;}
     <!-- ====== 搜索筛选区（全部整合，无独立工具条） ====== -->
     <div class="search-card">
       <div class="search-grid" id="searchGrid">
-        <!-- === 搜索条件：仅保留项目名称 === -->
+        <!-- === 收起态 6 个字段 === -->
+        <div class="search-item">
+          <span class="label">项目单号</span>
+          <input type="text" class="global-input" placeholder="请输入">
+        </div>
+        <div class="search-item">
+          <span class="label">经销商名称</span>
+          <input type="text" class="global-input" placeholder="请输入">
+        </div>
+        <div class="search-item">
+          <span class="label">客户名称</span>
+          <input type="text" class="global-input" placeholder="请输入">
+        </div>
+        <div class="search-item">
+          <span class="label">采购单位</span>
+          <input type="text" class="global-input" placeholder="请输入">
+        </div>
+        <div class="search-item">
+          <span class="label">业务线</span>
+          <div class="ms-wrap">
+            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
+            <div class="ms-dropdown" id="bizLineDropdown">
+              <div class="ms-item"><input type="checkbox" value="中央空调"> <span class="ms-label">中央空调</span></div>
+              <div class="ms-item"><input type="checkbox" value="冷链"> <span class="ms-label">冷链</span></div>
+              <div class="ms-item"><input type="checkbox" value="净化工程"> <span class="ms-label">净化工程</span></div>
+              <div class="ms-item"><input type="checkbox" value="家用中央空调"> <span class="ms-label">家用中央空调</span></div>
+              <div class="ms-item"><input type="checkbox" value="商用热水"> <span class="ms-label">商用热水</span></div>
+              <div class="ms-item"><input type="checkbox" value="新风系统"> <span class="ms-label">新风系统</span></div>
+              <div class="ms-item"><input type="checkbox" value="地暖系统"> <span class="ms-label">地暖系统</span></div>
+              <div class="ms-item"><input type="checkbox" value="精密空调"> <span class="ms-label">精密空调</span></div>
+              <div class="ms-item"><input type="checkbox" value="机房空调"> <span class="ms-label">机房空调</span></div>
+              <div class="ms-item"><input type="checkbox" value="恒温恒湿"> <span class="ms-label">恒温恒湿</span></div>
+              <div class="ms-item"><input type="checkbox" value="冷水机组"> <span class="ms-label">冷水机组</span></div>
+              <div class="ms-item"><input type="checkbox" value="空气能热水"> <span class="ms-label">空气能热水</span></div>
+              <div class="ms-item"><input type="checkbox" value="壁挂炉"> <span class="ms-label">壁挂炉</span></div>
+              <div class="ms-item"><input type="checkbox" value="太阳能"> <span class="ms-label">太阳能</span></div>
+              <div class="ms-item"><input type="checkbox" value="泳池设备"> <span class="ms-label">泳池设备</span></div>
+              <div class="ms-item"><input type="checkbox" value="消防通风"> <span class="ms-label">消防通风</span></div>
+              <div class="ms-item"><input type="checkbox" value="全屋净水"> <span class="ms-label">全屋净水</span></div>
+              <div class="ms-item"><input type="checkbox" value="智能家居"> <span class="ms-label">智能家居</span></div>
+              <div class="ms-item"><input type="checkbox" value="其他"> <span class="ms-label">其他</span></div>
+            </div>
+          </div>
+        </div>
         <div class="search-item">
           <span class="label">项目名称</span>
           <input type="text" class="global-input" placeholder="请输入">
         </div>
 
+        <!-- === 展开态追加字段 === -->
+        <div class="search-item expand-field">
+          <span class="label">客户类型</span>
+          <div class="ms-wrap">
+            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
+            <div class="ms-dropdown">
+              <div class="ms-item"><input type="checkbox" value="客户"> <span class="ms-label">客户</span></div>
+              <div class="ms-item"><input type="checkbox" value="供应商"> <span class="ms-label">供应商</span></div>
+              <div class="ms-item"><input type="checkbox" value="设计院"> <span class="ms-label">设计院</span></div>
+              <div class="ms-item"><input type="checkbox" value="工程商"> <span class="ms-label">工程商</span></div>
+              <div class="ms-item"><input type="checkbox" value="其他"> <span class="ms-label">其他</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">经销商账号</span>
+          <input type="text" class="global-input" placeholder="请输入">
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">项目状态</span>
+          <select>
+            <option>全部</option>
+            <option>审批中</option><option>已驳回</option><option>跟进中</option>
+            <option>已中标</option><option>已签单</option><option>已流标</option><option>已丢单</option>
+            <option>已关闭</option><option>已完结</option>
+          </select>
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">销售公司</span>
+          <div class="ms-wrap">
+            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
+            <div class="ms-dropdown">
+              <div class="ms-item"><input type="checkbox" value="商用销司-华南"> <span class="ms-label">商用销司-华南</span></div>
+              <div class="ms-item"><input type="checkbox" value="商用销司-华东"> <span class="ms-label">商用销司-华东</span></div>
+              <div class="ms-item"><input type="checkbox" value="商用销司-华北"> <span class="ms-label">商用销司-华北</span></div>
+              <div class="ms-item"><input type="checkbox" value="商用销司-华中"> <span class="ms-label">商用销司-华中</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">项目地址</span>
+          <input type="text" class="global-input" placeholder="请输入" style="width:100%;">
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">登录时间</span>
+          <div class="date-range">
+            <input type="date"><span class="dash">~</span><input type="date">
+          </div>
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">关联编号</span>
+          <div class="assoc-search-wrap">
+            <input type="text" class="global-input" placeholder="输入筛选" onfocus="document.getElementById('assocDropdown').classList.add('open')">
+            <div class="assoc-search-dropdown" id="assocDropdown">
+              <div class="as-item"><input type="checkbox"><span>GL202606240001</span></div>
+              <div class="as-item"><input type="checkbox"><span>GL202606240003</span></div>
+              <div class="as-item"><input type="checkbox"><span>GL202606240004</span></div>
+              <div class="as-item"><input type="checkbox"><span>GL202606240005</span></div>
+              <div class="as-item"><input type="checkbox"><span>GL202606240008</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">登录状态</span>
+          <div class="ms-wrap">
+            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
+            <div class="ms-dropdown">
+              <div class="ms-item"><input type="checkbox" value="1-登录成功"> <span class="ms-label">1-登录成功</span></div>
+              <div class="ms-item"><input type="checkbox" value="2-候补登录"> <span class="ms-label">2-候补登录</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">商家类型</span>
+          <div class="ms-wrap">
+            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
+            <div class="ms-dropdown">
+              <div class="ms-item"><input type="checkbox" value="经销商"> <span class="ms-label">经销商</span></div>
+              <div class="ms-item"><input type="checkbox" value="服务商"> <span class="ms-label">服务商</span></div>
+              <div class="ms-item"><input type="checkbox" value="分销商"> <span class="ms-label">分销商</span></div>
+              <div class="ms-item"><input type="checkbox" value="卖场客户"> <span class="ms-label">卖场客户</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">行业大类</span>
+          <div class="ms-wrap">
+            <div class="ms-trigger" onclick="MultiSelect.toggle(this)">全部 <span class="ms-arrow">&#9660;</span></div>
+            <div class="ms-dropdown">
+              <div class="ms-item"><input type="checkbox" value="学校"> <span class="ms-label">学校</span></div>
+              <div class="ms-item"><input type="checkbox" value="酒店"> <span class="ms-label">酒店</span></div>
+              <div class="ms-item"><input type="checkbox" value="医院"> <span class="ms-label">医院</span></div>
+              <div class="ms-item"><input type="checkbox" value="商超"> <span class="ms-label">商超</span></div>
+              <div class="ms-item"><input type="checkbox" value="办公楼"> <span class="ms-label">办公楼</span></div>
+              <div class="ms-item"><input type="checkbox" value="住宅"> <span class="ms-label">住宅</span></div>
+              <div class="ms-item"><input type="checkbox" value="厂房"> <span class="ms-label">厂房</span></div>
+              <div class="ms-item"><input type="checkbox" value="政府"> <span class="ms-label">政府</span></div>
+              <div class="ms-item"><input type="checkbox" value="交通"> <span class="ms-label">交通</span></div>
+              <div class="ms-item"><input type="checkbox" value="数据中心"> <span class="ms-label">数据中心</span></div>
+              <div class="ms-item"><input type="checkbox" value="体育馆"> <span class="ms-label">体育馆</span></div>
+              <div class="ms-item"><input type="checkbox" value="图书馆"> <span class="ms-label">图书馆</span></div>
+              <div class="ms-item"><input type="checkbox" value="博物馆"> <span class="ms-label">博物馆</span></div>
+              <div class="ms-item"><input type="checkbox" value="展览中心"> <span class="ms-label">展览中心</span></div>
+              <div class="ms-item"><input type="checkbox" value="机场"> <span class="ms-label">机场</span></div>
+              <div class="ms-item"><input type="checkbox" value="车站"> <span class="ms-label">车站</span></div>
+              <div class="ms-item"><input type="checkbox" value="码头"> <span class="ms-label">码头</span></div>
+              <div class="ms-item"><input type="checkbox" value="农业"> <span class="ms-label">农业</span></div>
+              <div class="ms-item"><input type="checkbox" value="养殖"> <span class="ms-label">养殖</span></div>
+              <div class="ms-item"><input type="checkbox" value="冷链物流"> <span class="ms-label">冷链物流</span></div>
+              <div class="ms-item"><input type="checkbox" value="餐饮"> <span class="ms-label">餐饮</span></div>
+              <div class="ms-item"><input type="checkbox" value="娱乐"> <span class="ms-label">娱乐</span></div>
+              <div class="ms-item"><input type="checkbox" value="教育"> <span class="ms-label">教育</span></div>
+              <div class="ms-item"><input type="checkbox" value="科研"> <span class="ms-label">科研</span></div>
+              <div class="ms-item"><input type="checkbox" value="金融"> <span class="ms-label">金融</span></div>
+              <div class="ms-item"><input type="checkbox" value="通信"> <span class="ms-label">通信</span></div>
+              <div class="ms-item"><input type="checkbox" value="其他"> <span class="ms-label">其他</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- 原文重复保留：第二个项目名称 -->
+        <div class="search-item expand-field">
+          <span class="label">项目名称</span>
+          <input type="text" class="global-input" placeholder="请输入">
+        </div>
+        <div class="search-item expand-field">
+          <span class="label">项目预计设备金额</span>
+          <div class="range-inputs">
+            <input type="number" min="0" max="9999999" placeholder="最小值"><span class="dash">~</span><input type="number" min="0" max="9999999" placeholder="最大值"><span class="unit">万元</span>
+          </div>
+        </div>
       </div>
 
-      <!-- 搜索栏操作按钮：代客申请（左） + 查询/重置（右） -->
+      <!-- 搜索栏操作按钮：代客申请（左） + 查询/重置/展开收起（右） -->
       <div class="search-footer">
         <div class="search-footer-left">
           <button class="btn btn-primary" style="background:var(--success);border-color:var(--success);" onclick="jumpToDaijian()">代客申请</button>
@@ -198,6 +377,9 @@ a:hover{text-decoration:underline;}
         <div class="search-footer-right">
           <button class="btn btn-primary" onclick="demoSearch()">查询</button>
           <button class="btn btn-default" onclick="demoReset()">重置</button>
+          <span class="search-expand-btn" id="expandBtn" onclick="toggleSearch()">
+            展开 <span id="expandArrow">▼</span>
+          </span>
         </div>
       </div>
     </div>
@@ -323,6 +505,24 @@ document.querySelectorAll('.global-input').forEach(function(el) {
     }
   });
 });
+
+/* ====== 搜索展开/收起 ====== */
+var searchExpanded = false;
+function toggleSearch() {
+  var grid = document.getElementById('searchGrid');
+  var arrow = document.getElementById('expandArrow');
+  var btn = document.getElementById('expandBtn');
+  searchExpanded = !searchExpanded;
+  if (searchExpanded) {
+    grid.classList.add('expanded');
+    arrow.textContent = '▲';
+    btn.firstChild.textContent = '收起 ';
+  } else {
+    grid.classList.remove('expanded');
+    arrow.textContent = '▼';
+    btn.firstChild.textContent = '展开 ';
+  }
+}
 
 /* ====== 多选下拉控件 v1（组件库版） ====== */
 var MultiSelect = (function() {

@@ -161,7 +161,7 @@ function grpOf(d){
   return "全部";
 }
 var curG="all"; var curSt="全部"; var tmpSt="全部";
-var STATUS_CHIPS=["全部","审批中","已驳回","跟进中","已中标","已签单","已流标","已关闭","已完结"];
+var STATUS_CHIPS=["全部","审批中","已驳回","跟进中","已中标","已签单","已丢单","已流标","已关闭","已完结"];
 
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
 function daysColor(d){return d<=3?"red":(d<=7?"orange":"green");}

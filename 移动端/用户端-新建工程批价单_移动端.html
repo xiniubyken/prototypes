@@ -303,7 +303,7 @@ function renderNotice(){
   if(currentScene==="new"){host.innerHTML="";return}
   var copy=currentScene==="copy";
   host.innerHTML='<div class="notice '+(copy?"copy":"reject")+'" id="sceneNotice" onclick="toggleNotice()"><div class="notice-head"><span class="notice-icon">'+(copy?"!":"×")+'</span><span>'+(copy?"复制重提 · 请修改后重新提交":"驳回重提 · 请修改后重新提交")+'</span><span class="notice-arrow"></span></div><div class="notice-body">'+(copy
-    ?'<div>来源项目单号：<b>粤东GCDT202112010001</b></div><div>关闭类型：<b>经销商放弃登录</b></div><div>关闭时间：<b>2026-06-19 14:32</b></div><div class="hot">提交后将生成全新项目单号</div>'
+    ?'<div>来源项目单号：<b>粤东GCDT202112010001</b></div><div>关闭类型：<b>经销商放弃登录</b></div><div class="hot">提交后将生成全新项目单号</div>'
     :'<div>驳回单号：<b>粤东GCDT202606250001-PJ001</b></div><div>驳回原因：<b>设备清单价格超出指导价，请调整申请价格/点位后重新提交</b></div><div>驳回人：<b>李工（商用工程部审批）</b></div><div>剩余有效期：<span class="hot">还剩 6 天</span></div>')+'</div></div>'
 }
 function toggleNotice(){var e=document.getElementById("sceneNotice");if(e)e.classList.toggle("collapsed")}

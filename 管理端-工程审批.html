@@ -179,6 +179,10 @@ a:hover{text-decoration:underline;}
           <input type="text" placeholder="请输入" class="global-input">
         </div>
         <div class="search-item">
+          <span class="label">批价单号</span>
+          <input type="text" placeholder="请输入" class="global-input">
+        </div>
+        <div class="search-item">
           <span class="label">经销商名称</span>
           <input type="text" placeholder="请输入" class="global-input">
         </div>
@@ -310,6 +314,9 @@ var secondaryTabConfig = {
 var currentPrimary = 'login';
 var currentSecondary = 'local';
 
+/* 批价单号演示值（仅价格审批 tab 展示；若单行数据自带 priceNo 字段则以行内值为准） */
+var PJ_NO_DEMO = '粤东GCDT202506250001-PJ001';
+
 /* ----- 列定义（按二级Tab） ----- */
 var columnDefs = {
   /* ========== 登录审批类 ========== */
@@ -371,6 +378,7 @@ var columnDefs = {
   pLocal: [
     {key:'seqNo',      label:'序号',         w:'60'},
     {key:'projectNo',  label:'项目单号',     w:'120'},
+    {key:'priceNo',    label:'批价单号',     w:'160'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
     {key:'useUnit',    label:'项目名称',     w:'130'},
@@ -384,6 +392,7 @@ var columnDefs = {
   rePrice: [
     {key:'seqNo',      label:'序号',         w:'60'},
     {key:'projectNo',  label:'项目单号',     w:'120'},
+    {key:'priceNo',    label:'批价单号',     w:'160'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
     {key:'useUnit',    label:'项目名称',     w:'130'},
@@ -397,6 +406,7 @@ var columnDefs = {
   deliveryExt: [
     {key:'seqNo',      label:'序号',         w:'60'},
     {key:'projectNo',  label:'项目单号',     w:'120'},
+    {key:'priceNo',    label:'批价单号',     w:'160'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
     {key:'useUnit',    label:'项目名称',     w:'130'},
@@ -424,6 +434,7 @@ var columnDefs = {
   voidApply: [
     {key:'seqNo',      label:'序号',         w:'60'},
     {key:'projectNo',  label:'项目单号',     w:'120'},
+    {key:'priceNo',    label:'批价单号',     w:'160'},
     {key:'salesCo',    label:'销售公司',     w:'130'},
     {key:'dealerName', label:'经销商名称',   w:'140'},
     {key:'useUnit',    label:'项目名称',     w:'130'},
@@ -565,6 +576,12 @@ function renderTable() {
   var cols = columnDefs[currentSecondary] || [];
   var rows = sampleData[currentSecondary] || [];
 
+  /* 「批价单号」列仅在价格审批一级 tab 下展示
+     （作废二级 tab 为登录审批/价格审批共用 key，故按一级 tab 判别） */
+  if (currentPrimary !== 'price') {
+    cols = cols.filter(function(c) { return c.key !== 'priceNo'; });
+  }
+
   /* 渲染表头 */
   var theadHtml = '<tr>';
   cols.forEach(function(c) {
@@ -637,6 +654,7 @@ function getCellValue(key, row) {
   switch(key) {
     case 'seqNo': return '';
     case 'projectNo': return row.no;
+    case 'priceNo': return row.priceNo || PJ_NO_DEMO;
     case 'salesCo': return row.co;
     case 'office': return row.office;
     case 'dealerName': return row.dealer;

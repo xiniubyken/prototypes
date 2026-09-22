@@ -486,9 +486,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
       <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
         <div style="min-width:0;flex:1">
           <div class="dealer-selected-name" id="dealerDispName">--</div>
-          <div class="dealer-selected-meta">经销商账号：<span id="dealerDispAccount">--</span></div>
-          <div class="dealer-selected-meta">经销商电话：<span id="dealerDispPhone">--</span></div>
-          <div class="dealer-selected-meta">销售区域：<span id="dealerDispArea">--</span></div>
+          <div class="dealer-selected-meta">主账号：<span id="dealerDispAccount">--</span></div>
+          <div class="dealer-selected-meta">业务负责人：<span id="dealerDispOwner">--</span></div>
+          <div class="dealer-selected-meta">业务负责人电话：<span id="dealerDispOwnerPhone">--</span></div>
+          <div class="dealer-selected-meta">业务经理：<span id="dealerDispManager">--</span></div>
           <div class="dealer-selected-tags"><span class="dealer-tag">中央空调</span><span class="dealer-tag">中央空调</span></div>
         </div>
         <div class="dealer-change" onclick="openDealerSheet()">更换经销商</div>
@@ -563,7 +564,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
     <div class="sheet-hd"><span>选择经销商</span><button class="sheet-x" onclick="closeSh('dealerMask')">×</button></div>
     <div class="sheet-bd">
       <div class="searchbar" style="margin:0 16px 14px;">
-        <input id="dealerKw" placeholder="请输入经销商名称、账号" oninput="renderDealers()">
+        <input id="dealerKw" placeholder="请输入经销商名称和账号" oninput="renderDealers()">
       </div>
       <div class="sheet-body" style="padding:0 16px;">
         <div class="dealer-list" id="dealerList"></div>
@@ -695,10 +696,13 @@ var CATALOG=[
   {name:"格力 GMV-H280WL/A1 多联机组",sku:"SKU-MLJ-280A1",model:"GMV-H280WL/A1",net:"¥22000.00",cate:"多联机"},
   {name:"格力 FGR3.5Pd/C1N 新风机",sku:"SKU-XF-35C1N",model:"FGR3.5Pd/C1N",net:"¥3800.00",cate:"新风"}
 ];
+/* 经销商字段与 PC 列表对齐：经销名称 / 主账号 / 业务负责人 / 业务负责人电话 / 业务经理 */
 var DEALERS=[
-  {name:"珠海华鸿电器销售有限公司",account:"GC-ZH-20180045",phone:"13544852210",area:"广东-珠海",tags:["中央空调","中央空调"]},
-  {name:"广州天河制冷设备有限公司",account:"GC-GZ-20190012",phone:"13987654321",area:"广东-广州",tags:["中央空调","冷链"]},
-  {name:"深圳前海智能空调工程有限公司",account:"GC-SZ-20200033",phone:"0755-86001234",area:"广东-深圳、广东-东莞",tags:["中央空调","冷链"]}
+  {name:"测试股份有限公司LZY",account:"V10999999999",owner:"张萌萌（取经销商公司的业务负责人）",ownerPhone:"经销商业务负责人电话，非账号电话",manager:"李某（当前管理经销商的业务经理姓名）"},
+  {name:"珠海华鸿电器销售有限公司",account:"V10882018045",owner:"陈伟强（取经销商公司的业务负责人）",ownerPhone:"13812345678",manager:"林海东（当前管理经销商的业务经理姓名）"},
+  {name:"广州天河制冷设备有限公司",account:"V10882019012",owner:"周敏（取经销商公司的业务负责人）",ownerPhone:"13987654321",manager:"林海东（当前管理经销商的业务经理姓名）"},
+  {name:"深圳前海智能空调工程有限公司",account:"V10882020033",owner:"吴建国（取经销商公司的业务负责人）",ownerPhone:"0755-86001234",manager:"郑文斌（当前管理经销商的业务经理姓名）"},
+  {name:"佛山南海格力专卖店",account:"V10882018067",owner:"黄小玲（取经销商公司的业务负责人）",ownerPhone:"0757-86223388",manager:"郑文斌（当前管理经销商的业务经理姓名）"}
 ];
 
 var vals={biz:"中央空调",cust:"",industry:"",exec:"",prov:"",city:"",dist:"",street:"",status:"",failReason:""};
@@ -781,9 +785,10 @@ function renderDealers(){
     return '<div class="dealer-card '+(selected?'selected ':'')+' '+(dealerState.active&&dealerState.active.account===d.account?'on':'')+'" onclick="pickDealer(\''+esc(d.account)+'\')">'
       +'<div class="dealer-card-name">'+esc(d.name)+'</div>'
       +'<div class="dealer-card-meta">'
-      +'经销商账号：<span>'+esc(d.account)+'</span><br>'
-      +'经销商电话：<span>'+esc(d.phone)+'</span><br>'
-      +'销售区域：<span>'+esc(d.area)+'</span>'
+      +'主账号：<span>'+esc(d.account)+'</span><br>'
+      +'业务负责人：<span>'+esc(d.owner)+'</span><br>'
+      +'业务负责人电话：<span>'+esc(d.ownerPhone)+'</span><br>'
+      +'业务经理：<span>'+esc(d.manager)+'</span>'
       +'</div>'
       +'</div>';
   }).join("")||'<div class="empty-prod">暂无匹配结果</div>';
@@ -810,12 +815,13 @@ function confirmDealer(){
   vals.exec=d.name;
   document.getElementById("dealerDispName").textContent=d.name;
   document.getElementById("dealerDispAccount").textContent=d.account;
-  document.getElementById("dealerDispPhone").textContent=d.phone;
-  document.getElementById("dealerDispArea").textContent=d.area;
+  document.getElementById("dealerDispOwner").textContent=d.owner;
+  document.getElementById("dealerDispOwnerPhone").textContent=d.ownerPhone;
+  document.getElementById("dealerDispManager").textContent=d.manager;
   document.getElementById("dealerSelectedArea").style.display="";
   document.getElementById("formWrap").style.display="";
   document.getElementById("m5BaseDealerName").textContent=d.name;
-  document.getElementById("m5BaseDealerPhone").textContent=d.phone;
+  document.getElementById("m5BaseDealerPhone").textContent=d.ownerPhone;
   closeSh("dealerMask");
   refreshVals();
   renderUsage();
