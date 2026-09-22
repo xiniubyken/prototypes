@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>保证金核销 · 流程图</title>
+<title>保证金核销-流程图</title>
 <style>
 :root{
   --primary:#3b5998; --text:#333; --text2:#666; --text3:#999;
@@ -564,10 +564,10 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
   <div class="map-node orange" style="left:3270px;top:1570px;width:340px;height:60px;">收差执行<span class="small">待执行 → 执行中 → 已收差</span></div>
   <div class="v-arrow" style="left:3439px;top:1632px;height:56px;"></div>
 
-  <div class="map-node green" style="left:3270px;top:1690px;width:340px;height:60px;">执行完成 · 金额回写<span class="small">已返还金额 +；已收差金额 +；收差状态 → 已收差；发票按行回推</span></div>
+  <div class="map-node green" style="left:3270px;top:1690px;width:340px;height:60px;">执行完成 · 金额回写<span class="small">已返还金额 +；已收差金额 +；收差状态 → 已收差；发票按行实时查询</span></div>
   <div class="v-arrow" style="left:3439px;top:1752px;height:56px;"></div>
 
-  <div class="map-node orange" style="left:3270px;top:1810px;width:340px;height:60px;">发票单号按收差单行号回推<span class="small">异步回推；回推前显示“回推中”</span></div>
+  <div class="map-node orange" style="left:3270px;top:1810px;width:340px;height:60px;">发票单号按收差单行号实时查询<span class="small">实时查询；无数据显示“--”</span></div>
   <div class="v-arrow" style="left:3439px;top:1872px;height:56px;"></div>
 
   <div class="map-node blue" style="left:3270px;top:1930px;width:340px;height:60px;">汇总页展示最新值<span class="small">需核销 / 已核销 / 待核销 / 已返还 / 已收差 / 待处理</span></div>
@@ -660,14 +660,14 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
       <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>状态“已提交 FMS”（等待）；通过 → 进入返还执行；驳回 → 整单终态</td></tr>
       <tr><td>2 返还结果</td><td>返还完成</td><td>返还完成状态 / 时间</td><td>金额回写：已返还金额 +；返还状态 → 已返还；经闲时队列处理</td></tr>
       <tr><td>3 收差结果</td><td>收差完成</td><td>收差完成状态 / 时间</td><td>金额回写：已收差金额 +；收差状态 → 已收差；经闲时队列处理</td></tr>
-      <tr><td>4 发票单号</td><td>按 BSC单行号异步回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
+      <tr><td>4 发票单号</td><td>按 BSC单行号实时查询</td><td>发票单号</td><td>更新数据；无数据显示“--”</td></tr>
     </table>
     <div class="map-note-inline">FMS 返回的返还/收差/发票结果进入网批闲时队列，每日 12:00 开始消费；处理前金额不回写，状态保持执行中。详细字段和时序见左侧“FMS接口与数据包”视图；接口草稿待对方提供后更新。</div>
     <h4>关键边界</h4>
     <ul>
       <li class="red">FMS 不回传就一直等待；“已提交 FMS”状态责任归属 FMS。</li>
       <li class="red">FMS 驳回：回传网批后整单终态；BSC单/BFH单作废；可复制并新建。</li>
-      <li class="red">发票单号按收差单行号异步回推；回推前显示“回推中”。</li>
+      <li class="red">发票单号按收差单行号实时查询；无数据显示“--”。</li>
       <li>收差状态：待执行 → 执行中 → 已收差。</li>
     </ul>
   </div>
@@ -692,7 +692,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
     <ul>
       <li class="red">FMS 整单通过即数量已核销：合格/不合格立即计入累计合格/累计收差数量；已返还/已收差金额按执行完成回写，结果经闲时队列处理，每日 12:00 开始。</li>
       <li class="red">FMS 回传结果 → 网批系统更新汇总页；不是 FMS 直接改网批页面。</li>
-      <li class="red">发票单号允许按 BSC单行号批量回推网批。</li>
+      <li class="red">发票单号允许按 BSC单行号实时查询网批。</li>
       <li>剩余可核销 = 已开单数量 − 历史累计合格 − 历史累计收差 − 审批中数量。</li>
       <li>方案待核销总数 = 需核销总数 − 已核销总数（含审批中）。</li>
     </ul>
@@ -948,7 +948,7 @@ AllocationResult {
 </section></div>
 
 <div class="view" id="view-4"><h1>FMS接口与数据包 · 研发详图<span class="detail-badge">研发视角</span></h1>
-<div class="sub">用途：定义网批推送给 FMS 的审批数据包、FMS 多段回传结果与发票批量回推；字段为“目的草稿”，对方提供后更新。</div>
+<div class="sub">用途：定义网批推送给 FMS 的审批数据包、FMS 多段回传结果与发票实时查询；字段为“目的草稿”，对方提供后更新。</div>
 
 <section class="sec col-new">
   <div class="sec-head"><span class="no">1</span>推送 FMS 数据包</div>
@@ -1004,7 +1004,7 @@ AllocationResult {
       <tr><td>1 审批结果</td><td>FMS 审批完成</td><td>通过 / 驳回（含原因）</td><td>通过即数量已核销：累计合格 +、累计收差数量 +；金额待执行回写；驳回整单终态</td></tr>
       <tr><td>2 返还结果</td><td>返还完成</td><td>完成状态 / 时间</td><td>金额回写：已返还金额 +；返还状态 → 已返还；经闲时队列处理</td></tr>
       <tr><td>3 收差结果</td><td>收差完成</td><td>完成状态 / 时间</td><td>金额回写：已收差金额 +；收差状态 → 已收差；经闲时队列处理</td></tr>
-      <tr><td>4 发票单号</td><td>按 BSC单行号批量回推</td><td>发票单号</td><td>更新数据；回推前显示“回推中”</td></tr>
+      <tr><td>4 发票单号</td><td>按 BSC单行号实时查询</td><td>发票单号</td><td>更新数据；无数据显示“--”</td></tr>
     </table>
     <div class="impl-note">FMS 返回的返还/收差/发票结果进入网批闲时队列，每日 12:00 开始消费；处理前金额不回写。</div>
   </div>
@@ -1043,7 +1043,7 @@ AllocationResult {
       <tr><td>deduct.lines[].deductLineNo</td><td>string</td><td>是</td><td>单号 + 3 位行流水；发票按此行回推</td><td>BSC012026072300101</td></tr>
       <tr><td>approval.result</td><td>enum</td><td>是</td><td>pass / reject</td><td>pass</td></tr>
       <tr><td>refundResult / deductResult.status</td><td>enum</td><td>条件</td><td>completed；按段回传</td><td>completed</td></tr>
-      <tr><td>invoices[]</td><td>array</td><td>否</td><td>按 BSC单行号批量回推；未回推行保持“回推中”</td><td>FPL202608160001</td></tr>
+      <tr><td>invoices[]</td><td>array</td><td>否</td><td>按 BSC单行号实时查询；无数据显示“--”</td><td>FPL202608160001</td></tr>
     </table>
   </div>
 </section>
@@ -1056,14 +1056,14 @@ AllocationResult {
       <div class="rule"><b>不回传</b><br>状态保持“审批中（FMS）”，一直等待；无超时自动结束</div>
       <div class="rule"><b>重复回传</b><br>幂等键 = writeOffNo + 段次；重复消息忽略，不重复推进</div>
       <div class="rule"><b>接口报错</b><br>记录错误日志，状态不变；可人工重新推送</div>
-      <div class="rule"><b>发票部分回推</b><br>invoices 数组按 BSC单行号更新；未返回的行继续显示“回推中”</div>
+      <div class="rule"><b>发票实时查询</b><br>invoices 数组按 BSC单行号更新；未返回的行继续显示“--”</div>
       <div class="rule"><b>字段校验失败</b><br>返回错误，不更新核销单状态，避免脏数据</div>
     </div>
   </div>
 </section></div>
 
 <div class="view" id="view-5"><h1>状态回写 · 数据变更详图<span class="detail-badge">研发视角</span></h1>
-<div class="sub">用途：说明 FMS 通过后数量回写、执行完成金额回写、发票回推与汇总页数据变化，保证研发实现时数量金额对平。</div>
+<div class="sub">用途：说明 FMS 通过后数量回写、执行完成金额回写、发票实时查询与汇总页数据变化，保证研发实现时数量金额对平。</div>
 
 <section class="sec col-new">
   <div class="sec-head"><span class="no">1</span>回写状态机</div>
@@ -1077,7 +1077,7 @@ AllocationResult {
       <div class="arrow">↓</div>
       <div class="node n-green">执行完成 · 金额回写<span class="small">已返还 +¥240；已收差 +¥120；收差状态 → 已收差</span></div>
       <div class="arrow">↓</div>
-      <div class="node n-orange">发票单号按 BSC单行号批量回推<span class="small">回推前显示“回推中”</span></div>
+      <div class="node n-orange">发票单号按 BSC单行号实时查询<span class="small">无数据显示“--”</span></div>
     </div>
   </div>
 </section>
@@ -1109,7 +1109,7 @@ AllocationResult {
       <tr><td>FMS 审批通过（数量回写）</td><td>FMS 审批完成</td><td>累计合格 +6；累计收差 +3；审批中 −9；金额不变；剩余不变</td></tr>
       <tr><td>返还完成（金额回写）</td><td>返还完成回传</td><td>已返还 +¥240；返还状态 → 已返还；经闲时队列处理</td></tr>
       <tr><td>收差完成（金额回写）</td><td>收差完成回传</td><td>已收差 +¥120；收差状态 → 已收差；经闲时队列处理</td></tr>
-      <tr><td>发票回推</td><td>按 BSC单行号批量回推</td><td>更新发票单号；回推前显示“回推中”</td></tr>
+      <tr><td>发票实时查询</td><td>按 BSC单行号实时查询</td><td>更新发票单号；无数据显示“--”</td></tr>
       <tr><td>驳回</td><td>任一节点驳回 / FMS 驳回</td><td>审批中释放全部；累计与金额不变</td></tr>
     </table>
   </div>
