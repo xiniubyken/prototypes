@@ -624,7 +624,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
       <tr><th>收差单号</th><th>收差单行号</th><th>订单行号</th><th>商品名称</th><th>SKU编号</th><th>不合格数量</th><th>收差金额</th></tr>
       <tr><td>BSC0120260723001</td><td>BSC012026072300101</td><td>DD2026071000102</td><td>冷静王变频柜机 B</td><td>SP1123654002</td><td>3</td><td>¥120</td></tr>
     </table>
-    <div class="map-warn">提交后将生成核销单号 BHX262026072300101 并进入审批流程；BFH单/BSC单 随核销单一起提交。</div>
+    <div class="map-warn">提交后将生成核销单号 BHX2620260723001001 并进入审批流程；BFH单/BSC单 随核销单一起提交。</div>
   </div>
 
   <div class="map-panel panel-net" style="left:1190px;top:1150px;width:810px;height:350px;">
@@ -740,7 +740,7 @@ h1{font-size:18px;font-weight:700;color:var(--ink);letter-spacing:0;}
     </div>
     <table class="tbl">
       <tr><th>单据</th><th>规则</th><th>示例</th></tr>
-      <tr><td>BHX单</td><td>BHX + 方案编号第 5 位起 13 位 + 2 位流水</td><td>BHX262026072300101</td></tr>
+      <tr><td>BHX单</td><td>BHX + 方案编号第 5 位起 13 位 + 3 位流水</td><td>BHX2620260723001001</td></tr>
       <tr><td>BFH单</td><td>BFH + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>BFH0120260723001</td></tr>
       <tr><td>BSC单</td><td>BSC + 销司部门编码前 2 位 + YYYYMMDD + 3 位流水</td><td>BSC0120260723001</td></tr>
     </table>
@@ -955,7 +955,7 @@ AllocationResult {
   <div class="sec-body">
     <table class="tbl">
       <tr><th>字段</th><th>示例</th><th>说明</th></tr>
-      <tr><td>核销单号</td><td>BHX262026072300101</td><td>本次审批主键</td></tr>
+      <tr><td>核销单号</td><td>BHX2620260723001001</td><td>本次审批主键</td></tr>
       <tr><td>关联特批方案编号</td><td>GCTP2620260723001</td><td>财务核对方案上下文</td></tr>
       <tr><td>销售公司</td><td>珠海销售公司</td><td>部门编码前 2 位：01</td></tr>
       <tr><td>BFH单号</td><td>BFH0120260723001</td><td>返还单主键</td></tr>
@@ -972,7 +972,7 @@ AllocationResult {
   <div class="sec-head"><span class="no">2</span>推送 JSON 示例</div>
   <div class="sec-body">
     <div class="code-block">{
-  "writeOffNo": "BHX262026072300101",
+  "writeOffNo": "BHX2620260723001001",
   "planNo": "GCTP2620260723001",
   "salesCompany": "珠海销售公司",
   "deptCode": "01",
@@ -1014,7 +1014,7 @@ AllocationResult {
   <div class="sec-head"><span class="no">4</span>返回 JSON 示例</div>
   <div class="sec-body">
     <div class="code-block">{
-  "writeOffNo": "BHX262026072300101",
+  "writeOffNo": "BHX2620260723001001",
   "approval": {"result":"pass","reason":""},
   "refundResult": {"status":"completed","time":"2026-08-16 10:00:00"},
   "deductResult": {"status":"completed","time":"2026-08-16 12:00:00"},
@@ -1033,7 +1033,7 @@ AllocationResult {
     <div class="impl-note">以下为建议字段规格，实际字段类型、必填与约束以开发实现及 FMS 接口文档为准。</div>
     <table class="tbl">
       <tr><th>字段</th><th>类型</th><th>必填</th><th>约束</th><th>示例</th></tr>
-      <tr><td>writeOffNo</td><td>string</td><td>是</td><td>18 位，^BHX\d{15}$</td><td>BHX262026072300101</td></tr>
+      <tr><td>writeOffNo</td><td>string</td><td>是</td><td>19 位，^BHX\d{16}$</td><td>BHX2620260723001001</td></tr>
       <tr><td>planNo</td><td>string</td><td>是</td><td>^(GCTP|GCZY)\d{13}$</td><td>GCTP2620260723001</td></tr>
       <tr><td>salesCompany / deptCode</td><td>string</td><td>是</td><td>deptCode 取部门编码前 2 位</td><td>珠海销售公司 / 01</td></tr>
       <tr><td>refund.refundOrderNo</td><td>string</td><td>条件</td><td>有合格数量时必填</td><td>BFH0120260723001</td></tr>

@@ -730,8 +730,8 @@ function delAttach(i){ files.splice(i,1); renderAttach(); }
 /* ==================== 关联特批方案编号 + 核销单号生成 ==================== */
 /* 关联特批方案编号：来自工程单上下文，页面顶部只读展示；核销单号依此延伸生成
    规则：特批方案编号 = (GCTP|GCZY) + 销司2位 + yyyymmdd8位 + 3位流水（共17位）
-        核销单号     = BHX + 特批方案编号第5位起数字段(13位) + 2位核销流水（同方案每次提交+1）
-        例：GCTP2620260723001 → BHX262026072300101 */
+        核销单号     = BHX + 特批方案编号第5位起数字段(13位) + 3位核销流水（同方案每次提交+1）
+        例：GCTP2620260723001 → BHX2620260723001001 */
 const RELATED_PLAN_NO = 'GCTP2620260723001';
 document.getElementById('planNo').textContent = RELATED_PLAN_NO; // 单一数据源，页面顶部只读展示
 let writeOffSeq = 0; // 演示用自增；真实环境由服务端按特批方案持久化
@@ -742,8 +742,8 @@ function genWriteOffNo(){
   if(!/^(GCTP|GCZY)\d{13}$/.test(plan)) return null;   // 前缀合法 + 第5位起13位数字
   const digits = plan.substring(4);                     // 第5位(index4)起：销司2+年月日8+方案流水3
   writeOffSeq += 1;
-  const seq = String(writeOffSeq).padStart(2,'0');      // 01,02,...99
-  return 'BHX' + digits + seq;                          // 总长18位：BHX(3)+13+2
+  const seq = String(writeOffSeq).padStart(3,'0');      // 001,002,...999
+  return 'BHX' + digits + seq;                          // 总长19位：BHX(3)+13+3
 }
 
 /* ==================== 二次确认弹窗 ==================== */
