@@ -261,17 +261,6 @@ button{font:inherit;cursor:pointer}
   <div class="z-tip">点击空白处关闭</div>
 </div>
 
-<div class="dialog" id="voidDialog" onclick="if(event.target===this)closeVoid()">
-  <div class="dbox">
-    <div class="di">⚠️</div>
-    <div class="dm">确定 <b>作废</b> 之后无法撤销，要继续吗？</div>
-    <div class="dbtns">
-      <button class="dbtn cancel" onclick="closeVoid()">取 消</button>
-      <button class="dbtn confirm" onclick="confirmVoid()">确 认</button>
-    </div>
-  </div>
-</div>
-
 <div class="mask" id="prodMask" onclick="closeProd(event)">
   <div class="sheet white" onclick="event.stopPropagation()">
     <div class="sh">商品详情<button class="x" onclick="closeProd()">×</button></div>
@@ -350,7 +339,7 @@ let devFoldOpen=false;
 let toastTimer=null;
 
 function setState(key){curKey=key;var sel=document.getElementById('stateSelect');if(sel)sel.value=key;closeAll();renderAll();}
-function closeAll(){['flowMask','zoomWrap','voidDialog'].forEach(id=>document.getElementById(id).classList.remove('on'));}
+function closeAll(){['flowMask','zoomWrap'].forEach(id=>document.getElementById(id).classList.remove('on'));}
 function renderAll(){renderHead();renderDetail();renderProgress();renderFooter();}
 
 function renderHead(){
@@ -500,7 +489,7 @@ function renderFooter(){
   document.getElementById('ftState').innerHTML=`<span class="pill ${pillClass}">${esc(d.main)}</span>`;
   const ops=document.getElementById('ftOps');
   if(d.footer==='void'){
-    ops.innerHTML='<button class="ft-btn primary" onclick="openVoid()">作废</button>';
+    ops.innerHTML='<button class="ft-btn primary" onclick="goVoidApply()">作废</button>';
   }else{
     ops.innerHTML='';
   }
@@ -544,9 +533,7 @@ function renderNode(){
 }
 function openZoom(){document.getElementById('zoomBody').innerHTML='<div class="af-placeholder" style="height:70vh">图片占位</div>';document.getElementById('zoomWrap').classList.add('on');}
 function closeZoom(e){if(e&&e.target!==document.getElementById('zoomWrap'))return;document.getElementById('zoomWrap').classList.remove('on');}
-function openVoid(){document.getElementById('voidDialog').classList.add('on')}
-function closeVoid(){document.getElementById('voidDialog').classList.remove('on')}
-function confirmVoid(){closeVoid();toast('已发起销司作废审批');setState('审批中-销司作废');}
+function goVoidApply(){location.href='管理端-批价单申请作废_移动端.html';}
 
 function initStateTools(){
   const sel=document.getElementById('stateSelect');
