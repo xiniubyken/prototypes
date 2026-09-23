@@ -648,7 +648,6 @@ var selectedProjectData = {
   projectStatus:'审批中',
   loginTime:'2026-06-25 10:30',
   projectType:'单体项目',
-  bondType:'比例保证金-A（10%）',
   loginOrder:{ seq:1, label:'登录成功' },
   projectName:'某商业综合体空调项目',
   custType:'工程商',
@@ -691,7 +690,6 @@ function fillRefData(d) {
   document.getElementById('refProjectStatus').textContent = d.projectStatus;
   document.getElementById('refLoginTime').textContent = d.loginTime;
   document.getElementById('refProjectType').textContent = d.projectType;
-  document.getElementById('refBondType').textContent = d.bondType;
   var loEl = document.getElementById('refLoBadge');
   if(loEl && d.loginOrder){
     loEl.querySelector('.lo-num').textContent = d.loginOrder.seq;
@@ -883,7 +881,6 @@ var FoldRecord = (function() {
           <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">审批中</div></div>
           <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">2026-06-25 10:30</div></div>
           <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">单体项目</div></div>
-          <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">比例保证金-A（10%）</div></div>
           <div class="info-item"><div class="info-label">登录顺序</div><div class="info-value"><span class="lo-badge" id="refLoBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="showLoginOrderDetail()">查看</span></div></div>
         </div>
       </div>

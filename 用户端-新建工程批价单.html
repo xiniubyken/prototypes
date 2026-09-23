@@ -551,7 +551,6 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
             <div class="info-item"><div class="info-label">项目状态</div><div class="info-value" id="refProjectStatus">--</div></div>
             <div class="info-item"><div class="info-label">登录时间</div><div class="info-value" id="refLoginTime">--</div></div>
             <div class="info-item"><div class="info-label">项目类型</div><div class="info-value" id="refProjectType">--</div></div>
-            <div class="info-item"><div class="info-label">保证金类型</div><div class="info-value" id="refBondType">--</div></div>
             <div class="info-item"><div class="info-label">登录顺序</div><div class="info-value"><span class="lo-badge" id="refLoBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="openLoginOrderModal()">查看</span></div></div>
           </div>
         </div>
@@ -907,7 +906,6 @@ var selectedProjectData = {
   projectStatus:'跟进中',
   loginTime:'2026-06-25 10:30',
   projectType:'单体项目',
-  bondType:'比例保证金-A（10%）',
   loginOrder:{ seq:1, label:'登录成功' },
   // 使用方信息
   projectName:'某商业综合体空调项目',
@@ -1071,7 +1069,6 @@ function fillRefData(p) {
   document.getElementById('refProjectStatus').textContent = d.projectStatus;
   document.getElementById('refLoginTime').textContent = d.loginTime;
   document.getElementById('refProjectType').textContent = d.projectType;
-  document.getElementById('refBondType').textContent = d.bondType;
   // 登录顺序
   var loEl = document.getElementById('refLoBadge');
   if(loEl && d.loginOrder){
