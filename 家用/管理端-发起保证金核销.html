@@ -453,14 +453,14 @@ const ORDERS = {
 // 历史单据：已完结2条合计 返还6000=4000+2000 / 收差1000（与汇总卡已返还/已收差对平）
 // 已驳回1条：额度已释放，可「重新提交」改原单
 const HIST = [
-  {no:'BHHX20260720001', time:'2026-07-20 14:32', user:'钟日健', q:4, uq:0, refund:4000, deduct:0, status:'已完结', detail:[
+  {no:'BHX2620260723001001', time:'2026-07-20 14:32', user:'钟日健', q:4, uq:0, refund:4000, deduct:0, status:'已完结', detail:[
     {name:'清柔风变频壁挂机', model:'KFR-35GW', lineNo:'DD2026061500101', q:4, uq:0, refund:4000, deduct:0},
   ]},
-  {no:'BHHX20260725002', time:'2026-07-25 09:15', user:'钟日健', q:1, uq:1, refund:2000, deduct:1000, status:'已完结', detail:[
+  {no:'BHX2620260723001002', time:'2026-07-25 09:15', user:'钟日健', q:1, uq:1, refund:2000, deduct:1000, status:'已完结', detail:[
     {name:'天井机变频1', model:'KFR-65GW', lineNo:'DD2026071000101', q:1, uq:0, refund:2000, deduct:0},
     {name:'清柔风变频壁挂机', model:'KFR-35GW', lineNo:'DD2026061500101', q:0, uq:1, refund:0, deduct:1000},
   ]},
-  {no:'BHHX20260728003', time:'2026-07-28 16:40', user:'钟日健', q:2, uq:0, refund:2000, deduct:0, status:'已驳回', reason:'合格数量与质检报告不符，请核对后重新提交', detail:[
+  {no:'BHX2620260723001003', time:'2026-07-28 16:40', user:'钟日健', q:2, uq:0, refund:2000, deduct:0, status:'已驳回', reason:'合格数量与质检报告不符，请核对后重新提交', detail:[
     {name:'天井机变频1', model:'KFR-65GW', lineNo:'DD2026071000102', q:2, uq:0, refund:2000, deduct:0},
   ]},
 ];
@@ -734,7 +734,7 @@ function delAttach(i){ files.splice(i,1); renderAttach(); }
         例：GCTP2620260723001 → BHX2620260723001001 */
 const RELATED_PLAN_NO = 'GCTP2620260723001';
 document.getElementById('planNo').textContent = RELATED_PLAN_NO; // 单一数据源，页面顶部只读展示
-let writeOffSeq = 0; // 演示用自增；真实环境由服务端按特批方案持久化
+let writeOffSeq = 3; // 演示用自增（HIST 已含 001~003 三次提交，新提交从 004 起）；真实环境由服务端按特批方案持久化
 const HAS_PENDING = false; // 同类型单据审批中禁止提交；演示无审批中，真实环境由入口和接口共同拦截
 let INVOICE_COMPLETE = true; // 开票信息缺失时提交拦截；演示数据完整
 function genWriteOffNo(){
@@ -844,7 +844,7 @@ function reSubmit(i){
     if(k){ k.q = d.q; k.uq = d.uq; }
   });
   renderAll();
-  toast('已按原单据 BHHX'+h.no.slice(5)+' 预填数量，可修改后重新提交（沿用原单据号）','success');
+  toast('已按原单据 '+h.no+' 预填数量，可修改后重新提交（沿用原单据号）','success');
   const el = document.querySelector('.page-scroll');
   if(el) el.scrollTo({top:0, behavior:'smooth'});
 }
