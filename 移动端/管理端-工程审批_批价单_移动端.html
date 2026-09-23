@@ -720,7 +720,7 @@ function renderRecord(){
   });
 }
 function renderRef(){
-  document.getElementById('basicHost').innerHTML=BASIC.map(([k,v,a])=>`<div class="kv-row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}${a==='copy'?'<button class="copy-mini">复制</button>':a==='view'?'<button class="copy-mini" onclick="openLogin()">查看</button>':''}</span></div>`).join('');
+  document.getElementById('basicHost').innerHTML=BASIC.map(([k,v,a])=>`<div class="kv-row"><span class="k">${esc(k)}</span><span class="v">${a==='view'?'<span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span>':esc(v)}${a==='copy'?'<button class="copy-mini">复制</button>':a==='view'?'<button class="copy-mini" onclick="openLogin()">查看</button>':''}</span></div>`).join('');
   document.getElementById('usageHost').innerHTML=USAGE.map(([k,v])=>`<div class="kv-row"><span class="k">${esc(k)}</span><span class="v">${esc(v)}</span></div>`).join('');
   document.getElementById('refEquipHost').innerHTML=REF_EQ.map((x,i)=>`<div class="equip-wrap"><div class="equip-card ref-equip-card" onclick="openRefProductDetail(${i})"><div class="prod-img">${IMG}</div><div class="equip-main"><div class="equip-title">${x.nonstd?'<span class="nonstd">非</span>':''}${esc(x.n)}</div><div class="equip-sub">${esc(x.m)}</div><div class="equip-price">申请价格：<b>${money(x.p)}</b> <span style="color:#4a72c3">×${x.q}</span></div></div></div></div>`).join('');
 }

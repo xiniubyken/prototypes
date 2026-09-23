@@ -126,7 +126,7 @@ button,input,textarea{font:inherit}button{cursor:pointer}
 .kv .k{color:var(--aux);flex:0 0 82px;word-break:break-all}
 .kv .v{flex:1;min-width:0;color:#333;word-break:break-all;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
 .kv .v.l{justify-content:flex-start;text-align:left}
-.copy-mini{border:0;background:#eef3fb;color:var(--blue);border-radius:6px;font-size:11px;padding:2px 9px;flex:0 0 auto}
+.copy-mini{margin-left:6px;border:0;background:transparent;color:var(--blue);font-size:13px;font-weight:700;padding:0;flex:0 0 auto}
 .eq-title{font-size:14px;font-weight:700;color:#333}
 /* 设备清单 */
 .eq-wrap{background:#fff;border-radius:14px;margin-bottom:12px;overflow:hidden}
@@ -200,6 +200,36 @@ textarea.in:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(8,104,215,.
 .pv-name{font-size:14px;color:#333;font-weight:700;margin-top:14px;word-break:break-all}
 .pv-tip{font-size:12px;color:var(--aux);margin-top:10px;line-height:1.7}
 @media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+/* ===== 登录顺序副屏（统一规范件，与「管理端-工程审批_批价单_移动端.html」一致） ===== */
+.login-page{position:fixed;top:0;left:50%;transform:translateX(-50%);width:min(428px,100%);height:100%;background:var(--bg);z-index:115;display:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.login-page.show{display:block}
+.login-page .nav{position:sticky;top:0;z-index:5}
+.login-page .nav-title{padding-right:0}
+.login-body{padding:12px 14px 30px}
+.login-top{background:#fff;border-radius:14px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;margin-bottom:12px}
+.login-top .assoc{color:#8b8b8b}
+.login-tabs{display:flex;background:#fff;border-radius:14px;padding:4px;margin-bottom:12px;gap:4px}
+.login-tab{flex:1;height:40px;border:0;border-radius:10px;background:transparent;color:#8b8b8b;font-size:15px}
+.login-tab.on{background:var(--blue);color:#fff;font-weight:700}
+.login-panel{display:none}
+.login-panel.on{display:block}
+.login-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.login-card-hd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.login-card-name{font-size:15px;font-weight:700;min-width:0;flex:1}
+.login-card-time{font-size:12px;color:#a0a6ae;white-space:nowrap}
+.login-card-toggle{font-size:14px;color:#a0a6ae;margin-left:4px}
+.login-card-toggle.on{color:var(--blue)}
+.login-card-bd{padding-top:10px}
+.login-line{font-size:14px;color:#555;line-height:1.7}
+.login-box{margin-top:10px;background:#f7f8fa;border-radius:10px;padding:12px}
+.login-label{font-size:13px;font-weight:700;color:#666;margin-bottom:8px}
+.login-order{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;color:#333;padding:7px 0}
+.login-order:last-child{padding-bottom:0}
+.ls-badge{display:inline-flex;align-items:center;border-radius:4px;overflow:hidden}
+.ls-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;color:#fff;font-weight:700}
+.ls-num.ok{background:#19b86b}.ls-num.sub{background:#ff9f43}
+.ls-txt{display:inline-flex;align-items:center;justify-content:center;padding:0 9px;height:24px;border:1px solid currentColor;border-left:0;font-size:12px;font-weight:700}
+.ls-txt.ok{color:#19b86b}.ls-txt.sub{color:#ff9f43}
 </style>
 </head>
 <body>
@@ -273,7 +303,7 @@ textarea.in:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(8,104,215,.
           <div class="kv"><span class="k">业务线</span><span class="v">中央空调</span></div>
           <div class="kv"><span class="k">项目状态</span><span class="v">审批中</span></div>
           <div class="kv"><span class="k">项目类型</span><span class="v">单体项目</span></div>
-          <div class="kv"><span class="k">登录顺序</span><span class="v">1—登录成功</span></div>
+          <div class="kv"><span class="k">登录顺序</span><span class="v"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span><button class="copy-mini" onclick="openLogin()">查看</button></span></div>
           <div class="kv"><span class="k">登录时间</span><span class="v">2026-06-25 10:30</span></div>
         </div>
       </div>
@@ -371,8 +401,38 @@ textarea.in:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(8,104,215,.
 
 <div class="toast" id="toast"></div>
 
+<!-- ===== 登录顺序副屏（统一规范件，与「管理端-工程审批_批价单_移动端.html」一致） ===== -->
+<div class="login-page" id="loginPage">
+  <header class="nav">
+    <button class="back" aria-label="返回" onclick="closeLogin()"><i></i></button>
+    <div class="nav-title">登录顺序</div>
+  </header>
+  <div class="login-body">
+    <div class="login-tabs">
+      <button class="login-tab on" id="loginTab1" onclick="loginTab('assoc',this)">关联工程信息</button>
+      <button class="login-tab" id="loginTab2" onclick="loginTab('record',this)">修改记录</button>
+    </div>
+    <div class="login-panel on" id="loginAssoc"></div>
+    <div class="login-panel" id="loginRecord"></div>
+  </div>
+</div>
+
 <script>
 "use strict";
+/* ===== 登录顺序副屏（统一规范件，与「管理端-工程审批_批价单_移动端.html」一致） ===== */
+function openLogin(){document.getElementById('loginPage').classList.add('show');loginTab('assoc',document.getElementById('loginTab1'))}
+function closeLogin(){document.getElementById('loginPage').classList.remove('show')}
+function loginTab(tab,btn){
+  var tabs=document.querySelectorAll('#loginPage .login-tabs button');
+  for(var i=0;i<tabs.length;i++){tabs[i].classList.remove('on');}
+  btn.classList.add('on');
+  var assocHTML='<div class="login-top"><div class="assoc">关联编号：GL02202407180001</div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010001</div></div><div class="login-card-bd"><div class="login-line">经销商名称： 深圳前海经销商</div><div class="login-line">工程状态： 待提货</div><div class="login-line">登录时间： 2026-08-10 12:30:20</div><div class="login-line">业务经理： 张三三</div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div></div><div class="login-card-bd"><div class="login-line">经销商名称： 深圳前海经销商</div><div class="login-line">工程状态： 待提货</div><div class="login-line">登录时间： 2026-08-10 12:30:20</div><div class="login-line">业务经理： 张三三</div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div></div><div class="login-card-bd"><div class="login-line">经销商名称： 深圳前海经销商</div><div class="login-line">工程状态： 待提货</div><div class="login-line">登录时间： 2026-08-10 12:30:20</div><div class="login-line">业务经理： 张三三</div></div></div>';
+  var recordHTML='<div class="login-card" style="margin-top:12px"><div class="login-card-hd"><div class="login-card-name">李思思</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle on">⌃</span></div></div><div class="login-card-bd"><div class="login-line">备注信息备注信息备注信息备注信息备注信息备注信息备注信息显示完整</div><div class="login-box"><div class="login-label">原顺序：</div><div class="login-order"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div></div><div class="login-box"><div class="login-label">修改后顺序：</div><div class="login-order"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div><div class="login-order"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span><span>GC01202401010001</span></div></div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name">张三三</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle">⌄</span></div></div></div><div class="login-card"><div class="login-card-hd"><div class="login-card-name">张三三</div><div class="login-card-time">2026-08-10 12:30:20 <span class="login-card-toggle">⌄</span></div></div></div>';
+  document.getElementById('loginAssoc').innerHTML=assocHTML;
+  document.getElementById('loginRecord').innerHTML=recordHTML;
+  document.getElementById('loginAssoc').classList.toggle('on',tab==='assoc');
+  document.getElementById('loginRecord').classList.toggle('on',tab==='record');
+}
 /* ============ 通用 ============ */
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];});}
 var __tt=null;
