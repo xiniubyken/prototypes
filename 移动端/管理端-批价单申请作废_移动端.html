@@ -15,7 +15,7 @@
     2. 顶部对象卡字段按 PC 批价口径从简：经销商/公司名 + 高危操作 chip + 批价单号（粤东GCDT…-PJ001，不含 PC 头“审批-/审批中/中央空调”残影、不加业务线/状态）。
     3. 附件 accept/白名单按拍板 = .png,.jpg,.pdf,.docx,.xlsx（不含 PC 附带的 .jpeg，与提示文案统一）；单文件≤20MB、最多10个；达10个隐藏上传区（PC 行为）。
     4. 文件行均显示“预览”按钮：图片(png/jpg)与 PDF 点击→objectURL 放大层（图片 img、PDF iframe 内嵌浏览器查看器）；docx/xlsx→点击即下载该文件（<a download>）。
-    5. 底部仅“提交作废申请”单主按钮（常亮），不含 PC 取消/放弃；顶栏返回/跳转/上传提交均不真跳转：返回=toast「原型占位：返回列表」，确认提交=toast「原型占位：提交成功，进入审批」并清空表单回空态。
+    5. 底部仅“提交作废申请”单主按钮（常亮），不含 PC 取消/放弃；顶栏返回=真实回退（goBack：优先 history.back，无历史时兜底跳 管理端-批价单详情_移动端.html）；跳转/上传提交不真跳转，确认提交=toast「原型占位：提交成功，进入审批」并清空表单回空态。
     6. 字数计数 0/500（设计稿样式）：>400 变橙、满500（maxlength 禁超）变红；placeholder 取设计稿短版“请输入作废原因，需明确说明作废依据”。
     7. 弹窗标题“提示”（设计稿新增），正文“确定提交作废申请吗？”（按拍板，取设计稿措辞），取消/确认双按钮；遮罩点击=关闭（PC 支持）。
     8. 纯单状态演示页，无状态演示下拉；空原因校验=toast「请填写作废原因」+聚焦（PC 行为）。
@@ -92,7 +92,7 @@ textarea.in:focus{border-color:var(--danger);box-shadow:0 0 0 2px rgba(211,47,47
   <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi" style="font-size:12px">◉</span><span class="battery"></span></span></div>
 
   <header class="nav">
-    <button class="back" onclick="toast('原型占位：返回列表')" aria-label="返回"><i></i></button>
+    <button class="back" onclick="goBack()" aria-label="返回"><i></i></button>
     <div class="nav-title">申请作废</div>
   </header>
 
@@ -266,6 +266,12 @@ function resetForm(){
   cnt(r);
   files.length=0;
   renderAtt();
+}
+
+/* ===== 顶栏返回：优先真实回退上一页；无历史（新标签直接打开本页）时兜底回批价单详情 ===== */
+function goBack(){
+  if(history.length>1){history.back();return;}
+  location.href="管理端-批价单详情_移动端.html";
 }
 </script>
 </body>
