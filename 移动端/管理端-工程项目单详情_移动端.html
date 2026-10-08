@@ -481,15 +481,15 @@ var STATES = {
     lo:{seq:1,order:"登录成功"}, cr:{type:"非跨区",code:null}, related:"pj", actions:["签单确认","完结确认","作废"], direct:null, extra:"bid"
   },
   "已签单":{
-    status:"已签单", tag:"", expiry:"登录有效期", reject:null, closeReason:null,
+    status:"已签单", tag:"", expiry:null, reject:null, closeReason:null,
     lo:{seq:1,order:"登录成功"}, cr:{type:"非跨区",code:null}, related:"pj", actions:["完结确认","作废"], direct:null, extra:"sign"
   },
   "已流标":{
-    status:"已流标", tag:"", expiry:null, reject:null, closeReason:null,
+    status:"已流标", tag:"", expiry:"登录有效期", reject:null, closeReason:null,
     lo:{seq:1,order:"登录成功"}, cr:{type:"非跨区",code:null}, related:"pj", actions:["签单确认","中标确认","完结确认","作废"], direct:null, extra:null
   },
   "已丢单":{
-    status:"已丢单", tag:"", expiry:null, reject:null, closeReason:null,
+    status:"已丢单", tag:"", expiry:"登录有效期", reject:null, closeReason:null,
     lo:{seq:1,order:"登录成功"}, cr:{type:"非跨区",code:null}, related:"pj", actions:["签单确认","中标确认","完结确认","作废"], direct:null, extra:"lost"
   },
   "已关闭/经销商放弃登录":{
@@ -532,7 +532,7 @@ function render(){
 
   /* 有效期/驳回有效期条（仅部分状态，含日期区间；已驳回=驳回有效期） */
   var ex = document.getElementById("expiry");
-  if(s.expiry){
+  if(s.expiry && s.status!=="已签单"){
     ex.textContent = expiryTxt(s.expiry);
     ex.style.display="block";
   } else { ex.textContent=""; ex.style.display="none"; }

@@ -703,21 +703,21 @@ var STATES = {
     cr:["非跨区",null], lo:true
   },
   "已签单":{
-    status:"已签单", tag:"", expiry:["登录有效期",15,"2026-06-25"],
+    status:"已签单", tag:"", expiry:null,
     steps:[["经销商提交","2026-06-18 09:00","已提交","done"],["一级审批人·张经理","2026-06-19 14:00","已通过","done"],["二级审批人·李总","2026-06-20 10:00","已通过","done"],["管理端中标确认","2026-06-22 08:00","已中标","done"],["合同签订确认","2026-06-25 09:00","已签单","done"]],
     actions:["发起批价","登录延期","解除地址限制"], sd:null, extra:"sign",
     related:[{id:"粤东GCDT202606250001-PJ01",status:"部分提货",qty:5,amount:"¥198,500.00"},{id:"粤东GCDT202606250001-PJ02",status:"已完结",qty:2,amount:"¥52,000.00"}],
     cr:["非跨区",null], lo:true
   },
   "已流标":{
-    status:"已流标", tag:"", expiry:null,
+    status:"已流标", tag:"", expiry:["登录有效期",30,"2026-06-22"],
     steps:[["经销商提交","2026-06-20 09:00","已提交","done"],["一级审批人·张经理","2026-06-21 14:00","已通过","done"],["二级审批人·李总","2026-06-22 10:00","已通过","done"],["管理端流标","2026-06-24 16:00","已流标","done"]],
     actions:[], sd:"放弃登录", extra:null,
     related:[{id:"粤东GCDT202606250001-PJ01",status:"审批中",qty:5,amount:"¥198,500.00"}],
     cr:["非跨区",null], lo:true
   },
   "已丢单":{
-    status:"已丢单", tag:"", expiry:null,
+    status:"已丢单", tag:"", expiry:["登录有效期",30,"2026-06-22"],
     steps:[["经销商提交","2026-06-20 09:00","已提交","done"],["一级审批人·张经理","2026-06-21 14:00","已通过","done"],["二级审批人·李总","2026-06-22 10:00","已通过","done"],["管理端丢标","2026-06-24 16:00","已丢单","done"]],
     actions:[], sd:"放弃登录", extra:"lost",
     related:[{id:"粤东GCDT202606250001-PJ01",status:"审批中",qty:5,amount:"¥198,500.00"}],
@@ -769,7 +769,7 @@ function render(){
 
   // 有效期条（含具体日期区间，结束日期由起始+天数计算，避免反向）
   var ex = document.getElementById("expiry");
-  if(s.expiry){
+  if(s.expiry && s.status!=="已签单"){
     var txt = s.expiry[0]+"：剩余"+s.expiry[1]+"天";
     if(s.expiry[2]){
       var d0 = new Date(s.expiry[2]+"T00:00:00");
