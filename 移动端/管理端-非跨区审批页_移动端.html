@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+<!-- ============================================================
+     本次新增功能标识说明（2026-09-30）
+     本次新增/改动的区域，已在页面上用红色 NEW 标签标注
+     （入口按钮右上角、页面标题栏右侧）。
+     NEW 标签仅用于标识"本次新增范围"，方便评审与开发对齐，
+     不属于 UI 需求，不是要开发实现的界面元素。
+     ============================================================ -->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -1106,6 +1113,44 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
   .section-title{font-size:15px}
   .equip-name{font-size:14px}
 }
+
+/* ===== 快速查看工程单 · 查询工程单页（参考 234.rp） ===== */
+.qp-searchbar{display:flex;align-items:center;gap:8px}
+.qp-searchbox{
+  flex:1;min-width:0;display:flex;align-items:center;gap:7px;
+  height:40px;border-radius:20px;background:#f1f3f6;padding:0 14px;
+}
+.qp-searchico{
+  width:15px;height:15px;flex:0 0 auto;
+  stroke:#9aa0a8;stroke-width:1.8;fill:none;stroke-linecap:round;
+}
+.qp-search-input{
+  flex:1;min-width:0;border:0;background:transparent;outline:none;
+  font-size:14px;color:var(--text);
+}
+.qp-search-input::placeholder{color:#9aa0a8}
+.qp-search-btn{
+  flex:0 0 auto;height:40px;padding:0 4px;border:0;background:transparent;
+  color:var(--blue);font-size:15px;font-weight:700;
+}
+.qp-search-btn:active{opacity:.6}
+#qpList{padding-bottom:calc(24px + var(--safe-bottom))}
+.qp-card{background:#fff;border-radius:14px;padding:14px 16px;margin-bottom:12px}
+.qp-card:active{background:#fafbfc}
+.qp-empty{
+  background:#fff;border-radius:14px;padding:44px 16px;text-align:center;
+  color:var(--gray);font-size:14px;
+}
+/* 状态标签补齐 PC 列表口径（已中标/已签单/跟进中） */
+.pill.win{background:#c8e6c9;color:#2e7d32}
+.pill.signed{background:#e8f5e9;color:#2e7d32}
+.pill.follow{background:#fff3e0;color:#e65100}
+
+/* ===== 原型批注 · NEW 标签（标识本次新增范围，非 UI 需求，开发可忽略） ===== */
+.proto-new{position:relative;}
+.proto-new-tag{position:absolute;z-index:20;pointer-events:none;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;letter-spacing:.5px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.28);}
+.proto-new--title>.proto-new-tag{top:50%;right:-8px;transform:translateY(-50%);border-radius:4px;}
+.proto-new--nav>.proto-new-tag{top:50%;right:6px;transform:translateY(-50%);border-radius:4px;}
 </style>
 </head>
 <body>
@@ -1420,6 +1465,26 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
   </div>
 </div>
 
+<!-- ========== 查询工程单（更多 → 快速查看工程单；参考 234.rp） ========== -->
+<div class="screen-mask" id="qpScreen">
+  <div class="screen">
+    <header class="nav">
+      <button class="back" aria-label="返回" onclick="closeQuickProjectScreen()"><i></i></button>
+      <div class="nav-title proto-new proto-new--nav">查询工程单<span class="proto-new-tag">NEW</span></div>
+    </header>
+    <div class="screen-search">
+      <div class="qp-searchbar">
+        <div class="qp-searchbox">
+          <svg class="qp-searchico" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.6"></circle><path d="M10.6 10.6 14 14"></path></svg>
+          <input class="qp-search-input" id="qpKeyword" placeholder="请输入项目单号、经销商或项目名称" oninput="qpRender()">
+        </div>
+        <button class="qp-search-btn" onclick="qpSearch()">搜索</button>
+      </div>
+    </div>
+    <div class="screen-scroll" id="qpList"></div>
+  </div>
+</div>
+
 <div class="mask" id="nonStdMask" onclick="closeMask(event,'nonStdMask')">
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="sheet-hd"><span>添加非标商品</span><button class="sheet-x" onclick="closeNonStdForm()">×</button></div>
@@ -1491,6 +1556,7 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
 <div class="mask" id="actionMask" onclick="closeMask(event,'actionMask')">
   <div class="action-sheet" onclick="event.stopPropagation()">
     <button class="act-btn" onclick="closeActionMenu(); openApprovalFlow()">审批流程</button>
+    <button class="act-btn proto-new" onclick="closeActionMenu(); openQuickProjectScreen()">快速查看工程单<span class="proto-new-tag">NEW</span></button>
   </div>
 </div>
 
@@ -1836,6 +1902,49 @@ document.querySelector('#opinionRemark').addEventListener('input',e=>document.ge
 document.querySelector('#projectState').addEventListener('change',e=>toggleProjectState(e.target.value));
 renderAll();
 toggleSignFieldsOnLoad();
+
+/* ===== 快速查看工程单 · 查询工程单页（数据与字段对齐 PC 端「快速查询工程单」列表） ===== */
+const QP_PROJECTS=[
+  {name:'珠海横琴总部大厦中央空调工程',no:'粤东GCDT202506250001',dealer:'珠海格力电器股份有限公司',buyer:'珠海格力电器股份有限公司',sets:500,cross:'非跨区',addr:'广东省珠海市横琴新区金融岛...',seq:'1 登录成功',owner:'张大伟',phone:'13800138001',time:'2025-06-15 09:30:00',st:'in',stTxt:'审批中'},
+  {name:'广州天河城中央空调改造项目',no:'粤东GCDT202505180002',dealer:'广州格力销售有限公司',buyer:'广州天河城有限公司',sets:360,cross:'省内跨区',addr:'广东省广州市天河区天河路208号...',seq:'2 候补登录',owner:'陈小明',phone:'13928192819',time:'2025-05-20 14:20:00',st:'win',stTxt:'已中标'},
+  {name:'深圳前海大厦新风系统安装',no:'粤东GCDT202504120003',dealer:'深圳格力销售有限公司',buyer:'深圳市前海开发投资控股有限公司',sets:800,cross:'省外跨区',addr:'广东省深圳市南山区前海深港合作区...',seq:'-',owner:'李华',phone:'13612345678',time:'2025-04-15 11:00:00',st:'signed',stTxt:'已签单'},
+  {name:'东莞松山湖科技园区多联机工程',no:'粤东GCDT202506080004',dealer:'东莞格力销售有限公司',buyer:'东莞市XX科技发展有限公司',sets:280,cross:'非跨区',addr:'广东省东莞市松山湖科技产业园区...',seq:'-',owner:'王磊',phone:'13700001111',time:'2025-06-10 16:45:00',st:'follow',stTxt:'跟进中'},
+  {name:'佛山南海人民医院净化空调工程',no:'粤东GCDT202503250005',dealer:'佛山格力销售有限公司',buyer:'佛山市南海区人民医院',sets:420,cross:'省内跨区',addr:'广东省佛山市南海区桂城街道...',seq:'3 候补登录',owner:'刘伟',phone:'13579246801',time:'2025-03-28 08:15:00',st:'win',stTxt:'已中标'},
+  {name:'珠海金湾机场候机楼空调改造',no:'粤东GCDT202506220006',dealer:'珠海格力电器股份有限公司',buyer:'珠海机场管理有限公司',sets:1000,cross:'省外跨区',addr:'广东省珠海市金湾区机场路...',seq:'1 登录成功',owner:'赵强',phone:'15975324680',time:'2025-06-25 13:30:00',st:'in',stTxt:'审批中'},
+  {name:'广州国际会展中心冷水机组项目',no:'粤东GCDT202501100007',dealer:'广州格力销售有限公司',buyer:'广州市会展服务中心有限公司',sets:2000,cross:'非跨区',addr:'广东省广州市海珠区阅江中路...',seq:'-',owner:'孙涛',phone:'18600001111',time:'2025-01-15 10:00:00',st:'signed',stTxt:'已签单'},
+  {name:'深圳大疆创新基地中央空调工程',no:'粤东GCDT202506300008',dealer:'深圳格力销售有限公司',buyer:'大疆创新科技有限公司',sets:650,cross:'省内跨区',addr:'广东省深圳市南山区科技园...',seq:'2 候补登录',owner:'周文',phone:'13888889999',time:'2025-06-30 09:00:00',st:'reject',stTxt:'已驳回'}
+];
+function qpLine(k,v){return '<div class="login-line">'+k+'： '+v+'</div>'}
+function qpRender(){
+  const box=document.getElementById('qpList');
+  const kw=(document.getElementById('qpKeyword').value||'').trim().toLowerCase();
+  const list=QP_PROJECTS.filter(p=>!kw||[p.no,p.name,p.dealer,p.buyer,p.addr,p.owner,p.phone].join(' ').toLowerCase().includes(kw));
+  if(!list.length){box.innerHTML='<div class="qp-empty">暂无匹配的工程单</div>';return}
+  box.innerHTML=list.map(p=>
+    '<div class="qp-card" onclick="toast(\'跳转工程单详情页：'+p.no+'（演示）\')">'
+    +'<div class="login-card-hd"><div class="login-card-name">'+p.name+'</div>'
+    +'<span class="pill '+p.st+'">'+p.stTxt+'</span></div>'
+    +'<div class="login-card-bd">'
+    +qpLine('项目单号',p.no)+qpLine('经销商名称',p.dealer)+qpLine('采购单位',p.buyer)
+    +qpLine('总套数',p.sets)+qpLine('跨区',p.cross)+qpLine('项目地址',p.addr)
+    +qpLine('登录顺序',p.seq)+qpLine('业务负责人',p.owner)+qpLine('使用方联系方式',p.phone)
+    +qpLine('登录时间',p.time)
+    +'</div></div>').join('');
+}
+function openQuickProjectScreen(){
+  closeActionMenu();
+  document.getElementById('qpKeyword').value='';
+  qpRender();
+  document.getElementById('qpScreen').classList.add('show');
+}
+function closeQuickProjectScreen(){
+  document.getElementById('qpScreen').classList.remove('show');
+}
+function qpSearch(){
+  qpRender();
+  const n=document.getElementById('qpList').querySelectorAll('.qp-card').length;
+  toast(n?('查询到 '+n+' 条工程单'):'暂无匹配的工程单');
+}
 </script>
 </body>
 </html>

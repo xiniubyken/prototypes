@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!-- ============================================================
+     NEW 角标说明（红底白字「NEW」）
+     · 仅用于标识【本次新增】的字段/位置范围，便于研发快速定位改动点
+     · 不是 UI 需求：不代表界面最终需要展示该角标
+     本次新增：① 筛选区「报批类型」下拉；② 列表「报批类型」列
+     ============================================================ -->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -41,14 +47,14 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .ms-trigger.open{border-color:var(--primary);box-shadow:0 0 0 2px rgba(59,89,152,.12);}
 .ms-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .ms-caret{color:var(--text-aux);font-style:normal;font-size:10px;margin-left:6px;flex-shrink:0;}
-.ms-panel{position:absolute;top:34px;left:0;z-index:60;min-width:100%;max-height:240px;overflow:auto;background:#fff;border:1px solid var(--border);border-radius:4px;box-shadow:0 6px 18px rgba(0,0,0,.14);padding:6px;}
+.ms-panel{display:none;position:absolute;top:34px;left:0;z-index:60;min-width:100%;max-height:240px;overflow:auto;background:#fff;border:1px solid var(--border);border-radius:4px;box-shadow:0 6px 18px rgba(0,0,0,.14);padding:6px;}
 .ms-opt{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:12px;white-space:nowrap;color:var(--text);}
 .ms-opt:hover{background:var(--bg-hover);}
 .ms .ms-opt input{height:14px;width:14px;margin:0;border:none;background:transparent;padding:0;flex:none;}
 
 /* ====== 列表卡片 ====== */
 .list-card{background:#fff;border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden;}
-.table-wrap{overflow-x:auto;}
+.table-wrap{overflow-x:auto;padding-top:10px;}
 .tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:1180px;}
 .tbl th{background:var(--bg-header);color:var(--text-secondary);font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;text-align:center;}
 .tbl td{padding:9px 10px;border-bottom:1px solid var(--border-light);text-align:center;white-space:nowrap;color:var(--text);}
@@ -115,6 +121,12 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .toast.success .t-icon{color:var(--success);}
 .toast.error .t-icon{color:var(--danger);}
 .toast.info .t-icon{color:var(--primary);}
+/* ====== NEW 角标（仅标识本次新增范围，非 UI 需求） ====== */
+.proto-new{position:relative;}
+.proto-new-tag{position:absolute;top:-9px;right:0;z-index:20;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1.4;padding:0 5px;border-radius:8px 8px 8px 2px;letter-spacing:.5px;white-space:nowrap;pointer-events:none;}
+/* 表头角标：给表格容器上方留出角标空间，避免被 overflow 裁切 */
+.tbl th.proto-new-col{position:relative;}
+.tbl th.proto-new-col .proto-new-tag{top:-8px;right:-4px;}
 </style>
 </head>
 <body>
@@ -122,7 +134,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 
   <div class="page-scroll">
 
-    <!-- ====== 筛选区（9 字段：方案编号/核销单号/所属部门/方案名称/项目类型/价格审批编号/SKU编码/核销状态/显示过滤；创建人、创建时间搜索已移除） ====== -->
+    <!-- ====== 筛选区（10 字段：方案编号/核销单号/所属部门/方案名称/项目类型/报批类型(NEW)/价格审批编号/SKU编码/核销状态/显示过滤；创建人、创建时间搜索已移除） ====== -->
     <div class="filter-card">
       <div class="filter-grid">
         <div class="filter-item"><label>方案编号</label><input id="fPlanNo" placeholder="如 GCTP2620260723001"></div>
@@ -138,6 +150,10 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
         <div class="filter-item"><label>方案名称</label><input id="fPlanName" placeholder="请输入"></div>
         <div class="filter-item"><label>项目类型</label>
           <select id="fProjType"><option value="">全部</option><option>特批项目</option><option>资源机项目</option></select>
+        </div>
+        <div class="filter-item proto-new"><label>报批类型</label>
+          <select id="fReportType"><option value="">全部</option><option>资源机</option><option>周转机</option><option>其他</option></select>
+          <span class="proto-new-tag">NEW</span>
         </div>
         <div class="filter-item"><label>价格审批编号</label><input id="fPriceNo" placeholder="请输入"></div>
         <div class="filter-item"><label>SKU编码</label><input id="fSku" placeholder="请输入"></div>
@@ -163,7 +179,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
         <table class="tbl">
           <thead><tr>
             <th style="width:48px;">序号</th><th>方案编号</th><th>核销单号</th><th>所属部门</th><th>方案名称</th>
-            <th>项目类型</th><th>核销状态</th><th>创建人</th><th>创建时间</th><th>操作</th>
+            <th>项目类型</th><th class="proto-new-col">报批类型<span class="proto-new-tag">NEW</span></th><th>核销状态</th><th>创建人</th><th>创建时间</th><th>操作</th>
           </tr></thead>
           <tbody id="listBody"></tbody>
         </table>
@@ -204,13 +220,13 @@ const CURRENT_USER = '张伟';
 function inAuthDept(d){ return CURRENT_ACCOUNT.depts.includes(d.dept); }
 
 const DATA = [
-  {no:'BHX2620260723001001', planNo:'GCTP2620260723001', dept:'珠海销售公司', planName:'珠海·华发水郡工程特批方案', projType:'特批项目', priceNo:'PJ2026081001', sku:'SKU100234', status:'待审核', sub:'FMS', curApprover:'', creator:'陈晓明', time:'2026-08-10 14:20',
+  {no:'BHX2620260723001001', planNo:'GCTP2620260723001', dept:'珠海销售公司', planName:'珠海·华发水郡工程特批方案', projType:'特批项目', reportType:'周转机', priceNo:'PJ2026081001', sku:'SKU100234', status:'待审核', sub:'FMS', curApprover:'', creator:'陈晓明', time:'2026-08-10 14:20',
    flow:[{stage:'1',role:'总部业务组长',result:'pass',name:'张伟',time:'2026-08-10 15:00',opinion:'同意'},{stage:'2',role:'总部业务主管',result:'pass',name:'李强',time:'2026-08-10 16:00',opinion:'同意'},{stage:'3',role:'销司确认',result:'pass',name:'陈晓明',time:'2026-08-11 10:00',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX2620260723001002', planNo:'GCTP2620260723002', dept:'广州销售公司', planName:'广州·敏捷广场工程特批方案', projType:'特批项目', priceNo:'PJ2026081102', sku:'SKU200187', status:'待审核', curApprover:'张伟', creator:'张磊', time:'2026-08-11 09:30',
+  {no:'BHX2620260723001002', planNo:'GCTP2620260723002', dept:'广州销售公司', planName:'广州·敏捷广场工程特批方案', projType:'特批项目', reportType:'资源机', priceNo:'PJ2026081102', sku:'SKU200187', status:'待审核', curApprover:'张伟', creator:'张磊', time:'2026-08-11 09:30',
    flow:[{stage:'1',role:'总部业务组长',result:'wait',name:'张伟',time:'',opinion:''},{stage:'2',role:'总部业务主管',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'销司确认',result:'wait',name:'',time:'',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX2620260723001003', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'资源机项目', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', curApprover:'李强', creator:'李伟', time:'2026-08-12 11:05',
+  {no:'BHX2620260723001003', planNo:'GCZY2620260723003', dept:'东莞销售公司', planName:'东莞·松湖工程特批方案', projType:'资源机项目', reportType:'资源机', priceNo:'PJ2026081203', sku:'SKU300456', status:'待审核', curApprover:'李强', creator:'李伟', time:'2026-08-12 11:05',
    flow:[{stage:'1',role:'总部业务组长',result:'wait',name:'李强',time:'',opinion:''},{stage:'2',role:'总部业务主管',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'销司确认',result:'wait',name:'',time:'',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
-  {no:'BHX2620260723001004', planNo:'GCTP2620260723004', dept:'佛山销售公司', planName:'佛山·岭南工程特批方案', projType:'特批项目', priceNo:'PJ2026080904', sku:'SKU100998', status:'已驳回', curApprover:'', creator:'王芳', time:'2026-08-09 16:10',
+  {no:'BHX2620260723001004', planNo:'GCTP2620260723004', dept:'佛山销售公司', planName:'佛山·岭南工程特批方案', projType:'特批项目', reportType:'其他', priceNo:'PJ2026080904', sku:'SKU100998', status:'已驳回', curApprover:'', creator:'王芳', time:'2026-08-09 16:10',
    reason:'合格数量与质检报告不符，请核对后重新提交',
    flow:[{stage:'1',role:'总部业务组长',result:'reject',name:'王强',time:'2026-08-09 17:02',opinion:'合格数量与质检报告不符，请核对后重新提交'},{stage:'2',role:'总部业务主管',result:'wait',name:'',time:'',opinion:''},{stage:'3',role:'销司确认',result:'wait',name:'',time:'',opinion:''},{stage:'4',role:'FMS财务审批',result:'wait',name:'',time:'',opinion:''}]},
 ];
@@ -231,7 +247,7 @@ function renderList(){
   const start = (curPage-1)*PAGE_SIZE;
   const rows = filtered.slice(start, start+PAGE_SIZE);
   if(rows.length===0){
-    body.innerHTML = '<tr><td colspan="10" class="td-gray" style="padding:30px;">无匹配单据</td></tr>';
+    body.innerHTML = '<tr><td colspan="11" class="td-gray" style="padding:30px;">无匹配单据</td></tr>';
     renderPager(1);
     return;
   }
@@ -243,6 +259,7 @@ function renderList(){
       <td>${d.dept}</td>
       <td class="td-left td-strong">${d.planName}</td>
       <td>${d.projType}</td>
+      <td>${d.reportType}</td>
       <td>${d.sub==='FMS' ? '<span class="status status-fms">审批中（FMS）</span>' : '<span class="status status-'+d.status+'">'+d.status+'</span>'}</td>
       <td>${d.creator}</td>
       <td class="td-gray">${d.time}</td>
@@ -276,6 +293,7 @@ function doFilter(){
     no:document.getElementById('fNo').value.trim().toLowerCase(),
     planName:document.getElementById('fPlanName').value.trim().toLowerCase(),
     projType:document.getElementById('fProjType').value,
+    reportType:document.getElementById('fReportType').value,
     priceNo:document.getElementById('fPriceNo').value.trim().toLowerCase(),
     sku:document.getElementById('fSku').value.trim().toLowerCase(),
     status:document.getElementById('fStatus').value,
@@ -287,6 +305,7 @@ function doFilter(){
     if(selectedDepts.length && !selectedDepts.includes(d.dept)) return false;
     if(kw.planName && !d.planName.toLowerCase().includes(kw.planName)) return false;
     if(kw.projType && d.projType!==kw.projType) return false;
+    if(kw.reportType && d.reportType!==kw.reportType) return false;
     if(kw.priceNo && !(d.priceNo||'').toLowerCase().includes(kw.priceNo)) return false;
     if(kw.sku && !(d.sku||'').toLowerCase().includes(kw.sku)) return false;
     /* 核销状态两档拆开：待审核=网批待办（不含 FMS）；审批中（FMS）=FMS 待办 */
@@ -304,7 +323,7 @@ function resetFilter(){
   selectedDepts = [];
   document.getElementById('msDeptLabel').textContent = '全部';
   msRenderDept();
-  ['fProjType','fStatus'].forEach(id=>document.getElementById(id).value='');
+  ['fProjType','fReportType','fStatus'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('fShow').value = 'mine';
   filtered = DATA.filter(d=>filterByShow(d,'mine')); curPage = 1; renderList();
 }

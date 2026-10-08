@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+<!-- ============================================================
+     本次新增功能标识说明（2026-09-30）
+     本次新增/改动的区域，已在页面上用红色 NEW 标签标注
+     （入口按钮右上角、弹窗标题右侧）。
+     NEW 标签仅用于标识"本次新增范围"，方便评审与开发对齐，
+     不属于 UI 需求，不是要开发实现的界面元素。
+     ============================================================ -->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -467,6 +474,143 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .business-check-btn{height:32px;padding:0 14px;font-size:12px;font-weight:600;color:#fff;background:#3b5998;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s;}
 .business-check-btn:hover{background:#2e477a;}
 .business-check-btn:active{background:#1f3460;}
+
+/* ====== 快速查询工程单弹窗（复刻 管理端-关联项目单 · 选择关联工程单） ====== */
+.status-tag{display:inline-block;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:500;white-space:nowrap;}
+.qp-mask{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1200;align-items:flex-start;justify-content:center;padding-top:60px;}
+.qp-mask.show{display:flex;}
+.qp-dialog{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:1600px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:qpIn .25s ease-out;}
+@keyframes qpIn{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+.qp-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.qp-header h3{font-size:16px;font-weight:600;color:#1f2329;margin:0;}
+.qp-close{width:28px;height:28px;border:none;background:none;font-size:22px;color:#8f959e;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:.15s;}
+.qp-close:hover{color:#1f2329;background:#f5f6fa;}
+.qp-body{padding:20px 24px;overflow-y:auto;flex:1;}
+
+/* 搜索区：3 列网格，标签定宽右对齐，输入框自适应 */
+.qp-search-card{background:#FAFBFC;border:1px solid #e8eaed;border-radius:4px;padding:16px 18px 12px;margin-bottom:16px;}
+.qp-search-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 24px;}
+.qp-item{display:flex;align-items:center;gap:8px;font-size:13px;min-width:0;}
+.qp-item label{color:#1f2329;white-space:nowrap;font-size:13px;flex-shrink:0;width:72px;text-align:right;}
+.qp-item input,.qp-item select{height:32px;border:1px solid #e8eaed;border-radius:4px;padding:0 8px;font-size:12px;color:#1f2329;outline:none;flex:1 1 auto;min-width:0;box-sizing:border-box;transition:border .15s;}
+.qp-item input:focus,.qp-item select:focus{border-color:#3b5998;}
+.qp-item input::placeholder{color:#8f959e;}
+.qp-btns{grid-column:1 / -1;display:flex;justify-content:flex-end;gap:10px;padding-top:4px;}
+.qp-search-card .date-range-inline{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.qp-search-card .date-range-inline input[type="date"]{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;box-sizing:border-box;}
+.qp-search-card .num-range{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.qp-search-card .num-range input{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;text-align:center;box-sizing:border-box;}
+
+/* 快查表格：定宽列 + 结构化字段不换行 */
+.qp-table-wrap{overflow-x:auto;}
+.qp-table{width:100%;border-collapse:collapse;font-size:12px;text-align:left!important;table-layout:fixed;min-width:1540px;}
+.qp-table th,.qp-table td{text-align:left!important;padding:9px 8px!important;vertical-align:middle!important;line-height:1.5!important;overflow:hidden;text-overflow:ellipsis;}
+.qp-table thead th{background:#F7F8FA;color:#646a73;font-weight:600;white-space:nowrap;border-bottom:2px solid #e8eaed;font-size:12px;}
+.qp-table tbody td{color:#1f2329;border-bottom:1px solid #f0f0f0;}
+/* 短字段/结构化字段：单行显示，避免换行 */
+.qp-table tbody td:nth-child(1),.qp-table tbody td:nth-child(5),.qp-table tbody td:nth-child(6),
+.qp-table tbody td:nth-child(8),.qp-table tbody td:nth-child(9),.qp-table tbody td:nth-child(10),
+.qp-table tbody td:nth-child(11),.qp-table tbody td:nth-child(12),.qp-table tbody td:nth-child(13),
+.qp-table tbody td:nth-child(14){white-space:nowrap;}
+.qp-table tbody tr:nth-child(even){background:#FAFBFC;}
+.qp-table tbody tr:hover td{background:rgba(59,89,152,.04)!important;}
+
+/* 底部 */
+.qp-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;}
+.qp-total{font-size:13px;color:#646a73;}
+.qp-total span{color:#1f2329;font-weight:600;}
+.qp-dialog .pagination-bar{display:flex;align-items:center;justify-content:flex-end;gap:4px;border:none;background:none;padding:0;margin:0;}
+.qp-dialog .page-btn{padding:4px 10px;font-size:12px;color:#646a73;background:#fff;border:1px solid #e0e3ea;border-radius:3px;cursor:pointer;transition:.1s;user-select:none;}
+.qp-dialog .page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
+.qp-dialog .page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+.qp-dialog .page-btn.disabled{color:#c5cae9;cursor:default;}
+.qp-dialog .page-size{margin-left:8px;font-size:12px;color:#646a73;}
+.qp-dialog .page-size select{height:28px;border:1px solid #e0e3ea;border-radius:3px;font-size:12px;outline:none;padding:0 4px;background:#fff;color:#646a73;}
+.qp-dialog .page-jump{margin-left:12px;font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+.qp-dialog .page-jump input{width:42px;height:28px;border:1px solid #e0e3ea;border-radius:3px;text-align:center;font-size:12px;outline:none;}
+.qp-dialog .page-jump input:focus{border-color:#3b5998;}
+.qp-footer-btn{padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:center;align-items:center;gap:12px;flex-shrink:0;}
+.qp-btn-confirm{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid transparent;background:#1976D2;color:#fff;transition:.15s;}
+.qp-btn-confirm:hover{background:#1565C0;}
+.qp-btn-cancel{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid #e0e3ea;background:#fff;color:#646a73;transition:.15s;}
+.qp-btn-cancel:hover{color:#3b5998;border-color:#3b5998;}
+
+.qp-link{color:#0288D1;cursor:pointer;font-size:12px;}
+.qp-link:hover{text-decoration:underline;}
+
+/* ====== 新建关联工程（从 管理端-关联项目单.html 移植，类名加 rel- 前缀避免冲突） ====== */
+.rel-mask{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);justify-content:center;align-items:flex-start;padding-top:80px;}
+.rel-mask.show{display:flex;}
+.rel-mask-2{z-index:1400;}   /* 选择关联工程单 */
+.rel-dialog{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:1300px;max-width:92vw;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;animation:qpIn .25s ease-out;}
+.rel-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.rel-header h3{font-size:16px;font-weight:600;color:#1f2329;margin:0;}
+.rel-close{width:28px;height:28px;border:none;background:none;font-size:22px;color:#8f959e;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:.15s;}
+.rel-close:hover{color:#1f2329;background:#f5f6fa;}
+.rel-body{padding:20px 24px;max-height:65vh;overflow-y:auto;flex:1;}
+.rel-footer{display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 24px;border-top:1px solid #f0f0f0;flex-shrink:0;}
+/* 添加工程单按钮 */
+.rel-btn-add{display:inline-flex;align-items:center;gap:4px;padding:6px 16px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap;background:#1976D2;color:#fff;}
+.rel-btn-add:hover{background:#1565C0;}
+/* 登录顺序徽章 */
+.rel-seq{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;}
+.rel-seq-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;flex-shrink:0;}
+.rel-seq-num.active{background:#4CAF50;color:#fff;}
+.rel-seq-num.pending{background:transparent;color:#1976D2;border:1.5px solid #1976D2;}
+.rel-seq-txt{font-size:12px;}
+.rel-seq-txt.success{color:#4CAF50;}
+.rel-seq-txt.waiting{color:#1976D2;}
+/* 选择关联工程单：搜索区 */
+.rel-qs-search-card{background:#FAFBFC;border:1px solid #e8eaed;border-radius:4px;padding:16px 18px 12px;margin-bottom:16px;}
+.rel-qs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 24px;}
+.rel-qs-item{display:flex;align-items:center;gap:8px;font-size:13px;min-width:0;}
+.rel-qs-item label{color:#1f2329;white-space:nowrap;font-size:13px;flex-shrink:0;width:72px;text-align:right;}
+.rel-qs-item input,.rel-qs-item select{height:32px;border:1px solid #e8eaed;border-radius:4px;padding:0 8px;font-size:12px;color:#1f2329;outline:none;flex:1 1 auto;min-width:0;box-sizing:border-box;transition:border .15s;}
+.rel-qs-item input:focus,.rel-qs-item select:focus{border-color:#3b5998;}
+.rel-qs-item input::placeholder{color:#8f959e;}
+.rel-qs-btns{grid-column:1 / -1;display:flex;justify-content:flex-end;gap:10px;padding-top:4px;}
+.rel-date-range{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.rel-date-range input[type="date"]{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;box-sizing:border-box;}
+.rel-num-range{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.rel-num-range input{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;text-align:center;box-sizing:border-box;}
+/* 选择关联工程单：表格 */
+.rel-qs-table-wrap{overflow-x:auto;}
+.rel-qs-table{width:100%;border-collapse:collapse;font-size:12px;text-align:left!important;table-layout:fixed;min-width:1240px;}
+.rel-qs-table th,.rel-qs-table td{text-align:left!important;padding:9px 8px!important;vertical-align:middle!important;line-height:1.5!important;overflow:hidden;text-overflow:ellipsis;}
+.rel-qs-table thead th{background:#F7F8FA;color:#646a73;font-weight:600;white-space:nowrap;border-bottom:2px solid #e8eaed;font-size:12px;}
+.rel-qs-table tbody td{color:#1f2329;border-bottom:1px solid #f0f0f0;}
+.rel-qs-table tbody td:nth-child(2),.rel-qs-table tbody td:nth-child(6),.rel-qs-table tbody td:nth-child(7),
+.rel-qs-table tbody td:nth-child(9),.rel-qs-table tbody td:nth-child(10),.rel-qs-table tbody td:nth-child(11),
+.rel-qs-table tbody td:nth-child(12){white-space:nowrap;}
+.rel-qs-table tbody tr:nth-child(even){background:#FAFBFC;}
+.rel-qs-table tbody tr:hover td{background:rgba(59,89,152,.04)!important;}
+/* 选择关联工程单：底部 */
+.rel-qs-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;}
+.rel-qs-total{font-size:13px;color:#646a73;}
+.rel-qs-total span{color:#1f2329;font-weight:600;}
+.rel-page-ctrl{display:flex;align-items:center;gap:4px;}
+.rel-page-btn{min-width:30px;height:30px;padding:0 8px;border:1px solid #e8eaed;border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#646a73;cursor:pointer;transition:.15s;}
+.rel-page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
+.rel-page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+.rel-page-btn.disabled{color:#c5cae9;cursor:default;}
+.rel-page-size{margin-left:8px;}
+.rel-page-size select{height:30px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;padding:0 4px;outline:none;background:#fff;color:#646a73;}
+.rel-page-jump{margin-left:12px;font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+.rel-page-jump input{width:42px;height:30px;border:1px solid #e8eaed;border-radius:4px;text-align:center;font-size:12px;outline:none;}
+.rel-page-jump input:focus{border-color:#3b5998;}
+/* 按钮 */
+.rel-btn-confirm{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid transparent;background:#1976D2;color:#fff;transition:.15s;}
+.rel-btn-confirm:hover{background:#1565C0;}
+.rel-btn-cancel{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid #e8eaed;background:#fff;color:#646a73;transition:.15s;}
+.rel-btn-cancel:hover{color:#3b5998;border-color:#3b5998;}
+
+.qp-toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:6px;font-size:14px;color:#fff;z-index:1600;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+
+/* ===== 原型批注 · NEW 标签（标识本次新增范围，非 UI 需求，开发可忽略） ===== */
+.proto-new{position:relative;}
+.proto-new-tag{position:absolute;z-index:20;pointer-events:none;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;letter-spacing:.5px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.28);}
+.proto-new--title>.proto-new-tag{top:50%;right:-8px;transform:translateY(-50%);border-radius:4px;}
+.proto-new--nav>.proto-new-tag{top:50%;right:6px;transform:translateY(-50%);border-radius:4px;}
 
 </style>
 </head>
@@ -998,6 +1142,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 <!-- ========== 底部操作栏 ========== -->
 <div class="approval-footer">
   <div class="approval-footer-left">
+    <button class="btn-quick-view proto-new" onclick="openApprovalFlowModal()">审批流程<span class="proto-new-tag">NEW</span></button>
+        <button class="btn-quick-view proto-new" onclick="openQuickProjectModal()">快速查询工程单<span class="proto-new-tag">NEW</span></button>
   </div>
   <div class="approval-footer-right">
     <button class="btn-approve" onclick="doApprove()">通过</button>
@@ -1743,6 +1889,173 @@ function spRenderStateFileList(key) {
   spRenderStateFileList('bid');
 })();
 
+// ==================== 快速查询工程单（查询列表 + 查看入口） ====================
+function openQuickProjectModal(){
+  document.getElementById('qpModal').classList.add('show');
+}
+function closeQuickProjectModal(){
+  document.getElementById('qpModal').classList.remove('show');
+}
+/* 查看：跳转工程单详情（演示文案） */
+function qrViewDetail(no){
+  qpToast('跳转至工程单详情：' + no + '（演示）', 'info');
+}
+/* 查询 */
+function qpSearch(){
+  qpToast('查询中...', 'info');
+}
+/* 重置 */
+function qpReset(){
+  var card = document.querySelector('.qp-search-card');
+  if(!card) return;
+  card.querySelectorAll('input[type="text"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('input[type="number"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('select').forEach(function(el){el.selectedIndex=0;});
+  qpToast('已重置', 'success');
+}
+
+// ==================== 新建关联工程 → 直接进入「选择关联工程单」 ====================
+/* 打开「选择关联工程单」弹窗，并把「快速查询工程单」的搜索条件带入 */
+function relOpenQuickSearch(){
+  relCarrySearchConditions();
+  relUpdateSelCount();
+  document.getElementById('relModalQuickSearch').classList.add('show');
+}
+/* 带入搜索条件：按字段标签把快速查询页的输入值复制到本弹窗 */
+function relCarrySearchConditions(){
+  var src = document.querySelector('.qp-search-card');
+  var dst = document.querySelector('.rel-qs-search-card');
+  if(!src || !dst) return;
+  var carried = 0;
+  dst.querySelectorAll('.rel-qs-item').forEach(function(item){
+    var lb = item.querySelector('label');
+    if(!lb) return;
+    var key = lb.textContent.replace(/[：:]/g, '').trim();
+    var srcItem = null;
+    src.querySelectorAll('.qp-item').forEach(function(si){
+      var sl = si.querySelector('label');
+      if(sl && sl.textContent.replace(/[：:]/g, '').trim() === key) srcItem = si;
+    });
+    if(!srcItem) return;
+    var sIn = srcItem.querySelectorAll('input,select');
+    var dIn = item.querySelectorAll('input,select');
+    for(var i=0;i<sIn.length && i<dIn.length;i++){
+      var v = sIn[i].value;
+      if(v){ dIn[i].value = v; carried++; }
+    }
+  });
+  return carried;
+}
+/* 关闭弹窗 */
+function relCloseModal(id){
+  var el = document.getElementById(id);
+  if(el) el.classList.remove('show');
+}
+/* 全选/取消全选 */
+function relToggleAll(checkbox){
+  var cbs = document.querySelectorAll('#relQsTableBody input[type="checkbox"]');
+  for(var i=0;i<cbs.length;i++) cbs[i].checked = checkbox.checked;
+  relUpdateSelCount();
+}
+/* 已选条数刷新 */
+function relUpdateSelCount(){
+  var n = document.querySelectorAll('#relQsTableBody input[type="checkbox"]:checked').length;
+  var el = document.getElementById('relQsSelCount');
+  if(el) el.textContent = n;
+}
+/* 查询 */
+function relQsSearch(){
+  relUpdateSelCount();
+  qpToast('查询中...', 'info');
+}
+/* 重置 */
+function relQsReset(){
+  var card = document.querySelector('.rel-qs-search-card');
+  if(!card) return;
+  card.querySelectorAll('input[type="text"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('input[type="number"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('select').forEach(function(el){el.selectedIndex=0;});
+  qpToast('已重置', 'success');
+}
+/* 生成新的关联编号：GL + yyyyMMdd + 4位流水 */
+function relNewRelationNo(){
+  var d = new Date();
+  var p = function(n){ return (n<10?'0':'') + n; };
+  var seq = String((window.__relSeq = (window.__relSeq || 0) + 1)).padStart(4, '0');
+  return 'GL' + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + seq;
+}
+/* 确定：对所选工程单新建组合【关联项目单】，并刷新快速查询列表 */
+function relConfirmQsSelect(){
+  var checked = document.querySelectorAll('#relQsTableBody input[type="checkbox"]:checked');
+  if(!checked.length){ qpToast('请至少选择一个工程单', 'error'); return; }
+
+  var picked = [];
+  checked.forEach(function(cb){
+    var cells = cb.closest('tr').cells;
+    picked.push({
+      no: cells[1].textContent.trim(),
+      dealer: cells[2].textContent.trim(),
+      project: cells[3].textContent.trim(),
+      statusHtml: cells[11].innerHTML.trim(),
+      loginTime: cells[10].textContent.trim()
+    });
+  });
+  /* 登录顺序按登录时间升序确定 */
+  picked.sort(function(a, b){ return a.loginTime.localeCompare(b.loginTime); });
+
+  var relationNo = relNewRelationNo();
+  /* 刷新「快速查询工程单」列表：回填关联编号 + 登录顺序 */
+  var qpRows = document.querySelectorAll('#qpTableBody tr');
+  qpRows.forEach(function(row){
+    var no = row.cells[0].textContent.trim();
+    var hit = -1;
+    for(var i=0;i<picked.length;i++){ if(picked[i].no === no) hit = i; }
+    /* 第11列(索引10)=关联编号，第8列(索引7)=登录顺序 */
+    if(hit >= 0){
+      row.cells[10].textContent = relationNo;
+      row.cells[7].innerHTML = (hit === 0)
+        ? '<span class="rel-seq"><span class="rel-seq-num active">1</span><span class="rel-seq-txt success">登录成功</span></span>'
+        : '<span class="rel-seq"><span class="rel-seq-num pending">'+(hit+1)+'</span><span class="rel-seq-txt waiting">候补登录</span></span>';
+    } else {
+      row.cells[10].textContent = '-';
+      row.cells[7].textContent = '-';
+    }
+  });
+
+  relCloseModal('relModalQuickSearch');
+  qpToast('已新建关联项目单 ' + relationNo + '（含 ' + picked.length + ' 个工程单），列表已刷新', 'success');
+}
+
+/* ===== 轻提示 ===== */
+function qpToast(msg, type){
+  var existing = document.getElementById('qpToast');
+  if(existing) existing.remove();
+  var el = document.createElement('div');
+  el.id = 'qpToast';
+  el.className = 'qp-toast';
+  el.textContent = msg;
+  if(type === 'info') el.style.background = '#0288D1';
+  else if(type === 'error') el.style.background = '#D32F2F';
+  else el.style.background = '#2E7D32';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2000);
+}
+
+/* ===== 选择关联工程单：勾选变化时刷新"已选"条数（事件委托） ===== */
+document.addEventListener('change', function(e){
+  if(e.target && e.target.closest && e.target.closest('#relQsTableBody')) relUpdateSelCount();
+});
+
+/* ===== 表格被省略号截断的单元格：鼠标悬停显示完整内容 ===== */
+function qpFillCellTitles(){
+  document.querySelectorAll('.qp-table tbody td, .rel-qs-table tbody td').forEach(function(td){
+    if(td.querySelector('input')) return;
+    if(td.scrollWidth > td.clientWidth) td.title = td.textContent.trim();
+  });
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', qpFillCellTitles);
+else qpFillCellTitles();
+
 </script>
 
 <!-- ========== 审批流程弹窗 ========== -->
@@ -1837,6 +2150,477 @@ function spRenderStateFileList(key) {
     <button class="btn-quick-view" onclick="closeApprovalFlowModal()" style="color:#666;border-color:#c0c4cc;">关闭</button>
   </div>
 </div>
+</div>
+
+<!-- ========== 快速查询工程单弹窗（复刻 选择关联工程单） ========== -->
+<div class="qp-mask" id="qpModal" onclick="if(event.target===this)closeQuickProjectModal()">
+  <div class="qp-dialog">
+    <div class="qp-header">
+      <h3 class="proto-new proto-new--title">快速查询工程单<span class="proto-new-tag">NEW</span></h3>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="rel-btn-add proto-new" onclick="relOpenQuickSearch()">新建关联工程<span class="proto-new-tag">NEW</span></button>
+        <button class="qp-close" onclick="closeQuickProjectModal()">×</button>
+      </div>
+    </div>
+    <div class="qp-body">
+      <!-- 搜索区 -->
+      <div class="qp-search-card">
+        <div class="qp-search-grid">
+          <div class="qp-item"><label>关联编号：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item"><label>项目单号：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item"><label>项目名称：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item"><label>采购单位：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item">
+            <label>工程状态：</label>
+            <select>
+              <option value="">全部状态</option>
+              <option>审批中</option>
+              <option>已中标</option>
+              <option>已签单</option>
+              <option>跟进中</option>
+              <option>已驳回</option>
+            </select>
+          </div>
+          <div class="qp-item"><label>联系方式：</label><input type="text" placeholder="搜索手机或座机电话" /></div>
+          <div class="qp-item"><label>项目地址：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item">
+            <label>登录时间：</label>
+            <div class="date-range-inline">
+              <input type="date" />
+              <span>–</span>
+              <input type="date" />
+            </div>
+          </div>
+          <div class="qp-item">
+            <label>总套数：</label>
+            <div class="num-range">
+              <input type="number" placeholder="最低套数" />
+              <span>–</span>
+              <input type="number" placeholder="最高套数" />
+            </div>
+          </div>
+          <div class="qp-item qp-btns">
+            <button class="btn btn-sm btn-primary" onclick="qpSearch()">查 询</button>
+            <button class="btn btn-sm" onclick="qpReset()">重 置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="qp-table-wrap">
+      <table class="qp-table">
+        <colgroup>
+          <col style="width:145px;" /><!-- 项目单号 -->
+          <col style="width:160px;" /><!-- 经销商名称 -->
+          <col style="width:146px;" /><!-- 项目名称 -->
+          <col style="width:150px;" /><!-- 采购单位 -->
+          <col style="width:56px;" /><!-- 总套数 -->
+          <col style="width:70px;" /><!-- 跨区 -->
+          <col style="width:146px;" /><!-- 项目地址 -->
+          <col style="width:96px;" /><!-- 登录顺序 -->
+          <col style="width:74px;" /><!-- 业务负责人 -->
+          <col style="width:106px;" /><!-- 使用方联系方式 -->
+          <col style="width:126px;" /><!-- 关联编号 -->
+          <col style="width:138px;" /><!-- 登录时间 -->
+          <col style="width:78px;" /><!-- 工程状态 -->
+          <col style="width:56px;" /><!-- 操作 -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th>项目单号</th>
+            <th>经销商名称</th>
+            <th>项目名称</th>
+            <th>采购单位</th>
+            <th>总套数</th>
+            <th>跨区</th>
+            <th>项目地址</th>
+            <th>登录顺序</th>
+            <th>业务负责人</th>
+            <th>使用方联系方式</th>
+            <th>关联编号</th>
+            <th>登录时间</th>
+            <th>工程状态</th>
+            <th style="width:56px;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="qpTableBody">
+          <tr>
+            <td>粤东GCDT202506250001</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海横琴总部大厦中央空调工程</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>500</td>
+            <td>非跨区</td>
+            <td>广东省珠海市横琴新区金融岛...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num active">1</span><span class="rel-seq-txt success">登录成功</span></span></td>
+            <td>张大伟</td>
+            <td>13800138001</td>
+            <td>GL01202111300001</td>
+            <td>2025-06-15 09:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506250001')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202505180002</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州天河城中央空调改造项目</td>
+            <td>广州天河城有限公司</td>
+            <td>360</td>
+            <td>省内跨区</td>
+            <td>广东省广州市天河区天河路208号...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num pending">2</span><span class="rel-seq-txt waiting">候补登录</span></span></td>
+            <td>陈小明</td>
+            <td>13928192819</td>
+            <td>GL01202111300001</td>
+            <td>2025-05-20 14:20:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202505180002')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202504120003</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳前海大厦新风系统安装</td>
+            <td>深圳市前海开发投资控股有限公司</td>
+            <td>800</td>
+            <td>省外跨区</td>
+            <td>广东省深圳市南山区前海深港合作区...</td>
+            <td>-</td>
+            <td>李华</td>
+            <td>13612345678</td>
+            <td>-</td>
+            <td>2025-04-15 11:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202504120003')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202506080004</td>
+            <td>东莞格力销售有限公司</td>
+            <td>东莞松山湖科技园区多联机工程</td>
+            <td>东莞市XX科技发展有限公司</td>
+            <td>280</td>
+            <td>非跨区</td>
+            <td>广东省东莞市松山湖科技产业园区...</td>
+            <td>-</td>
+            <td>王磊</td>
+            <td>13700001111</td>
+            <td>-</td>
+            <td>2025-06-10 16:45:00</td>
+            <td><span class="status-tag" style="background:#FFF3E0;color:#E65100;">跟进中</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506080004')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202503250005</td>
+            <td>佛山格力销售有限公司</td>
+            <td>佛山南海人民医院净化空调工程</td>
+            <td>佛山市南海区人民医院</td>
+            <td>420</td>
+            <td>省内跨区</td>
+            <td>广东省佛山市南海区桂城街道...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num pending">3</span><span class="rel-seq-txt waiting">候补登录</span></span></td>
+            <td>刘伟</td>
+            <td>13579246801</td>
+            <td>GL02202407180001</td>
+            <td>2025-03-28 08:15:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202503250005')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202506220006</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海金湾机场候机楼空调改造</td>
+            <td>珠海机场管理有限公司</td>
+            <td>1000</td>
+            <td>省外跨区</td>
+            <td>广东省珠海市金湾区机场路...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num active">1</span><span class="rel-seq-txt success">登录成功</span></span></td>
+            <td>赵强</td>
+            <td>15975324680</td>
+            <td>GL02202407180001</td>
+            <td>2025-06-25 13:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506220006')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202501100007</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州国际会展中心冷水机组项目</td>
+            <td>广州市会展服务中心有限公司</td>
+            <td>2000</td>
+            <td>非跨区</td>
+            <td>广东省广州市海珠区阅江中路...</td>
+            <td>-</td>
+            <td>孙涛</td>
+            <td>18600001111</td>
+            <td>-</td>
+            <td>2025-01-15 10:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202501100007')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202506300008</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳大疆创新基地中央空调工程</td>
+            <td>大疆创新科技有限公司</td>
+            <td>650</td>
+            <td>省内跨区</td>
+            <td>广东省深圳市南山区科技园...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num pending">2</span><span class="rel-seq-txt waiting">候补登录</span></span></td>
+            <td>周文</td>
+            <td>13888889999</td>
+            <td>GL02202407180001</td>
+            <td>2025-06-30 09:00:00</td>
+            <td><span class="status-tag" style="background:#FFEBEE;color:#D32F2F;">已驳回</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506300008')">查看</a></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="qp-footer">
+        <div class="qp-total">共<span id="qpTotal">201</span>条</div>
+        <div class="pagination-bar">
+          <button class="page-btn disabled">&lt;</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn disabled">···</button>
+          <button class="page-btn">21</button>
+          <button class="page-btn">&gt;</button>
+          <div class="page-size"><select><option>10条/页</option></select></div>
+          <div class="page-jump">跳至<input type="number" value="1" min="1" max="21" /> 页</div>
+        </div>
+      </div>
+    </div>
+    <div class="qp-footer-btn">
+      <button class="qp-btn-cancel" onclick="closeQuickProjectModal()">关 闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 选择关联工程单弹窗（点击「新建关联工程」直接进入；照 123.rp「选择关联工程单」页） ========== -->
+<div class="rel-mask rel-mask-2" id="relModalQuickSearch">
+  <div class="rel-dialog" style="width:1350px;max-width:96vw;">
+    <div class="rel-header">
+      <h3 class="proto-new proto-new--title">选择关联工程单<span class="proto-new-tag">NEW</span></h3>
+      <button class="rel-close" onclick="relCloseModal('relModalQuickSearch')">×</button>
+    </div>
+    <div class="rel-body">
+      <!-- 搜索区 -->
+      <div class="rel-qs-search-card">
+        <div class="rel-qs-grid">
+          <div class="rel-qs-item"><label>项目单号：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item"><label>项目名称：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item"><label>采购单位：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item">
+            <label>工程状态：</label>
+            <select>
+              <option value="">全部状态</option>
+              <option>审批中</option>
+              <option>已中标</option>
+              <option>已签单</option>
+              <option>跟进中</option>
+              <option>已驳回</option>
+            </select>
+          </div>
+          <div class="rel-qs-item"><label>联系方式：</label><input type="text" placeholder="搜索手机或座机电话" /></div>
+          <div class="rel-qs-item"><label>项目地址：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item">
+            <label>登录时间：</label>
+            <div class="rel-date-range">
+              <input type="date" value="2019-02-21" />
+              <span>–</span>
+              <input type="date" value="2019-02-21" />
+            </div>
+          </div>
+          <div class="rel-qs-item">
+            <label>总套数：</label>
+            <div class="rel-num-range">
+              <input type="number" placeholder="最低套数" />
+              <span>–</span>
+              <input type="number" placeholder="最高套数" />
+            </div>
+          </div>
+          <div class="rel-qs-item rel-qs-btns">
+            <button class="rel-btn-add" onclick="relQsSearch()">查 询</button>
+            <button class="rel-btn-cancel" style="padding:6px 16px;" onclick="relQsReset()">重 置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="rel-qs-table-wrap">
+      <table class="rel-qs-table">
+        <colgroup>
+          <col style="width:44px;" /><!-- 勾选 -->
+          <col style="width:140px;" /><!-- 项目单号 -->
+          <col style="width:150px;" /><!-- 经销商名称 -->
+          <col style="width:130px;" /><!-- 项目名称 -->
+          <col style="width:130px;" /><!-- 采购单位 -->
+          <col style="width:56px;" /><!-- 总套数 -->
+          <col style="width:70px;" /><!-- 跨区 -->
+          <col style="width:140px;" /><!-- 项目地址 -->
+          <col style="width:76px;" /><!-- 业务负责人 -->
+          <col style="width:104px;" /><!-- 使用方联系方式 -->
+          <col style="width:132px;" /><!-- 登录时间 -->
+          <col style="width:76px;" /><!-- 工程状态 -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="relQsCheckAll" onchange="relToggleAll(this)" /></th>
+            <th>项目单号</th>
+            <th>经销商名称</th>
+            <th>项目名称</th>
+            <th>采购单位</th>
+            <th>总套数</th>
+            <th>跨区</th>
+            <th>项目地址</th>
+            <th>业务负责人</th>
+            <th>使用方联系方式</th>
+            <th>登录时间</th>
+            <th>工程状态</th>
+          </tr>
+        </thead>
+        <tbody id="relQsTableBody">
+          <tr>
+            <td><input type="checkbox" checked /></td>
+            <td>粤东GCDT202506250001</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海横琴总部大厦中央空调工程</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>500</td>
+            <td>非跨区</td>
+            <td>广东省珠海市横琴新区金融岛...</td>
+            <td>张大伟</td>
+            <td>13800138001</td>
+            <td>2025-06-15 09:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202505180002</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州天河城中央空调改造项目</td>
+            <td>广州天河城有限公司</td>
+            <td>360</td>
+            <td>省内跨区</td>
+            <td>广东省广州市天河区天河路208号...</td>
+            <td>陈小明</td>
+            <td>13928192819</td>
+            <td>2025-05-20 14:20:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202504120003</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳前海大厦新风系统安装</td>
+            <td>深圳市前海开发投资控股有限公司</td>
+            <td>800</td>
+            <td>省外跨区</td>
+            <td>广东省深圳市南山区前海深港合作区...</td>
+            <td>李华</td>
+            <td>13612345678</td>
+            <td>2025-04-15 11:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202506080004</td>
+            <td>东莞格力销售有限公司</td>
+            <td>东莞松山湖科技园区多联机工程</td>
+            <td>东莞市XX科技发展有限公司</td>
+            <td>280</td>
+            <td>非跨区</td>
+            <td>广东省东莞市松山湖科技产业园区...</td>
+            <td>王磊</td>
+            <td>13700001111</td>
+            <td>2025-06-10 16:45:00</td>
+            <td><span class="status-tag" style="background:#FFF3E0;color:#E65100;">跟进中</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202503250005</td>
+            <td>佛山格力销售有限公司</td>
+            <td>佛山南海人民医院净化空调工程</td>
+            <td>佛山市南海区人民医院</td>
+            <td>420</td>
+            <td>省内跨区</td>
+            <td>广东省佛山市南海区桂城街道...</td>
+            <td>刘伟</td>
+            <td>13579246801</td>
+            <td>2025-03-28 08:15:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202506220006</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海金湾机场候机楼空调改造</td>
+            <td>珠海机场管理有限公司</td>
+            <td>1000</td>
+            <td>省外跨区</td>
+            <td>广东省珠海市金湾区机场路...</td>
+            <td>赵强</td>
+            <td>15975324680</td>
+            <td>2025-06-25 13:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202501100007</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州国际会展中心冷水机组项目</td>
+            <td>广州市会展服务中心有限公司</td>
+            <td>2000</td>
+            <td>非跨区</td>
+            <td>广东省广州市海珠区阅江中路...</td>
+            <td>孙涛</td>
+            <td>18600001111</td>
+            <td>2025-01-15 10:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202506300008</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳大疆创新基地中央空调工程</td>
+            <td>大疆创新科技有限公司</td>
+            <td>650</td>
+            <td>省内跨区</td>
+            <td>广东省深圳市南山区科技园...</td>
+            <td>周文</td>
+            <td>13888889999</td>
+            <td>2025-06-30 09:00:00</td>
+            <td><span class="status-tag" style="background:#FFEBEE;color:#D32F2F;">已驳回</span></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="rel-qs-footer">
+        <div class="rel-qs-total">共<span id="relQsTotal">201</span>条，已选<span id="relQsSelCount">0</span>条</div>
+        <div class="rel-page-ctrl">
+          <button class="rel-page-btn disabled">&lt;</button>
+          <button class="rel-page-btn active">1</button>
+          <button class="rel-page-btn">2</button>
+          <button class="rel-page-btn">3</button>
+          <button class="rel-page-btn">4</button>
+          <button class="rel-page-btn disabled">···</button>
+          <button class="rel-page-btn">21</button>
+          <button class="rel-page-btn">&gt;</button>
+          <div class="rel-page-size"><select><option>10条/页</option></select></div>
+          <div class="rel-page-jump">跳至<input type="number" value="1" min="1" max="21" /> 页</div>
+        </div>
+      </div>
+    </div>
+    <div class="rel-footer">
+      <button class="rel-btn-confirm" onclick="relConfirmQsSelect()">确 定</button>
+      <button class="rel-btn-cancel" onclick="relCloseModal('relModalQuickSearch')">取 消</button>
+    </div>
+  </div>
 </div>
 
 </body>
