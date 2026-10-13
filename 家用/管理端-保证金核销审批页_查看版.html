@@ -272,7 +272,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
         <div class="table-wrap">
           <table class="record-table">
             <thead><tr>
-              <th>序号</th><th>审批人</th><th>审批状态</th><th>审批意见</th><th>附件</th><th>审批时间</th>
+              <th>序号</th><th>审批人</th><th>审批状态</th><th>审批意见</th><th>审批时间</th>
             </tr></thead>
             <tbody id="recordBody"></tbody>
           </table>
@@ -467,15 +467,11 @@ function renderAttach(){
 function renderRecord(){
   const rt = {wait:'待审批', pass:'已通过', reject:'已驳回', auto:'已通过', skip:'未进行'};
   document.getElementById('recordBody').innerHTML = FLOW.map((n,i)=>{
-    const attach = (n.result==='pass')
-      ? '质检核对记录.pdf'
-      : '—';
     return `<tr>
       <td class="rc-no">${i+1}</td>
       <td class="td-strong"><span class="proto-new">${n.name}${n.result==='auto'?'<span class="proto-new-tag">NEW</span>':''}</span></td>
       <td><span class="rc-st ${n.result}">${rt[n.result]}</span></td>
       <td><span class="rc-opinion" title="${n.opinion||''}">${n.opinion||'—'}</span></td>
-      <td>${attach}</td>
       <td>${n.time||'—'}</td>
     </tr>`;
   }).join('');

@@ -112,8 +112,6 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .col-new .record-table .rc-st.reject{background:#FDECEC;color:#d9534f;}
 .col-new .record-table .rc-st.auto{background:#FFF7E6;color:#B45309;}
 .col-new .record-table .rc-st.skip{background:#f2f4f9;color:#999;}
-.col-new .record-table .view-link{color:var(--primary);cursor:pointer;font-size:12px;}
-.col-new .record-table .view-link:hover{text-decoration:underline;}
 
 /* ====== 底部审批操作区（核心新增，标 col-new） ====== */
 .form-footer{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px;background:#fff;border-top:1px solid var(--border);position:relative;z-index:10;}
@@ -283,7 +281,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
         <div class="table-wrap">
           <table class="record-table">
             <thead><tr>
-              <th>序号</th><th>审批人</th><th>审批状态</th><th>审批意见</th><th>附件</th><th>审批时间</th>
+              <th>序号</th><th>审批人</th><th>审批状态</th><th>审批意见</th><th>审批时间</th>
             </tr></thead>
             <tbody id="recordBody"></tbody>
           </table>
@@ -541,15 +539,11 @@ function renderAttach(){
 function renderRecord(){
   const rt = {wait:'待审批', pass:'已通过', reject:'已驳回', auto:'已通过', skip:'未进行'};
   document.getElementById('recordBody').innerHTML = FLOW.map((n,i)=>{
-    const attach = (n.result==='pass')
-      ? '<span class="view-link" onclick="toast(\'审批附件：质检报告核对记录.pdf（示意）\',\'info\')">查看</span>'
-      : '—';
     return `<tr>
       <td class="rc-no">${i+1}</td>
       <td class="td-strong"><span class="proto-new">${n.name}${n.result==='auto'?'<span class="proto-new-tag">NEW</span>':''}</span></td>
       <td><span class="rc-st ${n.result}">${rt[n.result]}</span></td>
       <td><span class="rc-opinion" title="${n.opinion||''}">${n.opinion||'—'}</span></td>
-      <td>${attach}</td>
       <td>${n.time||'—'}</td>
     </tr>`;
   }).join('');
