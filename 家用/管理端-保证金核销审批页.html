@@ -184,6 +184,10 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .note-item{margin-bottom:10px;}
 .note-item .ni-name{font-weight:600;font-size:13px;color:#3b5998;}
 .note-item .ni-desc{font-size:12px;color:#555;line-height:1.6;margin-top:2px;}
+/* ====== NEW 角标（仅标识本次新增范围，非 UI 需求）====== */
+.proto-new{position:relative;display:inline-block;}
+.proto-new-tag{position:absolute;top:-9px;right:auto;left:100%;margin-left:3px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap;}
+.proto-new--title .proto-new-tag{top:50%;right:auto;left:100%;transform:translateY(-50%);margin-left:6px;}
 </style>
 </head>
 <body>
@@ -274,7 +278,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 
     <!-- ====== 审批记录（参照网批审批记录，放最下方，标 col-new） ====== -->
     <div class="form-card col-new approval-record-card">
-      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">审批记录</span></div>
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title proto-new proto-new--title">审批记录<span class="proto-new-tag">NEW</span></span></div>
       <div class="fc-body">
         <div class="table-wrap">
           <table class="record-table">
@@ -535,14 +539,14 @@ function renderAttach(){
 
 /* ==================== 渲染审批记录（表格，参照网批审批记录） ==================== */
 function renderRecord(){
-  const rt = {wait:'待审批', pass:'已通过', reject:'已驳回', auto:'自动通过', skip:'未进行'};
+  const rt = {wait:'待审批', pass:'已通过', reject:'已驳回', auto:'已通过', skip:'未进行'};
   document.getElementById('recordBody').innerHTML = FLOW.map((n,i)=>{
-    const attach = (n.result==='pass'||n.result==='auto')
+    const attach = (n.result==='pass')
       ? '<span class="view-link" onclick="toast(\'审批附件：质检报告核对记录.pdf（示意）\',\'info\')">查看</span>'
       : '—';
     return `<tr>
       <td class="rc-no">${i+1}</td>
-      <td class="td-strong">${n.name}</td>
+      <td class="td-strong"><span class="proto-new">${n.name}${n.result==='auto'?'<span class="proto-new-tag">NEW</span>':''}</span></td>
       <td><span class="rc-st ${n.result}">${rt[n.result]}</span></td>
       <td><span class="rc-opinion" title="${n.opinion||''}">${n.opinion||'—'}</span></td>
       <td>${attach}</td>

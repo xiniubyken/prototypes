@@ -155,6 +155,14 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 .note-item{margin-bottom:10px;}
 .note-item .ni-name{font-weight:600;font-size:13px;color:#3b5998;}
 .note-item .ni-desc{font-size:12px;color:#555;line-height:1.6;margin-top:2px;}
+/* ====== 演示状态切换条（原型演示工具，非 UI 需求）====== */
+.demo-tools{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:8px 12px;background:#fff;border:1px dashed #c9d3e6;border-radius:6px;font-size:12px;color:var(--text-secondary);}
+.demo-tools select{height:30px;border:1px solid var(--border);border-radius:4px;padding:0 8px;font-size:12px;color:var(--text);background:#fff;outline:none;cursor:pointer;}
+
+/* ====== NEW 角标（仅标识本次新增范围，非 UI 需求）====== */
+.proto-new{position:relative;display:inline-block;}
+.proto-new-tag{position:absolute;top:-9px;right:auto;left:100%;margin-left:3px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap;}
+.proto-new--title .proto-new-tag{top:50%;right:auto;left:100%;transform:translateY(-50%);margin-left:6px;}
 </style>
 </head>
 <body>
@@ -173,6 +181,17 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
   </div>
 
   <div class="page-scroll">
+
+    <!-- ====== 演示状态切换（原型演示工具，非 UI 需求）====== -->
+    <div class="demo-tools">
+      <span class="dt-hint">演示：切换审批状态</span>
+      <select id="demoStatus" onchange="applyStatus(this.value)">
+        <option value="审批中">审批中</option>
+        <option value="审批中（FMS）">审批中（FMS）</option>
+        <option value="已通过">已通过（含超时自动通过记录）</option>
+        <option value="已驳回">已驳回</option>
+      </select>
+    </div>
 
     <!-- ====== 单据信息 ====== -->
     <div class="form-card">
@@ -248,7 +267,7 @@ body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;color
 
     <!-- ====== 审批记录（参照网批审批记录，放最下方，标 col-new） ====== -->
     <div class="form-card col-new approval-record-card">
-      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title">审批记录</span></div>
+      <div class="fc-header"><span class="fc-dot"></span><span class="fc-title proto-new proto-new--title">审批记录<span class="proto-new-tag">NEW</span></span></div>
       <div class="fc-body">
         <div class="table-wrap">
           <table class="record-table">
@@ -446,14 +465,14 @@ function renderAttach(){
 
 /* ==================== 渲染审批记录（表格，参照网批审批记录） ==================== */
 function renderRecord(){
-  const rt = {wait:'待审批', pass:'已通过', reject:'已驳回', auto:'自动通过', skip:'未进行'};
+  const rt = {wait:'待审批', pass:'已通过', reject:'已驳回', auto:'已通过', skip:'未进行'};
   document.getElementById('recordBody').innerHTML = FLOW.map((n,i)=>{
-    const attach = (n.result==='pass'||n.result==='auto')
+    const attach = (n.result==='pass')
       ? '质检核对记录.pdf'
       : '—';
     return `<tr>
       <td class="rc-no">${i+1}</td>
-      <td class="td-strong">${n.name}</td>
+      <td class="td-strong"><span class="proto-new">${n.name}${n.result==='auto'?'<span class="proto-new-tag">NEW</span>':''}</span></td>
       <td><span class="rc-st ${n.result}">${rt[n.result]}</span></td>
       <td><span class="rc-opinion" title="${n.opinion||''}">${n.opinion||'—'}</span></td>
       <td>${attach}</td>
@@ -463,21 +482,15 @@ function renderRecord(){
 }
 
 /* ==================== 初始化 ==================== */
-(function init(){
-  const no = getParam('no');
-  if(no){ // 列表页带单号进入，更新单据信息单号
-    document.getElementById('iNo').textContent = no;
-  }
-  const billNo = getParam('billNo');
-  if(billNo){ document.getElementById('iNo').textContent = billNo; }
-  const status = getParam('status') || '审批中';
+/* 按状态套用审批记录快照（URL 参数进入 与 页面演示切换 共用） */
+function applyStatus(status){
   const head = document.getElementById('headStatus');
   if(status==='已通过'){
     FLOW = [
       {stage:'总部业务组长', name:'张伟', result:'pass', time:'2026-08-13 10:20', opinion:'同意，质检报告与数量一致', system:'网批'},
       {stage:'总部业务主管', name:'李娜', result:'pass', time:'2026-08-13 11:05', opinion:'同意，数量核对无误', system:'网批'},
-      {stage:'销司确认', name:'王芳（珠海销售公司）', result:'pass', time:'2026-08-13 12:30', opinion:'确认通过', system:'网批'},
-      {stage:'FMS财务审批', name:'财务系统（FMS）', result:'pass', time:'2026-08-14 09:10', opinion:'审批通过', system:'FMS'},
+      {stage:'销司确认', name:'系统处理', result:'auto', time:'2026-08-20 12:30', opinion:'逾期未审批，按照审批通过处理', system:'网批'},
+      {stage:'FMS财务审批', name:'财务系统（FMS）', result:'pass', time:'2026-08-21 09:10', opinion:'审批通过', system:'FMS'},
     ];
     head.textContent = '已通过';
     head.className = 'status status-已通过';
@@ -500,15 +513,34 @@ function renderRecord(){
     head.textContent = '审批中（FMS）';
     head.className = 'status status-fms';
   } else {
+    // 「审批中」默认快照：只展示已处理 + 当前节点（切换场景时需显式重置）
+    FLOW = [
+      {stage:'总部业务组长', name:'张伟', result:'pass', time:'2026-08-13 10:20', opinion:'同意，质检报告与数量一致', system:'网批'},
+      {stage:'总部业务主管', name:'李娜', result:'wait', time:'', opinion:'', system:'网批'},
+    ];
     head.textContent = '审批中';
     head.className = 'status status-审批中';
   }
+  renderRecord();
+}
+
+(function init(){
+  const no = getParam('no');
+  if(no){ // 列表页带单号进入，更新单据信息单号
+    document.getElementById('iNo').textContent = no;
+  }
+  const billNo = getParam('billNo');
+  if(billNo){ document.getElementById('iNo').textContent = billNo; }
   const t = renderSku();
   renderOrders();
   renderSubmitDocs();
   renderSummary(t);
   renderAttach();
-  renderRecord();
+  // 无参数直接打开时，默认演示「已通过」场景（含超时自动通过记录）；列表页带参进入不受影响
+  const status = getParam('status') || '已通过';
+  const sel = document.getElementById('demoStatus');
+  if(sel){ sel.value = status; }
+  applyStatus(status);
 })();
 /* ==================== 字段注释抽屉（新增，标 col-new） ==================== */
 const FIELD_NOTES = [
