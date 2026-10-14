@@ -11,6 +11,7 @@
   - 演示值/文案：Y-工程单-详情页 设计稿目录 OCR 文字证据（坐标重建）。
   - 人工裁定（质检期）：①登录顺序弹窗砍掉、隐藏查看入口，仅行内展示；②做演示用状态切换器（左上角，照用户端）；③设备列表按设计稿=全普通设备、无非标角标；④项目名称行与项目单号行均可复制。
   - 规则：设计稿没有的字段/按钮不新增；调试入口与正式视觉分离（仅宽屏显示）。
+  - 2026-10-14 变更（NEW）：底部「操作⌄」→「完结确认」改为二次确认弹层；点「确认完结」时校验全部关联批价单须为「已完结」（依据决策总文档 #148 / F#24），未全完结 → 提示「提交失败，需要关联所有批价单均状态“已完结”才能完结工程单」且弹层不关闭；全部已完结 → 项目状态变更为「已完结」。NEW 角标仅标识本次新增范围，非 UI 需求。
 -->
 <style>
 :root{
@@ -211,6 +212,14 @@ button{cursor:pointer}
 .zoom-close{position:absolute;top:14px;right:18px;border:0;background:transparent;color:#fff;font-size:44px;font-weight:200;line-height:1;cursor:pointer}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100}
 .toast.show{display:block}
+/* ===== NEW 2026-10-14：完结确认（二次确认 + 关联批价单校验） ===== */
+.cm-body{padding:52px 24px 4px;text-align:center}
+.cm-ask{font-size:16px;font-weight:700;color:#1f2329;margin:0 0 8px}
+.cm-desc{font-size:13px;color:#8f959e;line-height:1.6;margin:0}
+.cm-err{display:none;margin:14px 0 0;padding:10px 12px;background:#fff1f1;border:1px solid #ffd4d4;border-radius:10px;color:#d93025;font-size:13px;line-height:1.6;text-align:left}
+.cm-err.show{display:block}
+.proto-new{position:relative;display:inline-block}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 2px 8px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -331,6 +340,23 @@ button{cursor:pointer}
   </div>
 </div>
 
+<!-- 完结确认（二次确认 + 关联批价单校验）· NEW 2026-10-14 -->
+<div class="mask" id="cmMask" onclick="closeCompleteConfirm(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-title">完结确认</div>
+    <button class="sheet-close" onclick="closeCompleteConfirm()">×</button>
+    <div class="cm-body">
+      <p class="cm-ask">确认完结该项目？</p>
+      <p class="cm-desc">完结后，该项目将标记为已完结，<br>不可再进行任何操作。</p>
+      <div class="cm-err" id="cmErr"></div>
+    </div>
+    <div class="sheet-list">
+      <button class="sheet-btn outline" onclick="closeCompleteConfirm()">取消</button>
+      <button class="sheet-btn proto-new" onclick="doCompleteConfirm()">确认完结<span class="proto-new-tag">NEW</span></button>
+    </div>
+  </div>
+</div>
+
 <!-- 流程图放大查看 -->
 <div class="zoom" id="zoomWrap" onclick="closeZoom(event)">
   <button class="zoom-close" id="zoomClose" onclick="closeZoom()" aria-label="关闭">×</button>
@@ -437,9 +463,9 @@ var REL_CARDS = {
   "已中标":[{id:"粤东GCDT202606250001-PJ01", status:"待提货", biz:"中央空调", rows:[
     {cate:"多联机",name:"GMV5多联机系列多联机GMV5系列",sku:"SKU-GMV5-10HP",qty:5,price:42000,approve:40000,estimate:38000,deposit:30,online:45000,buy:5,ship:3,remark:"标准配置"},
     {cate:"多联机",name:"GMV5多联机系列多联机GMV5系列",sku:"SKU-GMV5-20HP",qty:3,price:68000,approve:65000,estimate:62000,deposit:30,online:72000,buy:3,ship:1,remark:"—"}]}],
-  "已签单":[{id:"粤东GCDT202606250001-PJ01", status:"部分提货", biz:"中央空调", rows:[
+  "已签单":[{id:"粤东GCDT202606250001-PJ01", status:"已完结", biz:"中央空调", rows:[
     {cate:"多联机",name:"GMV5多联机系列多联机GMV5系列",sku:"SKU-GMV5-10HP",qty:5,price:42000,approve:40000,estimate:38000,deposit:30,online:45000,buy:5,ship:5,remark:"标准配置"},
-    {cate:"多联机",name:"GMV5多联机系列多联机GMV5系列",sku:"SKU-GMV5-20HP",qty:3,price:68000,approve:65000,estimate:62000,deposit:30,online:72000,buy:3,ship:2,remark:"—"}]}],
+    {cate:"多联机",name:"GMV5多联机系列多联机GMV5系列",sku:"SKU-GMV5-20HP",qty:3,price:68000,approve:65000,estimate:62000,deposit:30,online:72000,buy:3,ship:3,remark:"已完成"}]}],
   "已流标":[{id:"粤东GCDT202606250001-PJ01", status:"审批中", biz:"中央空调", rows:[
     {cate:"多联机",name:"GMV5多联机系列多联机GMV5系列",sku:"SKU-GMV5-10HP",qty:5,price:42000,approve:null,estimate:38000,deposit:30,online:45000,buy:5,ship:0,remark:"—"}]}],
   "已丢单":[{id:"粤东GCDT202606250001-PJ01", status:"审批中", biz:"中央空调", rows:[
@@ -835,14 +861,43 @@ function openMore(){
   var s = current();
   var html = (s.actions||[]).map(function(a){
     var cls = a==="作废" ? "danger" : "outline";
-    return '<button class="sheet-btn '+cls+'" onclick="doAction(\''+a.replace(/'/g,"\\'")+'\')">'+a+'</button>';
+    var isNew = (a==="完结确认"); /* NEW 2026-10-14 */
+    if(isNew) cls += " proto-new";
+    return '<button class="sheet-btn '+cls+'" onclick="doAction(\''+a.replace(/'/g,"\\'")+'\')">'+a+(isNew?'<span class="proto-new-tag">NEW</span>':'')+'</button>';
   }).join("");
   document.getElementById("sheetList").innerHTML = html;
   document.getElementById("sheetMask").classList.add("show");
 }
 function closeSheet(e){ if(e && e.target !== document.getElementById("sheetMask")) return; document.getElementById("sheetMask").classList.remove("show"); }
-function doAction(a){ closeSheet(); toast("原型占位："+a); }
+function doAction(a){
+  if(a==="完结确认"){ closeSheet(); openCompleteConfirm(); return; } /* NEW 2026-10-14 */
+  closeSheet(); toast("原型占位："+a);
+}
 function doDirect(a){ toast("原型占位："+a); }
+
+/* ---- 完结确认：二次确认 + 关联批价单须全部「已完结」校验 · NEW 2026-10-14 ---- */
+function openCompleteConfirm(){
+  var errEl=document.getElementById("cmErr");
+  errEl.textContent=""; errEl.classList.remove("show");
+  document.getElementById("cmMask").classList.add("show");
+}
+function closeCompleteConfirm(e){
+  if(e && e.target !== document.getElementById("cmMask")) return;
+  document.getElementById("cmMask").classList.remove("show");
+}
+function doCompleteConfirm(){
+  var cards = REL_CARDS[currentKey] || [];
+  var unfinished = cards.filter(function(c){ return c.status!=="已完结"; });
+  if(unfinished.length){
+    var errEl=document.getElementById("cmErr");
+    errEl.textContent="提交失败，需要关联所有批价单均状态“已完结”才能完结工程单";
+    errEl.classList.add("show");
+    return;
+  }
+  closeCompleteConfirm();
+  setState("已完结");
+  toast("完结确认成功，项目状态已变更为「已完结」");
+}
 
 /* 状态切换（左上角调试 + 底部状态点按） */
 function openStatePicker(){
@@ -862,6 +917,7 @@ function setState(key){
   closeSheet();
   closePd();
   closeAf();
+  closeCompleteConfirm(); /* NEW 2026-10-14 */
   document.getElementById("stateSelect").value = key;
   if(location.hash !== "#"+encodeURIComponent(key)){ history.replaceState(null,"","#"+encodeURIComponent(key)); }
   render();

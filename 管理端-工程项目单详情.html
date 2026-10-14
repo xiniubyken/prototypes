@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!--
+  NEW 标识说明（2026-10-14）：
+  本页带 .proto-new-tag 的红色「NEW」角标，仅用于标识【本次新增/变更】的范围，方便研发定位改动点；
+  它不是 UI 需求，不要求研发照着复刻角标样式。
+  本次新增范围：完结确认弹窗的「关联批价单须全部已完结」前置校验（含提示文案）。
+-->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -347,6 +353,11 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 .pj-card-bd .tw{padding:0}
 .pj-card-summary{display:flex;gap:16px;padding:8px 16px;border-top:1px solid var(--border-light);font-size:12px;color:var(--text-secondary)}
 .pj-card-summary .pj-sum-val{color:var(--text);font-weight:600}
+/* ====== NEW 角标（2026-10-14 起：仅标识本次新增范围，非 UI 需求） ====== */
+.proto-new{position:relative;display:inline-block}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
+.proto-new--title .proto-new-tag{top:50%;right:auto;left:100%;transform:translateY(-50%);margin-left:6px}
+.proto-new--blk{display:block}
 </style>
 </head>
 <body>
@@ -710,15 +721,16 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <!-- ===== 6. 完结确认弹窗（二次确认） ===== -->
 <div class="modal-overlay" id="completeModal" onclick="if(event.target===this)hideCompleteConfirm()">
 <div class="md-box" style="max-width:440px">
-<div class="md-hd"><span class="md-tit">完结确认</span><button class="md-x" onclick="hideCompleteConfirm()">✕</button></div>
+<div class="md-hd"><span class="md-tit proto-new proto-new--title">完结确认<span class="proto-new-tag">NEW</span></span><button class="md-x" onclick="hideCompleteConfirm()">✕</button></div>
 <div class="md-bd">
 <div style="text-align:center;font-size:36px;margin-bottom:10px">✅</div>
 <p style="font-size:14px;font-weight:600;color:var(--text);text-align:center;margin-bottom:8px">确认完结该项目？</p>
 <p style="font-size:13px;color:var(--text-secondary);text-align:center;line-height:1.6">完结后，该项目将标记为已完结，<br>不可再进行任何操作。</p>
+<p class="proto-new proto-new--blk" style="font-size:12px;color:#E65100;line-height:1.6;text-align:left;background:#FFF8E1;border-radius:6px;padding:8px 10px;margin-top:12px">完结前置条件：所有关联批价单均已完结<span class="proto-new-tag">NEW</span><br><span style="color:var(--text-aux)">点「确认完结」时将自动校验，若存在未完结批价单则提示错误并阻止完结。</span></p>
 </div>
 <div class="md-ft">
 <button class="btn-sm btn-gy" onclick="hideCompleteConfirm()">取消</button>
-<button class="btn-sm btn-bl" onclick="doCompleteConfirm()">确认完结</button>
+<button class="btn-sm btn-bl proto-new" onclick="doCompleteConfirm()">确认完结<span class="proto-new-tag">NEW</span></button>
 </div>
 </div>
 </div>
@@ -869,6 +881,7 @@ const SUBS={
 };
 let curM='审批中';
 let curS='工程登录';
+var curPl=[]; /* NEW 2026-10-14：当前状态的关联批价单快照（供完结确认校验使用） */
 
 /* 管理端 8状态数据（操作不同） */
 const C={
@@ -955,10 +968,10 @@ const C={
   {type:'解除地址限制',status:'通过',updated:'2026-06-27 16:00:00',created:'2026-06-27 14:00:00',ops:['查看']},
   {type:'作废审批',status:'已取消',updated:'2026-06-28 16:00:00',created:'2026-06-28 14:00:00',ops:['查看']}
  ],pl:[
-  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'部分提货',
+  {id:'粤东GCDT202606250001-PJ01',biz:'中央空调',status:'已完结',
    equip:[
     {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-10HP',id:'GREE-001',qty:5,price:42000,approvePrice:40000,estimate:38000,depositRate:30,onlinePrice:45000,buyQty:5,shipQty:5,remark:'标准配置'},
-    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:2,remark:'—'}
+    {name:'多联机GMV5系列',cate:'空调',sku:'SKU-GMV5-20HP',id:'GREE-002',qty:3,price:68000,approvePrice:65000,estimate:62000,depositRate:30,onlinePrice:72000,buyQty:3,shipQty:3,remark:'已完成'}
    ]}
  ],ext:{
   bidNotice:'中标通知书_XX商业综合体.pdf',
@@ -1196,7 +1209,19 @@ function doVoid(){hideVoid();da('发起作废审批→新建-作废审批页')}
 /* ---- 6. 完结确认弹窗（二次确认） ---- */
 function showCompleteConfirm(){document.getElementById('completeModal').classList.add('mo-show')}
 function hideCompleteConfirm(){document.getElementById('completeModal').classList.remove('mo-show')}
-function doCompleteConfirm(){hideCompleteConfirm();da('完结确认 → 已完结')}
+/* NEW 2026-10-14：完结前置校验 —— 所有关联批价单须为「已完结」（依据决策总文档 #148） */
+function doCompleteConfirm(){
+ var pl=curPl||[];
+ var unfinished=pl.filter(function(p){return p.status!=='已完结'});
+ if(unfinished.length){
+  alert('提交失败，需要关联所有批价单均状态“已完结”才能完结工程单');
+  return;
+ }
+ hideCompleteConfirm();
+ mc('已完结'); /* 校验通过 → 重新渲染，当前状态变更为「已完结」 */
+ var sc=document.querySelector('.scroll');if(sc)sc.scrollTop=0;
+ da('完结确认成功，项目状态已变更为「已完结」');
+}
 
 /* ===== 登录顺序·查看详情弹窗 ===== */
 function showLoginOrderDetail(){document.getElementById('lodModal').style.display='flex'}
@@ -1305,6 +1330,7 @@ var cfg=C[curM];
 if(!cfg)return;
 var d=(cfg.s&&cfg.s[curS])?cfg.s[curS]:cfg.d;
 if(!d)d=cfg.d;
+curPl=d.pl||[]; /* NEW 2026-10-14：同步当前关联批价单 */
 
 /* 徽标 */
 var bgco=cfg.b.split('/');
@@ -1381,7 +1407,7 @@ cards.forEach(function(c){
 /* 底部操作栏（管理端版） */
 var ft=document.getElementById('ft');
 var ab=document.getElementById('ab');
-if(!d.ft){ft.style.display='none'}else{
+if(!d.ft){ft.style.display='none';ab.innerHTML=''}else{
  ft.style.display='block';
  var h='';
  (d.a||[]).forEach(function(a){
