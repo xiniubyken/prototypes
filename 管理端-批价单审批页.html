@@ -144,6 +144,15 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .cfg-table th{background:#F7F8FA;font-size:12px;font-weight:600;color:var(--text-secondary);padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
 .cfg-table td{font-size:13px;color:var(--text);padding:6px 10px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
 .cfg-table tr:hover td{background:rgba(59,89,152,.02);}
+/* ====== NEW 2026-10-14：自定义配置-列宽（仅演示，不做真实列宽联动） ====== */
+.proto-new{position:relative;display:inline-block}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 2px 8px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
+.proto-new-tag.inline{position:static;display:inline-block;top:auto;right:auto;margin-left:4px;vertical-align:middle;border-radius:6px}
+.proto-new--title .proto-new-tag{top:50%;right:auto;left:100%;transform:translateY(-50%);margin-left:6px;border-radius:8px 8px 8px 2px}
+.cfg-width{width:72px;height:28px;border:1px solid #d0d5dd;border-radius:4px;text-align:center;font-size:13px;color:#1f2329;background:#fff;outline:none}
+.cfg-width:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.12)}
+.cfg-width.err{border-color:#e53935;background:#fff5f5}
+.cfg-unit{font-size:11px;color:#8f959e;margin-left:3px}
 
 /* toggle开关 */
 .toggle-switch{position:relative;width:40px;height:22px;display:inline-block;vertical-align:middle;}
@@ -1146,7 +1155,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 <div class="modal-overlay" id="configModal" onclick="if(event.target===this)closeConfig()">
   <div class="modal-box" style="background:#fff;border-radius:6px;box-shadow:0 12px 48px rgba(0,0,0,.18);width:560px;max-height:80vh;display:flex;flex-direction:column;">
     <div class="modal-header" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #e8eaed;flex-shrink:0;">
-      <span class="title" style="font-size:15px;font-weight:600;color:#1f2329;">自定义配置</span>
+      <span class="title proto-new proto-new--title" style="font-size:15px;font-weight:600;color:#1f2329;">自定义配置<span class="proto-new-tag">NEW</span></span>
       <button class="close-btn" onclick="closeConfig()" style="font-size:20px;color:#8f959e;cursor:pointer;line-height:1;padding:0 4px;border:none;background:transparent;">&times;</button>
     </div>
     <div class="modal-body" style="padding:16px 20px;overflow-y:auto;flex:1;">
@@ -1156,7 +1165,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <span style="font-size:11px;color:#8f959e;">（仅对可见列生效）</span>
       </div>
       <table class="cfg-table">
-        <thead><tr><th style="width:32px;"></th><th style="width:36px;">序号</th><th>列名</th><th style="width:60px;text-align:center;">显示</th></tr></thead>
+        <thead><tr><th style="width:32px;"></th><th style="width:36px;">序号</th><th>列名</th><th style="width:104px;">列宽<span class="proto-new-tag inline">NEW</span></th><th style="width:60px;text-align:center;">显示</th></tr></thead>
         <tbody id="cfgTableBody"></tbody>
       </table>
     </div>
@@ -1890,17 +1899,40 @@ var columnConfig = [
   {key:'op',          name:'操作',                visible:true}
 ];
 
-function openConfig() {
-  var tbody = document.getElementById('cfgTableBody');
+/* NEW 2026-10-14：列宽 —— 默认值取「现状列宽」（打开弹窗时实测），仅演示，不做真实列宽联动 */
+var cfgWidthCache = {};
+function measureColWidths() {
+  columnConfig.forEach(function(col) {
+    var ths = document.querySelectorAll('.equip-table thead th[data-col="' + col.key + '"]');
+    for (var i = 0; i < ths.length; i++) {
+      var w = Math.round(ths[i].getBoundingClientRect().width);
+      if (w > 0) { cfgWidthCache[col.key] = w; break; }   /* 取首个可见表格的实测值 */
+    }
+  });
+}
+function cfgWidthVal(col) {
+  if (col.width === undefined || col.width === null) {
+    col.width = String(cfgWidthCache[col.key] || 100);   /* 默认值 = 现状列宽 */
+  }
+  return col.width;
+}
+function renderCfgRows(tbody) {
   tbody.innerHTML = columnConfig.map(function(col, idx) {
     return '<tr data-col-idx="' + idx + '">' +
       '<td><span style="cursor:grab;color:#bbb;">&#9776;</span></td>' +
       '<td>' + (idx+1) + '</td>' +
       '<td>' + col.name + '</td>' +
+      '<td style="white-space:nowrap">' +
+        '<input type="number" class="cfg-width" data-idx="' + idx + '" min="40" max="600" placeholder="必填" value="' + cfgWidthVal(col) + '" oninput="columnConfig[' + idx + '].width=this.value;this.classList.remove(\'err\')"><span class="cfg-unit">px</span>' +
+      '</td>' +
       '<td style="text-align:center">' +
         '<label class="toggle-switch"><input type="checkbox" ' + (col.visible ? 'checked' : '') + ' onchange="columnConfig[' + idx + '].visible=this.checked"><span class="toggle-slider"></span></label>' +
       '</td></tr>';
   }).join('');
+}
+function openConfig() {
+  measureColWidths();
+  renderCfgRows(document.getElementById('cfgTableBody'));
   var modal = document.getElementById('configModal');
   modal.style.display = 'flex';
   // 初始化冻结列数输入值
@@ -1917,11 +1949,26 @@ function closeConfig() {
   document.getElementById('configModal').style.display = 'none';
 }
 function restoreDefaultConfig() {
-  columnConfig.forEach(function(col) { col.visible = true; });
-  var inputs = document.querySelectorAll('#cfgTableBody input[type=checkbox]');
-  inputs.forEach(function(inp) { inp.checked = true; });
+  columnConfig.forEach(function(col) { col.visible = true; col.width = undefined; });
+  measureColWidths();
+  renderCfgRows(document.getElementById('cfgTableBody'));
 }
 function applyConfig() {
+  /* NEW 2026-10-14：列宽必填校验（列出未填写的列名，弹窗保持打开） */
+  var missing = [];
+  columnConfig.forEach(function(col, idx) {
+    var v = (col.width === undefined || col.width === null) ? '' : String(col.width).trim();
+    if (!v || isNaN(Number(v)) || Number(v) <= 0) missing.push({ idx: idx, name: col.name });
+  });
+  document.querySelectorAll('#cfgTableBody .cfg-width').forEach(function(inp) { inp.classList.remove('err'); });
+  if (missing.length) {
+    missing.forEach(function(m) {
+      var inp = document.querySelector('#cfgTableBody .cfg-width[data-idx="' + m.idx + '"]');
+      if (inp) inp.classList.add('err');
+    });
+    alert('提交失败，以下列未填写列宽：\n' + missing.map(function(m) { return '· ' + m.name; }).join('\n') + '\n请填写后再提交');
+    return;
+  }
   syncColumnVisibility();
   closeConfig();
 }
