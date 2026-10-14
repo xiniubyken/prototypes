@@ -771,7 +771,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="form-item span3">
           <label class="form-label">项目状态 <span class="req">*</span></label>
           <select class="form-ctrl" id="projectStatus" onchange="toggleStateExt(this.value)">
-            <option value="跟进中" selected>跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已丢单">已丢单</option><option value="已流标">已流标</option>
+            <option value="跟进中" selected>跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option>
           </select>
         </div>
 
@@ -828,25 +828,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
           <input type="number" class="form-ctrl" id="signAmount" placeholder="0.00" min="0" step="0.01">
         </div>
 
-        <!-- 已丢标字段组 -->
-        <div class="form-item" id="stateFailExt" style="display:none;">
-          <label class="form-label">丢单原因 <span class="req">*</span></label>
-          <select class="form-ctrl">
-            <option value="">请选择丢单原因</option>
-            <option value="产品原因">产品原因</option>
-            <option value="技术原因">技术原因</option>
-            <option value="价格原因">价格原因</option>
-          </select>
-        </div>
-        <div class="form-item" id="failReportItem" style="display:none;">
-          <label class="form-label">丢单报告 <span class="req">*</span></label>
-          <div class="up-zone" onclick="document.getElementById('failReportInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
-            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
-          </div>
-          <input type="file" id="failReportInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="addStateFile('fail','failReportInput',this)">
-          <div class="fl-list" id="failFileList" style="margin-top:4px;"></div>
-          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
-        </div>
       </div>
     </div>
     <!-- /状态补充卡片 -->
@@ -1333,7 +1314,7 @@ function confirmImport() {
 /* ===== 状态补充信息逻辑 ===== */
 // 状态切换（所有字段在同一个form-grid内）
 function toggleStateExt(val) {
-  var ids = ['stateBidExt','signHasContract','signContractItem','signNoContractItem','signCustomerItem','signAmountItem','stateFailExt','failReportItem'];
+  var ids = ['stateBidExt','signHasContract','signContractItem','signNoContractItem','signCustomerItem','signAmountItem'];
   // 先全部隐藏
   for(var i=0;i<ids.length;i++){
     var el=document.getElementById(ids[i]);
@@ -1348,9 +1329,6 @@ function toggleStateExt(val) {
     if(sel) sel.value='';
     document.getElementById('signCustomerItem').style.display='';
     document.getElementById('signAmountItem').style.display='';
-  } else if(val === '已丢单') {
-    document.getElementById('stateFailExt').style.display='';
-    document.getElementById('failReportItem').style.display='';
   }
   // else '' → 全部隐藏
 }
@@ -1399,7 +1377,6 @@ function renderStateFileList(key) {
     case 'bid': listEl = document.getElementById('bidFileList'); break;
     case 'signContract': listEl = document.getElementById('signContractFileList'); break;
     case 'signNoContract': listEl = document.getElementById('signNoContractFileList'); break;
-    case 'fail': listEl = document.getElementById('failFileList'); break;
     default: return;
   }
   var files = stateFiles[key] || [];

@@ -7,7 +7,7 @@
 <!--
   用户端-新建工程项目单（V3：第二波弹层全量对齐设计稿交互语言）
   设计稿（用户端-新建工程单）共 8+6+8：
-    基础8：新建-未填写 / 跟进中和已流标 / 项目状态对应内容 / 复制新建(顶部提示) / 驳回重提(顶部提示) / 添加商品-类型 / 卡片收起 / 提示展开收起
+    基础8：新建-未填写 / 跟进中和已流标（2026-10-14：已流标已从新建可选状态移除，此屏仅作设计稿留存） / 项目状态对应内容 / 复制新建(顶部提示) / 驳回重提(顶部提示) / 添加商品-类型 / 卡片收起 / 提示展开收起
     弹层6：添加标准商品(选择器) / 添加标准商品-已选 / 添加非标商品 / 添加非标商品-填写 / 商品详情弹层-标准 / 商品详情弹层-非标
     第二波8：弹层-客户类型 / 行业大类(>10滚动) / 执行单位(>10滚动) / 选择业务线(>10滚动) / 通用-弹窗样式(提交确认/商品异常) / 选择地址-省份/城市/区域
   对齐原则：字段选择一律“字段值行 -> 底部单选弹层/省市区级联”按设计稿；业务/状态/提交仍不偏离 PC 逻辑。
@@ -523,7 +523,7 @@ var CATALOG=[
   {name:"格力 FGR3.5Pd/C1N 新风机",sku:"SKU-XF-35C1N",model:"FGR3.5Pd/C1N",net:"¥3800.00",cate:"新风"}
 ];
 
-var vals={biz:"中央空调",cust:"",industry:"",exec:"",prov:"",city:"",dist:"",street:"",status:"",failReason:""};
+var vals={biz:"中央空调",cust:"",industry:"",exec:"",prov:"",city:"",dist:"",street:"",status:""};
 var pstate="", hasContract="", contactMode="mobile", chosen={}, rows=[], pdIndex=-1, categoryTarget="", productExpanded=false;
 var usageData={
   projectName:"",customerName:"珠海华邑酒店有限公司",purchaseUnit:"珠海华邑酒店有限公司",leader:"",
@@ -662,7 +662,7 @@ function onTianyanCheck(name){
   syncSubmitState();
 }
 function refreshVals(){
-  [["biz","请选择"],["cust","请选择"],["industry","请选择"],["exec","请选择"],["status","请选择"],["failReason","请选择"]].forEach(function(pair){
+  [["biz","请选择"],["cust","请选择"],["industry","请选择"],["exec","请选择"],["status","请选择"]].forEach(function(pair){
     var el=document.getElementById("v_"+pair[0]); if(!el)return;
     var v=vals[pair[0]];
     el.textContent=v||pair[1];
@@ -675,7 +675,7 @@ function refreshVals(){
 /* 通用单选 */
 var picker=null;
 function openPick(kind){
-  var meta={biz:["选择业务线",BIZ_OPTS],cust:["选择客户类型",CUST_OPTS],industry:["选择行业大类",INDUSTRY_OPTS],exec:["选择执行单位",EXEC_OPTS],status:["选择项目状态",["跟进中","已中标","已签单","已丢单","已流标"]],failReason:["选择丢单原因",["产品原因","技术原因","价格原因"]],category:["选择品类",CATEGORY_OPTS]}[kind];
+  var meta={biz:["选择业务线",BIZ_OPTS],cust:["选择客户类型",CUST_OPTS],industry:["选择行业大类",INDUSTRY_OPTS],exec:["选择执行单位",EXEC_OPTS],status:["选择项目状态",["跟进中","已中标","已签单"]],category:["选择品类",CATEGORY_OPTS]}[kind];
   if(!meta)return;
   picker=kind; document.getElementById("pickTitle").textContent=meta[0];
   document.getElementById("pickOpts").innerHTML=meta[1].map(function(o){
@@ -708,7 +708,6 @@ function pickChoose(o){
         contractData={customer:"",amount:""};
         resetBizState("signCustomer");
       }
-      if(o!=="已丢单")vals.failReason="";
     }
     pstate=o;
     vals.status=o;
@@ -996,14 +995,12 @@ function syncSubmitState(){
     &&(vals.biz!=="冷链"||!!usageData.volume.trim())
     &&!!vals.prov&&!!vals.city&&!!vals.dist&&!!vals.street&&!!vals.exec&&!!vals.status;
   if(pstate==="已签单")ready=ready&&!!hasContract;
-  if(pstate==="已丢单")ready=ready&&!!vals.failReason;
   if(pstate==="已中标")ready=ready&&fileReady("file_b");
   if(pstate==="已签单"){
     if(hasContract==="是")ready=ready&&fileReady("file_c");
     if(hasContract==="否")ready=ready&&fileReady("file_n");
     ready=ready&&!!contractData.customer.trim()&&!!contractData.amount.trim();
   }
-  if(pstate==="已丢单")ready=ready&&fileReady("file_f");
   btn.disabled=!ready;
   btn.setAttribute("aria-disabled",ready?"false":"true");
 }
@@ -1030,10 +1027,6 @@ function renderStateExt(){
   else if(pstate==="已签单"){
     html='<div class="state-ext"><div class="ext-t">项目状态 · 已签单</div>'
      +'<div class="fi"><div class="lab">是否有合同 <span class="req">*</span></div><div class="chips" id="hcChips"></div></div><div id="hcRows"></div></div>';
-  }else if(pstate==="已丢单"){
-    html='<div class="state-ext"><div class="ext-t">项目状态 · 已丢单</div>'
-     +fi("丢单原因 <span class=\"req\">*</span>",selRow("failReason","failReason","请选择"))
-     +fi("丢单报告 <span class=\"req\">*</span>",upBtn("f"))+'</div>';
   }
   box.innerHTML=html||""; rebuildHc(); renderContractRows(); syncSubmitState();
 }
