@@ -18,6 +18,7 @@
    - 卡片=项目名+状态 pill + 一字段一行（项目单号/销售公司/经销商名称/登录顺序/审批时间）+ 底部两操作：审核(实底按钮，仅 status=审批中 显示，PC canApprove 口径)/审批流程(link)
    - 筛选入口在列表工具行右侧；筛选面板=真过滤：项目单号/经销商名称/项目名称(输入)+销售公司(单选,默认请选择)+审批状态(单选:全部/审批中/通过/驳回)；显示过滤单选(待我审批/所有单据,默认所有单据)在面板内；重置=恢复默认并关闭面板；空态「暂无数据」
    - 2026-09-23 修订：「审批状态」由多选改为单选（与「销售公司」交互一致：重复点击已选项=取消，回落到「全部」）；筛选项与真过滤逻辑保持不变
+   - 2026-10-16 修订【新增】：筛选面板在「项目单号」下方新增「批价单号」输入条件（id=fQuoteNo）。过滤口径与卡片展示保持一致 —— 批价单号仅属于「价格审批」一级 tab 下的单据（演示值 PJ_NO_DEMO），因此在登录审批 tab 下填批价单号结果为「暂无数据」；打开面板回填、重置清空、确定后真过滤，与其它文本条件同规则。NEW 角标仅标识本次新增范围，非 UI 需求。
    - 数据：11 条虚构演示，覆盖 登录审批/价格审批 两级 4+3 个子类与 4 状态(审批中×5/通过×3/已驳回×2/已取消×1)及登录顺序成功/候补/—；字段值按 PC 口径
   默认取舍（像素级视觉证据不足，布局非像素还原）
    1. OCR 坐标文件疑似多屏拼接、无法像素级复原布局/颜色 → 布局按拍板文字+移动端骨架，pill 色=白底彩字：审批中#1565C0/通过#2E7D32/已驳回#C62828/已取消#78909C。
@@ -150,6 +151,10 @@ button,input{font:inherit}button{cursor:pointer}
 .toast{position:fixed;left:50%;bottom:94px;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;padding:9px 14px;border-radius:8px;font-size:13px;display:none;z-index:100;white-space:nowrap;max-width:82vw}
 .toast.show{display:block}
 @media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+/* ====== 新增功能标识（NEW 角标 · 仅标识本次新增范围，非 UI 需求） ====== */
+.proto-new{position:relative}
+.proto-new-tag{display:inline-block;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;border-radius:3px;pointer-events:none;z-index:20}
+.proto-new-tag.inline{position:static;margin-left:5px;vertical-align:1px}
 </style>
 </head>
 <body>
@@ -185,6 +190,8 @@ button,input{font:inherit}button{cursor:pointer}
     <div class="sheet-bd">
       <div class="f-sec">
         <div class="fld"><span class="lb">项目单号</span><input id="fNo" type="text" placeholder="请输入项目单号"></div>
+        <!-- 【新增 · 2026-10-16】批价单号（紧随「项目单号」之后） -->
+        <div class="fld"><span class="lb proto-new">批价单号<span class="proto-new-tag">NEW</span></span><input id="fQuoteNo" type="text" placeholder="请输入批价单号"></div>
         <div class="fld"><span class="lb">经销商名称</span><input id="fDealer" type="text" placeholder="请输入经销商名称"></div>
         <div class="fld"><span class="lb">项目名称</span><input id="fName" type="text" placeholder="请输入项目名称"></div>
       </div>
@@ -272,7 +279,7 @@ var SCOPE_OPTS=["待我审批","所有单据"];
 
 var curP="login",curS="local";
 /* 当前生效过滤 */
-var cur={no:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
+var cur={no:"",quoteNo:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
 /* 面板临时值 */
 var tmp={co:"",st:[],scope:"所有单据"};
 var lastType="login"; /* 审批流程弹层所用单据类型 */
@@ -292,6 +299,8 @@ function filtered(){
     if(!belongs(d))return false;
     if(cur.scope==="待我审批" && !d.mine)return false;
     if(cur.no && d.no.indexOf(cur.no)<0)return false;
+    /* 【新增 · 2026-10-16】批价单号过滤：口径与卡片展示一致 —— 批价单号只属于「价格审批」一级 tab 下的单据 */
+    if(cur.quoteNo && (curP==="price"?PJ_NO_DEMO:"").indexOf(cur.quoteNo)<0)return false;
     if(cur.dealer && d.dealer.indexOf(cur.dealer)<0)return false;
     if(cur.name && d.name.indexOf(cur.name)<0)return false;
     if(cur.co && d.co!==cur.co)return false;
@@ -364,7 +373,7 @@ function refresh(){
   box.innerHTML=list.length?list.map(cardHtml).join(""):'<div class="empty"><svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#c3c9d1" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg><div class="empty-t">暂无数据</div></div>';
   var scopeNote=cur.scope==="待我审批"?" · 待我审批":"";
   document.getElementById("barInfo").innerHTML="共 <b>"+list.length+"</b> 条"+scopeNote;
-  var on=cur.no||cur.dealer||cur.name||cur.co||cur.st.length||cur.scope!=="所有单据";
+  var on=cur.no||cur.quoteNo||cur.dealer||cur.name||cur.co||cur.st.length||cur.scope!=="所有单据";
   document.getElementById("filBtn").classList.toggle("on",!!on);
 }
 
@@ -384,6 +393,7 @@ function renderChips(){
 function openFilter(){
   tmp.co=cur.co;tmp.st=cur.st.slice();tmp.scope=cur.scope;
   document.getElementById("fNo").value=cur.no;
+  document.getElementById("fQuoteNo").value=cur.quoteNo;
   document.getElementById("fDealer").value=cur.dealer;
   document.getElementById("fName").value=cur.name;
   renderChips();
@@ -401,15 +411,17 @@ function closeFilter(){document.getElementById("filterMask").classList.remove("s
 function maskTap(e){if(e&&e.target===document.getElementById("filterMask"))closeFilter();}
 function applyFilter(){
   cur.no=(document.getElementById("fNo").value||"").trim();
+  cur.quoteNo=(document.getElementById("fQuoteNo").value||"").trim();
   cur.dealer=(document.getElementById("fDealer").value||"").trim();
   cur.name=(document.getElementById("fName").value||"").trim();
   cur.co=tmp.co;cur.st=tmp.st.slice();cur.scope=tmp.scope;
   closeFilter();refresh();
 }
 function resetFilter(){
-  cur={no:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
+  cur={no:"",quoteNo:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
   tmp={co:"",st:[],scope:"所有单据"};
   document.getElementById("fNo").value="";
+  document.getElementById("fQuoteNo").value="";
   document.getElementById("fDealer").value="";
   document.getElementById("fName").value="";
   renderChips();
