@@ -6,7 +6,8 @@
   3. 状态「待提货 / 部分提货」底部操作栏新增按钮「工程返利参数配置」→ **居中弹窗**逐行配置返利比例上限（必填、0~100）
   4. 【修正】设备卡片点击事件原为 onclick="openProd(list.indexOf(e))"，list/e 是 renderDevices() 局部变量、内联 onclick 在全局作用域求值 → ReferenceError，弹层打不开；已改为 openProd(索引变量 idx)
   5. 【修正】商品详情弹层字段对齐 PC 设备清单列（full 15 项 / simple 8 项；商品名称在弹层标题区展示，不重复列）
-  6. 【演示调整】非标商品「定制机-非标控制柜」由第 5 条前移至第 3 条 —— 设备清单默认只展示前 3 条，
+  6. 【修正】非标商品同样有批复比例：DEV_APPROVED 中「定制机-非标控制柜」rpoint / rebateLimit 由 null 补为 6.5（待提货/部分提货/已完结/已关闭均生效），弹层不再显示「—」
+  7. 【演示调整】非标商品「定制机-非标控制柜」由第 5 条前移至第 3 条 —— 设备清单默认只展示前 3 条，
      前移后无需点「展示全部」即可看到非标标识（与 PC 表格顺序有意不同，PC 仍为第 5 行）；
      同时 DEV_PENDING / DEV_APPROVED 两套数据一致调整，devOf() 的购买/发货数量数组已按新索引同步重排
   说明：NEW 角标仅标识本次新增范围，非 UI 需求。
@@ -327,14 +328,16 @@ function toast(msg){const el=document.getElementById('toast');el.textContent=msg
 const DEV_PENDING=[
   {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:null,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
   {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:null,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
-  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',price:38000,qty:1,code:'--',id:'GID-30001',point:'—',approve:null,online:null,depositRate:10,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
+  /* 【修正 · 2026-10-17】非标同样有返利比例上限（配置参数，与是否批复无关）；审批中未批复故 rpoint 仍为 null */
+  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',price:38000,qty:1,code:'--',id:'GID-30001',point:'—',approve:null,online:null,depositRate:10,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0,rpoint:null,rebateLimit:6.5},
   {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:null,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
   {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:null,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null}
 ];
 const DEV_APPROVED=[
   {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:40000,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.5,rebateLimit:7.5},
   {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:53000,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0,rebateLimit:7.0},
-  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-002',price:38000,qty:1,code:'SKU-DZ-002',id:'GID-30001',point:'—',approve:37500,online:38000,depositRate:10,estimate:null,remark:'按图纸定制-已完结',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
+  /* 【修正 · 2026-10-17】非标商品同样有批复比例：待提货/部分提货/已完结均已批复，补 6.5%（对齐 PC 已完结口径），不再显示「—」 */
+  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-002',price:38000,qty:1,code:'SKU-DZ-002',id:'GID-30001',point:'—',approve:37500,online:38000,depositRate:10,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0,rpoint:6.5,rebateLimit:6.5},
   {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:8200,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0,rebateLimit:7.0},
   {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:11500,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0,rebateLimit:7.0}
 ];
