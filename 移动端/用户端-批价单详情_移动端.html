@@ -12,6 +12,12 @@
   规则：设计稿没有的字段/按钮/ico 一律不新增；演示数据=PC 口径；像素级=视觉证据不足见记录 K 表
   结构：头部摘要(单号/标签/项目名/有效期) + 双tab(批价单详情|审批进度) + 详情(驳回条/设备清单折3+/项目凭证分类附件/基本信息)
         + 底部固定操作(按状态) + 弹层族(更多操作/商品详情/审批流程[流程|当前节点]/放大/放弃提货确认)
+  修订 2026-10-17：【新增】设备汇总栏「已使用返利」（待提货/部分提货/已完结/已关闭 才展示）+ 商品弹层「返利比例上限%」；
+        用户端无「工程返利参数配置」按钮（该按钮仅管理端）。
+        【修正】批复点位此前未渲染（eq 未赋 resetPoint），本次随返利上限一并补齐，取 PC 同口径值。
+        【调整】非标商品（定制机-非标控制柜）前移到设备清单第 3 条，默认折叠 3 条即可看到非标演示，
+                与管理端移动端同口径（PC 端表格全展示，顺序不动）。
+        NEW 角标仅标识本次新增范围，非 UI 需求。
 -->
 <style>
 :root{--blue:#0868d7;--bg:#f5f6f7;--text:#292929;--line:#ececec;--red:#ff5158;--green:#1a9c5c;--amber:#b45309;--gray:#8f959e;--safe-bottom:env(safe-area-inset-bottom)}
@@ -206,6 +212,13 @@ button,input{font:inherit}button{cursor:pointer}
 .toast{position:fixed;left:50%;bottom:110px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;z-index:200;display:none;white-space:nowrap;max-width:86%}
 .toast.on{display:block}
 @media (min-width:700px){.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+/* =====【新增 · 2026-10-17】NEW 角标 + 已使用返利（跟管理端-批价单详情同口径）
+   仅标识本次新增范围，非 UI 需求 */
+.proto-new-tag{background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;border-radius:8px 8px 8px 2px;pointer-events:none;letter-spacing:.3px;position:absolute;top:-8px;right:-8px;z-index:20}
+.proto-new-tag.inline{position:static;display:inline-block;margin-left:4px;border-radius:3px;vertical-align:middle}
+.proto-new{position:relative}
+.eq-totals .reb-sum{color:#777}
+.eq-totals .reb-sum b{color:#ff5a00;font-weight:700}
 </style>
 </head>
 <body>
@@ -334,34 +347,41 @@ function eq(seq,nonstd,cate,name,model,sku,id,qty,price,point,approve,deposit,on
   return {seq:seq,nonstd:nonstd,cate:cate,name:name,model:model,sku:sku,id:id,qty:qty,price:price,
     point:point,approvePrice:approve,depositRate:deposit,onlinePrice:online,remark:remark||"",buyQty:buy||0,shipQty:ship||0};
 }
+/* 【新增 · 2026-10-17】逐行补齐「批复点位 / 返利比例上限」（PC 口径：两者取同值，无批复行为 null）
+   批复点位是 PC 有、移动端此前漏渲染的字段，本次随返利上限一并补齐，保证弹层相邻两行不打架 */
+function rp(arr,vals){arr.forEach(function(e,i){e.resetPoint=vals[i];e.rebateLimit=vals[i];});return arr;}
 var EQ_PENDING=[
   eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","GID-10001",5,42000,8.5,null,10,40000,""),
   eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","GID-10002",3,56000,8.0,null,10,54000,""),
-  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","GID-20001",8,8500,7.5,null,10,8000,""),
-  eq(4,false,"风管机","风管机FGR7.5/C","FGR7.5/C-120","SKU-FGR75C-120","GID-20002",6,12000,7.5,null,10,11500,""),
-  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","--",1,38000,null,null,10,null,"按图纸定制")
+  /* 【调整 · 2026-10-17】非标商品前移到第 3 条：设备清单默认折叠显示前 3 条，首屏即可看到非标演示（与管理端移动端同口径） */
+  eq(3,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","--",1,38000,null,null,10,null,"按图纸定制"),
+  eq(4,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","GID-20001",8,8500,7.5,null,10,8000,""),
+  eq(5,false,"风管机","风管机FGR7.5/C","FGR7.5/C-120","SKU-FGR75C-120","GID-20002",6,12000,7.5,null,10,11500,"")
 ];
-var EQ_APPROVED=[
+var EQ_APPROVED=rp([
   eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","--",5,42000,8.5,40000,10,40000,"",0,0),
   eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","--",3,56000,8.0,53000,10,54000,"",0,0),
-  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",0,0),
-  eq(4,false,"风管机","风管机FGR7.5/C","FGR7.5/C-120","SKU-FGR75C-120","--",6,12000,7.5,11500,10,11500,"",0,0),
-  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","GID-30001",1,38000,null,null,10,null,"按图纸定制",0,0)
-];
-var EQ_PARTIAL=[
+  /* 非标商品固定第 3 条（rp 的 vals 数组须同步同序） */
+  eq(3,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","GID-30001",1,38000,null,null,10,null,"按图纸定制",0,0),
+  eq(4,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",0,0),
+  eq(5,false,"风管机","风管机FGR7.5/C","FGR7.5/C-120","SKU-FGR75C-120","--",6,12000,7.5,11500,10,11500,"",0,0),
+], [7.5,7.0,null,7.0,7.0]);
+var EQ_PARTIAL=rp([
   eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","--",5,42000,8.5,40000,10,40000,"",5,3),
   eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","--",3,56000,8.0,53000,10,54000,"",3,3),
-  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",4,4),
-  eq(4,true,"风管机","风管机FGR7.5/C-非标定制","FGR7.5/C-CUS","SKU-FGR75C-CUS","GID-30002",6,15000,null,14500,10,14500,"特殊风压定制",2,1),
-  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","GID-30001",1,38000,null,null,10,null,"按图纸定制",0,0)
-];
-var EQ_FINISH=[
+  /* 非标商品固定第 3 条（rp 的 vals 数组须同步同序） */
+  eq(3,true,"定制设备","定制机-非标控制柜","非标-DZ-001","--","GID-30001",1,38000,null,null,10,null,"按图纸定制",0,0),
+  eq(4,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",4,4),
+  eq(5,true,"风管机","风管机FGR7.5/C-非标定制","FGR7.5/C-CUS","SKU-FGR75C-CUS","GID-30002",6,15000,null,14500,10,14500,"特殊风压定制",2,1),
+], [7.5,7.0,null,7.0,7.0]);
+var EQ_FINISH=rp([
   eq(1,false,"多联机","GMV5多联机 10HP","GMV-450WM/A","SKU-GMV5-10HP","--",5,42000,8.5,40000,10,40000,"",5,5),
   eq(2,false,"多联机","GMV5多联机 12HP","GMV-560WM/A","SKU-GMV5-12HP","--",3,56000,8.0,53000,10,54000,"",3,3),
-  eq(3,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",8,8),
-  eq(4,true,"风管机","风管机FGR7.5/C-非标定制","FGR7.5/C-CUS","SKU-FGR75C-CUS","GID-30002",6,15000,null,14500,10,14500,"特殊风压定制",6,6),
-  eq(5,true,"定制设备","定制机-非标控制柜","非标-DZ-002","SKU-DZ-002","GID-30001",1,38000,null,37500,10,38000,"按图纸定制-已完结",1,1)
-];
+  /* 非标商品固定第 3 条（rp 的 vals 数组须同步同序） */
+  eq(3,true,"定制设备","定制机-非标控制柜","非标-DZ-002","SKU-DZ-002","GID-30001",1,38000,null,37500,10,38000,"按图纸定制-已完结",1,1),
+  eq(4,false,"风管机","风管机FGR5/C","FGR5/C-80","SKU-FGR5C-80","--",8,8500,7.5,8200,10,8000,"",8,8),
+  eq(5,true,"风管机","风管机FGR7.5/C-非标定制","FGR7.5/C-CUS","SKU-FGR75C-CUS","GID-30002",6,15000,null,14500,10,14500,"特殊风压定制",6,6),
+], [7.5,7.0,6.5,7.0,7.0]);
 
 /* 状态定义（key=PC 叶子） */
 var C={
@@ -392,19 +412,19 @@ var C={
   equip:EQ_PENDING,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-26 16:45",r:"已驳回",st:"r"}],
   al:[{type:"工程批价",status:"已驳回",updated:"2026-06-26 16:45:00",created:"2026-06-25 10:30:00"}],ft:"ops",ops:["重新提交","放弃提货"]},
 
-"待提货":{main:"待提货",sub:"",pill:["#E8F5E9","#2E7D32"],subPill:null,
+"待提货":{main:"待提货",sub:"",usedRebate:0,pill:["#E8F5E9","#2E7D32"],subPill:null,
   expiry:["提货有效期",90,"2026-06-27 至 2026-09-25","#2E7D32"],
   certNote:"批价审批已通过，等待经销商提货",
   equip:EQ_APPROVED,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-27 14:30",r:"已通过",st:"d"}],
   al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"通过",updated:"2026-07-02 11:00:00",created:"2026-07-01 14:20:00"}],ft:"ops",ops:["去提货","提货延期","再次申请批价","放弃提货"]},
 
-"部分提货":{main:"部分提货",sub:"",pill:["#FFF8E1","#B45309"],subPill:null,
+"部分提货":{main:"部分提货",sub:"",usedRebate:23441,pill:["#FFF8E1","#B45309"],subPill:null,
   expiry:["提货有效期",90,"2026-06-27 至 2026-09-25","#B45309"],
   certNote:"部分商品已提货，剩余可继续提货",
   equip:EQ_PARTIAL,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-27 14:30",r:"已通过",st:"d"}],
   al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"通过",updated:"2026-07-02 11:00:00",created:"2026-07-01 14:20:00"}],ft:"ops",ops:["去提货","提货延期","再次申请批价"]},
 
-"已完结":{main:"已完结",sub:"",pill:["#E8F5E9","#2E7D32"],subPill:null,ft:"pill",
+"已完结":{main:"已完结",sub:"",usedRebate:39249.5,pill:["#E8F5E9","#2E7D32"],subPill:null,ft:"pill",
   certNote:"全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。",
   equip:EQ_FINISH,ap:[{n:"经销商提交",t:"2026-06-25 10:30",r:"已提交",st:"d"},{n:"办事处内勤·张经理",t:"2026-06-26 09:15",r:"已通过",st:"d"},{n:"工程科内勤·王科长",t:"2026-06-27 14:30",r:"已通过",st:"d"}],
   al:[{type:"工程批价",status:"通过",updated:"2026-06-27 14:30:00",created:"2026-06-25 10:30:00"},{type:"提货延期",status:"通过",updated:"2026-07-05 11:20:00",created:"2026-07-01 10:00:00"}]},
@@ -511,7 +531,11 @@ function renderEquip(){
   var tq=0,ta=0,tap=0;
   list.forEach(function(e){tq+=e.qty;ta+=e.price*e.qty;if(e.approvePrice)tap+=e.approvePrice*e.qty;});
   var apTxt=simpleMode()?"待批复":(tap>0?"<b class=\"apv\">"+money(tap)+"</b>":"待批复");
-  document.getElementById("eqTotals").innerHTML='<span>总数量：<b>'+tq+'</b> 台</span><span>总申请金额：<b>'+money(ta)+'</b></span><span>批复总金额：'+apTxt+'</span>';
+  /* 【新增 · 2026-10-17】已使用返利：订单支付使用返利款时实际抵扣的金额（整单口径）
+     审批中 / 已驳回 尚未发生支付，不展示（与 PC 汇总栏同口径） */
+  var showUR=["待提货","部分提货","已完结","已关闭"].indexOf(d.main)>=0;
+  var urTxt=showUR?'<span class="reb-sum">已使用返利：<b>'+money(d.usedRebate||0)+'</b><span class="proto-new-tag inline">NEW</span></span>':"";
+  document.getElementById("eqTotals").innerHTML='<span>总数量：<b>'+tq+'</b> 台</span><span>总申请金额：<b>'+money(ta)+'</b></span><span>批复总金额：'+apTxt+'</span>'+urTxt;
 }
 function toggleFold(){foldOpen=!foldOpen;renderEquip();}
 
@@ -537,6 +561,8 @@ function openPd(i){
     fld("申请价格",money(e.price));
     fld("批复价格",e.approvePrice!=null?money(e.approvePrice):"—"," ap");
     fld("批复点位",(e.resetPoint!=null)?e.resetPoint+"%":"—");
+    /* 【新增 · 2026-10-17】返利比例上限%（逐行口径，同 PC 设备清单列） */
+    fld("返利比例上限",((e.rebateLimit!=null)?e.rebateLimit+"%":"—")+'<span class="proto-new-tag inline">NEW</span>');
     fld("预估价",e.estimate!=null?money(e.estimate):"—");
     fld("定金比例",(e.depositRate!=null)?e.depositRate+"%":"—");
     fld("网批挂价",e.onlinePrice!=null?money(e.onlinePrice):"—");

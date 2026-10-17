@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+<!--
+  【2026-10-17 修订 · 工程返利字段（新增，与 PC 管理端-批价单详情.html 同口径）】
+  1. 设备卡片**不展示**「返利比例上限」；改为点击商品 → 商品详情弹层内展示（仅 full 模式：待提货/部分提货/已完结/已关闭）
+  2. 设备清单汇总区新增「已使用返利：¥x」（整单口径，数据 d.usedRebate）—— **仅待提货/部分提货/已完结/已关闭展示，审批中系列与已驳回不展示**（订单尚未支付）
+  3. 状态「待提货 / 部分提货」底部操作栏新增按钮「工程返利参数配置」→ **居中弹窗**逐行配置返利比例上限（必填、0~100）
+  4. 【修正】设备卡片点击事件原为 onclick="openProd(list.indexOf(e))"，list/e 是 renderDevices() 局部变量、内联 onclick 在全局作用域求值 → ReferenceError，弹层打不开；已改为 openProd(索引变量 idx)
+  5. 【修正】商品详情弹层字段对齐 PC 设备清单列（full 15 项 / simple 8 项；商品名称在弹层标题区展示，不重复列）
+  6. 【演示调整】非标商品「定制机-非标控制柜」由第 5 条前移至第 3 条 —— 设备清单默认只展示前 3 条，
+     前移后无需点「展示全部」即可看到非标标识（与 PC 表格顺序有意不同，PC 仍为第 5 行）；
+     同时 DEV_PENDING / DEV_APPROVED 两套数据一致调整，devOf() 的购买/发货数量数组已按新索引同步重排
+  说明：NEW 角标仅标识本次新增范围，非 UI 需求。
+-->
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -106,7 +118,7 @@ button{font:inherit;cursor:pointer}
 .footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:9px 14px calc(9px + var(--safe-bottom));z-index:30;display:none;align-items:center;gap:10px}
 .footer.on{display:flex}
 .ft-state{display:inline-flex;align-items:center;font-size:14px;font-weight:700}
-.ft-ops{flex:1;display:flex;justify-content:flex-end}
+.ft-ops{flex:1;display:flex;justify-content:flex-end;gap:10px;min-width:0}
 .ft-btn{height:42px;border:0;border-radius:21px;padding:0 26px;font-size:15px;font-weight:700;white-space:nowrap}
 .ft-btn.primary{background:var(--blue);color:#fff}
 .ft-btn.ghost{background:#fff;color:var(--red);border:1px solid #ffc9c9}
@@ -170,6 +182,31 @@ button{font:inherit;cursor:pointer}
 .pd2-row .k{color:#8f959e;flex:0 0 auto}
 .pd2-row .v{color:#333;font-weight:600;text-align:right;word-break:break-all}
 .pd2-row .v.amt{color:var(--orange)}
+
+/* ====== 【新增 · 2026-10-17】工程返利字段 + 参数配置弹窗 ====== */
+.proto-new{position:relative}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;border-radius:8px 8px 8px 2px;pointer-events:none;z-index:20;letter-spacing:.3px}
+.proto-new-tag.inline{position:static;display:inline-block;margin-left:5px;border-radius:3px;vertical-align:middle}
+.sum-line .rebate{color:var(--blue)}
+.rbate-box{width:min(360px,88vw);max-height:76vh;background:#fff;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.rbate-hd{display:flex;align-items:center;justify-content:center;padding:16px 46px 12px;font-size:16px;font-weight:700;color:#222;position:relative;border-bottom:1px solid #f1f1f1;flex:0 0 auto}
+.rbate-hd .x{position:absolute;right:8px;top:8px;width:34px;height:34px;border:0;background:transparent;color:#999;font-size:26px;line-height:1;font-weight:200}
+.rbate-bd{overflow-y:auto;padding:2px 16px 6px;flex:1}
+.rbate-tip{font-size:12px;color:var(--gray);line-height:1.6;padding:8px 0 6px}
+.rbate-row{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #f1f1f1}
+.rbate-row:last-child{border-bottom:0}
+.rbate-l{flex:1;min-width:0}
+.rbate-name{font-size:14px;font-weight:700;color:#222;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbate-sub{font-size:12px;color:#a2a2a2;margin-top:3px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbate-input{width:92px;height:34px;flex:0 0 auto;padding:0 10px;font-size:14px;border:1px solid #dcdfe5;border-radius:8px;outline:none;background:#fff;color:#222;text-align:left}
+.rbate-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(8,104,215,.12)}
+.rbate-input::placeholder{color:#b6bcc4}
+.rbate-input.err{border-color:var(--red);background:#FFF5F5}
+.rbate-err{display:none;margin:12px 0 0;padding:10px 12px;background:#FFF5F5;border:1px solid #FFCDD2;border-radius:8px;font-size:13px;color:#D32F2F;line-height:1.7;white-space:pre-line}
+.rbate-err.on{display:block}
+.rbate-ft{display:flex;gap:10px;padding:12px 16px 16px;border-top:1px solid #f1f1f1;flex:0 0 auto}
+.rbate-ft .ft-btn{flex:1;float:none;padding:0}
+.rbate-ft .ft-btn:not(.primary){background:#f2f3f5;color:#333}
 </style>
 </head>
 <body>
@@ -234,6 +271,16 @@ button{font:inherit;cursor:pointer}
     <div class="ft-state" id="ftState"></div>
     <div class="ft-ops" id="ftOps"></div>
   </div>
+<!-- ===== 【新增 · 2026-10-17】工程返利参数配置（居中弹窗，与 PC 同口径逐行配置） ===== -->
+<div class="mask center" id="rebateMask" onclick="closeRebateConfig(event)">
+  <div class="rbate-box" onclick="event.stopPropagation()">
+    <div class="rbate-hd">工程返利参数配置<span class="proto-new-tag inline">NEW</span><button class="x" onclick="closeRebateConfig()">×</button></div>
+    <div class="rbate-bd" id="rebateBody"></div>
+    <div class="rbate-ft">
+      <button class="ft-btn" onclick="closeRebateConfig()">取消</button>
+      <button class="ft-btn primary" onclick="submitRebateConfig()">提交</button>
+    </div>
+  </div>
 </div>
 
 <div class="mask" id="flowMask" onclick="closeFlow(event)">
@@ -278,18 +325,18 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",
 function money(n){return '¥'+Number(n||0).toLocaleString('zh-CN');}
 function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('on'),1800);}
 const DEV_PENDING=[
-  {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:null,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
-  {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:null,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
-  {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:null,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
-  {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:null,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null},
-  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',price:38000,qty:1,code:'--',id:'GID-30001',point:'—',approve:null,online:null,depositRate:10,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0,rpoint:null}
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:null,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:null,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
+  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',price:38000,qty:1,code:'--',id:'GID-30001',point:'—',approve:null,online:null,depositRate:10,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
+  {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:null,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
+  {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:null,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null}
 ];
 const DEV_APPROVED=[
-  {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:40000,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.5},
-  {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:53000,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0},
-  {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:8200,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0},
-  {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:11500,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0},
-  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-002',price:38000,qty:1,code:'SKU-DZ-002',id:'GID-30001',point:'—',approve:37500,online:38000,depositRate:10,estimate:null,remark:'按图纸定制-已完结',buyQty:0,shipQty:0,rpoint:null}
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',price:42000,qty:5,code:'SKU-GMV5-10HP',id:'GID-10001',point:'8.5%',approve:40000,online:40000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.5,rebateLimit:7.5},
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',price:56000,qty:3,code:'SKU-GMV5-12HP',id:'GID-10002',point:'8.0%',approve:53000,online:54000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0,rebateLimit:7.0},
+  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-002',price:38000,qty:1,code:'SKU-DZ-002',id:'GID-30001',point:'—',approve:37500,online:38000,depositRate:10,estimate:null,remark:'按图纸定制-已完结',buyQty:0,shipQty:0,rpoint:null,rebateLimit:null},
+  {nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',price:8500,qty:8,code:'SKU-FGR5C-80',id:'GID-20001',point:'7.5%',approve:8200,online:8000,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0,rebateLimit:7.0},
+  {nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',price:12000,qty:6,code:'SKU-FGR75C-120',id:'GID-20002',point:'7.5%',approve:11500,online:11500,depositRate:10,estimate:null,remark:'',buyQty:0,shipQty:0,rpoint:7.0,rebateLimit:7.0}
 ];
 function devOf(buy,ship){
   return DEV_APPROVED.map(function(e,i){
@@ -321,9 +368,9 @@ const STATES={
   '审批中-销司作废':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'审批中',chip2:'销司作废',devices:DEV_PENDING,certNote:'销司作废申请：作废审批流确认中，通过后批价单关闭。',progress:[{type:'工程批价',status:'已驳回',created:'2026-06-25 10:30:00',updated:'2026-07-01 17:30:00'},{type:'作废',status:'审批中',created:'2026-07-02 09:00:00',updated:'--'}],footer:'pill'}),
   '审批中-提货延期':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'审批中',chip2:'提货延期',devices:DEV_APPROVED,certNote:'提货延期申请：项目工期调整，需延长提货有效期。',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'审批中',created:'2026-07-03 11:00:00',updated:'--'}],footer:'pill'}),
   '已驳回':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:'驳回有效期：剩余30天 2026-06-26 至 2026-07-26',totalQty:23,totalAmt:556000,approveAmt:null,main:'已驳回',chip2:'',devices:DEV_PENDING,certNote:'批价申请已被驳回。\n\n驳回原因：\n1. 项目凭证不完整，缺少合同扫描件\n2. 申请价格与市场价差异较大\n3. 请补充完整材料后重新提交',progress:[{type:'工程批价',status:'已驳回',created:'2026-06-25 10:30:00',updated:'2026-06-26 16:45:00'}],footer:'void',reject:'申请价格偏离市场价格过多，GMV5系列申请价高于网批挂网价5%以上，不符合批价政策要求。请重新核算成本后再次提交。',rejectTime:'2026-06-26 16:45'}),
-  '待提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:D_EXP,totalQty:23,totalAmt:556000,approveAmt:531100,main:'待提货',chip2:'',devices:DEV_APPROVED,certNote:'批价审批已通过，等待经销商提货',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 14:20:00',updated:'2026-07-02 11:00:00'}],footer:'void'}),
-  '部分提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:D_EXP,totalQty:23,totalAmt:556000,approveAmt:531100,main:'部分提货',chip2:'',devices:devOf([5,3,4,2,0],[3,3,4,1,0]),certNote:'部分商品已提货，剩余可继续提货',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 14:20:00',updated:'2026-07-02 11:00:00'}],footer:'pill'}),
-  '已完结':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'已完结',chip2:'',devices:devOf([5,3,8,6,1],[5,3,8,6,1]),certNote:'全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 10:00:00',updated:'2026-07-05 11:20:00'}],footer:'pill'}),
+  '待提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:D_EXP,totalQty:23,totalAmt:556000,approveAmt:531100,main:'待提货',usedRebate:0,chip2:'',devices:DEV_APPROVED,certNote:'批价审批已通过，等待经销商提货',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 14:20:00',updated:'2026-07-02 11:00:00'}],footer:'void'}),
+  '部分提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:D_EXP,totalQty:23,totalAmt:556000,approveAmt:531100,main:'部分提货',usedRebate:23441,chip2:'',devices:devOf([5,3,0,4,2],[3,3,0,4,1]),certNote:'部分商品已提货，剩余可继续提货',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 14:20:00',updated:'2026-07-02 11:00:00'}],footer:'pill'}),
+  '已完结':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'已完结',usedRebate:39249.5,chip2:'',devices:devOf([5,3,1,8,6],[5,3,1,8,6]),certNote:'全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'通过',created:'2026-07-01 10:00:00',updated:'2026-07-05 11:20:00'}],footer:'pill'}),
   '已关闭-放弃提货':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'已关闭',chip2:'放弃提货',devices:DEV_APPROVED,certNote:'批价单已关闭 — 放弃提货\n\n来源：经销商主动放弃（批价单无购买数量）',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-26 11:00:00'}],footer:'pill'}),
   '已关闭-提货有效期到期':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:531100,main:'已关闭',chip2:'提货有效期到期',devices:DEV_APPROVED,certNote:'批价单已关闭 — 提货有效期到期\n\n来源：系统自动（提货有效期到期且未完成提货）',progress:[{type:'工程批价',status:'通过',created:'2026-06-25 10:30:00',updated:'2026-06-27 14:30:00'},{type:'提货延期',status:'已驳回',created:'2026-09-15 10:00:00',updated:'2026-09-20 15:00:00'}],footer:'pill'}),
   '已关闭-项目联动':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'已关闭',chip2:'项目联动',devices:DEV_PENDING,certNote:'批价单已关闭 — 项目联动关闭\n\n来源：关联工程项目单「粤东GCDT202606250001」作废审批通过，本批价单同步关闭',progress:[{type:'工程批价',status:'已取消',created:'2026-06-25 10:30:00',updated:'2026-07-05 14:20:00'}],footer:'pill'}),
@@ -335,7 +382,7 @@ let devFoldOpen=false;
 let toastTimer=null;
 
 function setState(key){curKey=key;var sel=document.getElementById('stateSelect');if(sel)sel.value=key;closeAll();renderAll();}
-function closeAll(){['flowMask','zoomWrap'].forEach(id=>document.getElementById(id).classList.remove('on'));}
+function closeAll(){['flowMask','zoomWrap','rebateMask'].forEach(id=>document.getElementById(id).classList.remove('on'));}
 function renderAll(){renderHead();renderDetail();renderProgress();renderFooter();}
 
 function renderHead(){
@@ -359,7 +406,7 @@ function renderDevices(){
   const dc=document.getElementById('devCount');if(dc)dc.textContent=list.length;
   const shown=devFoldOpen?list.length:Math.min(3,list.length);
   const html=list.slice(0,shown).map((e,idx)=>`
-    <div class="dev-card" onclick="openProd(list.indexOf(e))">
+    <div class="dev-card" onclick="openProd(${idx})">
       <div class="thumb">${IMG_SVG}</div>
       <div class="dev-main">
         <div class="dev-l1"><span class="dev-tag" style="${e.nonstd?'':'display:none'}">非</span><span class="dev-name">${esc(e.name)}</span></div>
@@ -373,10 +420,13 @@ function renderDevices(){
   btn.style.display=list.length>3?'inline-flex':'none';
   btn.innerHTML=devFoldOpen?'收起全部 <span>⌃</span>':'展示全部 <span>⌄</span>';
   const approveText=d.approveAmt==null?'待批复':money(d.approveAmt);
+  /* 【新增 · 2026-10-17】已使用返利：审批中 / 已驳回 尚未发生订单支付，不展示（与返利比例上限的 full 口径一致） */
+  const showUsedRebate=['待提货','部分提货','已完结','已关闭'].indexOf(d.main)>=0;
   document.getElementById('sumLine').innerHTML=`
     <div class="row">总数量：<b>${d.totalQty}台</b></div>
     <div class="row">总申请金额：<b class="amt">${money(d.totalAmt)}</b></div>
-    <div class="row">批复总金额：<b class="apv">${approveText}</b></div>`;
+    <div class="row">批复总金额：<b class="apv">${approveText}</b></div>`
+    +(showUsedRebate?`<div class="row rebate">已使用返利：<b>${money(d.usedRebate||0)}</b><span class="proto-new-tag inline">NEW</span></div>`:'');
 }
 function toggleDevFold(){devFoldOpen=!devFoldOpen;renderDevices();}
 
@@ -413,21 +463,28 @@ function openProd(idx){
   const d=STATES[curKey];
   const e=(d.devices||[])[idx];if(!e)return;
   const full=['待提货','部分提货','已完结','已关闭'].indexOf(d.main)>=0;
-  const rows=[['SKU码',e.code],['型号',e.model],['商品ID',e.id],['申请数量',e.qty]];
+  /* 【修正 · 2026-10-17】字段口径对齐 PC 端设备清单 full / simple 两套列，顺序与 PC 表头一致
+     （商品名称已在弹层标题区展示，此处不重复；品类按同类页面惯例在标题区标签 + 字段行各出现一次） */
+  const rows=[['品类',e.cate||'—'],['型号',e.model],['SKU编码',e.code],['商品ID',e.id]];
   if(full){
+    rows.push(['申请数量',e.qty]);
     rows.push(['申请价格',money(e.price)]);
     rows.push(['批复价格',e.approve!=null?money(e.approve):'待批复']);
     rows.push(['批复点位',e.rpoint!=null?e.rpoint+'%':'—']);
+    /* 【新增 · 2026-10-17】返利比例上限改在商品弹层展示（卡片不再展示） */
+    rows.push(['返利比例上限',(e.rebateLimit!=null?e.rebateLimit+'%':'—')]);
     rows.push(['预估价',e.estimate!=null?money(e.estimate):'—']);
     rows.push(['定金比例',(e.depositRate||0)+'%']);
     rows.push(['网批挂网价',e.online!=null?money(e.online):'—']);
     rows.push(['购买数量',e.buyQty]);
     rows.push(['发货数量',e.shipQty]);
-    rows.push(['商品行备注',e.remark||'—']);
+    rows.push(['备注',e.remark||'—']);
   }else{
+    /* 审批中 / 已驳回：与 PC simple 列一致（无批复、无购买发货字段） */
+    rows.push(['申请数量',e.qty]);
     rows.push(['申请价格',money(e.price)]);
     rows.push(['申请点位',e.point]);
-    rows.push(['商品行备注',e.remark||'—']);
+    rows.push(['备注',e.remark||'—']);
   }
   var head='<div class="pd2-head"><div class="pd2-thumb">'+IMG_SVG+'</div><div style="min-width:0">'
     +(e.nonstd?'<span style="display:inline-flex;background:#ffe7e7;color:#ff4d4f;border-radius:3px;font-size:13px;padding:2px 6px;margin-right:6px">非</span>':'')
@@ -435,7 +492,9 @@ function openProd(idx){
     +(e.cate?'<div class="pd2-cate">'+esc(e.cate)+'</div>':'')
     +'</div></div>';
   var body=head+'<div class="pd2-rows">'+rows.map(function(r){
-    return '<div class="pd2-row"><span class="k">'+esc(r[0])+'</span><span class="v'+(String(r[0]).indexOf('价格')>=0?' amt':'')+'">'+esc(String(r[1]))+'</span></div>';
+    /* 【新增 · 2026-10-17】返利比例上限行带 NEW 角标 */
+    var isNew=(String(r[0])==='返利比例上限');
+    return '<div class="pd2-row"><span class="k">'+esc(r[0])+'</span><span class="v'+(String(r[0]).indexOf('价格')>=0?' amt':'')+'">'+esc(String(r[1]))+(isNew?'<span class="proto-new-tag inline">NEW</span>':'')+'</span></div>';
   }).join('')+'</div>';
   document.getElementById('prodBody').innerHTML=body;
   document.getElementById('prodMask').classList.add('on');
@@ -484,11 +543,17 @@ function renderFooter(){
   const pillClass=d.main==='待提货'||d.main==='已完结'?'ok':(d.main==='已驳回'?'rd':(d.main==='部分提货'?'am':(d.main==='已关闭'?'gr':'sp')));
   document.getElementById('ftState').innerHTML=`<span class="pill ${pillClass}">${esc(d.main)}</span>`;
   const ops=document.getElementById('ftOps');
-  if(d.footer==='void'){
-    ops.innerHTML='<button class="ft-btn primary" onclick="goVoidApply()">作废</button>';
-  }else{
-    ops.innerHTML='';
+  /* 【新增 · 2026-10-17】工程返利参数配置：待提货 / 部分提货 出现，置于作废之前 */
+  const canRebate=(d.main==='待提货'||d.main==='部分提货');
+  let ftHtml='';
+  if(canRebate){
+    /* 【修正 · 2026-10-17】必须带 proto-new 类，否则 NEW 角标找不到定位祖先，会跑到 .footer 右上角 */
+    ftHtml+='<button class="ft-btn primary proto-new" style="padding:0 10px;font-size:13px" onclick="openRebateConfig()">工程返利参数配置<span class="proto-new-tag" style="top:-7px;right:-4px">NEW</span></button>';
   }
+  if(d.footer==='void'){
+    ftHtml+='<button class="ft-btn ghost" style="padding:0 12px;font-size:13px" onclick="goVoidApply()">作废</button>';
+  }
+  ops.innerHTML=ftHtml;
   ft.classList.add('on');
 }
 
@@ -530,6 +595,72 @@ function renderNode(){
 function openZoom(){document.getElementById('zoomBody').innerHTML='<div class="af-placeholder" style="height:70vh">图片占位</div>';document.getElementById('zoomWrap').classList.add('on');}
 function closeZoom(e){if(e&&e.target!==document.getElementById('zoomWrap'))return;document.getElementById('zoomWrap').classList.remove('on');}
 function goVoidApply(){location.href='管理端-批价单申请作废_移动端.html';}
+
+/* ====== 【新增 · 2026-10-17】工程返利参数配置（移动端底部抽屉） ======
+   口径与 PC 管理端-批价单详情.html 一致：逐行配置「返利比例上限」，必填、0~100。
+   校验失败用弹层内联红字（移动端不用 alert），成功则回写并 toast。 */
+function openRebateConfig(){
+  const d=STATES[curKey],list=d.devices||[];
+  const body=document.getElementById('rebateBody');
+  let h='<div class="rbate-tip">返利比例上限为必填项，取 0~100 的百分比。</div>';
+  if(list.length){
+    h+=list.map(function(e,i){
+      const v=(e.rebateLimit!=null)?e.rebateLimit:'';
+      return '<div class="rbate-row">'
+        +'<div class="rbate-l"><div class="rbate-name">'+esc(e.name)+'</div>'
+        +'<div class="rbate-sub">'+esc(e.model)+' · '+esc(e.code)+'</div></div>'
+        +'<input class="rbate-input" type="text" inputmode="decimal" data-idx="'+i+'" value="'+v+'" placeholder="请输入">'
+        +'</div>';
+    }).join('');
+  }else{
+    h+='<div class="rbate-tip">暂无可配置设备</div>';
+  }
+  h+='<div class="rbate-err" id="rebateErr"></div>';
+  body.innerHTML=h;
+  document.getElementById('rebateMask').classList.add('on');
+}
+
+function closeRebateConfig(e){
+  if(e&&e.target!==document.getElementById('rebateMask'))return;
+  document.getElementById('rebateMask').classList.remove('on');
+}
+
+function submitRebateConfig(){
+  const d=STATES[curKey];
+  const inputs=Array.prototype.slice.call(document.querySelectorAll('#rebateBody .rbate-input'));
+  const errBox=document.getElementById('rebateErr');
+  const missing=[],bad=[];
+
+  inputs.forEach(function(inp){
+    inp.classList.remove('err');
+    const idx=Number(inp.getAttribute('data-idx'));
+    const nm=((d.devices||[])[idx]&&(d.devices||[])[idx].name)||('第'+(idx+1)+'行');
+    const raw=(inp.value||'').trim();
+    if(raw===''){ missing.push(nm); inp.classList.add('err'); return; }
+    const num=Number(raw);
+    if(isNaN(num)||num<0||num>100){ bad.push(nm+'（'+raw+'）'); inp.classList.add('err'); }
+  });
+
+  if(missing.length){
+    errBox.textContent='提交失败，以下商品未填写返利比例上限：\n'+missing.map(n=>'· '+n).join('\n');
+    errBox.classList.add('on'); return;
+  }
+  if(bad.length){
+    errBox.textContent='提交失败，返利比例上限需为 0~100 的数字，以下商品填写有误：\n'+bad.map(n=>'· '+n).join('\n');
+    errBox.classList.add('on'); return;
+  }
+
+  /* 深复制一份再回写：待提货等状态 devices 直接引用了 DEV_APPROVED，直接改会污染其他状态 */
+  const list=(d.devices||[]).map(function(x){var o={};for(var k in x)o[k]=x[k];return o;});
+  inputs.forEach(function(inp){
+    const idx=Number(inp.getAttribute('data-idx'));
+    if(list[idx]) list[idx].rebateLimit=Number((inp.value||'').trim());
+  });
+  d.devices=list;
+  renderDevices();
+  closeRebateConfig();
+  toast('返利参数已保存');
+}
 
 function initStateTools(){
   const sel=document.getElementById('stateSelect');

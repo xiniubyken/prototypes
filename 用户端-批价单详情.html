@@ -204,6 +204,14 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .cert-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:var(--bg-header);display:flex;align-items:center;gap:8px;}
 .cert-card-body{padding:12px 16px;}
 .cert-foot{font-size:11px;color:var(--text-aux);margin-top:8px;line-height:1.5;}
+
+/* =====【新增 · 2026-10-17】NEW 角标 + 已使用返利汇总项 =====
+   仅标识本次新增范围（跟管理端-批价单详情同口径），非 UI 需求 */
+.proto-new{position:relative}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;border-radius:8px 8px 8px 2px;pointer-events:none;z-index:20;letter-spacing:.3px}
+.proto-new-tag.inline{position:static;display:inline-block;margin-left:4px;border-radius:3px;vertical-align:middle}
+.rebate-sum{color:var(--text-secondary)}
+.rebate-sum b{font-weight:600;color:var(--primary)}
 </style>
 </head>
 <body>
@@ -279,6 +287,8 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
     <span id="equipTotalQty">总数量：0 台</span>
     <span id="equipTotalAmt">总申请金额：¥0.00</span>
     <span id="equipApproveAmt">批复总金额：¥0.00</span>
+    <!-- 【新增 · 2026-10-17】已使用返利（订单支付使用返利款时实际抵扣的返利金额） -->
+    <span class="rebate-sum" id="equipUsedRebateWrap">已使用返利：<b id="equipUsedRebate">¥0.00</b><span class="proto-new-tag inline">NEW</span></span>
   </div>
 </div>
 
@@ -489,20 +499,20 @@ let curM='审批中-价格审批';
 
 /* ===== 共享设备模板：提交时（无批复） ===== */
 var EQIP_PENDING=[
-  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'GID-10001',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:40000,estimate:null,remark:''},
-  {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'GID-10002',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:54000,estimate:null,remark:''},
-  {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'GID-20001',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:8000,estimate:null,remark:''},
-  {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'GID-20002',qty:6,origQty:6,price:12000,origPrice:12000,point:7.5,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:11500,estimate:null,remark:''},
-  {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'--',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:null,estimate:32000,remark:'按图纸定制'}
+  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'GID-10001',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:40000,estimate:null,remark:''},
+  {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'GID-10002',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:54000,estimate:null,remark:''},
+  {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'GID-20001',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:8000,estimate:null,remark:''},
+  {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'GID-20002',qty:6,origQty:6,price:12000,origPrice:12000,point:7.5,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:11500,estimate:null,remark:''},
+  {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'--',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:null,estimate:32000,remark:'按图纸定制'}
 ];
 
 /* ===== 共享设备模板：已批复（有批复价） ===== */
 var EQIP_APPROVED=[
-  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:0,shipQty:0},
-  {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:0,shipQty:0},
-  {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:0,shipQty:0},
-  {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'--',qty:6,origQty:6,price:12000,origPrice:12000,point:7.5,approvePrice:11500,resetPoint:7.0,depositRate:10,onlinePrice:11500,estimate:null,remark:'',buyQty:0,shipQty:0},
-  {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:null,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
+  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,rebateLimit:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:0,shipQty:0},
+  {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:0,shipQty:0},
+  {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:0,shipQty:0},
+  {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'--',qty:6,origQty:6,price:12000,origPrice:12000,point:7.5,approvePrice:11500,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:11500,estimate:null,remark:'',buyQty:0,shipQty:0},
+  {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:null,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
 ];
 
 const C={
@@ -537,9 +547,9 @@ const C={
     remark:'因原材料价格上涨，申请调整部分商品批价。本次为二次批价流程。',
     attaches:[{name:'二次批价申请说明.pdf',size:'1.5MB'},{name:'最新报价对比表.xlsx',size:'0.8MB'}],
     equip:[
-      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'GID-10001',qty:5,origQty:5,price:45000,origPrice:42000,point:8.5,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:40000,estimate:null,remark:'涨价申请'},
-      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'GID-10002',qty:3,origQty:3,price:59000,origPrice:56000,point:8.0,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:54000,estimate:null,remark:'涨价申请'},
-      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'GID-20001',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:8000,estimate:null,remark:''}
+      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'GID-10001',qty:5,origQty:5,price:45000,origPrice:42000,point:8.5,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:40000,estimate:null,remark:'涨价申请'},
+      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'GID-10002',qty:3,origQty:3,price:59000,origPrice:56000,point:8.0,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:54000,estimate:null,remark:'涨价申请'},
+      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'GID-20001',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:8000,estimate:null,remark:''}
     ],
     ft:true,a:[],
     ap:[
@@ -628,15 +638,15 @@ const C={
   b:'#E8F5E9/#2E7D32',
   d:{
     pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
-    status:'待提货',certNote:'批价审批已通过，等待经销商提货',
+    status:'待提货',usedRebate:0,certNote:'批价审批已通过，等待经销商提货',
     remark:'审批通过！经销商可在有效期内按批复价格提货。提货有效期至 2026-09-25。',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'批复确认单.pdf',size:'0.8MB'}],
     equip:[
-      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:0,shipQty:0},
-      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:0,shipQty:0},
-      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:0,shipQty:0},
-      {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'--',qty:6,origQty:6,price:12000,origPrice:12000,point:7.5,approvePrice:11500,resetPoint:7.0,depositRate:10,onlinePrice:11500,estimate:null,remark:'',buyQty:0,shipQty:0},
-      {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:39500,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
+      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,rebateLimit:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:0,shipQty:0},
+      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:0,shipQty:0},
+      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:0,shipQty:0},
+      {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'--',qty:6,origQty:6,price:12000,origPrice:12000,point:7.5,approvePrice:11500,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:11500,estimate:null,remark:'',buyQty:0,shipQty:0},
+      {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:39500,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
     ],
     ft:true,a:[],
     lt:'2026-06-27 14:30',v:{d:90,c:'#2E7D32'},
@@ -657,15 +667,15 @@ const C={
   b:'#FFF8E1/#B45309',
   d:{
     pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
-    status:'部分提货',certNote:'部分商品已提货，剩余可继续提货',
+    status:'部分提货',usedRebate:23441,certNote:'部分商品已提货，剩余可继续提货',
     remark:'已提货 3 项 / 共 5 项，剩余 2 项可在有效期内继续提货。提货有效期至 2026-09-25。',
     attaches:[{name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'批复确认单.pdf',size:'0.8MB'},{name:'提货单_第一批.pdf',size:'1.2MB'}],
     equip:[
-      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:5,shipQty:3},
-      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:3,shipQty:3},
-      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:4,shipQty:4},
-      {seq:4,nonstd:true,cate:'风管机',name:'风管机FGR7.5/C-非标定制',model:'FGR7.5/C-CUS',sku:'SKU-FGR75C-CUS',id:'GID-30002',qty:6,origQty:6,price:15000,origPrice:15000,point:null,approvePrice:14500,resetPoint:7.0,depositRate:10,onlinePrice:14500,estimate:null,remark:'特殊风压定制',buyQty:2,shipQty:1},
-      {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:null,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
+      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,rebateLimit:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:5,shipQty:3},
+      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:3,shipQty:3},
+      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:4,shipQty:4},
+      {seq:4,nonstd:true,cate:'风管机',name:'风管机FGR7.5/C-非标定制',model:'FGR7.5/C-CUS',sku:'SKU-FGR75C-CUS',id:'GID-30002',qty:6,origQty:6,price:15000,origPrice:15000,point:null,approvePrice:14500,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:14500,estimate:null,remark:'特殊风压定制',buyQty:2,shipQty:1},
+      {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:null,resetPoint:null,rebateLimit:null,depositRate:10,onlinePrice:null,estimate:null,remark:'按图纸定制',buyQty:0,shipQty:0}
     ],
     ft:true,a:[],
     lt:'2026-06-27 14:30',v:{d:90,c:'#B45309'},
@@ -686,7 +696,7 @@ const C={
   b:'#E8F5E9/#2E7D32',
   d:{
     pjNo:'粤东GCDT202606250001-PJ001',pjName:'某商业综合体空调项目',biz:'中央空调-批价',saleType:'常规价',
-    status:'已完结',certNote:'全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。',
+    status:'已完结',usedRebate:39249.5,certNote:'全部商品已提货完成，批价单自动完结。\n\n提货汇总：\n1. 第一批提货：2026-06-15，空调50台\n2. 第二批提货：2026-06-28，空调30台\n3. 第三批提货：2026-07-02，配件20件\n\n全部商品已签收完毕。',
     remark:'✅ 全部 5 项商品已于 2026-07-15 完成提货，批价单已自动进入完结状态。实际成交总金额：¥469,000.00',
     attaches:[
       {name:'批价申请说明_附件.pdf',size:'2.3MB'},{name:'批复确认单.pdf',size:'0.8MB'},
@@ -694,11 +704,11 @@ const C={
       {name:'完结确认单.pdf',size:'0.2MB'}
     ],
     equip:[
-      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:5,shipQty:5},
-      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:3,shipQty:3},
-      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:8,shipQty:8},
-      {seq:4,nonstd:true,cate:'风管机',name:'风管机FGR7.5/C-非标定制',model:'FGR7.5/C-CUS',sku:'SKU-FGR75C-CUS',id:'GID-30002',qty:6,origQty:6,price:15000,origPrice:15000,point:null,approvePrice:14500,resetPoint:7.0,depositRate:10,onlinePrice:14500,estimate:null,remark:'特殊风压定制',buyQty:6,shipQty:6},
-      {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-002',sku:'SKU-DZ-002',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:37500,resetPoint:6.5,depositRate:10,onlinePrice:38000,estimate:null,remark:'按图纸定制-已完结',buyQty:1,shipQty:1}
+      {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,origQty:5,price:42000,origPrice:42000,point:8.5,approvePrice:40000,resetPoint:7.5,rebateLimit:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:'',buyQty:5,shipQty:5},
+      {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,origQty:3,price:56000,origPrice:56000,point:8.0,approvePrice:53000,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:'',buyQty:3,shipQty:3},
+      {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,origQty:8,price:8500,origPrice:8500,point:7.5,approvePrice:8200,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:'',buyQty:8,shipQty:8},
+      {seq:4,nonstd:true,cate:'风管机',name:'风管机FGR7.5/C-非标定制',model:'FGR7.5/C-CUS',sku:'SKU-FGR75C-CUS',id:'GID-30002',qty:6,origQty:6,price:15000,origPrice:15000,point:null,approvePrice:14500,resetPoint:7.0,rebateLimit:7.0,depositRate:10,onlinePrice:14500,estimate:null,remark:'特殊风压定制',buyQty:6,shipQty:6},
+      {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-002',sku:'SKU-DZ-002',id:'GID-30001',qty:1,origQty:1,price:38000,origPrice:38000,point:null,approvePrice:37500,resetPoint:6.5,rebateLimit:6.5,depositRate:10,onlinePrice:38000,estimate:null,remark:'按图纸定制-已完结',buyQty:1,shipQty:1}
     ],
     ft:true,a:[],
     finishDate:'2026-07-15',
@@ -945,6 +955,7 @@ var EQUIP_COLUMNS={
     {key:'price',label:'申请价格'},
     {key:'approvePrice',label:'批复价格'},
     {key:'resetPoint',label:'批复点位%'},
+    {key:'rebateLimit',label:'返利比例上限%<span class="proto-new-tag inline">NEW</span>'},
     {key:'estimate',label:'预估价'},
     {key:'depositRate',label:'定金比例%'},
     {key:'onlinePrice',label:'网批挂网价'},
@@ -966,7 +977,7 @@ function renderEquip(equip){
   var cols=simple?EQUIP_COLUMNS.simple:EQUIP_COLUMNS.full;
 
   var table=document.getElementById('equipTable');
-  table.style.minWidth=(simple?'880px':'1400px');
+  table.style.minWidth=(simple?'880px':'1500px');
 
   var thHtml='<tr>';
   cols.forEach(function(c){
@@ -981,6 +992,12 @@ function renderEquip(equip){
     document.getElementById('equipTotalQty').textContent='总数量：0 台';
     document.getElementById('equipTotalAmt').textContent='总申请金额：¥0.00';
     document.getElementById('equipApproveAmt').textContent='批复总金额：¥0.00';
+    /* 【新增 · 2026-10-17】空态同步重置已使用返利，避免沿用上一状态的值 */
+    var erb0=document.getElementById('equipUsedRebate');
+    if(erb0) erb0.textContent='¥0.00';
+    /* 审批中 / 已驳回 不展示该字段（与 full 模式列口径一致） */
+    var w0=document.getElementById('equipUsedRebateWrap');
+    if(w0) w0.style.display=(['待提货','部分提货','已完结','已关闭'].indexOf(curM.split('-')[0])>=0)?'':'none';
     return;
   }
   var html='';
@@ -1011,6 +1028,8 @@ function renderEquip(equip){
       return '<span style="color:'+apColor+';font-weight:'+apW+';">'+txt+'</span>';
     }();
     vals.resetPoint=(e.resetPoint!==null&&e.resetPoint!==undefined)?e.resetPoint+'%':'--';
+    /* 【新增 · 2026-10-17】返利比例上限% */
+    vals.rebateLimit=(e.rebateLimit!==null&&e.rebateLimit!==undefined)?e.rebateLimit+'%':'--';
     vals.depositRate=(e.depositRate!==null?e.depositRate+'%':'--');
     vals.onlinePrice=(e.onlinePrice!==null?'¥'+e.onlinePrice.toLocaleString():'--');
     vals.estimate=(e.estimate!==null?'¥'+e.estimate.toLocaleString():'--');
@@ -1033,6 +1052,15 @@ function renderEquip(equip){
   document.getElementById('equipTotalQty').textContent='总数量：'+totalQty+' 台';
   document.getElementById('equipTotalAmt').textContent='总申请金额：¥'+totalAmt.toLocaleString();
   document.getElementById('equipApproveAmt').textContent='批复总金额：'+(totalApprove>0?'¥'+totalApprove.toLocaleString():'待批复');
+
+  /* 【新增 · 2026-10-17】已使用返利（整单口径，数据来自当前状态 d.usedRebate） */
+  var sd=(C[curM]&&C[curM].d)?C[curM].d:{};
+  var usedRebate=(sd.usedRebate!==null&&sd.usedRebate!==undefined)?Number(sd.usedRebate):0;
+  var erb=document.getElementById('equipUsedRebate');
+  if(erb) erb.textContent='¥'+usedRebate.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  /* 审批中系列 / 已驳回 尚未发生订单支付，不展示「已使用返利」 */
+  var erbWrap=document.getElementById('equipUsedRebateWrap');
+  if(erbWrap) erbWrap.style.display=(['待提货','部分提货','已完结','已关闭'].indexOf(curM.split('-')[0])>=0)?'':'none';
 }
 
 // ====================== 项目凭证（分类式只读） ======================
