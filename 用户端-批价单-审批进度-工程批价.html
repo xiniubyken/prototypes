@@ -513,10 +513,10 @@ var DEVICE_PENDING = [
 ];
 
 var DEVICE_APPROVED = [
-  {seq:1, nonstd:false, cate:'船用空调', name:'格力 GMV-H140WL/A1 多联式空调', model:'GMV-H140WL/A1', sku:'SKU-CEN-140A1', id:'SP10001001', qty:8, price:18500, point:null, originalQty:8, originalPrice:18500, approvePrice:17500, resetPoint:5.0, rebateLimit:7.5, remark:''},
-  {seq:2, nonstd:false, cate:'多联机', name:'格力 GMV-H280WL/A1 多联机组', model:'GMV-H280WL/A1', sku:'SKU-MLJ-280A1', id:'', qty:12, price:22000, point:null, originalQty:12, originalPrice:22000, approvePrice:21000, resetPoint:4.5, rebateLimit:7.0, remark:''},
-  {seq:3, nonstd:false, cate:'新风', name:'格力 FGR3.5Pd/C1N 新风机', model:'FGR3.5Pd/C1N', sku:'SKU-XF-35C1N', id:'', qty:15, price:3800, point:null, originalQty:15, originalPrice:3800, approvePrice:3600, resetPoint:4.0, rebateLimit:7.0, remark:''},
-  {seq:4, nonstd:true, cate:'多联机', name:'定制机', model:'--', sku:'--', id:'SP10990004', qty:8, price:6800, point:null, originalQty:8, originalPrice:6800, approvePrice:6500, resetPoint:5.0, rebateLimit:6.5, remark:'酒店大堂专用'}
+  {seq:1, nonstd:false, cate:'船用空调', name:'格力 GMV-H140WL/A1 多联式空调', model:'GMV-H140WL/A1', sku:'SKU-CEN-140A1', id:'SP10001001', qty:8, price:18500, point:null, originalQty:8, originalPrice:18500, approvePrice:17500, resetPoint:5.0, depositRate:10, rebateLimit:7.5, onlinePrice:18500, estimate:null, remark:''},
+  {seq:2, nonstd:false, cate:'多联机', name:'格力 GMV-H280WL/A1 多联机组', model:'GMV-H280WL/A1', sku:'SKU-MLJ-280A1', id:'', qty:12, price:22000, point:null, originalQty:12, originalPrice:22000, approvePrice:21000, resetPoint:4.5, depositRate:10, rebateLimit:7.0, onlinePrice:22000, estimate:null, remark:''},
+  {seq:3, nonstd:false, cate:'新风', name:'格力 FGR3.5Pd/C1N 新风机', model:'FGR3.5Pd/C1N', sku:'SKU-XF-35C1N', id:'', qty:15, price:3800, point:null, originalQty:15, originalPrice:3800, approvePrice:3600, resetPoint:4.0, depositRate:10, rebateLimit:7.0, onlinePrice:3800, estimate:null, remark:''},
+  {seq:4, nonstd:true, cate:'多联机', name:'定制机', model:'--', sku:'--', id:'SP10990004', qty:8, price:6800, point:null, originalQty:8, originalPrice:6800, approvePrice:6500, resetPoint:5.0, depositRate:10, rebateLimit:6.5, onlinePrice:null, estimate:null, remark:'酒店大堂专用'}
 ];
 
 /* ====== 状态数据 ====== */
@@ -550,14 +550,15 @@ var DEVICE_COLUMNS = {
     {key:'name',label:'商品名称'},
     {key:'model',label:'型号'},
     {key:'sku',label:'SKU编码'},
+    {key:'id',label:'商品ID'},
     {key:'qty',label:'申请数量'},
-    {key:'originalQty',label:'原申请数量'},
     {key:'price',label:'申请价格'},
-    {key:'originalPrice',label:'原申请价格'},
-    {key:'point',label:'申请点位%'},
     {key:'approvePrice',label:'批复价格'},
     {key:'resetPoint',label:'批复点位%'},
+    {key:'estimate',label:'预估价'},
+    {key:'depositRate',label:'定金比例%'},
     {key:'rebateLimit',label:'返利比例上限%<span class="proto-new-tag inline">NEW</span>'},
+    {key:'onlinePrice',label:'网批挂网价'},
     {key:'remark',label:'备注'}
   ]
 };
@@ -609,7 +610,10 @@ function renderEquip(equip){
     vals.point=(e.point!==null&&e.point!==undefined)?e.point+'%':'--';
     vals.approvePrice=(e.approvePrice!==null&&e.approvePrice!==undefined)?'<span style="color:#2E7D32;font-weight:600;">'+e.approvePrice.toLocaleString()+'</span>':'待批复';
     vals.resetPoint=(e.resetPoint!==null&&e.resetPoint!==undefined)?e.resetPoint+'%':'--';
+    vals.estimate=(e.estimate!==null&&e.estimate!==undefined)?e.estimate.toLocaleString():'--';
+    vals.depositRate=(e.depositRate!==null&&e.depositRate!==undefined)?e.depositRate+'%':'--';
     vals.rebateLimit=(e.rebateLimit!==null&&e.rebateLimit!==undefined)?e.rebateLimit+'%':'--';
+    vals.onlinePrice=(e.onlinePrice!==null&&e.onlinePrice!==undefined)?e.onlinePrice.toLocaleString():'--';
     vals.remark=(e.remark||'--');
 
     html+='<tr>';
