@@ -216,6 +216,11 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:6px;font-size:14px;color:#fff;z-index:2000;display:none;box-shadow:0 4px 12px rgba(0,0,0,.15);}
 .toast.success{background:var(--success);}
 .toast.error{background:var(--danger);}
+
+/* ====== NEW 角标（仅标识新增范围，非 UI 需求） ====== */
+.proto-new{position:relative;display:inline-block}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 2px 8px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
+.proto-new-tag.inline{position:static;display:inline-block;top:auto;right:auto;margin-left:4px;vertical-align:middle;border-radius:6px}
 </style>
 </head>
 <body>
@@ -508,10 +513,10 @@ var DEVICE_PENDING = [
 ];
 
 var DEVICE_APPROVED = [
-  {seq:1, nonstd:false, cate:'船用空调', name:'格力 GMV-H140WL/A1 多联式空调', model:'GMV-H140WL/A1', sku:'SKU-CEN-140A1', id:'SP10001001', qty:8, price:18500, point:null, originalQty:8, originalPrice:18500, approvePrice:17500, resetPoint:5.0, remark:''},
-  {seq:2, nonstd:false, cate:'多联机', name:'格力 GMV-H280WL/A1 多联机组', model:'GMV-H280WL/A1', sku:'SKU-MLJ-280A1', id:'', qty:12, price:22000, point:null, originalQty:12, originalPrice:22000, approvePrice:21000, resetPoint:4.5, remark:''},
-  {seq:3, nonstd:false, cate:'新风', name:'格力 FGR3.5Pd/C1N 新风机', model:'FGR3.5Pd/C1N', sku:'SKU-XF-35C1N', id:'', qty:15, price:3800, point:null, originalQty:15, originalPrice:3800, approvePrice:3600, resetPoint:4.0, remark:''},
-  {seq:4, nonstd:true, cate:'多联机', name:'定制机', model:'--', sku:'--', id:'SP10990004', qty:8, price:6800, point:null, originalQty:8, originalPrice:6800, approvePrice:6500, resetPoint:5.0, remark:'酒店大堂专用'}
+  {seq:1, nonstd:false, cate:'船用空调', name:'格力 GMV-H140WL/A1 多联式空调', model:'GMV-H140WL/A1', sku:'SKU-CEN-140A1', id:'SP10001001', qty:8, price:18500, point:null, originalQty:8, originalPrice:18500, approvePrice:17500, resetPoint:5.0, rebateLimit:7.5, remark:''},
+  {seq:2, nonstd:false, cate:'多联机', name:'格力 GMV-H280WL/A1 多联机组', model:'GMV-H280WL/A1', sku:'SKU-MLJ-280A1', id:'', qty:12, price:22000, point:null, originalQty:12, originalPrice:22000, approvePrice:21000, resetPoint:4.5, rebateLimit:7.0, remark:''},
+  {seq:3, nonstd:false, cate:'新风', name:'格力 FGR3.5Pd/C1N 新风机', model:'FGR3.5Pd/C1N', sku:'SKU-XF-35C1N', id:'', qty:15, price:3800, point:null, originalQty:15, originalPrice:3800, approvePrice:3600, resetPoint:4.0, rebateLimit:7.0, remark:''},
+  {seq:4, nonstd:true, cate:'多联机', name:'定制机', model:'--', sku:'--', id:'SP10990004', qty:8, price:6800, point:null, originalQty:8, originalPrice:6800, approvePrice:6500, resetPoint:5.0, rebateLimit:6.5, remark:'酒店大堂专用'}
 ];
 
 /* ====== 状态数据 ====== */
@@ -552,6 +557,7 @@ var DEVICE_COLUMNS = {
     {key:'point',label:'申请点位%'},
     {key:'approvePrice',label:'批复价格'},
     {key:'resetPoint',label:'批复点位%'},
+    {key:'rebateLimit',label:'返利比例上限%<span class="proto-new-tag inline">NEW</span>'},
     {key:'remark',label:'备注'}
   ]
 };
@@ -566,7 +572,7 @@ function renderEquip(equip){
   var simple=isSimpleEquipMode(curPjStatus);
   var cols=simple?DEVICE_COLUMNS.simple:DEVICE_COLUMNS.full;
   var table=document.getElementById('equipTable');
-  table.style.minWidth=simple?'880px':'1200px';
+  table.style.minWidth=simple?'880px':'1500px';
 
   var thHtml='<tr>';
   cols.forEach(function(c){
@@ -603,6 +609,7 @@ function renderEquip(equip){
     vals.point=(e.point!==null&&e.point!==undefined)?e.point+'%':'--';
     vals.approvePrice=(e.approvePrice!==null&&e.approvePrice!==undefined)?'<span style="color:#2E7D32;font-weight:600;">'+e.approvePrice.toLocaleString()+'</span>':'待批复';
     vals.resetPoint=(e.resetPoint!==null&&e.resetPoint!==undefined)?e.resetPoint+'%':'--';
+    vals.rebateLimit=(e.rebateLimit!==null&&e.rebateLimit!==undefined)?e.rebateLimit+'%':'--';
     vals.remark=(e.remark||'--');
 
     html+='<tr>';
