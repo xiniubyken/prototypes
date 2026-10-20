@@ -193,6 +193,10 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
 .form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
 .form-page-inner{padding:12px 24px 0 24px;}
+/* NEW 角标（2026-10-20 返利比例上限新增字段） */
+.proto-new{position:relative;display:inline-block}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 2px 8px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
+.proto-new-tag.inline{position:static;display:inline-block;top:auto;right:auto;margin-left:4px;vertical-align:middle;border-radius:6px}
 </style>
 </head>
 <body>
@@ -483,11 +487,11 @@ var EQIP_PENDING=[
 ];
 
 var EQIP_APPROVED=[
-  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,price:42000,point:8.5,approvePrice:40000,resetPoint:7.5,depositRate:10,onlinePrice:40000,estimate:null,remark:''},
-  {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,price:56000,point:8.0,approvePrice:53000,resetPoint:7.0,depositRate:10,onlinePrice:54000,estimate:null,remark:''},
-  {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,price:8500,point:7.5,approvePrice:8200,resetPoint:7.0,depositRate:10,onlinePrice:8000,estimate:null,remark:''},
-  {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'--',qty:6,price:12000,point:7.5,approvePrice:11500,resetPoint:7.0,depositRate:10,onlinePrice:11500,estimate:null,remark:''},
-  {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,price:38000,point:null,approvePrice:null,resetPoint:null,depositRate:10,onlinePrice:null,estimate:null,remark:'按图纸定制'}
+  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'--',qty:5,price:42000,point:8.5,approvePrice:40000,resetPoint:7.5,depositRate:10,rebateLimit:7.5,onlinePrice:40000,estimate:null,remark:''},
+  {seq:2,nonstd:false,cate:'多联机',name:'GMV5多联机 12HP',model:'GMV-560WM/A',sku:'SKU-GMV5-12HP',id:'--',qty:3,price:56000,point:8.0,approvePrice:53000,resetPoint:7.0,depositRate:10,rebateLimit:7.0,onlinePrice:54000,estimate:null,remark:''},
+  {seq:3,nonstd:false,cate:'风管机',name:'风管机FGR5/C',model:'FGR5/C-80',sku:'SKU-FGR5C-80',id:'--',qty:8,price:8500,point:7.5,approvePrice:8200,resetPoint:7.0,depositRate:10,rebateLimit:7.0,onlinePrice:8000,estimate:null,remark:''},
+  {seq:4,nonstd:false,cate:'风管机',name:'风管机FGR7.5/C',model:'FGR7.5/C-120',sku:'SKU-FGR75C-120',id:'--',qty:6,price:12000,point:7.5,approvePrice:11500,resetPoint:7.0,depositRate:10,rebateLimit:7.0,onlinePrice:11500,estimate:null,remark:''},
+  {seq:5,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'--',id:'GID-30001',qty:1,price:38000,point:null,approvePrice:37500,resetPoint:6.5,depositRate:10,rebateLimit:6.5,onlinePrice:null,estimate:null,remark:'按图纸定制'}
 ];
 
 var STATUS_DATA={
@@ -526,6 +530,7 @@ var EQUIP_COLUMNS={
     {key:'resetPoint',label:'批复点位%'},
     {key:'estimate',label:'预估价'},
     {key:'depositRate',label:'定金比例%'},
+    {key:'rebateLimit',label:'返利比例上限%<span class="proto-new-tag inline">NEW</span>'},
     {key:'onlinePrice',label:'网批挂网价'},
     {key:'remark',label:'备注'}
   ]
@@ -541,7 +546,7 @@ function renderEquip(equip){
   var simple=isSimpleEquipMode(curPjStatus);
   var cols=simple?EQUIP_COLUMNS.simple:EQUIP_COLUMNS.full;
   var table=document.getElementById('equipTable');
-  table.style.minWidth=simple?'880px':'1200px';
+  table.style.minWidth=simple?'880px':'1500px';
 
   var thHtml='<tr>';
   cols.forEach(function(c){
@@ -577,6 +582,7 @@ function renderEquip(equip){
     vals.approvePrice=(e.approvePrice!==null&&e.approvePrice!==undefined)?'<span style="color:#2E7D32;font-weight:600;">¥'+e.approvePrice.toLocaleString()+'</span>':'待批复';
     vals.resetPoint=(e.resetPoint!==null&&e.resetPoint!==undefined)?e.resetPoint+'%':'--';
     vals.depositRate=(e.depositRate!==null?e.depositRate+'%':'--');
+    vals.rebateLimit=(e.rebateLimit!==null&&e.rebateLimit!==undefined)?e.rebateLimit+'%':'--';
     vals.onlinePrice=(e.onlinePrice!==null?'¥'+e.onlinePrice.toLocaleString():'--');
     vals.estimate=(e.estimate!==null?'¥'+e.estimate.toLocaleString():'--');
     vals.remark=(e.remark||'--');

@@ -138,6 +138,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
 .form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
 .form-page-inner{padding:12px 24px 0 24px;}
+/* NEW 角标（2026-10-20 返利比例上限新增字段） */
+.proto-new{position:relative;display:inline-block}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 2px 8px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
+.proto-new-tag.inline{position:static;display:inline-block;top:auto;right:auto;margin-left:4px;vertical-align:middle;border-radius:6px}
 </style>
 </head>
 <body>
@@ -415,11 +419,11 @@ var EQIP_PENDING=[
 ];
 
 var EQIP_APPROVED=[
-  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'P100001',qty:5,price:42000,point:8.5,approvePrice:41500,resetPoint:1.5,depositRate:10,onlinePrice:48000,estimate:43200,remark:''},
-  {seq:2,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'SKU-NON-001',id:'P100100',qty:1,price:38000,point:null,approvePrice:null,resetPoint:null,depositRate:15,onlinePrice:null,estimate:null,remark:'按图纸定制'},
-  {seq:3,nonstd:false,cate:'中央空调',name:'格力 KFRd-120LW/NhGb1B 柜机',model:'KFRd-120LW/NhGb1B',sku:'SKU-GJ-120GB',id:'P100002',qty:8,price:7600,point:9,approvePrice:7500,resetPoint:2,depositRate:10,onlinePrice:8500,estimate:7650,remark:''},
-  {seq:4,nonstd:false,cate:'新风',name:'格力 FGR5Pd/NhBa1 吊顶式新风',model:'FGR5Pd/NhBa1',sku:'SKU-XF-5NBA1',id:'P100003',qty:10,price:4200,point:11,approvePrice:4000,resetPoint:2.5,depositRate:10,onlinePrice:5000,estimate:4500,remark:''},
-  {seq:5,nonstd:false,cate:'多联机',name:'格力 GMV-H224WL/A1 多联机组',model:'GMV-H224WL/A1',sku:'SKU-MLJ-224A1',id:'P100004',qty:3,price:19800,point:13,approvePrice:19500,resetPoint:3,depositRate:15,onlinePrice:22500,estimate:20250,remark:''}
+  {seq:1,nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',sku:'SKU-GMV5-10HP',id:'P100001',qty:5,price:42000,point:8.5,approvePrice:41500,resetPoint:1.5,depositRate:10,rebateLimit:7.5,onlinePrice:48000,estimate:43200,remark:''},
+  {seq:2,nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',sku:'SKU-NON-001',id:'P100100',qty:1,price:38000,point:null,approvePrice:37500,resetPoint:6.5,depositRate:15,rebateLimit:6.5,onlinePrice:null,estimate:null,remark:'按图纸定制'},
+  {seq:3,nonstd:false,cate:'中央空调',name:'格力 KFRd-120LW/NhGb1B 柜机',model:'KFRd-120LW/NhGb1B',sku:'SKU-GJ-120GB',id:'P100002',qty:8,price:7600,point:9,approvePrice:7500,resetPoint:2,depositRate:10,rebateLimit:7.0,onlinePrice:8500,estimate:7650,remark:''},
+  {seq:4,nonstd:false,cate:'新风',name:'格力 FGR5Pd/NhBa1 吊顶式新风',model:'FGR5Pd/NhBa1',sku:'SKU-XF-5NBA1',id:'P100003',qty:10,price:4200,point:11,approvePrice:4000,resetPoint:2.5,depositRate:10,rebateLimit:7.0,onlinePrice:5000,estimate:4500,remark:''},
+  {seq:5,nonstd:false,cate:'多联机',name:'格力 GMV-H224WL/A1 多联机组',model:'GMV-H224WL/A1',sku:'SKU-MLJ-224A1',id:'P100004',qty:3,price:19800,point:13,approvePrice:19500,resetPoint:3,depositRate:15,rebateLimit:7.0,onlinePrice:22500,estimate:20250,remark:''}
 ];
 
 var STATUS_DATA={
@@ -458,6 +462,7 @@ var EQUIP_COLUMNS={
     {key:'resetPoint',label:'批复点位%'},
     {key:'estimate',label:'预估价'},
     {key:'depositRate',label:'定金比例%'},
+    {key:'rebateLimit',label:'返利比例上限%<span class="proto-new-tag inline">NEW</span>'},
     {key:'onlinePrice',label:'网批挂网价'},
     {key:'remark',label:'备注'}
   ]
@@ -473,7 +478,7 @@ function renderEquip(equip){
   var simple=isSimpleEquipMode(curPjStatus);
   var cols=simple?EQUIP_COLUMNS.simple:EQUIP_COLUMNS.full;
   var table=document.getElementById('equipTable');
-  table.style.minWidth=simple?'880px':'1200px';
+  table.style.minWidth=simple?'880px':'1500px';
 
   var thHtml='<tr>';
   cols.forEach(function(c){
@@ -509,6 +514,7 @@ function renderEquip(equip){
     vals.approvePrice=(e.approvePrice!==null&&e.approvePrice!==undefined)?'<span style="color:#2E7D32;font-weight:600;">¥'+e.approvePrice.toLocaleString()+'</span>':'--';
     vals.resetPoint=(e.resetPoint!==null&&e.resetPoint!==undefined)?e.resetPoint+'%':'--';
     vals.depositRate=(e.depositRate!==null?e.depositRate+'%':'--');
+    vals.rebateLimit=(e.rebateLimit!==null&&e.rebateLimit!==undefined)?e.rebateLimit+'%':'--';
     vals.onlinePrice=(e.onlinePrice!==null?'¥'+e.onlinePrice.toLocaleString():'--');
     vals.estimate=(e.estimate!==null?'¥'+e.estimate.toLocaleString():'--');
     vals.remark=(e.remark||'--');
