@@ -1,0 +1,1025 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>销售单逆向单 · 页面预览</title><style>:root {
+  --gree-primary: #3b5998;
+  --gree-primary-hover: #4a72c3;
+  --gree-primary-active: #2f4880;
+  --gree-primary-disabled-bg: #a9b8d6;
+  --gree-canvas: #f5f6fa;
+  --gree-surface: #ffffff;
+  --gree-surface-header: #f8f9fb;
+  --gree-surface-hover: #f2f4f9;
+  --gree-surface-active: #e8f0fe;
+  --gree-text: #333333;
+  --gree-text-secondary: #666666;
+  --gree-text-aux: #999999;
+  --gree-text-disabled: #c0c4cc;
+  --gree-border: #e0e3ea;
+  --gree-border-light: #eef0f4;
+  --gree-divider: #f2f4f7;
+  --gree-success: #52c41a;
+  --gree-warning: #faad14;
+  --gree-danger: #f5222d;
+  --gree-success-text: #52a24b;
+  --gree-danger-text: #d9534f;
+  --gree-success-bg: #f6ffed;
+  --gree-warning-bg: #fffbe6;
+  --gree-danger-bg: #fff2f0;
+  --gree-radius-sm: 4px;
+  --gree-radius-md: 6px;
+  --gree-radius-lg: 8px;
+  --gree-space-xs: 4px;
+  --gree-space-sm: 8px;
+  --gree-space-md: 12px;
+  --gree-space-lg: 16px;
+  --gree-space-xl: 20px;
+  --gree-font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --gree-page-title: 15px;
+  --gree-card-title: 13px;
+  --gree-body: 13px;
+  --gree-table: 12px;
+  --gree-summary: 17px;
+  --gree-control-height: 32px;
+  --gree-shadow-float: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --gree-shadow-modal: 0 6px 24px rgba(0, 0, 0, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--gree-font-family);
+  color: var(--gree-text);
+  background: var(--gree-canvas);
+  font-size: var(--gree-body);
+}
+
+.g-page-header {
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gree-space-lg);
+  background: var(--gree-surface);
+  border-bottom: 1px solid var(--gree-border-light);
+}
+
+.g-page-title {
+  margin: 0;
+  font-size: var(--gree-page-title);
+  font-weight: 700;
+}
+
+.g-card {
+  background: var(--gree-surface);
+  border: 1px solid var(--gree-border-light);
+  border-radius: var(--gree-radius-md);
+  margin-bottom: var(--gree-space-lg);
+}
+
+.g-card-header {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gree-space-md);
+  background: var(--gree-surface-header);
+  border-bottom: 1px solid var(--gree-border-light);
+}
+
+.g-card-title {
+  font-size: var(--gree-card-title);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: var(--gree-space-sm);
+}
+
+.g-card-title::before {
+  display: none;
+}
+
+.g-card-meta {
+  font-size: 12px;
+  color: var(--gree-text-secondary);
+}
+
+.g-card-body {
+  padding: var(--gree-space-md) var(--gree-space-lg);
+}
+
+.g-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--gree-control-height);
+  padding: 0 22px;
+  border-radius: var(--gree-radius-sm);
+  border: 1px solid transparent;
+  font-size: var(--gree-body);
+  cursor: pointer;
+  gap: var(--gree-space-xs);
+}
+
+.g-btn-primary {
+  background: var(--gree-primary);
+  color: #fff;
+}
+
+.g-btn-primary:hover {
+  background: var(--gree-primary-hover);
+}
+
+.g-btn-primary:active {
+  background: var(--gree-primary-active);
+}
+
+.g-btn-primary:disabled {
+  background: var(--gree-primary-disabled-bg);
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.g-btn-secondary {
+  background: var(--gree-surface);
+  color: var(--gree-text-secondary);
+  border-color: var(--gree-border);
+}
+
+.g-btn-secondary:hover {
+  color: var(--gree-primary);
+  border-color: var(--gree-primary);
+}
+
+.g-input {
+  height: var(--gree-control-height);
+  padding: 0 var(--gree-space-md);
+  border: 1px solid var(--gree-border);
+  border-radius: var(--gree-radius-sm);
+  font-size: var(--gree-body);
+  background: var(--gree-surface);
+  color: var(--gree-text);
+  width: 240px;
+}
+
+.g-input:focus {
+  outline: none;
+  border-color: var(--gree-primary);
+  box-shadow: 0 0 0 2px var(--gree-surface-active);
+}
+
+.g-input:disabled {
+  background: var(--gree-surface-header);
+  color: var(--gree-text-disabled);
+  cursor: not-allowed;
+}
+
+.g-input-error {
+  border-color: var(--gree-danger);
+  background: var(--gree-danger-bg);
+}
+
+.g-input-warning {
+  border-color: var(--gree-warning);
+  background: var(--gree-warning-bg);
+}
+
+.g-select,
+.g-datepicker {
+  height: var(--gree-control-height);
+  padding: 0 var(--gree-space-md);
+  border: 1px solid var(--gree-border);
+  border-radius: var(--gree-radius-sm);
+  font-size: var(--gree-body);
+  background: var(--gree-surface);
+  color: var(--gree-text);
+  min-width: 160px;
+}
+
+.g-select:focus,
+.g-datepicker:focus {
+  outline: none;
+  border-color: var(--gree-primary);
+  box-shadow: 0 0 0 2px var(--gree-surface-active);
+}
+
+.g-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--gree-space-xs);
+  padding: var(--gree-space-md) 0;
+}
+
+.g-page-btn {
+  min-width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--gree-border);
+  border-radius: var(--gree-radius-sm);
+  background: var(--gree-surface);
+  color: var(--gree-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.g-page-btn.active {
+  background: var(--gree-primary);
+  border-color: var(--gree-primary);
+  color: #fff;
+}
+
+.g-upload {
+  border: 1px dashed var(--gree-border);
+  border-radius: var(--gree-radius-md);
+  padding: 24px;
+  text-align: center;
+  color: var(--gree-text-aux);
+  background: var(--gree-surface);
+  cursor: pointer;
+}
+
+.g-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  color: var(--gree-text-aux);
+  gap: var(--gree-space-sm);
+  text-align: center;
+}
+
+.g-state-title {
+  font-size: var(--gree-body);
+  font-weight: 700;
+  color: var(--gree-text);
+}
+
+.g-state-desc {
+  font-size: 12px;
+}
+
+.g-field-help {
+  margin-top: var(--gree-space-xs);
+  font-size: 12px;
+  color: var(--gree-text-aux);
+}
+
+.g-field-error {
+  color: var(--gree-danger-text);
+}
+
+.g-field-warning {
+  color: var(--gree-warning);
+}
+
+.g-table-wrap {
+  overflow-x: auto;
+}
+
+.g-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--gree-table);
+}
+
+.g-table th {
+  background: var(--gree-surface-header);
+  color: var(--gree-text-secondary);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px var(--gree-space-md);
+  border-bottom: 1px solid var(--gree-border);
+  white-space: nowrap;
+}
+
+.g-table td {
+  padding: 10px var(--gree-space-md);
+  border-bottom: 1px solid var(--gree-divider);
+  color: var(--gree-text);
+}
+
+.g-table tbody tr:hover {
+  background: var(--gree-surface-hover);
+}
+
+.g-table .g-num {
+  font-weight: 700;
+  text-align: right;
+}
+
+.g-table .g-success-num {
+  color: var(--gree-success-text);
+  font-weight: 700;
+}
+
+.g-table .g-danger-num {
+  color: var(--gree-danger-text);
+  font-weight: 700;
+}
+
+.g-table .g-td-left {
+  text-align: left;
+}
+
+.g-table .g-th-left {
+  text-align: left;
+}
+
+.g-table .g-th-center {
+  text-align: center;
+}
+
+.g-table .g-td-center {
+  text-align: center;
+}
+
+.g-table .g-th-right {
+  text-align: right;
+}
+
+.g-table .g-td-right {
+  text-align: right;
+}
+
+.g-alloc-q {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.g-alloc-u {
+  color: #d9534f;
+  font-weight: 700;
+}
+
+.g-alloc-money {
+  color: #8a6d1a;
+  font-weight: 700;
+}
+
+.g-alloc-badge {
+  display: inline-block;
+  min-width: 24px;
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.g-alloc-badge.q {
+  background: #e6f7ec;
+  color: #2e7d32;
+}
+
+.g-alloc-badge.u {
+  background: #fdecec;
+  color: #d9534f;
+}
+
+.g-summary-value.green {
+  color: var(--gree-success-text);
+}
+
+.g-summary-value.red {
+  color: var(--gree-danger);
+}
+
+.g-summary-value.blue {
+  color: var(--gree-primary);
+}
+
+.g-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--gree-space-sm);
+  border-radius: var(--gree-radius-sm);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.g-tag-default {
+  background: var(--gree-surface-header);
+  color: var(--gree-text-secondary);
+  border: 1px solid var(--gree-border);
+}
+
+.g-tag-success {
+  background: var(--gree-success-bg);
+  color: var(--gree-success-text);
+  border: 1px solid var(--gree-success);
+}
+
+.g-tag-warning {
+  background: var(--gree-warning-bg);
+  color: var(--gree-warning);
+  border: 1px solid var(--gree-warning);
+}
+
+.g-tag-danger {
+  background: var(--gree-danger-bg);
+  color: var(--gree-danger-text);
+  border: 1px solid var(--gree-danger);
+}
+
+.g-tag-info {
+  background: var(--gree-surface-active);
+  color: var(--gree-primary);
+  border: 1px solid var(--gree-primary);
+}
+
+.g-status {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.g-status-wait {
+  background: #d48806;
+}
+
+.g-status-pass {
+  background: #52a24b;
+}
+
+.g-status-reject {
+  background: #d9534f;
+}
+
+.g-status-auto {
+  background: #b45309;
+}
+
+.g-footer-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--gree-space-md);
+  padding: 0 var(--gree-space-lg);
+  background: var(--gree-surface);
+  border-top: 1px solid var(--gree-border-light);
+}
+
+.g-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gree-space-md);
+}
+
+.g-summary-card {
+  flex: 1 1 0;
+  min-width: 180px;
+  background: var(--gree-surface);
+  border: 1px solid var(--gree-border-light);
+  border-radius: var(--gree-radius-md);
+  padding: var(--gree-space-md);
+}
+
+.g-summary-label {
+  font-size: var(--gree-table);
+  color: var(--gree-text-secondary);
+}
+
+.g-summary-value {
+  font-size: var(--gree-summary);
+  font-weight: 700;
+  color: var(--gree-text);
+}
+
+.g-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  color: var(--gree-text-aux);
+  gap: var(--gree-space-sm);
+}
+
+.m-navbar {
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: var(--gree-surface);
+  border-bottom: 1px solid var(--gree-border-light);
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.m-tabbar {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  background: var(--gree-surface);
+  border-top: 1px solid var(--gree-border-light);
+}
+
+.m-tabbar-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  font-size: 12px;
+  color: var(--gree-text-aux);
+}
+
+.m-tabbar-item.active {
+  color: var(--gree-primary);
+  font-weight: 600;
+}
+
+.m-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.m-btn-primary {
+  background: var(--gree-primary);
+  color: #fff;
+}
+
+.m-btn-primary:active {
+  background: var(--gree-primary-active);
+}
+
+.m-list {
+  background: var(--gree-surface);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.m-list-item {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid var(--gree-divider);
+  font-size: 15px;
+}
+
+.m-list-label {
+  color: var(--gree-text-secondary);
+  font-size: 13px;
+}
+
+.m-dialog-mask,
+.m-popup-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+}
+
+.m-dialog {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--gree-surface);
+  border-radius: 12px;
+  box-shadow: var(--gree-shadow-modal);
+  z-index: 101;
+}
+
+.m-popup {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gree-surface);
+  border-radius: 12px 12px 0 0;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  box-shadow: var(--gree-shadow-modal);
+  z-index: 101;
+}
+
+.m-toast {
+  position: fixed;
+  left: 50%;
+  top: 45%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 102;
+}
+
+.m-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 24px;
+  color: var(--gree-text-aux);
+  gap: var(--gree-space-sm);
+  text-align: center;
+}
+
+.m-state-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gree-text);
+}
+
+@media (max-width: 767px) {
+  .g-summary-card {
+    flex: 1 1 45%;
+  }
+}
+
+.g-modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.g-modal-mask.show {
+  display: flex;
+}
+
+.g-modal {
+  width: 640px;
+  max-width: 92vw;
+  max-height: 86vh;
+  background: var(--gree-surface);
+  border-radius: var(--gree-radius-lg);
+  box-shadow: var(--gree-shadow-modal);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.g-modal-header {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--gree-space-lg);
+  border-bottom: 1px solid var(--gree-border);
+  font-weight: 700;
+}
+
+.g-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--gree-space-lg) var(--gree-space-xl);
+}
+
+.g-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--gree-space-md);
+  padding: var(--gree-space-md) var(--gree-space-lg);
+  border-top: 1px solid var(--gree-border);
+}
+
+.g-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 440px;
+  max-width: 92vw;
+  background: var(--gree-surface);
+  box-shadow: var(--gree-shadow-modal);
+  z-index: 101;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.g-drawer.show {
+  transform: translateX(0);
+}
+
+.g-attach-item {
+  display: flex;
+  align-items: center;
+  gap: var(--gree-space-sm);
+  padding: 8px var(--gree-space-md);
+  background: var(--gree-canvas);
+  border: 1px solid var(--gree-border-light);
+  border-radius: var(--gree-radius-sm);
+  font-size: 12px;
+  margin-bottom: var(--gree-space-xs);
+}
+
+.g-order-group {
+  border: 1px solid var(--gree-border-light);
+  border-radius: var(--gree-radius-md);
+  margin-bottom: var(--gree-space-md);
+  overflow: hidden;
+}
+
+.g-order-head {
+  display: flex;
+  align-items: center;
+  gap: var(--gree-space-md);
+  padding: 8px var(--gree-space-md);
+  background: var(--gree-surface-header);
+  border-bottom: 1px solid var(--gree-border-light);
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.g-order-badge {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--gree-primary);
+  background: var(--gree-surface-active);
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.g-order-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 24px;
+  padding: 8px var(--gree-space-md);
+  background: var(--gree-surface-header);
+  border-top: 1px solid var(--gree-border-light);
+  font-size: 12px;
+}
+</style><style>
+body{min-width:1200px;line-height:1.7}button,input,select{font-family:inherit}button:focus-visible,a:focus-visible{outline:2px solid var(--gree-primary);outline-offset:2px}.review-tools{display:flex;align-items:center;gap:8px;padding:8px 20px;background:var(--gree-surface-header);border-bottom:1px solid var(--gree-border);flex-wrap:wrap}.review-tools span{color:var(--gree-text-secondary);font-size:12px}.review-tools a{margin-left:auto}.demo-tools{position:relative}.demo-tools summary{cursor:pointer;color:var(--gree-primary);font-size:12px}.demo-actions{position:absolute;top:32px;left:0;min-width:180px;padding:8px;background:var(--gree-surface);border:1px solid var(--gree-border);border-radius:var(--gree-radius-sm);box-shadow:var(--gree-shadow-float);z-index:40;display:flex;flex-direction:column;align-items:stretch}.page-scroll{padding:16px 20px 88px;max-width:1800px;margin:auto}.head-left,.actions,.tabs{display:flex;align-items:center;gap:12px}.g-page-header{position:sticky;top:0;z-index:20}.back,.text-btn{border:0;background:transparent;color:var(--gree-primary);cursor:pointer;padding:4px 8px;font-size:12px;white-space:nowrap}a{color:var(--gree-primary);text-decoration:none}.g-btn:disabled{cursor:not-allowed}.g-btn-secondary:disabled{color:var(--gree-text-disabled);border-color:var(--gree-border)}.g-card-header{gap:12px;flex-wrap:wrap;padding-top:8px;padding-bottom:8px}.g-table th,.g-table td{text-align:center;padding:8px 12px;white-space:nowrap;height:40px}.g-table .money{text-align:right;font-variant-numeric:tabular-nums}.g-table .product{text-align:left}.g-table{min-width:1050px}.wide-table{min-width:3100px}.g-summary-row{margin-bottom:16px}.g-summary-value{margin-top:4px}.g-summary-label{font-size:12px}.g-footer-bar{position:fixed;bottom:0;left:0;right:0;z-index:25;height:64px}.footer-hint{margin-right:auto;color:var(--gree-text-secondary);font-size:12px;max-width:60%}.toolbar{padding:12px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}.tabs{gap:0;border-bottom:1px solid var(--gree-border-light);background:var(--gree-surface)}.tab{border:0;background:none;padding:12px 20px;cursor:pointer;border-bottom:2px solid transparent;color:var(--gree-text-secondary)}.tab.active{border-color:var(--gree-primary);color:var(--gree-primary);font-weight:700}.empty-icon{width:48px;height:48px;color:var(--gree-text-aux);margin-bottom:8px}.notice{padding:12px 16px;margin-bottom:16px;border:1px solid var(--gree-border);border-radius:var(--gree-radius-sm);background:var(--gree-surface-header);color:var(--gree-text-secondary)}.notice.error{background:var(--gree-danger-bg);border-color:var(--gree-danger);color:var(--gree-danger-text)}.notice.success{background:var(--gree-success-bg);color:var(--gree-success-text)}.pending{color:var(--gree-danger-text)}.subcell{padding:12px 16px!important;background:var(--gree-canvas)}.subtable{min-width:1200px;background:var(--gree-surface);border:1px solid var(--gree-border)}.subtable .fixed{width:88px;min-width:88px}.fixed{position:sticky;left:0;background:var(--gree-surface);z-index:2}.g-table th.fixed{background:var(--gree-surface-header)}.filters{display:flex;align-items:end;gap:16px;flex-wrap:wrap}.filters label{display:flex;flex-direction:column;gap:4px;color:var(--gree-text-secondary);font-size:12px}.filters .g-input{width:200px}.detail-strip{display:flex;flex-wrap:wrap;gap:16px 32px}.detail-strip span{color:var(--gree-text-secondary)}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form-grid label{display:block;color:var(--gree-text-secondary);font-size:12px;margin-bottom:4px}.form-grid .g-input{width:100%}.required{color:var(--gree-danger)}.g-modal-body p{margin:0 0 12px}.dialog-error{min-height:24px;margin-top:12px;color:var(--gree-danger-text);font-size:12px}.toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%);background:var(--gree-text);color:var(--gree-surface);padding:12px 20px;border-radius:var(--gree-radius-md);z-index:150;max-width:80%}.spinner{width:32px;height:32px;border:4px solid var(--gree-border);border-top-color:var(--gree-primary);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:12px}@keyframes spin{to{transform:rotate(360deg)}}.g-state{min-height:300px}.state-actions{display:flex;gap:12px;margin-top:12px}.subhead{text-align:left;margin-bottom:8px}.g-card-meta strong{color:var(--gree-text)}.g-state-desc{max-width:650px}.record{padding:16px;border-bottom:1px solid var(--gree-border-light)}.record p{margin:4px 0;color:var(--gree-text-secondary)}.g-pagination{padding:12px 16px;justify-content:flex-end}.muted{color:var(--gree-text-aux)}[hidden]{display:none!important}
+.barcode-link{display:inline-flex;align-items:center;gap:4px;border:0;background:transparent;padding:0;color:var(--gree-primary);font:inherit;cursor:pointer}.barcode-link:hover .barcode-value{text-decoration:underline}.barcode-flag{color:var(--gree-danger);font-size:12px;font-weight:700;line-height:1}.barcode-duplicates-table{min-width:0;width:100%}.barcode-duplicates-table td{white-space:normal;overflow-wrap:anywhere}.barcode-popup-code{overflow-wrap:anywhere}
+#flowView .flow-heading{display:flex;align-items:center;gap:12px;margin-bottom:16px}#flowView .flow-heading h1{margin-right:auto}#flowView .chart{overflow:auto;background:var(--gree-canvas);border:1px solid var(--gree-border)}#flowView .chart svg{display:block;width:100%;min-width:1050px;height:auto}#flowView .g-card-body>p{margin-top:0;margin-bottom:16px}@media print{body.flow-print{min-width:0}body.flow-print .review-tools,body.flow-print #businessHeader,body.flow-print #footer,body.flow-print #modal,body.flow-print #toast,body.flow-print #flowView .flow-heading{display:none!important}body.flow-print .page-scroll{padding:0;max-width:none}body.flow-print #flowView .chart{overflow:visible}body.flow-print #flowView .chart svg{min-width:0}}
+</style></head><body>
+<div class="review-tools"><span>示例数据 · 不连接业务系统</span><details class="demo-tools"><summary>演示工具</summary><div class="demo-actions"><button class="text-btn" onclick="demo('ready')">恢复初始数据</button><button class="text-btn" onclick="demo('loading')">匹配中</button><button class="text-btn" onclick="demo('failed')">匹配失败</button><button class="text-btn" onclick="demo('complete')">补齐必填项</button><button class="text-btn" onclick="demo('long-lines')">销售行号超长</button></div></details><button class="text-btn" id="flowToggle" style="margin-left:auto" aria-controls="flowView" aria-expanded="false" onclick="toggleFlow()">业务流程图</button></div>
+<header class="g-page-header" id="businessHeader"><div class="head-left"><button class="back" id="back" hidden onclick="goList()">返回列表</button><h1 class="g-page-title" id="pageTitle">销售单逆向单列表</h1></div><span class="g-status g-status-wait" id="headStatus" hidden>待补录</span></header>
+<main class="page-scroll">
+<section id="listView"><div class="g-card"><div class="g-card-body filters"><label>退货单号<input class="g-input" id="searchNo" placeholder="请输入退货单号"></label><label>客户账号<input class="g-input" id="searchAccount" placeholder="请输入客户账号"></label><label>状态<select class="g-select" id="searchStatus"><option value="">全部状态</option><option>已提交OMS</option><option>已回传ERP单号</option><option>推送失败</option><option>推送拦截</option></select></label><button class="g-btn g-btn-primary" onclick="renderList()">查询</button><button class="g-btn g-btn-secondary" onclick="resetSearch()">重置</button></div></div><div class="g-card"><div class="toolbar"><button class="g-btn g-btn-primary" onclick="beginNew()">新建 / 导入</button><span class="g-card-meta">逆向单列表</span></div><div class="g-table-wrap"><table class="g-table"><thead><tr><th>序号</th><th>退货单号</th><th>客户账号</th><th>状态</th><th>创建人</th><th>创建时间</th><th>操作</th></tr></thead><tbody id="listBody"></tbody></table></div><div class="g-pagination" id="listCount"></div></div></section>
+<section id="newView" hidden><div class="g-card"><div class="g-card-header"><div class="g-card-title">导入信息</div><span class="g-card-meta" id="batchMeta"></span></div><div class="g-card-body detail-strip"><div><span>文件：</span>销售残次机退货明细.xlsx</div><div><span>收货账仓：</span><span id="warehouseSummary"></span></div><div><span>导入人：</span>张敏</div><div><span>支持格式：</span>CSV / XLSX，最多 2,000 行</div></div></div>
+<div id="newContent"></div></section>
+<section id="detailView" hidden></section>
+<section id="flowView" hidden><div class="flow-heading"><h1 class="g-page-title">销售单逆向单业务流程图</h1><button class="g-btn g-btn-secondary" onclick="closeFlow()">返回原型</button><button class="g-btn g-btn-secondary" onclick="downloadFlowSvg()">下载 SVG</button><button class="g-btn g-btn-secondary" onclick="window.print()">打印流程图</button></div><section class="g-card"><div class="g-card-header"><div class="g-card-title">导入至 ERP 回传</div><span class="g-card-meta">矩形表示操作，菱形表示判断；节点上方标明执行方。</span></div><div class="g-card-body"><p class="g-card-meta">允许多个账号，编码先转半角并保留原值；同账号开单类型须一致；收货账仓全文件唯一，不同账号也须一致；允许确认导入成功记录，全量覆盖当前未提交数据；失败记录可下载。文件内非空条码重复失败，历史重复每次进入新建 / 详情重新查询，只提示当前状态不拦截；是否类允许是 / 否 / 空，故障原因不联动必填。收货仓编码匹配名称作为 OMS 业务来源，名称字段待接口方确认。价格为空不可提交，0 元允许；不同价格拆预览行；原销售行号按 / 拼接，本地完整保存；推 OMS 最多 64 字符，超长仅拦截推送。历史数据由 BI 返回，仅本次完整导入范围内的机器参与组套。</p><div class="chart"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1290 1550" role="img" aria-labelledby="flow-title flow-desc"><title id="flow-title">销售单逆向开单业务流程</title><desc id="flow-desc">业务导入并核对，集采校验、组装、补录及推送，BI 返回商品订单价格及配套关系，OMS 对接 ERP 并回传单号；含导入失败、匹配失败、空价拦截与重推分支。</desc><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8Z" fill="#3b5998"/></marker></defs><rect width="1290" height="1550" fill="#f5f6fa"/><polyline points="625,116 625,150" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><polyline points="460,195 350,195" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="365" y="180" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">无成功</text><polyline points="195,150 195,78 460,78" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="225" y="66" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">修改后</text><polyline points="625,240 625,280" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="638" y="265" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">有成功，确认导入</text><polyline points="790,328 870,328" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="802" y="314" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">有条码</text><polyline points="460,328 350,328" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="365" y="314" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">无条码</text><polyline points="195,376 195,498 460,498" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="240" y="485" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">保留记录</text><polyline points="1035,376 1035,404 810,404 810,498 790,498" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="830" y="391" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">查询成功</text><polyline points="1100,376 1100,430" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="1110" y="410" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">请求失败</text><polyline points="1200,475 1235,475 1235,328 1200,328" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="1240" y="408" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">重试</text><polyline points="625,546 625,590" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><polyline points="625,686 625,730" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="638" y="715" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">点击提交</text><polyline points="460,785 195,785 195,706" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="205" y="772" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">缺物料 / 空价等：拦截</text><polyline points="350,648 460,648" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="365" y="635" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">保存重算</text><polyline points="790,638 870,638" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="795" y="625" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">重新导入</text><polyline points="1035,590 1035,130 625,130 625,150" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="1060" y="565" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">重新上传后</text><polyline points="625,840 625,890" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="638" y="866" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">通过；0 元允许</text><polyline points="625,966 625,1010" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><polyline points="625,1106 625,1150" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><polyline points="790,1058 870,1058" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="795" y="1043" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">拦截 / 失败</text><polyline points="1035,1126 1035,1184 790,1184" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="850" y="1172" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">重推</text><polyline points="625,1246 625,1290" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><text x="638" y="1276" font-size="12" fill="#3b5998" paint-order="stroke" stroke="#f5f6fa" stroke-width="6">开单完成</text><polyline points="625,1386 625,1430" fill="none" stroke="#3b5998" stroke-width="1.5" marker-end="url(#arrow)"/><g id="start"><rect x="460" y="40" width="330" height="76" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="60" text-anchor="middle" font-size="11" fill="#666666">业务</text><text x="625" y="84" text-anchor="middle" font-size="13" fill="#333333">留存原值、转半角、校验文件</text></g><g id="validate"><path d="M625 150 L790 195 L625 240 L460 195Z" fill="#f8f9fb" stroke="#3b5998"/><text x="625" y="170" text-anchor="middle" font-size="11" fill="#666666">集采</text><text x="625" y="194" text-anchor="middle" font-size="13" fill="#333333">校验后有成功记录？</text></g><g id="file-fail"><rect x="40" y="150" width="310" height="90" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="195" y="170" text-anchor="middle" font-size="11" fill="#666666">业务 + 集采</text><text x="195" y="194" text-anchor="middle" font-size="13" fill="#333333">无成功记录：不可确认导入</text><text x="195" y="214" text-anchor="middle" font-size="13" fill="#333333">下载失败记录，修改后重新上传</text></g><g id="split"><rect x="460" y="280" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="300" text-anchor="middle" font-size="11" fill="#666666">集采</text><text x="625" y="324" text-anchor="middle" font-size="13" fill="#333333">仅成功记录全量覆盖未提交数据</text><text x="625" y="344" text-anchor="middle" font-size="13" fill="#333333">区分成功记录中的有 / 无条码</text></g><g id="bi"><rect x="870" y="280" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="1035" y="300" text-anchor="middle" font-size="11" fill="#666666">BI</text><text x="1035" y="324" text-anchor="middle" font-size="13" fill="#333333">有条码：查询商品、订单、价格</text><text x="1035" y="344" text-anchor="middle" font-size="13" fill="#333333">返回内外机身份及配套关系</text></g><g id="no-barcode"><rect x="40" y="280" width="310" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="195" y="300" text-anchor="middle" font-size="11" fill="#666666">集采</text><text x="195" y="324" text-anchor="middle" font-size="13" fill="#333333">无条码：保留原始明细</text><text x="195" y="344" text-anchor="middle" font-size="13" fill="#333333">跳过 BI，进入人工补录范围</text></g><g id="bi-fail"><rect x="870" y="430" width="330" height="90" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="1035" y="450" text-anchor="middle" font-size="11" fill="#666666">集采 + BI</text><text x="1035" y="474" text-anchor="middle" font-size="13" fill="#333333">查询失败：显示失败并可重试</text><text x="1035" y="494" text-anchor="middle" font-size="13" fill="#333333">失败不是“业务未匹配”</text></g><g id="assemble"><rect x="460" y="450" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="470" text-anchor="middle" font-size="11" fill="#666666">集采</text><text x="625" y="494" text-anchor="middle" font-size="13" fill="#333333">收齐本次导入的匹配结果</text><text x="625" y="514" text-anchor="middle" font-size="13" fill="#333333">仅本次导入的内外机参与组套</text></g><g id="preview"><rect x="460" y="590" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="610" text-anchor="middle" font-size="11" fill="#666666">集采</text><text x="625" y="634" text-anchor="middle" font-size="13" fill="#333333">生成预览：客户账号 + 物料</text><text x="625" y="654" text-anchor="middle" font-size="13" fill="#333333">+ 价格 + 套机 / 单机分组</text></g><g id="edit"><rect x="40" y="590" width="310" height="116" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="195" y="610" text-anchor="middle" font-size="11" fill="#666666">业务 + 集采</text><text x="195" y="634" text-anchor="middle" font-size="13" fill="#333333">补录缺失物料、价格等</text><text x="195" y="654" text-anchor="middle" font-size="13" fill="#333333">或编辑具体一套 / 一台</text><text x="195" y="674" text-anchor="middle" font-size="13" fill="#333333">保存后重新汇总、拆行 / 合并</text></g><g id="check"><path d="M625 730 L790 785 L625 840 L460 785Z" fill="#f8f9fb" stroke="#3b5998"/><text x="625" y="750" text-anchor="middle" font-size="11" fill="#666666">集采</text><text x="625" y="774" text-anchor="middle" font-size="13" fill="#333333">本地提交校验是否通过？</text><text x="625" y="794" text-anchor="middle" font-size="13" fill="#333333">物料、价格及导入规则等</text></g><g id="reset"><rect x="870" y="590" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="1035" y="610" text-anchor="middle" font-size="11" fill="#666666">业务</text><text x="1035" y="634" text-anchor="middle" font-size="13" fill="#333333">提交前可重新导入</text><text x="1035" y="654" text-anchor="middle" font-size="13" fill="#333333">确认成功记录后才覆盖原数据</text></g><g id="confirm"><rect x="460" y="890" width="330" height="76" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="910" text-anchor="middle" font-size="11" fill="#666666">业务</text><text x="625" y="934" text-anchor="middle" font-size="13" fill="#333333">核对预览并二次确认提交</text></g><g id="push"><rect x="460" y="1010" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="1030" text-anchor="middle" font-size="11" fill="#666666">集采</text><text x="625" y="1054" text-anchor="middle" font-size="13" fill="#333333">完整保存本地单据，校验推送</text><text x="625" y="1074" text-anchor="middle" font-size="13" fill="#333333">行号 ≤64 推送；超长拦截</text></g><g id="oms"><rect x="460" y="1150" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="1170" text-anchor="middle" font-size="11" fill="#666666">OMS / ERP</text><text x="625" y="1194" text-anchor="middle" font-size="13" fill="#333333">接收数据并对接 ERP 开单</text><text x="625" y="1214" text-anchor="middle" font-size="13" fill="#333333">开单规则按系统间确认口径</text></g><g id="push-fail"><rect x="870" y="1010" width="330" height="116" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="1035" y="1030" text-anchor="middle" font-size="11" fill="#666666">业务 + 集采</text><text x="1035" y="1054" text-anchor="middle" font-size="13" fill="#333333">超长拦截：本地保留，未发送</text><text x="1035" y="1074" text-anchor="middle" font-size="13" fill="#333333">接口失败：记录原因，按权限重推</text><text x="1035" y="1094" text-anchor="middle" font-size="13" fill="#333333">超长未解决不得绕过校验</text></g><g id="callback"><rect x="460" y="1290" width="330" height="96" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="1310" text-anchor="middle" font-size="11" fill="#666666">OMS → 集采</text><text x="625" y="1334" text-anchor="middle" font-size="13" fill="#333333">回传本次逆向 ERP 单号</text><text x="625" y="1354" text-anchor="middle" font-size="13" fill="#333333">不与历史原订单号混用</text></g><g id="end"><rect x="460" y="1430" width="330" height="76" rx="6" fill="#ffffff" stroke="#e0e3ea"/><text x="625" y="1450" text-anchor="middle" font-size="11" fill="#666666">集采 + 业务</text><text x="625" y="1474" text-anchor="middle" font-size="13" fill="#333333">保存单号及结果，业务查看</text><text x="625" y="1494" text-anchor="middle" font-size="13" fill="#333333">状态“已回传ERP单号”</text></g></svg></div></div></section></section>
+</main>
+<footer class="g-footer-bar" id="footer" hidden><div class="footer-hint" id="footerHint"></div><button class="g-btn g-btn-secondary" id="resetBtn" onclick="askReset()">重新导入</button><button class="g-btn g-btn-primary" id="submitBtn" onclick="trySubmit()">提交推送</button></footer>
+<div class="g-modal-mask" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="g-modal"><div class="g-modal-header"><span id="modalTitle"></span><button class="text-btn" aria-label="关闭弹窗" onclick="closeModal()">关闭</button></div><div class="g-modal-body" id="modalBody"></div><div class="g-modal-footer" id="modalFooter"></div></div></div><div class="toast" id="toast" role="status" hidden></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>Number(v).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const empty=v=>v===null||v===undefined||String(v).trim()==='';
+const validPrice=v=>!empty(v)&&/^\d+(\.\d{1,2})?$/.test(String(v).trim());
+const base={merchant:'京东',account:'P9600019',billType:'X18',warehouse:'Z22',warehouseName:'基地退货账仓',refA:'WQ退京东武汉',refB:'',warehouseSource:'武汉仓',identification:'C20260508000012',appraisal:'J202605080001',performance:'否',performanceReason:'',nonperformance:'箱损',wall:'否',remark:''};
+const seed=[
+{id:'U01',form:'套机',material:'B6001010200',model:'KFR-35GNhPb1BG',price:'200.00',inner:'4Y3235N001805',outer:'4Y3235W001806',originalNo:'ORDER0001',originalLine:'10'},
+{id:'U02',form:'套机',material:'B6001010200',model:'KFR-35GNhPb1BG',price:'200.00',inner:'4Y3235N001810',outer:'4Y3235W001811',originalNo:'ORDER0002',originalLine:'20'},
+{id:'U03',form:'套机',material:'B6001010200',model:'KFR-35GNhPb1BG',price:null,inner:'4Y3235N001820',outer:'4Y3235W001821',originalNo:'',originalLine:'',performance:'是',performanceReason:''},
+{id:'U04',form:'单机',material:'KH340000200',model:'KFR-35G 内机',price:'0.00',inner:'4Y3235N001807',outer:'',originalNo:'ORDER0003',originalLine:'10',billType:'D14'},
+{id:'U05',form:'单机',material:'',model:'',price:null,inner:'4Y3235N001808',outer:'',originalNo:'',originalLine:'',billType:'D14'},
+{id:'U06',form:'单机',material:'KH340000300',model:'KFR-35G 外机',price:'200.00',inner:'',outer:'4Y3235W001809',originalNo:'ORDER0004',originalLine:'10',merchant:'天猫',account:'P9600018',billType:'D14',refA:'WQ退天猫武汉'},
+{id:'U07',form:'单机',material:'',model:'',price:null,inner:'',outer:'',originalNo:'',originalLine:'',performance:'',wall:'',merchant:'天猫',account:'P9600018',billType:'D13',refA:'WQ退天猫武汉',noBarcode:true}
+].map(u=>({...base,...u,billType:u.account==='P9600018'?'D14':'X18',warehouse:'Z22',edited:false}));
+const clone=v=>JSON.parse(JSON.stringify(v));
+// 演示主数据仅供本地校验，不代表生产账号、完整开单类型清单或正式编码格式。
+const demoMaster={accounts:new Map([['P9600019',{merchant:'京东'}],['P9600018',{merchant:'天猫'}]]),billingTypes:new Set(['X18','D14']),warehouses:new Map([['Z22','基地退货账仓'],['Z99','其他收货仓（示例）']])};
+const codeFields=['account','billType','barcode','warehouse','identification','appraisal','material','originalNo','originalLine','inner','outer'];
+function halfwidth(value){return typeof value==='string'?value.replace(/[\uFF01-\uFF5E]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/\u3000/g,' '):value;}
+function businessRow(row){const result={...row};for(const key of [...codeFields,'performance','wall'])if(key in result)result[key]=halfwidth(result[key]);if('warehouse' in result)result.warehouseName=demoMaster.warehouses.get(result.warehouse)||'';return result;}
+function matchedWarehouseName(row){return demoMaster.warehouses.get(businessRow(row).warehouse)||'';}
+// raw 和 rawSnapshot 保留原值；仅业务层使用转换后的值，描述字段不转换、不删除空格。
+const initialRaw=seed.flatMap(u=>(u.noBarcode?['']:[u.inner,u.outer].filter(Boolean)).map(barcode=>({...u,barcode}))).map((u,i)=>({...u,row:i+1}));
+let raw=clone(initialRaw);
+let units=clone(seed),phase='ready',activeTab='preview',expanded=new Set(),filterPending=false,currentView='new',editingId=null,modalAction=null,batch=1,loadToken=0,toastToken=0,submitRecord=null;
+const records=[{id:'XSTH20260825001',account:'P9600019',status:'已回传ERP单号',creator:'张敏',time:'2026-08-25 09:05:07',erp:'ERP-RETURN-0001'},{id:'XSTH20260825002',account:'P9600019',status:'已提交OMS',creator:'张敏',time:'2026-08-25 09:12:30',erp:''},{id:'XSTH20260825003',account:'P9600018',status:'推送失败',creator:'李华',time:'2026-08-25 09:30:11',erp:''}];
+const problems=u=>[...(empty(u.material)?['物料代码未补录']:[]),...(!validPrice(u.price)?['价格未补录或格式错误']:[])];
+
+// 每张单保存提交时的组装结果与原始导入记录，详情不读取当前新建页数据。
+for(const r of records){
+  r.rawSnapshot=clone(raw.filter(row=>row.account===r.account));
+  r.snapshot=clone(seed.filter(unit=>unit.account===r.account)).map(unit=>{
+    if(unit.id==='U03')unit.price='220.00';
+    if(unit.id==='U05')Object.assign(unit,{material:'KH340000200',model:'KFR-35G 内机',price:'180.00'});
+    if(unit.id==='U07')Object.assign(unit,{material:'FAN00001',model:'落地扇',price:'0.00'});
+    return unit;
+  });
+}
+// 演示 BI 身份 / 配套结果；正式字段名以 BI 协议为准，不按条码字符推断。
+const demoBiIdentities=seed.flatMap(u=>[['1',u.inner],['2',u.outer]].filter(([,barcode])=>!empty(barcode)).map(([machineType,barcode])=>({barcode,account:u.account,machineType,matchGroup:u.form==='套机'?'DEMO-'+u.id:''})));
+function isCompleteSet(matches){if(matches.length!==2)return false;const inner=matches.find(x=>String(x.machineType)==='1'),outer=matches.find(x=>String(x.machineType)==='2');return !!(inner&&outer&&!empty(inner.barcode)&&!empty(outer.barcode)&&halfwidth(inner.barcode)!==halfwidth(outer.barcode)&&!empty(inner.matchGroup)&&inner.matchGroup===outer.matchGroup&&inner.account===outer.account);}
+function processingStatus(u){if(problems(u).length)return '待补录';if(u.manuallyCompleted)return '已补录';return u.edited?'已编辑':'已匹配';}
+function groupProcessingStatus(g){const pending=g.items.filter(u=>problems(u).length).length;if(pending)return '<span class="pending">待补录 '+pending+' 条</span>';const counts=new Map();for(const u of g.items){const status=processingStatus(u);counts.set(status,(counts.get(status)||0)+1);}return counts.size===1?[...counts.keys()][0]:[...counts].map(([status,count])=>status+' '+count+' 条').join(' / ');}
+function grouping(items=units){const m=new Map();for(const u of items){const complete=problems(u).length===0;const key=complete?JSON.stringify([u.account,u.material,Number(u.price).toFixed(2),u.form]):'pending:'+u.id;if(!m.has(key))m.set(key,{id:u.id,items:[],first:u});m.get(key).items.push(u);}return [...m.values()];}
+// 按业务单位顺序拼接，不自行去重；空值不增加提交门槛。
+function salesLineValue(g){return g.items.map(u=>String(halfwidth(u.originalLine)??'')).filter(Boolean).join('/');}
+function salesLineLength(g){return Array.from(salesLineValue(g)).length;}
+function salesLineOverflow(items=units){return grouping(items).map((g,index)=>({g,index,length:salesLineLength(g)})).filter(x=>x.length>64);}
+function salesLineCell(g){const value=salesLineValue(g);return value?`<span style="display:inline-block;max-width:280px;white-space:normal;overflow-wrap:anywhere" class="${salesLineLength(g)>64?'pending':''}">${esc(value)}</span>${salesLineLength(g)>64?`<div class="pending">${salesLineLength(g)} / 64 字符，超长</div>`:''}`:'—';}
+function notify(t){$('toast').textContent=t;$('toast').hidden=false;clearTimeout(toastToken);toastToken=setTimeout(()=>$('toast').hidden=true,3500);}
+function openModal(title,body,foot){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalFooter').innerHTML=foot;$('modal').classList.add('show');const el=$('modal').querySelector('input, .g-modal-footer button');if(el)el.focus();}
+function closeModal(){$('modal').classList.remove('show');editingId=null;modalAction=null;}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='Tab'&&$('modal').classList.contains('show')){const controls=[...$('modal').querySelectorAll('button,input,select,a')].filter(x=>!x.disabled);const first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+let flowOpen=false,flowReturnScroll=0;
+function toggleFlow(){if(flowOpen){closeFlow();return;}flowReturnScroll=typeof window!=='undefined'?window.scrollY:0;flowOpen=true;for(const v of ['list','new','detail'])$(v+'View').hidden=true;$('flowView').hidden=false;$('businessHeader').hidden=true;$('footer').hidden=true;$('flowToggle').textContent='返回原型';$('flowToggle').setAttribute?.('aria-expanded','true');$('flowToggle').setAttribute?.('aria-label','返回原型');document.body?.classList.add('flow-print');const tools=document.querySelector?.('.demo-tools');if(tools)tools.hidden=true;if(typeof window!=='undefined')window.scrollTo(0,0);}
+function closeFlow(){const position=flowReturnScroll;showView(currentView);if(typeof window!=='undefined')window.scrollTo(0,position);}
+function downloadFlowSvg(){const svg=$('flowView').querySelector('svg');if(!svg)return;const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='销售单逆向单-业务流程图.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function showView(v){flowOpen=false;$('flowView').hidden=true;$('businessHeader').hidden=false;$('flowToggle').textContent='业务流程图';$('flowToggle').setAttribute?.('aria-expanded','false');$('flowToggle').setAttribute?.('aria-label','业务流程图');document.body?.classList.remove('flow-print');const tools=document.querySelector?.('.demo-tools');if(tools)tools.hidden=false;currentView=v;for(const a of ['list','new','detail'])$(a+'View').hidden=a!==v;$('footer').hidden=v!=='new';$('back').hidden=v==='list';$('pageTitle').textContent=v==='list'?'销售单逆向单列表':v==='new'?'新建销售单逆向单':'销售单逆向单详情';$('headStatus').hidden=v==='list';if(v==='new')renderNew();}
+function goList(){loadToken++;closeModal();showView('list');renderList();}
+function beginNew(){closeModal();showView('new');phase='empty';renderNew();}
+function resetSearch(){$('searchNo').value='';$('searchAccount').value='';$('searchStatus').value='';renderList();}
+function renderList(){const filtered=records.filter(r=>r.id.includes($('searchNo').value.trim())&&r.account.includes($('searchAccount').value.trim())&&(!$('searchStatus').value||r.status===$('searchStatus').value));$('listBody').innerHTML=filtered.map((r,i)=>`<tr><td>${i+1}</td><td><button class="text-btn" onclick="detail('${r.id}')">${esc(r.id)}</button></td><td>${esc(r.account)}</td><td>${esc(r.status)}</td><td>${esc(r.creator)}</td><td>${esc(r.time)}</td><td><button class="text-btn" onclick="detail('${r.id}')">详情</button>${r.status==='推送失败'?`<button class="text-btn" onclick="retry('${r.id}')">重新推送</button>`:''}</td></tr>`).join('')||'<tr><td colspan="7">暂无符合条件的记录</td></tr>';$('listCount').textContent=`共 ${filtered.length} 条（演示数据）`;}
+function retry(id){const r=records.find(r=>r.id===id);if(!r||r.status!=='推送失败')return;if(salesLineOverflow(r.snapshot).length){r.status='推送拦截';r.blockReason='原销售行号拼接超过 64 字符，数据已完整保存在集采，未发送 OMS。';if(currentView==='detail')detail(id);else renderList();notify(r.blockReason);return;}r.status='已提交OMS';if(currentView==='detail')detail(id);else renderList();notify('演示：已重新推送，等待 ERP 回传');}
+let detailActiveTab='gen';
+function detail(id){
+  const r=records.find(r=>r.id===id);
+  if(!r)return;
+  if(currentView!=='detail'||submitRecord!==id)detailActiveTab='gen';
+  submitRecord=id;
+  showView('detail');
+  renderDetail(r);
+}
+function setDetailTab(tab){
+  if(!['gen','raw','push'].includes(tab))return;
+  detailActiveTab=tab;
+  const r=records.find(r=>r.id===submitRecord);
+  if(r)renderDetail(r);
+}
+
+// 本地用演示记录模拟全局查询；正式系统每次进入新建和详情均重新查询全局残次机条码记录及当前状态。
+function queryGlobalBarcodes(rows,excludeId=''){
+  const wanted=new Set(rows.map(r=>halfwidth(r.barcode)).filter(v=>!empty(v))),matches=[];
+  for(const record of records){if(record.id===excludeId)continue;
+    const found=new Set((record.rawSnapshot||[]).map(r=>halfwidth(r.barcode)).filter(v=>!empty(v)));
+    for(const barcode of wanted)if(found.has(barcode))matches.push({barcode,orderNo:record.id,status:record.status});
+  }
+  return matches;
+}
+function duplicateBarcodeCount(rows,excludeId=''){return new Set(queryGlobalBarcodes(rows,excludeId).map(x=>x.barcode)).size;}
+function barcodeCell(value,excludeId=''){
+  if(empty(value))return '—';
+  const matches=queryGlobalBarcodes([{barcode:value}],excludeId);
+  if(!matches.length)return esc(value);
+  return '<button type="button" class="barcode-link" data-barcode="'+esc(value)+'" data-exclude-id="'+esc(excludeId)+'" onclick="showBarcodeDuplicates(this.dataset.barcode,this.dataset.excludeId)" aria-label="'+esc(value+'，存在历史重复，点击查看对应单据')+'" title="存在历史重复，点击条码查看"><span class="barcode-value">'+esc(value)+'</span><span class="barcode-flag" aria-hidden="true">!</span></button>';
+}
+function showBarcodeDuplicates(value,excludeId=''){
+  // 打开弹窗时再查询一次，展示该条码对应的单据当前状态；详情继续排除本单。
+  const matches=queryGlobalBarcodes([{barcode:value}],excludeId);
+  openModal('条码重复记录','<p class="barcode-popup-code">条码：<strong>'+esc(value)+'</strong></p><p class="g-card-meta">共 '+matches.length+' 张退货单，历史重复仅提示，允许继续提交。</p><div class="g-table-wrap"><table class="g-table barcode-duplicates-table"><thead><tr><th>序号</th><th>退货单号</th><th>当前状态</th></tr></thead><tbody>'+ (matches.length?matches.map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+esc(x.orderNo)+'</td><td>'+esc(x.status)+'</td></tr>').join(''):'<tr><td colspan="3">暂无其他重复单据</td></tr>')+'</tbody></table></div>','<button class="g-btn g-btn-primary" onclick="closeModal()">关闭</button>');
+}
+
+function renderDetail(r){
+  const assembled=r.snapshot||[],imported=r.rawSnapshot||[];
+  $('headStatus').className='g-status '+(['推送失败','推送拦截'].includes(r.status)?'g-status-reject':r.status==='已回传ERP单号'?'g-status-pass':'g-status-wait');
+  $('headStatus').textContent=r.status;
+  const tabs=[['gen','生成数据'],['raw','导入明细'],['push','推送记录']];
+  const message=r.status==='推送拦截'?r.blockReason:r.status==='推送失败'?'服务暂不可用，请重新推送。':r.status==='已回传ERP单号'?'逆向 ERP 开单完成。':'推送已受理，等待逆向 ERP 单号。';
+  $('detailView').innerHTML=`
+    <div class="g-card">
+      <div class="g-card-header"><div class="g-card-title">单据信息</div></div>
+      <div class="g-card-body detail-strip">
+        <div>退货单号：${esc(r.id)}</div><div>客户账号：${esc(r.account)}</div>
+        <div>创建人：${esc(r.creator)}</div><div>创建时间：${esc(r.time)}</div>
+        <div>导入明细：${imported.length} 条</div><div>生成数据：${grouping(assembled).length} 行</div>
+        <div>ERP 单号：${esc(r.erp||(r.status==='推送拦截'?'未推送 OMS':'等待回传'))}</div>
+      </div>
+    </div>
+    
+    ${r.status==='推送拦截'?`<div class="notice error">${esc(r.blockReason)}${(r.blockedLines||[]).map(x=>`<div>退货行 ${esc(x.returnItemNo)} · ${esc(x.account)} · ${esc(x.material)}：${x.length} / 64 字符</div>`).join('')}</div>`:''}
+    <div class="g-card">
+      <div class="tabs" role="tablist" aria-label="逆向单详情">
+        ${tabs.map(([key,label])=>`<button class="tab ${detailActiveTab===key?'active':''}" id="detail-tab-${key}" role="tab" aria-selected="${detailActiveTab===key}" aria-controls="detail-panel-${key}" onclick="setDetailTab('${key}')">${label}${key==='raw'?'（'+imported.length+'）':''}</button>`).join('')}
+      </div>
+      <section role="tabpanel" id="detail-panel-gen" aria-labelledby="detail-tab-gen" ${detailActiveTab==='gen'?'':'hidden'}>
+        <div class="toolbar"><strong>生成数据</strong><span class="g-card-meta">只读，展示提交时的组装结果；展开可查看关联条码及原订单信息。</span></div>
+        <div class="g-table-wrap">${previewTable(assembled,true)}</div>
+      </section>
+      <section role="tabpanel" id="detail-panel-raw" aria-labelledby="detail-tab-raw" ${detailActiveTab==='raw'?'':'hidden'}>
+        <div class="toolbar"><strong>导入明细</strong><span class="g-card-meta">只读，保留本单当时导入的原始内容，补录及价格修改不改写此处数据。</span></div>
+        <div class="g-table-wrap">${rawTable(imported,r.id)}</div>
+      </section>
+      <section role="tabpanel" id="detail-panel-push" aria-labelledby="detail-tab-push" ${detailActiveTab==='push'?'':'hidden'}>
+        <div class="toolbar"><strong>推送记录</strong><span class="g-card-meta">展示集采推送 OMS 及 OMS 返回结果。</span></div>
+        <div class="g-table-wrap"><table class="g-table"><thead><tr><th>序号</th><th>提交时间</th><th>节点</th><th>节点状态</th><th>返回信息</th><th>回传时间</th></tr></thead><tbody><tr><td>1</td><td>${esc(r.time)}</td><td>${r.status==='推送拦截'?'集采推送校验':'集采 → OMS'}</td><td>${r.status==='推送拦截'?'拦截，未发送':r.status==='推送失败'?'失败':'已受理'}</td><td>${esc(['推送失败','推送拦截'].includes(r.status)?message:'推送已受理')}</td><td>—</td></tr>${r.status==='已回传ERP单号'?`<tr><td>2</td><td>${esc(r.time)}</td><td>OMS → 集采</td><td>已回传ERP单号</td><td>${esc(r.erp)}</td><td>示例回传</td></tr>`:''}</tbody></table></div>
+        <div class="toolbar"><span class="g-card-meta">${esc(message)}</span>${r.status==='推送失败'?`<button class="g-btn g-btn-primary" onclick="retry('${r.id}')">重新推送</button>`:''}</div>
+      </section>
+    </div>`;
+}
+
+function demo(state){loadToken++;closeModal();raw=clone(initialRaw);units=clone(seed);expanded=new Set();activeTab='preview';filterPending=false;showView('new');phase=['complete','long-lines'].includes(state)?'ready':state;if(['complete','long-lines'].includes(state)){for(const u of units){if(u.id==='U03')u.price='220.00';if(u.id==='U05'){u.material='KH340000200';u.model='KFR-35G 内机';u.price='180.00';}if(u.id==='U07'){u.material='FAN00001';u.model='落地扇';u.price='0.00';}if(['U03','U05','U07'].includes(u.id)){u.edited=true;u.manuallyCompleted=true;}}}if(state==='long-lines'){units[0].originalLine='A'.repeat(32);units[1].originalLine='B'.repeat(32);}renderNew();}
+function renderNew(){const pending=units.filter(u=>problems(u).length),overflow=salesLineOverflow();$('warehouseSummary').textContent=[...new Set(raw.map(r=>businessRow(r).warehouse+' · '+matchedWarehouseName(r)))].join(' / ');$('batchMeta').textContent=`导入批次：PC20261015-${String(batch).padStart(3,'0')}`;$('resetBtn').disabled=phase==='loading'||phase==='empty';$('submitBtn').disabled=phase!=='ready';$('submitBtn').textContent='提交推送';$('headStatus').className='g-status '+(phase==='failed'?'g-status-reject':phase==='ready'&&!pending.length&&!overflow.length?'g-status-pass':'g-status-wait');$('headStatus').textContent=phase==='loading'?'匹配中':phase==='failed'?'匹配失败':phase==='empty'?'待导入':pending.length?'待补录':overflow.length?'待保存 · 推送将拦截':'待提交';
+if(phase==='empty'){$('newContent').innerHTML=`<div class="g-card"><div class="g-state"><svg class="empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 6h16l8 8v28H12z M28 6v10h8 M18 26h12 M18 32h12"/></svg><div class="g-state-title">请先导入销售退货明细</div><div class="g-state-desc">支持 CSV / XLSX，最多 2,000 条数据。失败记录可下载查看原因，确认后仅导入成功记录。</div><div class="state-actions"><button class="g-btn g-btn-secondary" onclick="downloadTemplate()">下载模板</button><button class="g-btn g-btn-primary" onclick="importDialog()">导入明细</button></div></div></div>`;$('footerHint').textContent='请先导入文件';return;}
+if(phase==='loading'||phase==='failed'){$('newContent').innerHTML=`<div class="g-card"><div class="g-state">${phase==='loading'?'<div class="spinner" aria-hidden="true"></div>':''}<div class="g-state-title">${phase==='loading'?'正在匹配商品、订单及配套信息':'匹配请求失败'}</div><div class="g-state-desc">${phase==='loading'?`本次已导入 ${raw.length} 条明细。匹配完成后将统一展示组套及单机结果，请稍候。`:'暂时无法获取完整匹配结果，请重试。当前尚未生成可提交的退货单预览。'}</div>${phase==='failed'?'<div class="state-actions"><button class="g-btn g-btn-primary" onclick="startMatching()">重试匹配</button></div>':''}</div></div>`;$('footerHint').textContent=phase==='loading'?'正在匹配，暂不可提交':'匹配失败，请重试后再提交';return;}
+const groups=grouping(),duplicateCount=duplicateBarcodeCount(raw);$('footerHint').textContent=pending.length?`待补录 ${pending.length} 条；价格为空不可提交，0 元允许。`:overflow.length?`有 ${overflow.length} 行原销售行号超过 64 字符，可保存本地，推送将拦截。`:`全部必填信息已补齐，共 ${groups.length} 行，可提交。`;
+$('newContent').innerHTML=`<div class="g-summary-row"><div class="g-summary-card"><div class="g-summary-label">导入明细</div><div class="g-summary-value">${raw.length} 条</div></div><div class="g-summary-card"><div class="g-summary-label">组装结果</div><div class="g-summary-value">${groups.length} 行</div></div><div class="g-summary-card"><div class="g-summary-label">套机 / 单机数量</div><div class="g-summary-value">${units.filter(u=>u.form==='套机').length} 套 / ${units.filter(u=>u.form==='单机').length} 台</div></div><div class="g-summary-card"><div class="g-summary-label">待补录</div><div class="g-summary-value ${pending.length?'red':'green'}">${pending.length} 条</div></div><div class="g-summary-card" title="按不同条码去重统计，历史重复仅提示"><div class="g-summary-label">重复条码</div><div class="g-summary-value ${duplicateCount?'red':''}">${duplicateCount} 个</div></div></div>${overflow.length?`<div class="notice error">有 ${overflow.length} 行原销售行号拼接后超过 64 字符（含 /）。提交时仍完整保存本地单据，但不会向 OMS 发送；不截断或自动拆行。</div>`:''}<div class="notice ${pending.length?'':'success'}">${pending.length?`有 ${pending.length} 条记录需要补录物料代码或价格。请展开对应行，保存后系统将重新汇总。`:overflow.length?'物料与价格已补齐，可完整保存集采单据；超长仅拦截 OMS 推送。':'所有记录已具备必填信息。提交前请核对商家、物料、数量及价格。'}</div><div class="g-card"><div class="tabs"><button class="tab ${activeTab==='preview'?'active':''}" onclick="tab('preview')">退货单预览</button><button class="tab ${activeTab==='raw'?'active':''}" onclick="tab('raw')">导入明细（${raw.length}）</button></div><div class="toolbar"><span class="g-card-meta">${activeTab==='preview'?'同账号、同物料、同价格且同为套机或单机时合并；不同价格分行。':'保留原始导入记录；补录不改写导入文件内容。'} <span class="required">*</span> 为必填项。</span>${activeTab==='preview'?`<label style="margin-left:auto"><input type="checkbox" onchange="pendingFilter(this.checked)" ${filterPending?'checked':''}> 仅看待补录</label>`:''}</div><div class="g-table-wrap">${activeTab==='preview'?previewTable(units):rawTable(raw,'',true)}</div><div class="g-pagination"><span>共 ${activeTab==='preview'?(filterPending?groups.filter(g=>g.items.some(u=>problems(u).length)).length:groups.length):raw.length} 行</span><span class="g-card-meta">每页 100 条</span><button class="g-page-btn active" aria-label="第1页">1</button></div></div>`;}
+function tab(t){activeTab=t;renderNew();}function pendingFilter(v){filterPending=v;renderNew();}
+function toggle(id,readonly=false){expanded.has(id)?expanded.delete(id):expanded.add(id);if(readonly){const r=records.find(r=>r.id===submitRecord);detail(r?r.id:records[0].id);}else renderNew();}
+function aggregate(g,key){const vals=[...new Set(g.items.map(u=>u[key]||'—'))];return esc(vals.length===1?vals[0]:'多值，展开查看');}
+function requiredHeader(label,required=false){return (required?'<span class="required" aria-label="必填">* </span>':'')+esc(label);}
+function previewTable(items,readonly=false){const excludeId=readonly?submitRecord:'';const detailRecord=readonly?records.find(r=>r.id===submitRecord):null;const erpValue=detailRecord?.erp||(detailRecord?.status==='推送拦截'?'未推送 OMS':'等待回传');const groups=grouping(items).filter(g=>readonly||!filterPending||g.items.some(u=>problems(u).length));const heads=['操作','序号','商家名称','客户账号','套机 / 单机','物料代码','机型','数量','价格（元）','处理情况','开单类型','原订单号','原订单行号','内机条码','外机条码','收货账仓','收货仓名称（编码匹配）','参考A','参考B','仓库名称（原导入）','鉴定批次','残次机鉴定单单号','是否性能故障','性能故障原因','非性能故障','是否上墙','备注'];if(readonly)heads.splice(2,0,'ERP 单号');const columns=heads.length;let html=`<table class="g-table wide-table"><thead><tr>${heads.map((h,i)=>`<th class="${i===0?'fixed':i===heads.indexOf('机型')?'product':i===heads.indexOf('价格（元）')?'money':''}">${requiredHeader(h,!readonly&&['客户账号','开单类型','收货账仓','参考A','物料代码','价格（元）'].includes(h))}</th>`).join('')}</tr></thead><tbody>`;groups.forEach((g,i)=>{const u=g.first;html+=`<tr><td class="fixed"><button class="text-btn" aria-expanded="${expanded.has(g.id)}" onclick="toggle('${g.id}',${readonly})">${expanded.has(g.id)?'收起':'展开'}</button></td><td>${String(i+1).padStart(2,'0')}</td>${readonly?`<td>${esc(erpValue)}</td>`:''}<td>${esc(u.merchant)}</td><td>${esc(u.account)}</td><td>${u.form}</td><td>${empty(u.material)?'<span class="pending">待补录</span>':esc(u.material)}</td><td class="product">${esc(u.model||'—')}</td><td>${g.items.length} ${u.form==='套机'?'套':'台'}</td><td class="money">${validPrice(u.price)?money(u.price):'<span class="pending">待补录</span>'}</td><td>${groupProcessingStatus(g)}</td><td>${aggregate(g,'billType')}</td><td>${aggregate(g,'originalNo')}</td><td>${salesLineCell(g)}</td><td>${g.items.map(x=>barcodeCell(x.inner,excludeId)).join('<br>')}</td><td>${g.items.map(x=>barcodeCell(x.outer,excludeId)).join('<br>')}</td><td>${esc(u.warehouse)}</td><td>${esc(u.warehouseName)}</td><td>${aggregate(g,'refA')}</td><td>${aggregate(g,'refB')}</td><td>${aggregate(g,'warehouseSource')}</td><td>${aggregate(g,'identification')}</td><td>${aggregate(g,'appraisal')}</td><td>${aggregate(g,'performance')}</td><td>${aggregate(g,'performanceReason')}</td><td>${aggregate(g,'nonperformance')}</td><td>${aggregate(g,'wall')}</td><td>${aggregate(g,'remark')}</td></tr>`;if(expanded.has(g.id))html+=`<tr><td class="subcell" colspan="${columns}"><div class="subhead g-card-meta">本行关联明细 ${g.items.length} 条${readonly?'':'；修改具体明细并保存后，预览自动拆分或合并。'}</div><div class="subtable-wrap"><table class="g-table subtable"><thead><tr><th class="fixed">操作</th><th>序号</th><th>内机条码</th><th>外机条码</th><th>${requiredHeader('物料代码',!readonly)}</th><th class="product">机型</th><th class="money">${requiredHeader('价格（元）',!readonly)}</th><th>原订单号</th><th>原订单行号</th><th>情况</th></tr></thead><tbody>${g.items.map((x,index)=>`<tr><td class="fixed">${readonly?'—':`<button class="text-btn" onclick="edit('${x.id}')">${problems(x).length?'补录':'编辑'}</button>`}</td><td>${index+1}</td><td>${barcodeCell(x.inner,excludeId)}</td><td>${barcodeCell(x.outer,excludeId)}</td><td>${esc(x.material||'待补录')}</td><td class="product">${esc(x.model||'—')}</td><td class="money">${validPrice(x.price)?money(x.price):'待补录'}</td><td>${esc(x.originalNo||'—')}</td><td>${esc(x.originalLine||'—')}</td><td>${x.noBarcode?'无条码导入；':''}${problems(x).length?esc(problems(x).join('、')):processingStatus(x)}</td></tr>`).join('')}</tbody></table></div></td></tr>`;});return html+(groups.length?'':'<tr><td colspan="'+columns+'">暂无记录</td></tr>')+'</tbody></table>';}
+function rawTable(rows=raw,excludeId='',markRequired=false){const fields=[['row','序号'],['account','客户账号'],['billType','开单类型'],['barcode','条码'],['warehouse','收货账仓'],['refA','参考A'],['refB','参考B'],['warehouseSource','仓库名称'],['identification','鉴定批次'],['appraisal','残次机鉴定单单号'],['performance','是否性能故障'],['performanceReason','性能故障原因'],['nonperformance','非性能故障'],['wall','是否上墙'],['remark','备注']];return `<table class="g-table wide-table"><thead><tr>${fields.map(f=>`<th>${requiredHeader(f[1],markRequired&&['account','billType','warehouse','refA'].includes(f[0]))}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>'<tr>'+fields.map(f=>`<td>${f[0]==='barcode'?(empty(r.barcode)?'无条码导入':barcodeCell(r.barcode,excludeId)):esc(r[f[0]]||'—')}</td>`).join('')+'</tr>').join('')||'<tr><td colspan="15">暂无导入明细</td></tr>'}</tbody></table>`;}
+function edit(id){editingId=id;const u=units.find(x=>x.id===id);const fields=[['material','物料代码',true],['model','机型',false],['price','价格（元）',true],['originalNo','原订单号',false],['originalLine','原订单行号',false]];openModal('编辑退货明细',`<p class="g-card-meta">${esc(u.form)} · 内机：${esc(u.inner||'—')} · 外机：${esc(u.outer||'—')}${u.noBarcode?' · 无条码导入':''}</p><div class="form-grid">${fields.map(([k,label,required])=>`<div><label for="edit-${k}">${required?'<span class="required">* </span>':''}${label}</label><input class="g-input" id="edit-${k}" value="${esc(u[k]??'')}" ${k==='price'?'inputmode="decimal" placeholder="允许 0；请填写价格"':''}></div>`).join('')}</div><div class="g-field-help">物料代码、价格必填，0 元允许。保存后按物料、价格等条件重新汇总。</div><div class="dialog-error" id="editError" role="alert"></div>`,`<button class="g-btn g-btn-secondary" onclick="closeModal()">取消</button><button class="g-btn g-btn-primary" onclick="saveEdit()">保存并更新预览</button>`);editingId=id;}
+function saveEdit(){const id=editingId,u=units.find(x=>x.id===id),material=halfwidth($('edit-material').value),price=$('edit-price').value.trim();for(const k of ['material','price'])$('edit-'+k).classList.remove('g-input-error');const errors=[];if(!material){errors.push('请补录物料代码');$('edit-material').classList.add('g-input-error');}if(!validPrice(price)){errors.push(empty(price)?'价格不能为空，允许填 0':'价格须为非负数，最多两位小数');$('edit-price').classList.add('g-input-error');}if(errors.length){$('editError').textContent=errors.join('；');return;}const before=grouping().length;const wasPending=problems(u).length>0;const nextValues={material,model:$('edit-model').value,price:Number(price).toFixed(2),originalNo:halfwidth($('edit-originalNo').value),originalLine:halfwidth($('edit-originalLine').value)};const changed=Object.entries(nextValues).some(([k,v])=>String(u[k]??'')!==String(v??''));Object.assign(u,nextValues,{edited:u.edited||changed,manuallyCompleted:u.manuallyCompleted||wasPending});const after=grouping().length;closeModal();filterPending=false;const g=grouping().find(x=>x.items.some(a=>a.id===id));expanded=new Set([g.id]);renderNew();notify(after>before?'保存成功，已拆为不同预览行；数量已更新':after<before?'保存成功，已合并同价预览行；数量已更新':'保存成功，预览已更新');}
+function askReset(){importDialog();}
+const importFields=[['account','客户账号'],['billType','开单类型'],['barcode','条码'],['warehouse','收货账仓'],['refA','参考A'],['refB','参考B'],['warehouseSource','仓库名称'],['identification','鉴定批次'],['appraisal','残次机鉴定单单号'],['performance','是否性能故障'],['performanceReason','性能故障原因'],['nonperformance','非性能故障'],['wall','是否上墙'],['remark','备注']];
+let importErrors=[],importCandidate=[],importSelected=false,importUploaded=false,importFileName='';
+function validateImportRows(rows){
+  const errors=[],byAccount=new Map(),processed=rows.map(businessRow),barcodes=new Map();
+  function add(index,key,label,reason){const r=rows[index];errors.push({index,row:index+2,account:r.account??'',field:label,value:r[key]??'',reason});}
+  if(!rows.length)return [{index:-1,row:'—',account:'',field:'文件',value:'',reason:'文件没有数据行'}];
+  if(rows.length>2000)errors.push({index:-1,row:'—',account:'',field:'文件',value:rows.length,reason:'最多允许 2,000 条数据，请减少记录后重新上传'});
+  processed.forEach((r,index)=>{
+    if(empty(r.account)||!demoMaster.accounts.has(r.account))add(index,'account','客户账号','填写有误或不存在');
+    if(empty(r.warehouse)||!demoMaster.warehouses.has(r.warehouse))add(index,'warehouse','收货账仓','使用收货仓编码则必填或填写错误');
+    if(empty(r.billType))add(index,'billType','开单类型','开单类型不能为空');
+    else if(!demoMaster.billingTypes.has(r.billType))add(index,'billType','开单类型','开单类型不在系统配置的允许选项内');
+    if(empty(r.refA))add(index,'refA','参考A','参考A不能为空');
+    for(const [key,label] of [['performance','是否性能故障'],['wall','是否上墙']])if(r[key]!==''&&r[key]!==null&&r[key]!==undefined&&!['是','否'].includes(r[key]))add(index,key,label,label+'仅允许是、否或留空');
+    if(!empty(r.barcode)){if(!barcodes.has(r.barcode))barcodes.set(r.barcode,[]);barcodes.get(r.barcode).push(index);}
+    if(!empty(r.account)){const account=String(r.account);if(!byAccount.has(account))byAccount.set(account,[]);byAccount.get(account).push(index);}
+  });
+  for(const [account,indexes] of byAccount){for(const [key,label] of [['billType','开单类型']]){
+    const values=[...new Set(indexes.map(i=>processed[i][key]).filter(v=>!empty(v)).map(String))];
+    if(values.length>1){const reason='客户账号 '+account+' 的'+label+'必须一致，当前存在：'+values.join('、');for(const index of indexes)add(index,key,label,reason);}
+  }}
+  for(const [barcode,indexes] of barcodes)if(indexes.length>1)for(const index of indexes)add(index,'barcode','条码','同一文件内条码重复：'+barcode);
+  const warehouses=[...new Set(processed.map(r=>r.warehouse).filter(v=>!empty(v)).map(String))];
+  if(warehouses.length>1){const reason='本次导入的收货账仓必须一致（全文件唯一），当前存在：'+warehouses.join('、');rows.forEach((r,index)=>add(index,'warehouse','收货账仓',reason));}
+  return errors;
+}
+function importDialog(){
+  importErrors=[];importCandidate=[];importSelected=false;importUploaded=false;importFileName='';
+  openModal('导入销售退货明细',`<div class="g-upload" style="text-align:left;padding:20px"><strong>填写销售残次机退货明细</strong><div class="g-field-help">支持 CSV / XLSX，每个文件最多 2,000 条数据。</div><button class="text-btn" onclick="downloadTemplate()">下载模板</button></div><p class="g-card-meta" style="margin-top:16px">导入完成后显示成功、失败数量，失败原因请下载失败记录查看。</p><div class="notice">确认导入将以本次成功记录全量覆盖当前未提交数据及人工修改，历史单据保留。</div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span id="importFileLabel" class="g-card-meta" style="flex:1;min-width:160px">尚未选择文件</span><button class="g-btn g-btn-secondary" onclick="selectImportExample()">选择文件</button><button class="g-btn g-btn-primary" id="uploadImportBtn" onclick="validateImportDemo()" disabled>上传文件</button></div><div id="importResult" style="margin-top:20px" role="status"></div>`,`<button class="g-btn g-btn-secondary" onclick="closeModal()">取消</button><button class="g-btn g-btn-primary" id="confirmImportBtn" onclick="confirmImport()" disabled>确认导入</button>`);
+}
+function selectImportExample(){importSelected=true;importFileName='销售残次机退货明细.xlsx';$('importFileLabel').textContent=importFileName;$('uploadImportBtn').disabled=false;clearImportResult();}
+function clearImportResult(){importErrors=[];importCandidate=[];importUploaded=false;$('importResult').textContent='';$('confirmImportBtn').disabled=true;}
+function importFailedIndexes(){return new Set(importErrors.filter(e=>e.index>=0).map(e=>e.index));}
+function importSuccessRows(){if(!importUploaded||importErrors.some(e=>e.index<0))return [];const failed=importFailedIndexes();return importCandidate.filter((r,i)=>!failed.has(i));}
+function validateImportDemo(scenario='required'){
+  if(!importSelected)return;importCandidate=clone(initialRaw);
+  if(['bill','both'].includes(scenario))importCandidate[2].billType='D14';
+  if(['warehouse','both'].includes(scenario))importCandidate.filter(r=>r.account==='P9600018').forEach(r=>r.warehouse='Z99');
+  if(scenario==='required')importCandidate[9].refA='';
+  if(scenario==='barcode')importCandidate[2].barcode=importCandidate[0].barcode;
+  if(scenario==='invalid'){importCandidate[0].account='不存在的账号';importCandidate[1].warehouse='';importCandidate[2].performance='未知选项';}
+  if(scenario==='fullwidth')for(const r of importCandidate)for(const key of ['account','billType','warehouse','barcode'])r[key]=String(r[key]??'').replace(/[!-~]/g,c=>String.fromCharCode(c.charCodeAt(0)+0xFEE0));
+  if(scenario==='optional')for(const r of importCandidate){r.performance=r.row===1?'是':'';r.performanceReason='';r.wall='';}
+  importErrors=validateImportRows(importCandidate);importUploaded=true;
+  const failed=importErrors.some(e=>e.index<0)?importCandidate.length:importFailedIndexes().size,success=importSuccessRows().length;
+  $('confirmImportBtn').disabled=!success;
+  $('importResult').innerHTML=`<div style="display:flex;justify-content:space-between;gap:12px"><strong>${esc(importFileName)}</strong>${failed?'<button class="text-btn" onclick="exportImportErrors()">下载失败记录</button>':''}</div><div role="progressbar" aria-label="上传及校验已完成" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="height:8px;background:var(--gree-border);border-radius:4px;margin:12px 0"><div style="height:100%;width:100%;background:var(--gree-primary);border-radius:4px"></div></div><p class="g-card-meta">上传及校验完成 · 100%</p><p>共 ${importCandidate.length} 条记录，校验成功 <strong class="green">${success}</strong> 条，校验失败 <strong class="pending">${failed}</strong> 条。</p><p class="g-card-meta">${success?'确认后仅导入成功记录，并全量覆盖当前未提交数据。':'没有可导入的成功记录，请下载失败记录，修改文件后重新上传。'}</p>`;
+}
+function csvValue(value){return '"'+String(value??'').replace(/"/g,'""')+'"';}
+function importErrorCsv(){const header=[...importFields.map(f=>f[1]),'错误原因'],failed=importFailedIndexes();const lines=importCandidate.flatMap((r,i)=>failed.has(i)?[[...importFields.map(([key])=>r[key]),[...new Set(importErrors.filter(e=>e.index===i).map(e=>e.reason))].join('；')]]:[]);return '\ufeff'+[header,...lines].map(row=>row.map(csvValue).join(',')).join('\r\n')+'\r\n';}
+function exportImportErrors(){if(!importErrors.length)return;const blob=new Blob([importErrorCsv()],{type:'text/csv;charset=utf-8'}),a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='销售残次机退货-失败记录.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function confirmImport(){const accepted=importSuccessRows();if(!accepted.length)return;raw=clone(accepted);batch++;showView('new');startMatching();}
+function matchedDemoUnits(){return seed.filter(u=>raw.some(r=>r.id===u.id)).map(u=>{
+  const rows=raw.filter(r=>r.id===u.id).map(businessRow),barcodes=rows.map(r=>r.barcode).filter(v=>!empty(v));
+  const result={...clone(u),...Object.fromEntries(importFields.filter(([key])=>key!=='barcode').map(([key])=>[key,rows[0][key]])),warehouseName:matchedWarehouseName(rows[0]),merchant:demoMaster.accounts.get(rows[0].account)?.merchant||''};
+  const identities=demoBiIdentities.filter(x=>x.account===result.account&&barcodes.includes(halfwidth(x.barcode)));
+  result.inner=identities.find(x=>x.machineType==='1')?.barcode||'';result.outer=identities.find(x=>x.machineType==='2')?.barcode||'';result.noBarcode=barcodes.length===0;
+  result.form=isCompleteSet(identities)?'套机':'单机';
+  // 固定示例中，部分失败后不能重新带回未通过的配套条码；剩余单机等待 BI 实际结果或补录。
+  if(u.form==='套机'&&result.form!=='套机')Object.assign(result,{form:'单机',material:'',model:'',price:null});
+  return result;
+});}
+function startMatching(){closeModal();units=matchedDemoUnits();expanded.clear();activeTab='preview';filterPending=false;phase='loading';renderNew();const token=++loadToken;setTimeout(()=>{if(token!==loadToken||currentView!=='new')return;phase='ready';renderNew();notify('匹配完成，请补录缺失信息');},1800);}
+function downloadTemplate(){const headers=['客户账号','开单类型','条码','收货账仓','参考A','参考B','仓库名称','鉴定批次','残次机鉴定单单号','是否性能故障','性能故障原因','非性能故障','是否上墙','备注'];const blob=new Blob(['\ufeff'+headers.join(',')+'\r\n'],{type:'text/csv;charset=utf-8'});const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='销售残次机退货导入模板.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function checkSubmissionRules(){if(validateImportRows(raw).length||validateImportRows(units).length){notify('开单类型或收货账仓等导入信息校验未通过，请重新导入并查看错误明细');return false;}return true;}
+function trySubmit(){const pending=units.filter(u=>problems(u).length);if(phase!=='ready'||!checkSubmissionRules())return;if(pending.length){filterPending=true;activeTab='preview';expanded=new Set(grouping().filter(g=>g.items.some(u=>problems(u).length)).map(g=>g.id));renderNew();notify(`暂不能提交：请补齐 ${pending.length} 条记录的物料代码或价格。0 元允许。`);return;}const overflow=salesLineOverflow();openModal('确认提交推送',`<p>本次导入 ${raw.length} 条明细，已组装为 ${grouping().length} 个预览行。</p><p>套机 ${units.filter(u=>u.form==='套机').length} 套，单机 ${units.filter(u=>u.form==='单机').length} 台，所有记录价格均已填写。</p>${overflow.length?`<div class="notice error">有 ${overflow.length} 行原销售行号超过 64 字符。确认后将完整保存集采单据，但拦截本次 OMS 推送。</div>`:'<p>提交后先完整保存集采单据，再推送 OMS。</p>'}<p>请确认商家、物料、数量及价格正确。</p>`,`<button class="g-btn g-btn-secondary" onclick="closeModal()">返回核对</button><button class="g-btn g-btn-primary" onclick="finishSubmit()">${overflow.length?'确认保存本地单据':'确认提交'}</button>`);}
+function finishSubmit(){if(phase!=='ready'||units.some(u=>problems(u).length)||!checkSubmissionRules())return;const snapshots=clone(units),overflow=salesLineOverflow(snapshots);closeModal();const id='XSTH-DEMO-'+String(records.length+1).padStart(3,'0');const record={id,account:[...new Set(snapshots.map(x=>x.account))].join('、'),status:'待推送',creator:'张敏',time:'2026-10-19（本地演示）',erp:'',generatedLines:grouping(snapshots).map((g,index)=>({returnItemNo:String(index+1),saleOrderItemNo:salesLineValue(g)})),snapshot:snapshots,rawSnapshot:clone(raw),businessSnapshot:raw.map(businessRow),warehouseMappingStatus:'业务来源已确认；OMS 名称字段待接口方确认'};
+  // 先保存完整本地单据和来源快照；OMS 长度限制只决定是否推送，不修改本地数据。
+  records.unshift(record);
+  if(overflow.length){record.status='推送拦截';record.blockReason='原销售行号拼接超过 64 字符，数据已完整保存在集采，未发送 OMS。';record.blockedLines=overflow.map(x=>({returnItemNo:String(x.index+1),account:x.g.first.account,material:x.g.first.material,length:x.length}));}else{record.status='已提交OMS';record.omsLines=clone(record.generatedLines);}
+  submitRecord=id;phase='empty';goList();notify(overflow.length?'演示：本地单据已完整保存，原销售行号超长，未发送 OMS。':'演示：提交成功，等待逆向 ERP 单号回传');}
+goList();
+</script></body></html>
