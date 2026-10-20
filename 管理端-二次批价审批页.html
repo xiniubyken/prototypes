@@ -600,7 +600,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       </div>
       <div style="padding:12px 16px;">
         <div class="equip-table-wrap" style="max-height:350px;">
-          <table class="equip-table" style="min-width:2000px;">
+          <table class="equip-table" style="min-width:2100px;">
             <thead>
               <tr>
                 <th style="width:36px;text-align:center;" data-col="checkbox"><input type="checkbox" onchange="toggleAllRows(this)"></th>
@@ -620,6 +620,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
                 <th style="min-width:110px;" data-col="range">权限区间</th>
                 <th style="min-width:70px;" data-col="resetPoint">批复点位%</th>
                 <th style="min-width:72px;color:#D32F2F;" data-col="depositRate">*定金比例</th>
+                <th style="min-width:88px;" data-col="rebateLimit">返利比例上限%<span class="proto-new-tag inline">NEW</span></th>
                 <th style="min-width:85px;color:#D32F2F;" data-col="onlinePrice">*网批挂网价</th>
                 <th style="min-width:70px;" data-col="estimate">预估价</th>
                 <th style="min-width:85px;" data-col="remark">备注</th>
@@ -1380,7 +1381,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   <div class="export-body">
     <table class="export-table">
       <thead><tr>
-        <th>序号</th><th>非标</th><th>*品类</th><th>商品名称</th><th>型号</th><th>SKU编码</th><th>商品ID</th><th>*申请数量</th><th>原申请数量</th><th>*申请价格</th><th>原申请价格</th><th>申请点位%</th><th>批复价格</th><th>权限区间</th><th>批复点位%</th><th>*定金比例</th><th>*网批挂网价</th><th>预估价</th><th>备注</th>
+        <th>序号</th><th>非标</th><th>*品类</th><th>商品名称</th><th>型号</th><th>SKU编码</th><th>商品ID</th><th>*申请数量</th><th>原申请数量</th><th>*申请价格</th><th>原申请价格</th><th>申请点位%</th><th>批复价格</th><th>权限区间</th><th>批复点位%</th><th>*定金比例</th><th>返利比例上限%</th><th>*网批挂网价</th><th>预估价</th><th>备注</th>
       </tr></thead>
       <tbody id="exportEquipTbody">
       </tbody>
@@ -1466,20 +1467,20 @@ var selectedProjectData = {
   equipList:[
     { seq:1, isNonStd:false, cate:'多联机', name:'GMV5多联机 10HP', model:'GMV-450WM/A', sku:'SKU-GMV5-10HP', id:'P100001',
       saleType:'常规价', qty:5, origQty:5, price:42000, origPrice:46000, point:8.5, remark:'--',
-      approvePrice:41500, resetPoint:1.5, depositRate:10, onlinePrice:48000, estimatePrice:43200, range:'¥41,500 ~ ¥48,000' },
+      approvePrice:41500, resetPoint:1.5, depositRate:10, rebateLimit:7.5, onlinePrice:48000, estimatePrice:43200, range:'¥41,500 ~ ¥48,000' },
     { seq:2, isNonStd:true, isBound:false, cate:'定制设备', name:'定制机-非标控制柜', model:'非标-DZ-001', sku:'SKU-NON-001', id:'P100100',
       saleType:'买断价', qty:1, origQty:1, price:38000, origPrice:38000, point:0, remark:'按图纸定制',
-      approvePrice:37500, resetPoint:0, depositRate:15, onlinePrice:0, estimatePrice:0, range:'--',
+      approvePrice:37500, resetPoint:0, depositRate:15, rebateLimit:6.5, onlinePrice:0, estimatePrice:0, range:'--',
       originNonStdModel:'', boundProductName:'', boundProductCate:'', boundProductModel:'', boundProductSku:'', boundProductId:'', boundOnlinePrice:0 },
     { seq:3, isNonStd:false, cate:'中央空调', name:'格力 KFRd-120LW/NhGb1B 柜机', model:'KFRd-120LW/NhGb1B', sku:'SKU-GJ-120GB', id:'P100002',
       saleType:'常规价', qty:8, origQty:8, price:7600, origPrice:8000, point:9, remark:'',
-      approvePrice:7500, resetPoint:2, depositRate:10, onlinePrice:8500, estimatePrice:7650, range:'¥7,500 ~ ¥8,500' },
+      approvePrice:7500, resetPoint:2, depositRate:10, rebateLimit:7.0, onlinePrice:8500, estimatePrice:7650, range:'¥7,500 ~ ¥8,500' },
     { seq:4, isNonStd:false, cate:'新风', name:'格力 FGR5Pd/NhBa1 吊顶式新风', model:'FGR5Pd/NhBa1', sku:'SKU-XF-5NBA1', id:'P100003',
       saleType:'特价', qty:10, origQty:10, price:4200, origPrice:4500, point:11, remark:'',
-      approvePrice:4000, resetPoint:2.5, depositRate:10, onlinePrice:5000, estimatePrice:4500, range:'¥4,000 ~ ¥5,000' },
+      approvePrice:4000, resetPoint:2.5, depositRate:10, rebateLimit:7.0, onlinePrice:5000, estimatePrice:4500, range:'¥4,000 ~ ¥5,000' },
     { seq:5, isNonStd:false, cate:'多联机', name:'格力 GMV-H224WL/A1 多联机组', model:'GMV-H224WL/A1', sku:'SKU-MLJ-224A1', id:'P100004',
       saleType:'打包价', qty:3, origQty:3, price:19800, origPrice:22000, point:13, remark:'',
-      approvePrice:19500, resetPoint:3, depositRate:15, onlinePrice:22500, estimatePrice:20250, range:'¥19,500 ~ ¥22,500' }
+      approvePrice:19500, resetPoint:3, depositRate:15, rebateLimit:7.0, onlinePrice:22500, estimatePrice:20250, range:'¥19,500 ~ ¥22,500' }
   ]
 };
 
@@ -1729,6 +1730,7 @@ function renderEquipList() {
       rangeHtml +
       '<td style="color:#1f2329;" data-col="resetPoint">' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '--') + '</td>' +
       '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="' + eq.depositRate + '" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
+      '<td data-col="rebateLimit"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-rebate-limit" type="number" value="' + (eq.rebateLimit !== undefined && eq.rebateLimit !== null ? eq.rebateLimit : '') + '" min="0" max="100" step="0.1" style="width:42px;" placeholder="%" oninput="clampRebateRate(this)"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
       onlinePriceHtml +
       estimateHtml.replace('<td', '<td data-col="estimate"') +
       '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填..." value="' + (eq.remark !== '--' ? eq.remark : '') + '"></td>' +
@@ -1746,6 +1748,16 @@ function calcPriceFromPoint(pointInput) {
 }
 
 // ====================== 申请数量/申请价格 与原值对比标红 ======================
+
+// 返利比例上限：仅允许 0~100 的数值（实时钳制）
+function clampRebateRate(el) {
+  var raw = el.value;
+  if (raw === '') return;
+  var n = parseFloat(raw);
+  if (isNaN(n)) { el.value = ''; return; }
+  if (n > 100) el.value = 100;
+  else if (n < 0) el.value = 0;
+}
 
 // 申请数量输入范围校验（实时）
 function validateQtyRange(el) {
@@ -1891,6 +1903,7 @@ function addNonStdRow() {
     '<td style="font-size:12px;color:#8f959e;" data-col="range">--</td>' +
     '<td style="color:#1f2329;" data-col="resetPoint">--</td>' +
     '<td data-col="depositRate"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num" type="number" value="10" min="0" max="100" step="0.1" style="width:42px;" placeholder="%"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
+    '<td data-col="rebateLimit"><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-rebate-limit" type="number" value="" min="0" max="100" step="0.1" style="width:42px;" placeholder="%" oninput="clampRebateRate(this)"><span style="font-size:11px;color:#646a73;">%</span></div></td>' +
     '<td data-col="onlinePrice"><input class="td-input td-num equip-online-price" type="number" min="1" max="9999999" style="width:78px;" placeholder="输入挂网价"></td>' +
     '<td style="font-size:12px;color:#8f959e;" data-col="estimate" class="equip-estimate-txt">待绑定商品后填写</td>' +
     '<td data-col="remark"><input class="td-input" style="width:85px;" placeholder="选填备注..."></td>' +
@@ -1902,7 +1915,7 @@ function addNonStdRow() {
     cate: '冷水机组', name: '定制机', model: '', sku: '', id: '',
     saleType: '买断价', qty: 1, origQty: 0, price: 0, origPrice: 0,
     point: 0, remark: '', approvePrice: 0, resetPoint: 0,
-    depositRate: 10, onlinePrice: 0, estimatePrice: 0
+    depositRate: 10, rebateLimit: null, onlinePrice: 0, estimatePrice: 0
   });
   recalcSummary();
   syncColumnVisibility();
@@ -1946,6 +1959,7 @@ var columnConfig = [
   {key:'range',       name:'权限区间',             visible:true},
   {key:'resetPoint',  name:'批复点位%',           visible:true},
   {key:'depositRate', name:'*定金比例',           visible:true},
+  {key:'rebateLimit', name:'返利比例上限%',        visible:true},
   {key:'onlinePrice', name:'*网批挂网价',         visible:true},
   {key:'estimate',    name:'预估价',              visible:true},
   {key:'remark',      name:'备注',                visible:true},
@@ -2358,7 +2372,7 @@ function confirmBind(){
       sku: prod.sku, id: prod.productId,
       saleType: '常规价', qty: 1, origQty: 0, price: 0, origPrice: 0,
       point: 0, remark: '', approvePrice: 0, resetPoint: 0,
-      depositRate: 10, onlinePrice: prod.onlinePrice || 0, estimatePrice: 0
+      depositRate: 10, rebateLimit: null, onlinePrice: prod.onlinePrice || 0, estimatePrice: 0
     });
     closeAddStdModal();
     renderEquipList();
@@ -2550,6 +2564,7 @@ function renderExportTable() {
       '<td>' + rangeVal + '</td>' +
       '<td>' + (eq.resetPoint !== undefined ? eq.resetPoint + '%' : '') + '</td>' +
       '<td>' + (eq.depositRate !== undefined ? eq.depositRate + '%' : '') + '</td>' +
+      '<td>' + (eq.rebateLimit !== undefined && eq.rebateLimit !== null && eq.rebateLimit !== '' ? eq.rebateLimit + '%' : '') + '</td>' +
       '<td>' + onlinePriceFmt + '</td>' +
       '<td>' + estimatePriceFmt + '</td>' +
       '<td>' + (eq.remark && eq.remark !== '--' ? eq.remark : '') + '</td>';
