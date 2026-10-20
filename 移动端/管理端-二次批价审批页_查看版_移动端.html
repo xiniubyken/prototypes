@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<!--
+  【2026-10-17 修订 · 工程返利字段（新增，与 PC 管理端-批价单详情.html 同口径）】
+  1. 设备卡片**不展示**「返利比例上限」；改为点击商品 → 商品详情弹层内展示（仅 full 模式：待提货/部分提货/已完结/已关闭）
+  2. 设备清单汇总区新增「已使用返利：¥x」（整单口径，数据 d.usedRebate）—— **仅待提货/部分提货/已完结/已关闭展示，审批中系列与已驳回不展示**（订单尚未支付）
+  3. 状态「待提货 / 部分提货」底部操作栏新增按钮「工程返利参数配置」→ **居中弹窗**逐行配置返利比例上限（必填、0~100）
+     —— 2026-10-20 已按需求移除该底部按钮（弹窗与配置逻辑保留，返利比例上限改为仅展示）
+  4. 【修正】设备卡片点击事件原为 onclick="openProd(list.indexOf(e))"，list/e 是 renderDevices() 局部变量、内联 onclick 在全局作用域求值 → ReferenceError，弹层打不开；已改为 openProd(索引变量 idx)
+  5. 【修正】商品详情弹层字段对齐 PC 设备清单列（full 15 项 / simple 8 项；商品名称在弹层标题区展示，不重复列）
+  6. 【修正】非标商品同样有批复比例：DEV_APPROVED 中「定制机-非标控制柜」rpoint / rebateLimit 由 null 补为 6.5（待提货/部分提货/已完结/已关闭均生效），弹层不再显示「—」
+  7. 【演示调整】非标商品「定制机-非标控制柜」由第 5 条前移至第 3 条 —— 设备清单默认只展示前 3 条，
+     前移后无需点「展示全部」即可看到非标标识（与 PC 表格顺序有意不同，PC 仍为第 5 行）；
+     同时 DEV_PENDING / DEV_APPROVED 两套数据一致调整，devOf() 的购买/发货数量数组已按新索引同步重排
+  说明：NEW 角标仅标识本次新增范围，非 UI 需求。
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>管理端-二次批价审批页_查看版</title>
+<style>
+:root{
+  --blue:#0868d7;--bg:#f5f6f7;--text:#222;--line:#ececec;--red:#ff5158;--green:#1a9c5c;
+  --orange:#ff6a00;--gray:#8f959e;--safe-bottom:env(safe-area-inset-bottom)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#e9edf4;color:var(--text)}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;overflow-x:hidden}
+button{font:inherit;cursor:pointer}
+.phone{width:100%;max-width:428px;min-height:100vh;margin:0 auto;background:var(--bg);overflow:hidden;position:relative;padding-bottom:84px}
+.statusbar{height:25px;padding:4px 18px 0;background:#fff;display:flex;align-items:flex-start;justify-content:space-between;font-size:12px;font-weight:700}
+.status-icons{display:flex;gap:5px;align-items:center;font-size:10px}
+.signal{letter-spacing:-2px;font-size:13px}.wifi{font-size:12px}.battery{width:19px;height:9px;border:1.5px solid #222;border-radius:3px;position:relative}
+.battery:after{content:"";position:absolute;right:-3px;top:2px;width:2px;height:4px;background:#222;border-radius:1px}
+.battery:before{content:"";position:absolute;left:1px;top:1px;bottom:1px;width:13px;background:#222;border-radius:1px}
+.nav{height:56px;padding:0 10px 0 4px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;position:sticky;top:0;z-index:20}
+.back{width:40px;height:40px;border:0;background:transparent;display:grid;place-items:center;color:#333}
+.back i{width:14px;height:14px;border-left:2px solid #333;border-bottom:2px solid #333;transform:rotate(45deg);display:inline-block}
+.nav-title{position:absolute;left:50%;transform:translateX(-50%);font-size:19px;font-weight:700;white-space:nowrap}
+.summary{background:#fff;padding:12px 16px 14px;border-bottom:8px solid #f2f3f5}
+.sum-no{display:flex;align-items:center;gap:6px;font-size:18px;font-weight:700;line-height:1.3}
+.sum-no .lbl{font-size:12px;font-weight:400;color:var(--gray)}
+.chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 8px;font-size:12px;white-space:nowrap}
+.chip.gray{background:#f0f2f5;color:#444}
+.chip.blue{background:#e7f0ff;color:var(--blue)}
+.chip.orange{background:#fff3e2;color:#d46b08}
+.chip.green{background:#e8f5e9;color:var(--green)}
+.sum-name{margin-top:8px;font-size:16px;color:#333;font-weight:700;line-height:1.45}
+.sum-sub{margin-top:4px;font-size:13px;color:#888;line-height:1.45}
+.expiry{margin-top:10px;font-size:13px;color:var(--orange);display:none;line-height:1.45}
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:56px;z-index:15}
+.tab{flex:1;height:46px;border:0;background:#fff;color:#8c8c8c;font-size:16px;position:relative}
+.tab.on{color:var(--blue);font-weight:700}
+.tab.on:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:34px;height:4px;background:var(--blue);border-radius:4px}
+.content{padding:0 0 18px}
+.panel{display:none}
+.panel.on{display:block}
+.section{background:#fff;margin-top:12px}
+.sec-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 14px 12px;font-size:18px;font-weight:700;border-bottom:1px solid #f1f1f1}
+.sec-sub{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0;font-size:14px;color:#7f7f7f}
+.add-btn{border:0;background:var(--blue);color:#fff;border-radius:18px;padding:0 14px;height:32px;font-size:13px;font-weight:700}
+.sec-toggle{border:0;background:transparent;font-size:18px;color:#9aa1ab;padding:0 2px;line-height:1}
+.sec-body{padding:0 12px 12px}
+.sec-note{margin:0 12px 12px;background:#fafbfc;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.7;color:#333;white-space:pre-line}
+.dev-list{padding:4px 12px 0}
+.dev-card{display:flex;gap:10px;padding:10px;border-radius:12px;background:#f7f8fa;margin-bottom:8px}
+.thumb{width:64px;height:64px;border-radius:8px;background:#fff;border:1px solid #eef0f3;display:grid;place-items:center;flex:0 0 auto;overflow:hidden}
+.thumb svg{width:44px;height:44px;color:#ccd2da}
+.dev-main{flex:1;min-width:0}
+.dev-l1{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700;line-height:1.25}
+.dev-tag{flex:0 0 auto;font-size:12px;color:#ff4d4f;background:#ffe7e7;border-radius:3px;padding:2px 5px}
+.dev-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dev-model{margin-top:4px;font-size:12px;color:#a2a2a2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dev-price{margin-top:6px;font-size:13px;color:#444}
+.dev-price b{font-weight:700}
+.dev-qty{margin-left:auto;align-self:flex-end;font-size:16px;color:#999;white-space:nowrap;padding-left:10px}
+.fold-wrap{display:flex;justify-content:center;padding:4px 0 10px}
+.fold-btn{border:0;background:transparent;color:#9da3ad;font-size:14px;padding:0;display:inline-flex;align-items:center;gap:4px}
+.sum-line{display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding:8px 14px 14px;border-top:1px solid #f1f1f1;text-align:right}
+.sum-line .row{font-size:14px;color:#777}
+.sum-line b{font-size:16px;color:#333}
+.sum-line .amt{color:var(--orange);font-weight:700}
+.sum-line .apv{color:var(--orange);font-weight:700}
+.empty{padding:30px 14px;color:var(--gray);text-align:center;font-size:13px}
+.kv{padding:2px 14px 6px}
+.kv-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f6f6f6;font-size:14px}
+.kv-row:last-child{border-bottom:0}
+.kv-row .k{color:var(--gray);flex:0 0 92px}
+.kv-row .v{flex:1;min-width:0;color:#333;word-break:break-all;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.copy-mini{border:0;background:#eef3fb;color:var(--blue);border-radius:6px;font-size:11px;padding:2px 9px;flex:0 0 auto}
+.file-list{padding:0 12px 12px}
+.cert-group{padding:12px 0;border-top:1px solid #f2f3f5}
+.cert-group:first-child{border-top:0}
+.cert-title{font-size:13px;font-weight:600;color:#333;padding-bottom:8px}
+.cert-title .req{color:var(--red);margin-right:2px}
+.file-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f7f8fa;border-radius:8px;padding:8px 10px;margin-bottom:8px}
+.file-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.file-icon{width:24px;height:24px;flex:0 0 auto}
+.file-icon svg{width:24px;height:24px;display:block}
+.file-name{font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview{font-size:12px;color:var(--blue);text-decoration:none;flex:0 0 auto}
+.progress-list{padding:12px 14px 18px}
+.progress-card{background:#fff;border-radius:14px;padding:16px 14px 14px;margin-bottom:10px;position:relative}
+.progress-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid #edf0f3}
+.progress-type{font-size:19px;font-weight:700}
+.progress-status{font-size:18px;font-weight:700;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.progress-meta{margin-top:14px;display:grid;gap:10px;font-size:15px;color:#666}
+.progress-meta .line{display:flex;gap:6px}
+.progress-meta .lbl{color:#777;flex:0 0 auto}
+.progress-btn-wrap{display:flex;justify-content:flex-end;margin-top:18px}
+.progress-btn{height:58px;min-width:170px;border:2px solid var(--blue);background:#fff;color:var(--blue);border-radius:28px;font-size:19px;font-weight:700;padding:0 24px}
+.pill{display:inline-flex;align-items:center;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.pill.sp{background:#e7f0ff;color:var(--blue)}
+.pill.ok{background:#e8f5e9;color:var(--green)}
+.pill.yl{background:#fff3e2;color:#d46b08}
+.pill.cc{background:#eceff1;color:#607080}
+.al-empty{padding:48px 0;text-align:center;color:var(--gray);font-size:13px}
+.al-empty .ico{font-size:40px;line-height:1;color:#d8dde4;margin-bottom:8px}
+.footer{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(428px,100%);background:#fff;border-top:1px solid var(--line);padding:9px 14px calc(9px + var(--safe-bottom));z-index:30;display:none;align-items:center;gap:10px}
+.footer.on{display:flex}
+.ft-state{display:inline-flex;align-items:center;font-size:14px;font-weight:700}
+.ft-ops{flex:1;display:flex;justify-content:flex-end;gap:10px;min-width:0}
+.ft-btn{height:42px;border:0;border-radius:21px;padding:0 26px;font-size:15px;font-weight:700;white-space:nowrap}
+.ft-btn.primary{background:var(--blue);color:#fff}
+.ft-btn.ghost{background:#fff;color:var(--red);border:1px solid #ffc9c9}
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:none;align-items:flex-end;justify-content:center}
+.mask.on{display:flex}
+.mask.center{align-items:center}
+.sheet{width:min(428px,100%);background:#f7f8fa;border-radius:16px 16px 0 0;max-height:86vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.sheet.white{background:#fff}
+.sheet .sh{display:flex;align-items:center;justify-content:center;padding:16px 48px 8px;font-size:16px;font-weight:700;background:#fff;position:relative;flex:0 0 auto}
+.sheet .x{position:absolute;right:14px;top:10px;width:34px;height:34px;border:0;background:transparent;color:#999;font-size:30px;line-height:1;font-weight:200}
+.sheet-body{overflow-y:auto;padding:12px 16px 18px;flex:1}
+.sheet-body.white{background:#fff}
+.af-tabs{display:flex;background:#fff;border-bottom:1px solid var(--line);flex:0 0 auto}
+.af-tab{flex:1;height:42px;border:0;background:#fff;color:#999;font-size:15px;position:relative}
+.af-tab.active{color:var(--blue);font-weight:700}
+.af-tab.active:after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:30px;height:3px;background:var(--blue);border-radius:3px}
+.af-flow-card{background:#fff;border-radius:10px;padding:14px;cursor:pointer}
+.af-placeholder{height:280px;background:#ececec;display:grid;place-items:center;font-size:18px;font-weight:700;color:#555;border-radius:8px}
+.af-flow-note{text-align:center;font-size:12px;color:var(--gray);margin-top:8px}
+.af-node-type{font-size:13px;font-weight:600;color:#333;margin-bottom:12px}
+.af-node{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;gap:10px}
+.af-node .dot{width:20px;height:20px;border-radius:50%;flex:0 0 auto;margin-top:2px;display:grid;place-items:center;color:#fff;font-size:11px}
+.af-node.done .dot{background:var(--green)}
+.af-node.cur .dot{background:var(--blue);box-shadow:0 0 0 4px rgba(8,104,215,.15)}
+.af-node.pend .dot{background:#cfd6df}
+.af-node .nd{flex:1;min-width:0}
+.af-node .nd .t{font-size:14px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.af-node .nd .s{font-size:12px;color:var(--gray);margin-top:4px;line-height:1.7}
+.zoom{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:120;display:none;padding:40px 14px 24px;overflow:auto}
+.zoom.on{display:block}
+.z-close{position:absolute;top:10px;right:14px;color:#fff;background:rgba(255,255,255,.16);border:0;width:38px;height:38px;border-radius:50%;font-size:22px}
+.z-tip{color:#dfe3ea;text-align:center;font-size:13px;margin-top:10px}
+.dialog{position:fixed;inset:0;z-index:130;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);padding:30px}
+.dialog.on{display:flex}
+.dbox{background:#fff;border-radius:14px;width:min(320px,100%);padding:22px 20px 18px;text-align:center}
+.dbox .di{font-size:34px;line-height:1}
+.dbox .dm{margin-top:10px;font-size:15px;color:#333;line-height:1.7}
+.dbox .dm b{color:#d94343}
+.dbtns{display:flex;gap:10px;margin-top:18px}
+.dbtn{flex:1;height:42px;border-radius:21px;border:0;font-size:15px}
+.dbtn.cancel{background:#f2f3f5;color:#666}
+.dbtn.confirm{background:var(--red);color:#fff;font-weight:600}
+.toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:10px 15px;border-radius:8px;font-size:13px;z-index:200;display:none;white-space:nowrap;max-width:86%}
+.toast.on{display:block}
+.demo-tools{display:none;position:fixed;top:12px;left:12px;z-index:140;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;box-shadow:0 5px 18px rgba(0,0,0,.12);gap:7px;align-items:center;font-size:12px;color:#333}
+.demo-tools select{max-width:190px;padding:4px;border:1px solid #ddd;border-radius:4px;font-size:12px}
+.demo-tools .dt-hint{color:#888}
+@media (min-width:700px){.demo-tools{display:flex}.phone{box-shadow:0 0 28px rgba(0,0,0,.15)}}
+.reject-card{margin:0 12px 12px;background:#FFEBEE;border:1px solid #FFCDD2;border-radius:10px;padding:10px 14px}
+.reject-card .rb{font-size:13px;color:#D32F2F;line-height:1.75;white-space:pre-line}
+.reject-card .rtt{font-size:12px;color:#C62828;margin-top:6px;text-align:right}
+.pill.rd{background:#FFEBEE;color:#D32F2F}.pill.am{background:#FFF8E1;color:#B45309}.pill.gr{background:#ECEFF1;color:#546E7A}
+.chip.gray2{background:#ECEFF1;color:#546E7A}
+.pd2-head{display:flex;gap:12px;align-items:center;padding:14px 0 12px;border-bottom:1px solid #f1f1f1}
+.pd2-thumb{width:96px;height:96px;border-radius:10px;background:#f2f3f5;border:1px solid #eef0f3;display:grid;place-items:center;color:#c3cad3;flex:0 0 auto;overflow:hidden}
+.pd2-thumb svg{width:64px;height:64px}
+.pd2-name{font-size:17px;font-weight:700;line-height:1.4;display:inline}
+.pd2-cate{display:inline-flex;margin:8px 0 0;border-radius:4px;background:#e7f0ff;color:var(--blue);padding:2px 8px;font-size:12px}
+.pd2-rows{margin-top:6px}
+.pd2-row{display:flex;justify-content:space-between;gap:12px;padding:9px 2px;border-bottom:1px dashed #f0f1f3;font-size:14px}
+.pd2-row .k{color:#8f959e;flex:0 0 auto}
+.pd2-row .v{color:#333;font-weight:600;text-align:right;word-break:break-all}
+.pd2-row .v.amt{color:var(--orange)}
+
+/* ====== 【新增 · 2026-10-17】工程返利字段 + 参数配置弹窗 ====== */
+.proto-new{position:relative}
+.proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;border-radius:8px 8px 8px 2px;pointer-events:none;z-index:20;letter-spacing:.3px}
+.proto-new-tag.inline{position:static;display:inline-block;margin-left:5px;border-radius:3px;vertical-align:middle}
+.sum-line .rebate{color:var(--blue)}
+.rbate-box{width:min(360px,88vw);max-height:76vh;background:#fff;border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.2)}
+.rbate-hd{display:flex;align-items:center;justify-content:center;padding:16px 46px 12px;font-size:16px;font-weight:700;color:#222;position:relative;border-bottom:1px solid #f1f1f1;flex:0 0 auto}
+.rbate-hd .x{position:absolute;right:8px;top:8px;width:34px;height:34px;border:0;background:transparent;color:#999;font-size:26px;line-height:1;font-weight:200}
+.rbate-bd{overflow-y:auto;padding:2px 16px 6px;flex:1}
+.rbate-tip{font-size:12px;color:var(--gray);line-height:1.6;padding:8px 0 6px}
+.rbate-row{display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #f1f1f1}
+.rbate-row:last-child{border-bottom:0}
+.rbate-l{flex:1;min-width:0}
+.rbate-name{font-size:14px;font-weight:700;color:#222;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbate-sub{font-size:12px;color:#a2a2a2;margin-top:3px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rbate-input{width:92px;height:34px;flex:0 0 auto;padding:0 10px;font-size:14px;border:1px solid #dcdfe5;border-radius:8px;outline:none;background:#fff;color:#222;text-align:left}
+.rbate-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(8,104,215,.12)}
+.rbate-input::placeholder{color:#b6bcc4}
+.rbate-input.err{border-color:var(--red);background:#FFF5F5}
+.rbate-err{display:none;margin:12px 0 0;padding:10px 12px;background:#FFF5F5;border:1px solid #FFCDD2;border-radius:8px;font-size:13px;color:#D32F2F;line-height:1.7;white-space:pre-line}
+.rbate-err.on{display:block}
+.rbate-ft{display:flex;gap:10px;padding:12px 16px 16px;border-top:1px solid #f1f1f1;flex:0 0 auto}
+.rbate-ft .ft-btn{flex:1;float:none;padding:0}
+.rbate-ft .ft-btn:not(.primary){background:#f2f3f5;color:#333}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi">◉</span><span class="battery"></span></span></div>
+  <header class="nav">
+    <button class="back" onclick="toast('原型占位：返回批价单列表')" aria-label="返回"><i></i></button>
+    <div class="nav-title">查看详情</div>
+  </header>
+  <div class="demo-tools"><span class="dt-hint">状态：</span><select id="stateSelect" onchange="setState(this.value)"></select></div>
+
+  <div class="summary">
+    <div class="sum-no"><span class="lbl">批价单</span><span id="pjNo">粤东GCDT202506250001-PJ001</span></div>
+    <div class="chips" id="chips"></div>
+    <div class="sum-name" id="projectName">前海商业综合体空调项目</div>
+    <div class="sum-sub" id="projectSub">展示完整超出回行</div>
+    <div class="expiry" id="expiryRow"></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab on" data-panel="detail" onclick="switchPanel('detail',this)">批价单详情</button>
+    <button class="tab" data-panel="progress" onclick="switchPanel('progress',this)">审批进度</button>
+  </nav>
+
+  <div class="content">
+    <div class="panel on" id="detailPanel">
+      <div class="reject-card" id="rejectCard" style="display:none">
+        <div class="rb" id="rejectBody"></div>
+        <div class="rtt" id="rejectTime"></div>
+      </div>
+      <div class="section">
+        <div class="sec-hd">设备清单</div>
+        <div class="sec-sub"><span>已添加：<b style="color:#4a72c3" id="devCount">5</b> 项</span></div>
+        <div class="dev-list" id="devList"></div>
+        <div class="fold-wrap"><button class="fold-btn" id="devFoldBtn" onclick="toggleDevFold()">展示全部 <span>⌄</span></button></div>
+        <div class="sum-line" id="sumLine"></div>
+      </div>
+
+
+
+<div class="section" id="attachmentSection"><div class="sec-hd">附件与备注</div><div class="sec-body"><div class="sec-note">代客申请批价，由销司管理者协助经销商录入。</div></div><div class="file-list"><div class="file-row"><div class="file-left"><span class="file-name" title="批价申请说明_附件.pdf">批价申请说明_附件.pdf</span></div><span class="sec-sub">2.3MB</span><a class="preview" href="javascript:void(0)" onclick="toast(&quot;原型占位：预览附件&quot;)">预览</a></div><div class="file-row"><div class="file-left"><span class="file-name" title="设备照片_现场勘察.jpg">设备照片_现场勘察.jpg</span></div><span class="sec-sub">1.8MB</span><a class="preview" href="javascript:void(0)" onclick="toast(&quot;原型占位：预览附件&quot;)">预览</a></div></div></div>
+    </div>
+
+    <div class="panel" id="progressPanel">
+      <div class="progress-list" id="progressList"></div>
+    </div>
+  </div>
+
+  <div class="footer" id="footer">
+    <div class="ft-state" id="ftState"></div>
+    <div class="ft-ops" id="ftOps"></div>
+  </div>
+<div class="mask" id="flowMask" onclick="closeFlow(event)">
+  <div class="sheet white" onclick="event.stopPropagation()">
+    <div class="sh">审批流程<button class="x" onclick="closeFlow()">×</button></div>
+    <div class="af-tabs">
+      <button class="af-tab active" onclick="flowTab('flow',this)">审批流程</button>
+      <button class="af-tab" onclick="flowTab('node',this)">当前节点</button>
+    </div>
+    <div class="sheet-body white" id="flowBody"></div>
+    <div class="sheet-body white" id="nodeBody" style="display:none"></div>
+    <div class="sheet-body white" style="padding-top:0">
+      <button class="ft-btn primary" style="width:100%;float:none" onclick="closeFlow()">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="zoom" id="zoomWrap" onclick="closeZoom(event)">
+  <button class="z-close" onclick="closeZoom()">×</button>
+  <div id="zoomBody" onclick="event.stopPropagation()"></div>
+  <div class="z-tip">点击空白处关闭</div>
+</div>
+
+<div class="mask" id="prodMask" onclick="closeProd(event)">
+  <div class="sheet white" onclick="event.stopPropagation()">
+    <div class="sh">商品详情<button class="x" onclick="closeProd()">×</button></div>
+    <div class="sheet-body white" id="prodBody"></div>
+    <div class="sheet-body white" style="padding-top:0"><button class="ft-btn primary" style="width:100%;float:none" onclick="closeProd()">确定</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const IMG_SVG='<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="10" y="14" width="44" height="32" rx="4"/><path d="M18 36l9-10 7 8 7-5 5 7"/><circle cx="24" cy="24" r="3"/></svg>';
+const FILE_ICON={
+  pdf:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#D32F2F" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#D32F2F" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  img:'<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="2" width="18" height="20" rx="2" stroke="#f39b29" stroke-width="1.5"/><path d="M7 7h10M7 11h10M7 15h6" stroke="#f39b29" stroke-width="1.5" stroke-linecap="round"/></svg>'
+};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function money2(n){return n==null?'—':'¥'+Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function money(n){return '¥'+Number(n||0).toLocaleString('zh-CN');}
+function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(()=>el.classList.remove('on'),1800);}
+const EQIP_DATA=[
+  {nonstd:false,cate:'多联机',name:'GMV5多联机 10HP',model:'GMV-450WM/A',code:'SKU-GMV5-10HP',id:'P100001',qty:5,price:42000,point:'8.5%',approve:41500,rightRange:'¥41,500 ~ ¥48,000',online:48000,depositRate:10,estimate:43200,rpoint:1.5,rebateLimit:7.5,remark:'',buyQty:0,shipQty:0},
+  {nonstd:true,cate:'定制设备',name:'定制机-非标控制柜',model:'非标-DZ-001',code:'--',id:'P100100',qty:1,price:38000,point:'—',approve:null,rightRange:'—',online:null,depositRate:15,estimate:null,rpoint:null,rebateLimit:6.5,remark:'按图纸定制',buyQty:0,shipQty:0},
+  {nonstd:false,cate:'中央空调',name:'格力 KFRd-120LW/NhGb1B 柜机',model:'KFRd-120LW/NhGb1B',code:'SKU-GJ-120GB',id:'P100002',qty:8,price:7600,point:'9%',approve:7500,rightRange:'¥7,500 ~ ¥8,500',online:8500,depositRate:10,estimate:7650,rpoint:2,rebateLimit:7.0,remark:'',buyQty:0,shipQty:0},
+  {nonstd:false,cate:'新风',name:'格力 FGR5Pd/NhBa1 吊顶式新风',model:'FGR5Pd/NhBa1',code:'SKU-XF-5NBA1',id:'P100003',qty:10,price:4200,point:'11%',approve:4000,rightRange:'¥4,000 ~ ¥5,000',online:5000,depositRate:10,estimate:4500,rpoint:2.5,rebateLimit:7.0,remark:'',buyQty:0,shipQty:0},
+  {nonstd:false,cate:'多联机',name:'格力 GMV-H224WL/A1 多联机组',model:'GMV-H224WL/A1',code:'SKU-MLJ-224A1',id:'P100004',qty:3,price:19800,point:'13%',approve:19500,rightRange:'¥19,500 ~ ¥22,500',online:22500,depositRate:15,estimate:20250,rpoint:3,rebateLimit:7.0,remark:'',buyQty:0,shipQty:0}
+];
+
+
+const D_PROJ='前海商业综合体空调项目',D_SUB='展示完整超出回行',D_LINE='中央空调-批价',D_TYPE='常规价';
+const D_BASIC=[['批价单号','粤东GCDT202506250001-PJ001'],['创建时间','2026-06-25 10:30'],['经销商名称','家经部观察正式环境账号'],['保证金类型','比例保证金-A（10%）'],['业务线','中央空调'],['价格类型','常规价']];
+const D_EXP='提货有效期：剩余29天 2026-06-27 至 2026-09-25';
+const STATES={
+  "审批中": {
+    devices: EQIP_DATA,
+    "project": "希望小学A项目",
+    "subline": "",
+    "line": "中央空调",
+    "priceType": "常规价",
+    "expiry": null,
+    "totalQty": 27,
+    "totalAmt": 410200,
+    "approveAmt": 366000,
+    "main": "审批中",
+    "chip2": "二次批价",
+    "certNote": "经销商提交的项目凭证材料，包含合同扫描件、中标通知书等。\n\n审核进度：\n1. 销司已初审通过\n2. 工程部复审中\n3. 待价格审批确认",
+    "records": [
+      {
+        "who": "张富贵",
+        "status": "已通过",
+        "note": "获取备注信息...显示前20字符，鼠标移入则显示全部",
+        "time": "2026-06-25 09:30"
+      },
+      {
+        "who": "张富贵",
+        "status": "已通过",
+        "note": "获取备注信息...显示前20字符，鼠标移入则显示全部",
+        "time": "2026-06-25 10:15"
+      },
+      {
+        "who": "李明辉",
+        "status": "已通过",
+        "note": "项目资料齐全，设备配置合理，同意登录",
+        "time": "2026-06-26 11:20"
+      },
+      {
+        "who": "王芳",
+        "status": "已通过",
+        "note": "现场勘察确认完毕，与申报内容一致",
+        "time": "2026-06-27 14:45"
+      },
+      {
+        "who": "陈建国",
+        "status": "已驳回",
+        "note": "缺少消防验收报告，请补充后重新提交",
+        "time": "2026-06-28 16:00"
+      }
+    ]
+  }
+};
+const STATE_ORDER=["审批中"];
+let curKey='审批中';
+let devFoldOpen=false;
+let toastTimer=null;
+
+function setState(key){curKey=key;var sel=document.getElementById('stateSelect');if(sel)sel.value=key;closeAll();renderAll();}
+function closeAll(){['flowMask','zoomWrap','prodMask'].forEach(id=>document.getElementById(id).classList.remove('on'));}
+function renderAll(){renderHead();renderDetail();renderProgress();renderFooter();}
+
+function renderHead(){
+  const d=STATES[curKey];
+  document.getElementById('pjNo').textContent='粤东GCDT202506250001-PJ001';
+  document.getElementById('projectName').textContent=d.project;
+  document.getElementById('projectSub').textContent=d.subline||'';
+  document.getElementById('projectSub').style.display=d.subline?'block':'none';
+  const chips=[
+    `<span class="chip gray">${esc(d.line)}</span>`,
+    d.chip2?`<span class="chip ${d.main==='待提货'||d.main==='已完结'?'green':(d.main==='已驳回'?'orange':(d.main==='已关闭'?'gray2':'blue'))}">${esc(d.chip2)}</span>`:'',
+    `<span class="chip blue">${esc(d.priceType)}</span>`
+  ].join('');
+  document.getElementById('chips').innerHTML=chips;
+  const ex=document.getElementById('expiryRow');
+  if(d.expiry){ex.style.display='block';ex.textContent=d.expiry;}else{ex.style.display='none';ex.textContent='';}
+}
+
+function renderDevices(){
+  const d=STATES[curKey],list=d.devices||[];
+  const dc=document.getElementById('devCount');if(dc)dc.textContent=list.length;
+  const shown=devFoldOpen?list.length:Math.min(3,list.length);
+  const html=list.slice(0,shown).map((e,idx)=>`
+    <div class="dev-card" onclick="openProd(${idx})">
+      <div class="thumb">${IMG_SVG}</div>
+      <div class="dev-main">
+        <div class="dev-l1"><span class="dev-tag" style="${e.nonstd?'':'display:none'}">非</span><span class="dev-name" title="${esc(e.name)}">${esc(e.name)}</span></div>
+        <div class="dev-model">${esc(e.model)}</div>
+        <div class="dev-price">申请价格：<b>${money(e.price)}</b></div>
+      </div>
+      <div class="dev-qty">×${e.qty}</div>
+    </div>`).join('');
+  document.getElementById('devList').innerHTML=list.length?html:'<div class="empty">暂无设备数据</div>';
+  const btn=document.getElementById('devFoldBtn');
+  btn.style.display=list.length>3?'inline-flex':'none';
+  btn.innerHTML=devFoldOpen?'收起全部 <span>⌃</span>':'展示全部 <span>⌄</span>';
+  const approveText=d.approveAmt==null?'待批复':money(d.approveAmt);
+  /* 【新增 · 2026-10-17】已使用返利：审批中 / 已驳回 尚未发生订单支付，不展示（与返利比例上限的 full 口径一致） */
+  const showUsedRebate=['待提货','部分提货','已完结','已关闭'].indexOf(d.main)>=0;
+  document.getElementById('sumLine').innerHTML=`
+    <div class="row">总数量：<b>${d.totalQty}台</b></div>
+    <div class="row">总申请金额：<b class="amt">${money(d.totalAmt)}</b></div>
+    <div class="row">批复总金额：<b class="apv">${approveText}</b></div>`
+    +(showUsedRebate?`<div class="row rebate">已使用返利：<b>${money(d.usedRebate||0)}</b><span class="proto-new-tag inline">NEW</span></div>`:'');
+}
+function toggleDevFold(){devFoldOpen=!devFoldOpen;renderDevices();}
+
+
+
+
+function openProd(idx){
+  const d=STATES[curKey];
+  const e=(d.devices||[])[idx];if(!e)return;
+  const full=true;
+  /* 【修正 · 2026-10-17】字段口径对齐 PC 端设备清单 full / simple 两套列，顺序与 PC 表头一致
+     （商品名称已在弹层标题区展示，此处不重复；品类按同类页面惯例在标题区标签 + 字段行各出现一次） */
+  let rows=[['品类',e.cate||'—'],['型号',e.model],['SKU编码',e.code],['商品ID',e.id]];
+  rows.push(['申请数量',e.qty]);
+  rows.push(['申请价格',money2(e.price)]);
+  rows.push(['申请点位',e.point||'—']);
+  rows.push(['批复价格',e.approve!=null?money2(e.approve):'待绑定商品后填写']);
+  rows.push(['权限区间',e.rightRange||'—']);
+  rows.push(['批复点位',e.rpoint!=null?e.rpoint+'%':'—']);
+  rows.push(['定金比例',(e.depositRate||0)+'%']);
+  rows.push(['返利比例上限',(e.rebateLimit!=null?e.rebateLimit+'%':'—')]);
+  rows.push(['网批挂网价',e.online!=null?money2(e.online):'—']);
+  rows.push(['预估价',e.estimate!=null?money2(e.estimate):(e.nonstd?'待绑定商品后填写':'--')]);
+  rows.push(['备注',e.remark||'—']);
+  var head='<div class="pd2-head"><div class="pd2-thumb">'+IMG_SVG+'</div><div style="min-width:0">'
+    +(e.nonstd?'<span style="display:inline-flex;background:#ffe7e7;color:#ff4d4f;border-radius:3px;font-size:13px;padding:2px 6px;margin-right:6px">非</span>':'')
+    +'<span class="pd2-name">'+esc(e.name)+'</span>'
+    +(e.cate?'<div class="pd2-cate">'+esc(e.cate)+'</div>':'')
+    +'</div></div>';
+  var body=head+'<div class="pd2-rows">'+rows.map(function(r){
+    /* 【新增 · 2026-10-17】返利比例上限行带 NEW 角标 */
+    var isNew=(String(r[0])==='返利比例上限');
+    return '<div class="pd2-row"><span class="k">'+esc(r[0])+'</span><span class="v'+(String(r[0]).indexOf('价格')>=0?' amt':'')+'">'+esc(String(r[1]))+(isNew?'<span class="proto-new-tag inline">NEW</span>':'')+'</span></div>';
+  }).join('')+'</div>';
+  document.getElementById('prodBody').innerHTML=body;
+  document.getElementById('prodMask').classList.add('on');
+}
+function closeProd(e){
+  if(e&&e.target!==document.getElementById('prodMask'))return;
+  document.getElementById('prodMask').classList.remove('on');
+}
+function copyNo(){
+  const txt='粤东GCDT202506250001-PJ001';
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(()=>toast('已复制批价单号'),()=>toast('原型占位：复制批价单号'));}else toast('原型占位：复制批价单号');
+}
+
+function renderReject(){
+  const d=STATES[curKey],card=document.getElementById('rejectCard');
+  if(!card)return;
+  if(d.reject){
+    card.style.display='block';
+    document.getElementById('rejectBody').textContent=d.reject;
+    document.getElementById('rejectTime').textContent=d.rejectTime||'';
+  }else{
+    card.style.display='none';
+  }
+}
+function renderDetail(){renderReject();renderDevices();}
+
+function renderProgress(){
+  const d=STATES[curKey];
+  const html=(d.records||[]).map((r,i)=>`
+    <div class="progress-card">
+      <div class="progress-head">
+        <div class="progress-type">${esc(r.who)}</div>
+        <div class="progress-status ${r.status==='已驳回'?'pill cc':(['通过','已通过'].includes(r.status)?'pill ok':(r.status==='已取消'?'pill cc':'pill sp'))}">${esc(r.status)}</div>
+      </div>
+      <div class="progress-meta">
+        <div class="line"><span class="lbl">审批意见：</span><span>${esc(r.note)}</span></div>
+        <div class="line"><span class="lbl">审批时间：</span><span>${esc(r.time)}</span></div>
+      </div>
+      <div class="progress-btn-wrap"><button class="progress-btn" onclick="openFlow()">审批流程</button></div>
+    </div>`).join('');
+  document.getElementById('progressList').innerHTML=html||'<div class="al-empty"><div class="ico">◌</div>暂无记录</div>';
+}
+function renderFooter(){
+  const d=STATES[curKey],ft=document.getElementById('footer');
+  const pillClass=d.main==='通过'||d.main==='待提货'||d.main==='已完结'?'ok':(d.main==='已驳回'?'rd':(d.main==='部分提货'?'am':(d.main==='已关闭'||d.main==='已取消'?'gr':'sp')));
+  document.getElementById('ftState').innerHTML=`<span class="pill ${pillClass}">${esc(d.main)}</span>`;
+  const ops=document.getElementById('ftOps');
+  /* 【2026-10-20 移除】原「工程返利参数配置」按钮（待提货 / 部分提货）已按需求去掉，返利比例上限仅作展示 */
+  ops.innerHTML='<button class="ft-btn" onclick="openFlow()">审批流程</button>';
+  ft.classList.add('on');
+}
+
+function switchPanel(panel,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById(panel+'Panel').classList.add('on');
+  window.scrollTo(0,0);
+}
+
+function openFlow(){renderFlow();renderNode();document.getElementById('flowMask').classList.add('on');}
+function closeFlow(e){if(e&&e.target!==document.getElementById('flowMask'))return;document.getElementById('flowMask').classList.remove('on');}
+function flowTab(tab,btn){
+  document.querySelectorAll('.af-tab').forEach(x=>x.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('flowBody').style.display=tab==='flow'?'block':'none';
+  document.getElementById('nodeBody').style.display=tab==='node'?'block':'none';
+}
+function renderFlow(){
+  document.getElementById('flowBody').innerHTML='<div class="af-flow-card" onclick="openZoom()"><div class="af-placeholder">流程图占位</div></div><div class="af-flow-note">图片点击可放大</div>';
+}
+function renderNode(){
+  const posts=[
+    {code:'P-001',name:'办事处内勤',staff:'张经理（zhanggl）、李助理（lizl）'},
+    {code:'P-002',name:'工程科内勤',staff:'王科长（wangkz）、赵专员（zhaozy）'},
+    {code:'P-003',name:'销司主管',staff:'刘主管（liuzg）'},
+    {code:'P-004',name:'大区经理',staff:'陈经理（chenjl）'}
+  ];
+  document.getElementById('nodeBody').innerHTML=
+    '<div class="af-node-type">节点类型：岗位</div>'
+    +posts.map(function(p){
+      return '<div class="af-node cur"><span class="dot">✓</span><div class="nd">'
+        +'<div class="t"><span>'+esc(p.name)+'</span><span class="pill sp">'+esc(p.code)+'</span></div>'
+        +'<div class="s">岗位编号：'+esc(p.code)+'<br>岗位名称：'+esc(p.name)+'<br>员工：'+esc(p.staff)+'</div>'
+        +'</div></div>';
+    }).join('');
+}
+function openZoom(){document.getElementById('zoomBody').innerHTML='<div class="af-placeholder" style="height:70vh">图片占位</div>';document.getElementById('zoomWrap').classList.add('on');}
+function closeZoom(e){if(e&&e.target!==document.getElementById('zoomWrap'))return;document.getElementById('zoomWrap').classList.remove('on');}
+
+function initStateTools(){
+  const sel=document.getElementById('stateSelect');
+  STATE_ORDER.forEach(k=>{
+    const o=document.createElement('option');
+    o.value=k;o.text=k;
+    sel.appendChild(o);
+  });
+  sel.value=curKey;
+}
+
+function renderAll(){renderHead();renderDetail();renderProgress();renderFooter();}
+let certOpen=true;
+initStateTools();renderAll();
+</script>
+</body>
+</html>
