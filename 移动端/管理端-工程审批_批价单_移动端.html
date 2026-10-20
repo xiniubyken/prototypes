@@ -161,6 +161,9 @@ button{cursor:pointer}
 .pd-row:last-child{border-bottom:0}
 .pd-row .l{color:#8b8b8b;flex:0 0 auto;white-space:nowrap}
 .pd-row .l:after{content:"："}
+/* 【新增 · 2026-10-20】带 NEW 角标的行：角标要落在冒号之后（「返利比例上限%：NEW」），
+   本行不自动补冒号，冒号直接写进 label 文本 */
+.pd-row.nocolon .l:after{content:""}
 .pd-row .r{text-align:right;word-break:break-word;color:#333;min-width:0}
 .pd-input,.pd-select,.pd-ta{width:100%;border:1px solid #e4e7eb;border-radius:10px;background:#fff;outline:none;font-size:15px;color:#333;padding:0 12px;height:40px;box-sizing:border-box}
 .pd-input[readonly],.pd-select:disabled,.pd-ta[readonly]{background:#f5f6fa;color:#8f959e;cursor:not-allowed}
@@ -336,6 +339,8 @@ button{cursor:pointer}
 .record-attach-item .ico{width:22px;height:22px;display:grid;place-items:center;flex:0 0 auto}
 .record-attach-item .name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333}
 .record-attach-item .pv{color:var(--blue);font-weight:700;flex:0 0 auto}
+/* ====== 【新增 · 2026-10-20】NEW 角标（仅标识本次新增字段，非 UI 需求） ====== */
+.proto-new-tag{display:inline-block;margin-left:4px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;border-radius:3px;vertical-align:middle;letter-spacing:.3px;pointer-events:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -545,11 +550,11 @@ const IMG='<svg viewBox="0 0 120 80" fill="none"><rect x="17" y="28" width="86" 
 const PD_IMG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4 3 3L16 12l4 4"/></svg>';
 const FILES=['合同扫描件','中标通知书','采购订单/成交通知书','客户资质证明','区域授权函','项目进度说明','发票凭证（已付/未付）','验收报告（阶段性/最终）','技术方案确认书','条码文件','工程图纸','招投标材料','销司其他附件'];
 const EQUI=[
-  {id:'NID-001',n:'天丽变频冷暖正1.5匹3级能能能',m:'天丽-15m',p:3555,approve:null,point:8.5,q:100,nonstd:true,sku:'--',range:'--',resetPoint:null,depositRate:10,onlinePrice:null,estimate:null,cate:'中央空调'},
-  {id:'P100001',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3300,point:9,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:1.5,depositRate:10,onlinePrice:48000,estimate:43200,cate:'中央空调'},
-  {id:'P100002',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3350,point:8.5,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:2.0,depositRate:10,onlinePrice:48000,estimate:43500,cate:'中央空调'},
-  {id:'P100003',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3400,point:8,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:2.5,depositRate:10,onlinePrice:48000,estimate:44000,cate:'中央空调'},
-  {id:'P100004',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3450,point:7.5,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:3.0,depositRate:15,onlinePrice:48000,estimate:44500,cate:'中央空调'}
+  {id:'NID-001',n:'天丽变频冷暖正1.5匹3级能能能',m:'天丽-15m',p:3555,approve:null,point:8.5,q:100,nonstd:true,sku:'--',range:'--',resetPoint:null,depositRate:10,rebateLimit:6.5,onlinePrice:null,estimate:null,cate:'中央空调'},
+  {id:'P100001',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3300,point:9,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:1.5,depositRate:10,rebateLimit:7.5,onlinePrice:48000,estimate:43200,cate:'中央空调'},
+  {id:'P100002',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3350,point:8.5,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:2.0,depositRate:10,rebateLimit:7,onlinePrice:48000,estimate:43500,cate:'中央空调'},
+  {id:'P100003',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3400,point:8,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:2.5,depositRate:10,rebateLimit:7,onlinePrice:48000,estimate:44000,cate:'中央空调'},
+  {id:'P100004',n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,approve:3450,point:7.5,q:100,sku:'SKU-KFR50LW-5505',range:'¥41,500 ~ ¥48,000',resetPoint:3.0,depositRate:15,rebateLimit:7,onlinePrice:48000,estimate:44500,cate:'中央空调'}
 ];
 const REF_EQ=[{n:'天丽变频冷暖正1.5匹3级能能能',m:'天丽-15m',p:3555,q:100,nonstd:true},{n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,q:100},{n:'时光绘 35 1.5P KFR50LW/5505-55',m:'KFR50LW/5505-55',p:3555,q:100}];
 const BASIC=[['项目单号','粤东GCDT202606250001','copy'],['经销商名称','家经部观察正式环境账号','copy'],['经销商电话','137 1234 5678',''],['业务线','中央空调',''],['项目状态','审批中',''],['登录时间','2026-06-25 10:30',''],['项目类型','单体项目',''],['登录顺序','1-登录成功','view']];
@@ -576,6 +581,8 @@ const equipData=EQUI.map((x,i)=>({
   range:x.nonstd ? '--' : (x.range || '¥41,500 ~ ¥48,000'),
   resetPoint:x.nonstd ? '--' : ((x.resetPoint != null ? x.resetPoint : 2.5) + '%'),
   depositRate:(x.depositRate != null ? x.depositRate : 10) + '%',
+  /* 【调整 · 2026-10-20】返利比例上限存纯数字：输入框已改 type="number"，带 % 会被浏览器判为非法值而清空 */
+  rebateLimit:(x.rebateLimit != null ? x.rebateLimit : ''),
   onlinePrice:x.nonstd ? '' : money(x.onlinePrice || 48000),
   estimate:x.nonstd ? '待绑定商品后填写' : money(x.estimate || x.p),
   cate:x.cate || '中央空调'
@@ -749,6 +756,7 @@ function openBatchProductDetail(idx){
     ['权限区间',`<input class="pd-input" value="${esc(item.range||'¥41,500 ~ ¥48,000')}" readonly>`],
     ['批复点位%',`<input class="pd-input" value="${esc(item.resetPoint||'2.5%')}" readonly>`],
     ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
+    ['返利比例上限%：<span class="proto-new-tag">NEW</span>',`<input class="pd-input pd-rebate" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${item.rebateLimit!=null?esc(item.rebateLimit):''}" placeholder="0~100" oninput="clampRebateRate(this)">`],
     ['网批挂网价',`<div style="font-size:15px;color:#333;line-height:1.5;text-align:right">${esc(item.onlinePrice||'¥48,000')}</div>`],
     ['预估价',`<input class="pd-input" value="${esc(item.estimate||item.price)}">`],
     ['备注',`<textarea class="pd-ta">${esc(item.remark||'')}</textarea>`]
@@ -766,6 +774,7 @@ function openBatchProductDetail(idx){
     ['权限区间',`<input class="pd-input" value="--" readonly>`],
     ['批复点位%',`<input class="pd-input" value="${esc(item.resetPoint||'--')}" readonly>`],
     ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
+    ['返利比例上限%：<span class="proto-new-tag">NEW</span>',`<input class="pd-input pd-rebate" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${item.rebateLimit!=null?esc(item.rebateLimit):''}" placeholder="0~100" oninput="clampRebateRate(this)">`],
     ['网批挂网价',`<input class="pd-input" value="${esc((item.onlinePrice&&item.onlinePrice!=='--')?item.onlinePrice:'')}" placeholder="输入挂网价">`],
     ['预估价',`<div style="color:#b4b9c2;font-size:13px;line-height:1.5">${esc('待绑定商品后填写')}</div>`],
     ['备注',`<textarea class="pd-ta">${esc(item.remark||'')}</textarea>`]
@@ -778,13 +787,23 @@ function openBatchProductDetail(idx){
       <div style="min-width:0"><div class="pd-name">${isNonStd?'<span class="nonstd" style="font-size:16px">非</span>':''}${esc(isNonStd?'定制机':item.title)}</div></div>
     </div>
     <div class="pd-fields">
-      ${fields.map(([label,control])=>`<div class="pd-row ${label==='备注'?'remark':''}"><span class="l">${label}</span><span class="r">${control}</span></div>`).join('')}
+      ${fields.map(([label,control])=>`<div class="pd-row ${label==='备注'?'remark':''}${label.includes('proto-new-tag')?' nocolon':''}"><span class="l">${label}</span><span class="r">${control}</span></div>`).join('')}
     </div>
   </div>
   <div class="pd-foot"><button class="pd-ok" onclick="closePd()">确定</button></div>`;
   document.getElementById('pdMask').classList.add('show');
 }
 function closePd(e){if(e&&e.target!==document.getElementById('pdMask'))return;document.getElementById('pdMask').classList.remove('show')}
+/* 【新增 · 2026-10-20】返利比例上限输入限制：与 PC（管理端-批价单审批页.html 的 clampRebateRate）同口径
+   空值放行；非数字清空；>100 回 100；<0 回 0 */
+function clampRebateRate(el){
+  const raw=el.value;
+  if(raw==='')return;
+  const n=parseFloat(raw);
+  if(isNaN(n)){el.value='';return;}
+  if(n>100)el.value=100;
+  else if(n<0)el.value=0;
+}
 function detailQty(d){const el=document.getElementById('detailQty');el.value=Math.max(1,Number(el.value||1)+d)}
 function saveDetail(){closePd();toast('原型占位：保存商品批复')}
 function openRefProductDetail(idx){

@@ -565,10 +565,10 @@ function openPd(i){
     fld("申请价格",money(e.price));
     fld("批复价格",e.approvePrice!=null?money(e.approvePrice):"—"," ap");
     fld("批复点位",(e.resetPoint!=null)?e.resetPoint+"%":"—");
-    /* 【新增 · 2026-10-17】返利比例上限%（逐行口径，同 PC 设备清单列） */
-    fld("返利比例上限",((e.rebateLimit!=null)?e.rebateLimit+"%":"—")+'<span class="proto-new-tag inline">NEW</span>');
     fld("预估价",e.estimate!=null?money(e.estimate):"—");
     fld("定金比例",(e.depositRate!=null)?e.depositRate+"%":"—");
+    /* 【新增 · 2026-10-17 / 调整 · 2026-10-20 移到「定金比例」之后】返利比例上限%（逐行口径，同 PC 设备清单列） */
+    fld("返利比例上限",((e.rebateLimit!=null)?e.rebateLimit+"%":"—")+'<span class="proto-new-tag inline">NEW</span>');
     fld("网批挂价",e.onlinePrice!=null?money(e.onlinePrice):"—");
     fld("购买数量",(e.buyQty!=null)?e.buyQty:"—");
     fld("发货数量",(e.shipQty!=null)?e.shipQty:"—");
