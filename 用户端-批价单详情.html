@@ -1178,7 +1178,8 @@ function renderFooter(show,actions,badgeStyle){
     if(a==='去提货'){html+='<button class="btn bp" onclick="da(\'去提货→跳转去提货页\')">'+a+'</button>';return}
     if(a==='放弃提货'){html+='<button class="btn bd" onclick="showAbd()">'+a+'</button>';return}
     if(a==='提货延期'){html+='<button class="btn bp" onclick="da(\'提货延期→进入提货延期申请页\')">'+a+'</button>';return}
-    if(a==='再次申请批价'){html+='<button class="btn bp" onclick="da(\'再次申请批价\')">'+a+'</button>';return}
+    /* 【改 · 2026-10-28】再次申请批价：本轮仅作演示提示，不跳转页面 */
+    if(a==='再次申请批价'){html+='<button class="btn bp" onclick="da(\'再次申请批价→进入二次批价申请页\')">'+a+'</button>';return}
     if(a==='重新提交'){html+='<button class="btn bp" onclick="da(\'跳转驳回重提\')">'+a+'</button>';return}
     html+='<button class="btn bp" onclick="da(\''+a+'\')">'+a+'</button>';
   });

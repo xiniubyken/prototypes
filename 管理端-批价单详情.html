@@ -992,6 +992,10 @@ function render(data){
   /* 【2026-10-20 移除】原「工程返利参数配置」按钮（待提货/部分提货）已按需求去掉，返利比例上限仅作展示 */
   var canVoid=(ms!=='审批中'&&ms!=='已完结'&&ms!=='已关闭');
   var hasBuyQty=(d.equip||[]).some(function(e){return (e.buyQty||0)>0});
+  /* 【新增 · 2026-10-28】再次申请批价：待提货 / 部分提货状态显示，本轮仅作演示提示、不跳转（主操作在前） */
+  if((ms==='待提货'||ms==='部分提货') && footerActions.indexOf('再次申请批价')===-1){
+    footerActions.push('再次申请批价');
+  }
   var showVoid=(ms==='已驳回'||ms==='待提货') || (canVoid && !hasBuyQty);
   if(showVoid && footerActions.indexOf('作废')===-1){
     footerActions.push('作废');
@@ -1277,10 +1281,13 @@ function renderFooter(show,actions,badgeStyle){
   actions.forEach(function(a){
     if(a==='通过'){html+='<button class="btn bp" onclick="showApproveModal()">通过</button>';return}
     if(a==='驳回'){html+='<button class="btn bd" onclick="showRejectModal()">驳回</button>';return}
+    if(a==='再次申请批价'){html+='<button class="btn bp proto-new" onclick="da(\'再次申请批价→进入二次批价申请页\')">再次申请批价<span class="proto-new-tag">NEW</span></button>';return}
     html+='<button class="btn" onclick="da(\''+a+'\')">'+a+'</button>';
   });
   ab.innerHTML=html;
 }
+
+/* 【新增 · 2026-10-28】再次申请批价：本轮仅作演示提示，不跳转页面 */
 
 /* ====== 【新增 · 2026-10-17】工程返利参数配置 ======
    入口：状态「待提货 / 部分提货」底部操作栏按钮

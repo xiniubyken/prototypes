@@ -549,6 +549,10 @@ function renderFooter(){
   const ops=document.getElementById('ftOps');
   /* 【2026-10-20 移除】原「工程返利参数配置」按钮（待提货 / 部分提货）已按需求去掉，返利比例上限仅作展示 */
   let ftHtml='';
+  /* 【新增 · 2026-10-28】再次申请批价：待提货 / 部分提货状态显示，本轮仅作演示提示，不跳转 */
+  if(d.main==='待提货'||d.main==='部分提货'){
+    ftHtml+='<button class="ft-btn primary proto-new" style="padding:0 18px;font-size:14px" onclick="toast(\'原型占位：再次申请批价\')">再次申请批价<span class="proto-new-tag">NEW</span></button>';
+  }
   if(d.footer==='void'){
     ftHtml+='<button class="ft-btn ghost" style="padding:0 12px;font-size:13px" onclick="goVoidApply()">作废</button>';
   }
@@ -594,6 +598,7 @@ function renderNode(){
 function openZoom(){document.getElementById('zoomBody').innerHTML='<div class="af-placeholder" style="height:70vh">图片占位</div>';document.getElementById('zoomWrap').classList.add('on');}
 function closeZoom(e){if(e&&e.target!==document.getElementById('zoomWrap'))return;document.getElementById('zoomWrap').classList.remove('on');}
 function goVoidApply(){location.href='管理端-批价单申请作废_移动端.html';}
+/* 【新增 · 2026-10-28】再次申请批价：本轮仅作演示提示，不跳转页面 */
 
 /* ====== 【新增 · 2026-10-17】工程返利参数配置（移动端底部抽屉） ======
    口径与 PC 管理端-批价单详情.html 一致：逐行配置「返利比例上限」，必填、0~100。
