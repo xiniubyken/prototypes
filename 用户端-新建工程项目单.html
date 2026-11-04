@@ -441,6 +441,17 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .tianyan-info{display:flex;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}
 .tianyan-label{width:140px;color:#646a73;flex-shrink:0;}
 .tianyan-val{color:#1f2329;font-weight:500;}
+.biz-region-panel{margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #e8eaed;border-radius:5px;}
+.biz-region-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#1f2329;margin-bottom:7px;}
+.biz-region-list{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px;}
+.biz-region-item{padding:5px 9px;border:1px solid #d9dde5;border-radius:4px;background:#fff;color:#646a73;font-size:12px;line-height:normal;}
+
+/* NEW标记规范：见项目00_规则资料/原型修改_NEW标记规范.md；不增加竖向占位。 */
+.revision-new:after{content:'NEW';display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;letter-spacing:.2px;white-space:nowrap;pointer-events:none;flex:0 0 auto}
+.biz-region-title.revision-new-line{display:flex;align-items:center}
+.revision-new-line:after{margin-left:auto;align-self:center}
+.revision-new-control{position:relative}
+.revision-new-control:after{position:absolute;top:3px;right:6px;margin:0}
 </style>
 </head>
 <body>
@@ -522,6 +533,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="biz-type-option" onclick="selectBizType(this,'coldchain')">冷链</div>
       </div>
     </div>
+    <div class="biz-region-panel" id="mobileBizRegionPanel" style="display:none"><div class="biz-region-title">经营区域</div><div class="biz-region-list" id="mobileBizRegionList"></div></div>
   </div>
 </div>
 
@@ -735,9 +747,9 @@ html,body{height:100%;margin:0;overflow:hidden;}
       <div class="form-item span2">
         <label class="form-label">项目地址 <span class="req">*</span></label>
         <div class="addr-row" style="gap:6px;margin-bottom:4px;">
-          <select class="form-ctrl" style="height:28px;font-size:12px;"><option>广东省</option><option>北京市</option><option>上海市</option></select>
-          <select class="form-ctrl" style="height:28px;font-size:12px;"><option>珠海市</option><option>广州市</option><option>深圳市</option></select>
-          <select class="form-ctrl" style="height:28px;font-size:12px;"><option>香洲区</option><option>斗门区</option><option>金湾区</option></select>
+          <select id="userProvince" onchange="userAddressChanged(0)" class="form-ctrl" style="height:28px;font-size:12px;"><option>广东省</option><option>北京市</option><option>上海市</option></select>
+          <select id="userCity" onchange="userAddressChanged(1)" class="form-ctrl" style="height:28px;font-size:12px;"><option>珠海市</option><option>广州市</option><option>深圳市</option></select>
+          <select id="userDistrict" onchange="userAddressChanged(2)" class="form-ctrl" style="height:28px;font-size:12px;"><option>香洲区</option><option>斗门区</option><option>金湾区</option></select>
           <select class="form-ctrl" style="height:28px;font-size:12px;"><option>香洲街道</option><option>拱北街道</option><option>吉大街道</option></select>
         </div>
         <input type="text" class="form-ctrl" id="addrDetail" style="height:28px;" placeholder="详细地址，最多50字符" maxlength="50" value="迎宾北路1888号华邑酒店">
@@ -749,7 +761,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="field-readonly" id="crossRegionDisplay">
           <span class="cross-region-tag intra">省内跨区</span>
         </div>
-        <div class="form-hint">由项目地址失焦后系统自动判断</div>
+        <div class="form-hint">根据项目地址自动判断</div>
       </div>
       <!-- 执行单位 → I01-8+S02-1 -->
       <div class="form-item">
@@ -1189,6 +1201,12 @@ function switchContact(type) {
   document.getElementById('contactTelWrap').style.display    = type==='tel'    ? 'flex' : 'none';
 }
 
+var userBizLines={"central":{"name":"中央空调","managementProvinces":["广东省","广西壮族自治区","湖南省","湖北省","福建省","浙江省","江苏省","四川省"],"regions":[["广东省","珠海市","香洲区"],["广东省","广州市","天河区"],["广东省","深圳市","南山区"],["广西壮族自治区","南宁市","青秀区"],["湖南省","长沙市","岳麓区"],["湖北省","武汉市","武昌区"],["福建省","厦门市","思明区"],["浙江省","杭州市","西湖区"],["江苏省","南京市","鼓楼区"],["四川省","成都市","武侯区"]]},"coldchain":{"name":"冷链","managementProvinces":["广东省","广西壮族自治区"],"regions":[["广东省","广州市","天河区"],["广东省","珠海市","香洲区"],["广西壮族自治区","南宁市","青秀区"]]}}, userAddressData={"广东省":{"珠海市":["香洲区","斗门区","金湾区"],"广州市":["天河区"],"深圳市":["南山区"]},"广西壮族自治区":{"南宁市":["青秀区"]},"湖南省":{"长沙市":["岳麓区"]},"湖北省":{"武汉市":["武昌区"]},"福建省":{"厦门市":["思明区"]},"浙江省":{"杭州市":["西湖区"]},"江苏省":{"南京市":["鼓楼区"]},"四川省":{"成都市":["武侯区"]},"贵州省":{"贵阳市":["云岩区"]}};
+function selectedUserBiz(){return userBizLines[currentBizType];}
+function renderUserRegions(){var biz=selectedUserBiz();document.getElementById('mobileBizRegionPanel').style.display=biz?'':'none';document.getElementById('mobileBizRegionList').innerHTML=biz?biz.regions.map(function(r){return '<div class="biz-region-item">'+r.join(' / ')+'</div>';}).join(''):'';updateUserCrossRegion();}
+function updateUserCrossRegion(){var biz=selectedUserBiz(),p=document.getElementById('userProvince').value,c=document.getElementById('userCity').value,d=document.getElementById('userDistrict').value;var text=!biz||!p||!c||!d?'待判断':biz.regions.some(function(r){return r[0]===p&&r[1]===c&&r[2]===d})?'非跨区':biz.managementProvinces.indexOf(p)>=0?'省内跨区':'省外跨区';document.querySelector('#crossRegionDisplay span').textContent=text;}
+function setAddressOptions(id,items,preferred){var el=document.getElementById(id);el.innerHTML=items.map(function(x){return '<option>'+x+'</option>';}).join('');if(items.indexOf(preferred)>=0)el.value=preferred;}
+function userAddressChanged(level){if(level===0)setAddressOptions('userCity',Object.keys(userAddressData[document.getElementById('userProvince').value]||{}));if(level<2)setAddressOptions('userDistrict',(userAddressData[document.getElementById('userProvince').value]||{})[document.getElementById('userCity').value]||[]);updateUserCrossRegion();}
 var currentBizType = '';
 function selectBizType(el, val) {
   document.querySelectorAll('#headerBizSelector .biz-type-option').forEach(b => b.classList.remove('active'));
@@ -1196,6 +1214,7 @@ function selectBizType(el, val) {
   currentBizType = val;
   document.getElementById('d3BizType').value = val;
   d3ToggleBizType();
+  renderUserRegions();
 }
 function d3ToggleBizType() {
   var isCold = currentBizType === 'coldchain';
@@ -1209,6 +1228,7 @@ function d3SyncHiddenBizType() {
   });
   currentBizType = val;
   d3ToggleBizType();
+  renderUserRegions();
 }
 
 
@@ -1388,6 +1408,7 @@ function renderStateFileList(key) {
   listEl.innerHTML = html;
 }
 
+setAddressOptions('userProvince',Object.keys(userAddressData),'广东省');setAddressOptions('userCity',Object.keys(userAddressData['广东省']),'珠海市');setAddressOptions('userDistrict',userAddressData['广东省']['珠海市'],'香洲区');updateUserCrossRegion();
 </script>
 
 <!-- ===== 添加标准商品弹窗 ===== -->
@@ -1582,5 +1603,26 @@ function renderStateFileList(key) {
     </div>
   </div>
 </div>
+<script>// NEW标记：页面→外层标题→字段标签；同一标题承载同层标记，不额外撑高。
+(function(){
+  function mark(el,type){if(!el)return;var cls='revision-new-'+type;if(!el.classList.contains(cls)){el.classList.add('revision-new',cls);el.setAttribute('data-revision','2026-11-04');}}
+  function bizLine(biz){if(!biz)return null;return biz.closest('.fi,.field-row')||biz.parentElement;}
+  function parents(el){if(!el)return;var card=el.closest('.form-card,.section-block,.card');if(!card)return;var header=card.querySelector('.form-card-header .fct-text,.section-title > span:first-child,.ch .t');if(header){mark(header,'header');return;}var biz=card.querySelector('#m5BizSelectorCard,#headerBizSelector,#v_biz');if(biz){var row=bizLine(biz);if(row.matches('.fi,.field-row'))mark(row.querySelector('.lab,.field-label'),'field');else mark(row,'line');}}
+  function field(el){if(!el)return;var wrap=el.closest('.form-item,.fi,.field-row');if(wrap)mark(wrap.querySelector('.form-label,.lab,.field-label'),'field');parents(el);}
+  function apply(){
+    mark(document.querySelector('.form-page-title,.nav-title'),'page');
+    var biz=document.getElementById('m5BizSelectorCard')||document.getElementById('headerBizSelector')||document.getElementById('v_biz');
+    if(biz)parents(biz);
+    var regions=document.getElementById('m5BizRegionPanel')||document.getElementById('mobileBizRegionPanel');
+    if(regions){mark(regions.querySelector('.biz-region-title'),'line');parents(regions);}
+    field(document.getElementById('m5ProjectProvince')||document.getElementById('userProvince')||document.getElementById('v_prov'));
+    field(document.getElementById('m5CrossRegionDisplay')||document.getElementById('crossRegionDisplay')||document.getElementById('mobileCrossRegionTag'));
+    if(document.getElementById('dealerMask')){
+      mark(document.querySelector('.dealer-trigger-title'),'header');mark(document.querySelector('#dealerSelectedArea .dealer-selected-name'),'header');
+      mark(document.querySelector('#dealerMask .sheet-hd > span'),'header');mark(document.querySelector('#dealerMask .choice-blue'),'control');
+    }
+  }
+  apply();new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+})();</script>
 </body>
 </html>

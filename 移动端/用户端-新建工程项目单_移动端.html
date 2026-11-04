@@ -358,6 +358,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 #pdMask .sheet-hd>span{display:none}
 .phone .biz-check-wrap{grid-column:2}
 .phone .biz-check-status{justify-content:flex-end;text-align:right}
+.biz-region-panel{margin:10px 0 8px;padding:12px;background:#f7f9fc;border:1px solid #e5eaf1;border-radius:8px;min-width:0}.biz-region-title{font-size:14px;font-weight:600;margin-bottom:8px}.biz-region-list{display:flex;flex-direction:column;gap:6px}.biz-region-item{font-size:13px;line-height:1.6;color:#606875;overflow-wrap:anywhere;padding:5px 8px;background:#fff;border:1px solid #e5eaf1;border-radius:5px}
+.biz-region-toggle{display:block;width:100%;min-height:40px;margin-top:6px;padding:6px 0;border:0;background:transparent;color:var(--blue);font-size:13px;text-align:center}
+
+/* NEW标记规范：见项目00_规则资料/原型修改_NEW标记规范.md；不增加竖向占位。 */
+.revision-new:after{content:'NEW';display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;letter-spacing:.2px;white-space:nowrap;pointer-events:none;flex:0 0 auto}
+.biz-region-title.revision-new-line{display:flex;align-items:center}
+.revision-new-line:after{margin-left:auto;align-self:center}
+.revision-new-control{position:relative}
+.revision-new-control:after{position:absolute;top:3px;right:6px;margin:0}
 </style>
 </head>
 <body>
@@ -368,7 +377,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <div id="noticeBox"></div>
   <div class="scroll">
     <div class="card">
-      <div class="cb"><div class="fi"><div class="lab">业务线 <span class="req">*</span></div><button class="selrow" onclick="openPick('biz')"><span class="val" id="v_biz">中央空调</span><span class="arr"></span></button></div></div>
+      <div class="cb"><div class="fi"><div class="lab">业务线 <span class="req">*</span></div><button class="selrow" onclick="openPick('biz')"><span class="val" id="v_biz">中央空调</span><span class="arr"></span></button></div><div class="biz-region-panel" id="mobileBizRegionPanel" style="display:none"><div class="biz-region-title">经营区域</div><div class="biz-region-list" id="mobileBizRegionList"></div><button type="button" class="biz-region-toggle" id="mobileBizRegionToggle" aria-controls="mobileBizRegionList" aria-expanded="false" onclick="toggleBizRegions()"></button></div></div>
     </div>
     <div class="card">
       <div class="ch"><span class="t">设备清单</span><span class="meta" id="prodCnt"></span></div>
@@ -479,7 +488,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 <script>
 "use strict";
 /* 数据源 */
-var BIZ_OPTS=["中央空调","冷链","选项名称选项名称超出一行省略","选项名称选项名称","选项名称选项名称","选项名称选项名称","选项名称选项名称","选项名称选项名称","选项名称选项名称","选项名称选项名称","选项名称选项名称","选项名称选项名称"];
+var BIZ_OPTS=["中央空调","冷链"];
 var CATEGORY_OPTS=["中央空调","多联机","新风","冷水机组","精密空调","机房空调","船用空调","移动空调"];
 var CUST_OPTS=["客户","供应商","设计院","工程商","总包","其他"];
 var INDUSTRY_OPTS=["家装","家装（渠道）","家装零售","户式采暖","两联供","KA卖场","工装","轻商","大项目","房地产","酒店/宾馆","医院","学校","政府/公共机构","商超/零售","工业厂房","其他"];
@@ -517,6 +526,8 @@ var STREET_ADDR={
 var PROVS=["贵州省","广东省","广西省","甘肃省","河北省","河南省","湖北省","湖南省","海南省","黑龙江省"];
 var PROV_INDEX=["A","B","C","F","G","H","J","L","N","Q","S","T","X","Y","Z"];
 var PROV_GROUPS={G:["贵州省","广东省","广西省","甘肃省"],H:["河北省","河南省","湖北省","湖南省","海南省","黑龙江省"]};
+
+(function(){var seed={"广东省":{"珠海市":["香洲区"],"广州市":["天河区"],"深圳市":["南山区"]},"广西壮族自治区":{"南宁市":["青秀区"]},"湖南省":{"长沙市":["岳麓区"]},"湖北省":{"武汉市":["武昌区"]},"福建省":{"厦门市":["思明区"]},"浙江省":{"杭州市":["西湖区"]},"江苏省":{"南京市":["鼓楼区"]},"四川省":{"成都市":["武侯区"]}};Object.keys(seed).forEach(function(p){ADDR[p]=ADDR[p]||{};Object.keys(seed[p]).forEach(function(c){ADDR[p][c]=Array.from(new Set((ADDR[p][c]||[]).concat(seed[p][c])));});});PROV_GROUPS.F=['福建省'];PROV_GROUPS.J=['江苏省'];PROV_GROUPS.S=['四川省'];PROV_GROUPS.Z=['浙江省'];PROV_GROUPS.G=PROV_GROUPS.G.filter(function(p){return p!=='广西省'});PROV_GROUPS.G.push('广西壮族自治区');})();
 var CATALOG=[
   {name:"格力 GMV-H140WL/A1 多联式空调",sku:"SKU-CEN-140A1",model:"GMV-H140WL/A1",net:"¥18500.00",cate:"船用空调"},
   {name:"格力 GMV-H280WL/A1 多联机组",sku:"SKU-MLJ-280A1",model:"GMV-H280WL/A1",net:"¥22000.00",cate:"多联机"},
@@ -662,6 +673,7 @@ function onTianyanCheck(name){
   syncSubmitState();
 }
 function refreshVals(){
+  renderBizRegions();updateCrossRegion();
   [["biz","请选择"],["cust","请选择"],["industry","请选择"],["exec","请选择"],["status","请选择"]].forEach(function(pair){
     var el=document.getElementById("v_"+pair[0]); if(!el)return;
     var v=vals[pair[0]];
@@ -672,6 +684,30 @@ function refreshVals(){
   if(el){var path=[vals.prov,vals.city,vals.dist,vals.street].filter(Boolean).join(" / ");
     el.textContent=path||"请选择省/市/区/街道";el.classList.toggle("ph",!path);}
 }
+var mobileBizLines={"central":{"name":"中央空调","managementProvinces":["广东省","广西壮族自治区","湖南省","湖北省","福建省","浙江省","江苏省","四川省"],"regions":[["广东省","珠海市","香洲区"],["广东省","广州市","天河区"],["广东省","深圳市","南山区"],["广西壮族自治区","南宁市","青秀区"],["湖南省","长沙市","岳麓区"],["湖北省","武汉市","武昌区"],["福建省","厦门市","思明区"],["浙江省","杭州市","西湖区"],["江苏省","南京市","鼓楼区"],["四川省","成都市","武侯区"]]},"coldchain":{"name":"冷链","managementProvinces":["广东省","广西壮族自治区"],"regions":[["广东省","广州市","天河区"],["广东省","珠海市","香洲区"],["广西壮族自治区","南宁市","青秀区"]]}};
+function currentBizRegions(){return vals.biz==='中央空调'?mobileBizLines.central:vals.biz==='冷链'?mobileBizLines.coldchain:null;}
+var mobileRegionsExpanded=false,mobileRegionsBiz='';
+function toggleBizRegions(){mobileRegionsExpanded=!mobileRegionsExpanded;renderBizRegions();}
+function renderBizRegions(){
+  if(mobileRegionsBiz!==vals.biz){mobileRegionsBiz=vals.biz;mobileRegionsExpanded=false;}
+  var panel=document.getElementById('mobileBizRegionPanel'), biz=currentBizRegions();
+  panel.style.display=biz?'':'none';
+  document.getElementById('mobileBizRegionList').innerHTML=biz?(mobileRegionsExpanded?biz.regions:biz.regions.slice(0,3)).map(function(r){return '<div class="biz-region-item">'+r.map(esc).join(' / ')+'</div>';}).join(''):'';
+  var toggle=document.getElementById('mobileBizRegionToggle');
+  toggle.style.display=biz&&biz.regions.length>3?'':'none';
+  toggle.textContent=mobileRegionsExpanded?'收起':'展开全部（共'+(biz?biz.regions.length:0)+'个）';
+  toggle.setAttribute('aria-expanded',String(mobileRegionsExpanded));
+}
+function crossRegionText(){
+  var biz=currentBizRegions();
+  if(!biz||!vals.prov||!vals.city||!vals.dist)return '待判断';
+  var province=vals.prov==='广西省'?'广西壮族自治区':vals.prov;
+  if(biz.regions.some(function(r){return r[0]===province&&r[1]===vals.city&&r[2]===vals.dist;}))return '非跨区';
+  return biz.managementProvinces.indexOf(province)>=0?'省内跨区':'省外跨区';
+}
+function updateCrossRegion(){var tag=document.getElementById('mobileCrossRegionTag');if(tag)tag.textContent=crossRegionText();}
+
+
 /* 通用单选 */
 var picker=null;
 function openPick(kind){
@@ -944,7 +980,7 @@ function renderUsage(){
   if(vals.biz==="冷链"){h+=fi("容积 <span class=\"req\">*</span>",unitField("请输入","m³","volume"),"业务线=冷链时必填");}
   h+=fi("项目地址 <span class=\"req\">*</span>",'<button class="selrow" onclick="openAddr()"><span class="val ph" id="v_prov">请选择省/市/区/街道</span><span class="arr"></span></button>');
   h+=fi("详细地址",'<input class="in" id="u_detailAddress" value="'+esc(usageData.detailAddress)+'" placeholder="请输入">');
-  h+=fi("跨区类型",'<button class="selrow"><span class="val" style="color:#8f959e">非跨区</span></button>','根据项目地址自动判断');
+  h+=fi("跨区类型",'<button class="selrow"><span class="val" style="color:#8f959e" id="mobileCrossRegionTag">'+crossRegionText()+'</span></button>','根据项目地址自动判断');
   h+=fi("执行单位 <span class=\"req\">*</span>",selRow("exec","exec","请选择"));
   h+=fi("项目状态 <span class=\"req\">*</span>",selRow("status","status","请选择"));
   document.getElementById("usageForm").innerHTML=h;
@@ -1081,5 +1117,26 @@ function scene(s){
   scene(hash==="copy"||hash==="reject"?hash:"new");
 })();
 </script>
+<script>// NEW标记：页面→外层标题→字段标签；同一标题承载同层标记，不额外撑高。
+(function(){
+  function mark(el,type){if(!el)return;var cls='revision-new-'+type;if(!el.classList.contains(cls)){el.classList.add('revision-new',cls);el.setAttribute('data-revision','2026-11-04');}}
+  function bizLine(biz){if(!biz)return null;return biz.closest('.fi,.field-row')||biz.parentElement;}
+  function parents(el){if(!el)return;var card=el.closest('.form-card,.section-block,.card');if(!card)return;var header=card.querySelector('.form-card-header .fct-text,.section-title > span:first-child,.ch .t');if(header){mark(header,'header');return;}var biz=card.querySelector('#m5BizSelectorCard,#headerBizSelector,#v_biz');if(biz){var row=bizLine(biz);if(row.matches('.fi,.field-row'))mark(row.querySelector('.lab,.field-label'),'field');else mark(row,'line');}}
+  function field(el){if(!el)return;var wrap=el.closest('.form-item,.fi,.field-row');if(wrap)mark(wrap.querySelector('.form-label,.lab,.field-label'),'field');parents(el);}
+  function apply(){
+    mark(document.querySelector('.form-page-title,.nav-title'),'page');
+    var biz=document.getElementById('m5BizSelectorCard')||document.getElementById('headerBizSelector')||document.getElementById('v_biz');
+    if(biz)parents(biz);
+    var regions=document.getElementById('m5BizRegionPanel')||document.getElementById('mobileBizRegionPanel');
+    if(regions){mark(regions.querySelector('.biz-region-title'),'line');parents(regions);}
+    field(document.getElementById('m5ProjectProvince')||document.getElementById('userProvince')||document.getElementById('v_prov'));
+    field(document.getElementById('m5CrossRegionDisplay')||document.getElementById('crossRegionDisplay')||document.getElementById('mobileCrossRegionTag'));
+    if(document.getElementById('dealerMask')){
+      mark(document.querySelector('.dealer-trigger-title'),'header');mark(document.querySelector('#dealerSelectedArea .dealer-selected-name'),'header');
+      mark(document.querySelector('#dealerMask .sheet-hd > span'),'header');mark(document.querySelector('#dealerMask .choice-blue'),'control');
+    }
+  }
+  apply();new MutationObserver(apply).observe(document.body,{childList:true,subtree:true});
+})();</script>
 </body>
 </html>
