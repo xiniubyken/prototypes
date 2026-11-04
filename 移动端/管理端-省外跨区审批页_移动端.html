@@ -1152,6 +1152,17 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
 .proto-new-tag{position:absolute;z-index:20;pointer-events:none;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;letter-spacing:.5px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.28);}
 .proto-new--title>.proto-new-tag{top:50%;right:-8px;transform:translateY(-50%);border-radius:4px;}
 .proto-new--nav>.proto-new-tag{top:50%;right:6px;transform:translateY(-50%);border-radius:4px;}
+/* NEW按通用规范贴合原有行；本次范围：审批业务线只读及经营区域。 */
+.approval-change-tag:after{content:'NEW';display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap;flex:0 0 auto}
+.approval-change-line{display:flex;align-items:center;gap:8px}
+.approval-change-line:after{margin-left:auto}
+
+.approval-biz-panel{margin:8px 0 0;padding:12px;background:#f7f9fc;border:1px solid #e5eaf1;border-radius:8px;min-width:0}
+.approval-biz-heading{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
+.approval-biz-region-list{display:flex;flex-direction:column;gap:6px}
+.approval-biz-region-item{padding:5px 8px;border:1px solid #e5eaf1;border-radius:5px;background:#fff;color:#606875;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
+#approvalBizRegionsList:not(.is-expanded) .approval-biz-region-item:nth-child(n+4){display:none}
+.approval-region-toggle{display:block;width:100%;min-height:40px;margin-top:6px;padding:6px 0;border:0;background:transparent;color:var(--blue);font-size:13px;text-align:center}
 </style>
 </head>
 <body>
@@ -1169,7 +1180,7 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
   <div class="statusbar"><span>9:41</span><span><span class="signal">▮▮▮</span> <span style="font-size:12px">◉</span> <span class="battery"></span></span></div>
   <header class="nav">
     <button class="back" aria-label="返回" onclick="toast('原型占位：返回上一页')"><i></i></button>
-    <div class="nav-title">审批—省外跨区登录</div>
+    <div class="nav-title approval-change-tag">审批—省外跨区登录</div>
     <button class="nav-more" aria-label="更多" onclick="openActionMenu()"><span>⋮</span></button>
   </header>
 
@@ -1179,19 +1190,18 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
   </div>
 
   <div class="tabs">
-    <button class="tab on" data-panel="doc" onclick="switchPanel('doc',this)">单据信息</button>
+    <button class="tab on" data-panel="doc" onclick="switchPanel('doc',this)"><span class="approval-change-tag">单据信息</span></button>
     <button class="tab" data-panel="rec" onclick="switchPanel('rec',this)">审批记录</button>
   </div>
 
   <section class="panel on" id="docPanel">
     <div class="section">
       <div class="section-bd" style="padding-top:10px">
-        <div class="row" style="border-top:0;padding-top:6px">
-          <div class="lab req">业务线：</div>
-          <div class="val">
-            中央空调
-          </div>
+        <div class="row" id="approvalBizLineRow" style="border-top:0;padding-top:6px">
+          <div class="lab req approval-change-tag">业务线：</div>
+          <div class="val" id="approvalBizLineValue">中央空调</div>
         </div>
+        <div class="approval-biz-panel" id="approvalBizRegionPanel"><div class="approval-biz-heading approval-change-tag approval-change-line">经营区域</div><div class="approval-biz-region-list" id="approvalBizRegionsList"><div class="approval-biz-region-item">广东省 / 珠海市 / 香洲区</div><div class="approval-biz-region-item">广东省 / 广州市 / 天河区</div><div class="approval-biz-region-item">广东省 / 深圳市 / 南山区</div><div class="approval-biz-region-item">广西壮族自治区 / 南宁市 / 青秀区</div><div class="approval-biz-region-item">湖南省 / 长沙市 / 岳麓区</div><div class="approval-biz-region-item">湖北省 / 武汉市 / 武昌区</div><div class="approval-biz-region-item">福建省 / 厦门市 / 思明区</div><div class="approval-biz-region-item">浙江省 / 杭州市 / 西湖区</div><div class="approval-biz-region-item">江苏省 / 南京市 / 鼓楼区</div><div class="approval-biz-region-item">四川省 / 成都市 / 武侯区</div></div><button class="approval-region-toggle" id="approvalRegionsToggle" type="button" aria-controls="approvalBizRegionsList" aria-expanded="false" onclick="toggleApprovalRegions()">展开全部（共10个）</button></div>
       </div>
     </div>
 
@@ -1215,7 +1225,7 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
 
     <div class="section" id="usageSection">
       <div class="section-hd" onclick="toggleSection('usageSection',this)">
-        <div class="section-hd-left"><div class="bar"></div><div class="section-title">使用方信息</div></div>
+        <div class="section-hd-left"><div class="bar"></div><div class="section-title approval-change-tag">使用方信息</div></div>
         <div class="section-sub">展开中 <span style="font-size:13px">⌃</span></div>
       </div>
       <div class="section-bd" id="usageBody">
@@ -1228,8 +1238,8 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
         <div class="row"><div class="lab req">联系方式 <span class="section-sub">（二选一）</span></div><div class="val">137 9876 5432 <span class="mini-badge">手机</span></div></div>
         <div class="row"><div class="lab req">项目预计设备金额（万元）</div><div class="val">198.50</div></div>
         <div class="row"><div class="lab req">空调面积（㎡）</div><div class="val">3,200</div></div>
-        <div class="row"><div class="lab req">项目地址</div><div class="val multiline">广东省 珠海市 香洲区 香洲街道 迎宾北路1888号华邑酒店</div></div>
-        <div class="row"><div class="lab">跨区类型</div><div class="val"><span class="chip gray">非跨区</span></div></div>
+        <div class="row"><div class="lab req">项目地址</div><div class="val multiline">江西省 南昌市 红谷滩区 沙井街道 红谷中大道88号</div></div>
+        <div class="row"><div class="lab approval-change-tag">跨区类型</div><div class="val"><span class="chip gray">省外跨区</span></div></div>
         <div class="row"><div class="lab req">执行单位</div><div class="val">珠海某安装工程队（当前经销商）</div></div>
 
         <div class="section" style="margin:6px 0 0;box-shadow:none;border:1px solid #f0f2f6">
@@ -1973,6 +1983,24 @@ function qpSearch(){
   toast(n?('查询到 '+n+' 条工程单'):'暂无匹配的工程单');
 }
 </script>
+<script>
+function toggleApprovalRegions(){
+  var list=document.getElementById('approvalBizRegionsList');
+  var expanded=list.classList.toggle('is-expanded');
+  var button=document.getElementById('approvalRegionsToggle');
+  button.setAttribute('aria-expanded',String(expanded));
+  button.textContent=expanded?'收起':'展开全部（共10个）';
+}
+</script>
+<script>
+// 列表入口传递单据身份；其余字段仍为本地原型演示数据。
+(function(){var q=new URLSearchParams(location.search),no=q.get('no'),name=q.get('name'),dealer=q.get('dealer'),status=q.get('status');
+function set(id,text){var el=document.getElementById(id);if(el&&text)el.textContent=text;}
+if(no){set('headerProjNo',no+(name?' ('+name+')':''));set('objNo',no);if(name)set('objName','（'+name+'）');}
+if(status){set('headerStatusBadge',status);set('approvalPill',status);var pill=document.getElementById('approvalPill');if(pill)pill.className='pill '+(/通过/.test(status)?'pass':/驳回/.test(status)?'reject':'in');}
+if(name){var field=document.getElementById('usageProjectName');if(field){if(field.matches('input'))field.value=name;else field.textContent=name;}}
+document.querySelectorAll('.form-item,.row,.rg-item').forEach(function(row){var label=row.querySelector('.form-label,.lab,.rg-label');if(!label)return;var key=label.textContent.replace(/[*：:\s]/g,'');if(key==='项目名称'&&name){var project=row.querySelector('input,.field-readonly,.val,.rg-value');if(project){if(project.matches('input'))project.value=name;else{var control=project.querySelector('input');if(control)control.value=name;else project.textContent=name;}}}var value=row.querySelector('.field-readonly,.val,.rg-value');if(!value)return;if(key==='项目单号'&&no)value.textContent=no;if(key==='经销商名称'&&dealer)value.textContent=dealer;});
+})();</script>
 </body>
 </html>
 

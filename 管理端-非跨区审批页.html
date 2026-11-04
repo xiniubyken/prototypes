@@ -622,6 +622,17 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .proto-new--title>.proto-new-tag{top:50%;right:-8px;transform:translateY(-50%);border-radius:4px;}
 .proto-new--nav>.proto-new-tag{top:50%;right:6px;transform:translateY(-50%);border-radius:4px;}
 
+
+/* NEW按通用规范贴合原有行；本次范围：审批业务线只读及经营区域。 */
+.approval-change-tag:after{content:'NEW';display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap;flex:0 0 auto}
+.approval-change-line{display:flex;align-items:center;gap:8px}
+.approval-change-line:after{margin-left:auto}
+
+.approval-biz-readonly{font-size:13px;font-weight:600;color:#1f2329;line-height:24px}
+.approval-biz-panel{margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #e8eaed;border-radius:5px}
+.approval-biz-heading{font-size:13px;font-weight:600;color:#1f2329;margin-bottom:7px}
+.approval-biz-region-list{display:flex;flex-wrap:wrap;gap:6px}
+.approval-biz-region-item{padding:5px 9px;border:1px solid #d9dde5;border-radius:4px;background:#fff;color:#646a73;font-size:12px;line-height:normal}
 </style>
 </head>
 <body>
@@ -635,7 +646,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">审批-非跨区登录</span>
+    <span class="form-page-title approval-change-tag">审批-非跨区登录</span>
     <span class="proj-no-display" id="headerProjNo">粤东GCDT202506250001 (希望小学A项目)</span>
     <span class="status-badge sp" id="headerStatusBadge">审批中</span>
   </div>
@@ -651,14 +662,11 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 <!-- ========== 卡片0：业务线横向单选（与用户端-新建工程项目单.html一致） ========== -->
 <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
   <div class="form-card-body" style="padding:12px 16px;">
-    <div style="display:flex;align-items:center;gap:12px;">
+    <div class="approval-change-line approval-change-tag" id="approvalBizLineRow" style="gap:12px;">
       <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
-      <div class="biz-type-selector" id="headerBizSelector">
-        <div class="biz-type-option" onclick="selectBizType(this,'')">请选择</div>
-        <div class="biz-type-option active" onclick="selectBizType(this,'central')">中央空调</div>
-        <div class="biz-type-option" onclick="selectBizType(this,'coldchain')">冷链</div>
-      </div>
+      <div class="approval-biz-readonly" id="approvalBizLineValue">中央空调</div>
     </div>
+    <div class="approval-biz-panel" id="approvalBizRegionPanel"><div class="approval-biz-heading approval-change-tag approval-change-line">经营区域</div><div class="approval-biz-region-list" id="approvalBizRegionsList"><div class="approval-biz-region-item">广东省 / 珠海市 / 香洲区</div><div class="approval-biz-region-item">广东省 / 广州市 / 天河区</div><div class="approval-biz-region-item">广东省 / 深圳市 / 南山区</div><div class="approval-biz-region-item">广西壮族自治区 / 南宁市 / 青秀区</div><div class="approval-biz-region-item">湖南省 / 长沙市 / 岳麓区</div><div class="approval-biz-region-item">湖北省 / 武汉市 / 武昌区</div><div class="approval-biz-region-item">福建省 / 厦门市 / 思明区</div><div class="approval-biz-region-item">浙江省 / 杭州市 / 西湖区</div><div class="approval-biz-region-item">江苏省 / 南京市 / 鼓楼区</div><div class="approval-biz-region-item">四川省 / 成都市 / 武侯区</div></div></div>
   </div>
 </div>
 
@@ -1620,14 +1628,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 function da(msg){alert(msg)}
 
 // ==================== 全局状态 ====================
-var currentBizType = 'central';
+const currentBizType = 'central';
 
 // ==================== 业务线选择 ====================
-function selectBizType(el, val) {
-  document.querySelectorAll('.biz-type-selector .biz-type-option').forEach(function(b){b.classList.remove('active')});
-  el.classList.add('active');
-  currentBizType = val;
-}
+// 审批业务线取申请单原值，只读展示，不提供切换入口。
 
 // ==================== 设备清单操作 ====================
 var equipCount = 4;
@@ -2627,5 +2631,14 @@ else qpFillCellTitles();
   </div>
 </div>
 
+<script>
+// 列表入口传递单据身份；其余字段仍为本地原型演示数据。
+(function(){var q=new URLSearchParams(location.search),no=q.get('no'),name=q.get('name'),dealer=q.get('dealer'),status=q.get('status');
+function set(id,text){var el=document.getElementById(id);if(el&&text)el.textContent=text;}
+if(no){set('headerProjNo',no+(name?' ('+name+')':''));set('objNo',no);if(name)set('objName','（'+name+'）');}
+if(status){set('headerStatusBadge',status);set('approvalPill',status);var pill=document.getElementById('approvalPill');if(pill)pill.className='pill '+(/通过/.test(status)?'pass':/驳回/.test(status)?'reject':'in');}
+if(name){var field=document.getElementById('usageProjectName');if(field){if(field.matches('input'))field.value=name;else field.textContent=name;}}
+document.querySelectorAll('.form-item,.row,.rg-item').forEach(function(row){var label=row.querySelector('.form-label,.lab,.rg-label');if(!label)return;var key=label.textContent.replace(/[*：:\s]/g,'');if(key==='项目名称'&&name){var project=row.querySelector('input,.field-readonly,.val,.rg-value');if(project){if(project.matches('input'))project.value=name;else{var control=project.querySelector('input');if(control)control.value=name;else project.textContent=name;}}}var value=row.querySelector('.field-readonly,.val,.rg-value');if(!value)return;if(key==='项目单号'&&no)value.textContent=no;if(key==='经销商名称'&&dealer)value.textContent=dealer;});
+})();</script>
 </body>
 </html>

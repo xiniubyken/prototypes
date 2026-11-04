@@ -1,0 +1,2644 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     本次新增功能标识说明（2026-09-30）
+     本次新增/改动的区域，已在页面上用红色 NEW 标签标注
+     （入口按钮右上角、弹窗标题右侧）。
+     NEW 标签仅用于标识"本次新增范围"，方便评审与开发对齐，
+     不属于 UI 需求，不是要开发实现的界面元素。
+     ============================================================ -->
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理端-省内跨区审批页</title>
+
+<style>
+/* 商用工程 · 共享样式 */
+:root{
+  --primary:#3b5998; --primary-light:#4a72c3;
+  --danger:#D32F2F; --success:#2E7D32; --warning:#ED6C02; --info:#0288D1;
+  --bg:#fff; --bg-card:#fff; --bg-header:#F7F8FA; --bg-hover:#f0f2f5;
+  --border:#e8eaed; --border-light:#f0f0f0;
+  --text:#1f2329; --text-secondary:#646a73; --text-aux:#8f959e;
+  --font-body:14px; --font-card-title:14px; --font-aux:12px; --font-small:13px;
+  --radius:4px; --radius-card:6px;
+  --gap:4px; --gap8:8px; --gap12:12px; --gap16:16px; --gap24:24px;
+  --row-h:36px; --header-h:40px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:var(--font-body);color:var(--text);background:#f0f2f5;line-height:1.6;}
+
+/* 页面根容器 */
+html,body{height:100%;margin:0;overflow:hidden;}
+.page-root{display:flex;flex-direction:column;height:100%;background:#f0f2f5;overflow:hidden;}
+
+/* ====== 页面头 ====== */
+.form-page-header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 12px;background:#fff;border-bottom:1px solid #e8eaed;position:sticky;top:0;z-index:50;}
+.form-page-title{font-size:17px;font-weight:700;color:#1f2329;}
+.form-header-right{display:flex;align-items:center;gap:16px;font-size:12px;color:#8f959e;}
+.back-btn{display:flex;align-items:center;gap:5px;font-size:13px;color:#646a73;cursor:pointer;padding:5px 10px;border-radius:4px;border:1px solid #e8eaed;background:#fff;transition:.15s;margin-right:8px;}
+.back-btn:hover{color:#3b5998;border-color:#3b5998;}
+.back-btn svg{width:14px;height:14px;}
+
+/* 审批类型标签 */
+.approval-type-tag{padding:3px 10px;border-radius:4px;font-size:12px;font-weight:500;}
+.approval-type-tag.local{background:#E8F5E9;color:#2E7D32;}
+.approval-type-tag.out-province{background:#FFF3E0;color:#E65100;}
+.approval-type-tag.extend{background:#E3F2FD;color:#1565C0;}
+.approval-type-tag.void{background:#FFEBEE;color:#C62828;}
+
+/* 业务线标签 */
+.biz-tag{display:inline-block;padding:2px 10px;border-radius:3px;font-size:12px;font-weight:500;background:#FFF8E1;color:#B45309;border:1px solid #FDE68A;}
+
+/* ====== 业务线横向单选 ====== */
+.biz-type-selector {
+  display: flex;
+  gap: 0;
+  background: #f5f6fa;
+  border: 1px solid #e0e3ea;
+  border-radius: 6px;
+  overflow: hidden;
+  padding: 3px;
+  width: fit-content;
+}
+.biz-type-option {
+  padding: 5px 18px;
+  font-size: 13px;
+  color: #646a73;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: .15s;
+  font-weight: 500;
+  white-space: nowrap;
+  border: none;
+  background: transparent;
+  line-height: 1.5;
+}
+.biz-type-option:hover { color: #3b5998; background: rgba(59,89,152,.06); }
+.biz-type-option.active { background: #fff; color: #3b5998; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.10); }
+
+/* 状态badge */
+.status-badge{padding:3px 12px;border-radius:4px;font-size:12px;font-weight:700;white-space:nowrap;}
+.status-badge.sp{background:#E3F2FD;color:#1565C0;}
+.status-badge.ok{background:#E8F5E9;color:#2E7D32;}
+.status-badge.rj{background:#FFF3E0;color:#E65100;}
+.status-badge.cc{background:#ECEFF1;color:#546E7A;}
+
+/* 项目单号显示 */
+.proj-no-display{font-size:13px;color:#646a73;background:#f5f6fa;padding:4px 10px;border-radius:4px;}
+
+/* ====== 表单卡片 ====== */
+.form-card{background:#fff;border:1px solid #e8eaed;border-radius:6px;margin-bottom:12px;overflow:hidden;}
+.form-card-header{padding:11px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.form-card-header:hover{background:#f0f2f5;}
+.form-card-title{display:flex;align-items:center;gap:8px;}
+.form-card-title .fct-accent{width:4px;height:16px;background:#3b5998;border-radius:2px;flex-shrink:0;}
+.form-card-title .fct-text{font-size:14px;font-weight:700;color:#1f2329;}
+.form-card-title .fct-sub{font-size:12px;color:#8f959e;font-weight:400;}
+.form-card-body{padding:16px;}
+
+/* ====== 表单网格 ====== */
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;}
+.form-grid.col2{grid-template-columns:repeat(2,1fr);}
+.form-grid.col4{grid-template-columns:repeat(4,1fr);}
+.form-item{display:flex;flex-direction:column;gap:4px;}
+.form-item.span2{grid-column:span 2;}
+.form-item.span3{grid-column:span 3;}
+.form-item.span4{grid-column:span 4;}
+.form-label{font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+.form-label .req{color:#d32f2f;font-size:12px;}
+.form-label .label-tip{color:#8f959e;font-size:11px;font-weight:400;}
+.form-ctrl{height:32px;border:1px solid #e0e3ea;border-radius:4px;padding:0 10px;font-size:13px;color:#1f2329;outline:none;transition:.15s;background:#fff;width:100%;}
+.form-ctrl:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+.form-ctrl:disabled,.form-ctrl[readonly]{background:#f5f6fa;color:#8f959e;cursor:not-allowed;}
+.form-ctrl.readonly-plain{border-color:transparent;background:transparent;padding-left:0;color:#1f2329;cursor:default;}
+select.form-ctrl{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238f959e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;}
+textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
+.form-hint{font-size:11px;color:#8f959e;line-height:1.4;margin-top:1px;}
+.form-hint.error{color:#d32f2f;}
+
+/* 联系方式单选 */
+.contact-switch{display:flex;gap:0;margin-bottom:6px;}
+.contact-switch-btn{padding:5px 14px;font-size:12px;border:1px solid #e0e3ea;cursor:pointer;background:#fff;color:#646a73;transition:.15s;}
+.contact-switch-btn:first-child{border-radius:4px 0 0 4px;}
+.contact-switch-btn:last-child{border-radius:0 4px 4px 0;border-left:none;}
+.contact-switch-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+
+/* 地址选择 */
+.addr-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.addr-row .form-ctrl{height:28px;font-size:12px;}
+
+/* ====== 状态补充卡片 ====== */
+.state-ext-card{
+  background:#f7f8fa;
+  border:1px solid #e8eaed;
+  border-radius:6px;
+  padding:14px 16px;
+  margin-top:12px;
+}
+.state-ext-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px 20px;
+}
+.state-ext-grid .span3{grid-column:span 3;}
+.state-ext-card .form-item{margin-bottom:0;}
+.state-ext-card .form-hint{font-size:11px;color:#8f959e;margin-top:2px;}
+.up-zone{display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:.15s;width:100%;}
+.up-zone:hover{border-color:#3b5998!important;background:#f0f4ff!important;}
+.fl-list{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
+.fl-item{display:flex;align-items:center;gap:6px;padding:4px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#3b5998;}
+.fl-item .fl-del{color:#d32f2f;cursor:pointer;margin-left:auto;font-size:14px;line-height:1;}
+/* ====== 跨区说明tag ====== */
+.cross-region-tag{font-size:12px;padding:4px 10px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
+.cross-region-tag.intra{background:#E8F5E9;color:#2E7D32;}
+.cross-region-tag.inter{background:#FFF3E0;color:#E65100;}
+.cross-region-tag.none{background:#f0f2f5;color:#646a73;}
+
+/* ====== 只读标签 ====== */
+.field-readonly{font-size:13px;color:#1f2329;display:flex;align-items:center;gap:6px;}
+.field-readonly .ro-badge{font-size:11px;background:#f0f2f5;color:#8f959e;padding:1px 5px;border-radius:3px;}
+.field-readonly.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ====== 工商校验按钮 ====== */
+.business-check-btn{height:32px;padding:0 14px;font-size:12px;font-weight:600;color:#fff;background:#3b5998;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s;}
+.business-check-btn:hover{background:#2e477a;}
+.business-check-btn:active{background:#1f3460;}
+
+/* "修改使用方信息"按钮 */
+.edit-info-btn{padding:4px 12px;font-size:12px;color:#3b5998;border:1px solid #c5cae9;border-radius:4px;background:#fff;cursor:pointer;transition:.15s;font-weight:500;}
+.edit-info-btn:hover{background:#f0f4ff;border-color:#3b5998;}
+
+/* 编辑模式保存/取消按钮组 */
+.edit-action-group{display:flex;gap:6px;}
+.edit-action-group .btn-save{padding:4px 14px;font-size:12px;background:#3b5998;color:#fff;border:none;border-radius:4px;cursor:pointer;font-weight:600;}
+.edit-action-group .btn-save:hover{background:#2e477a;}
+.edit-action-group .btn-cancel{padding:4px 14px;font-size:12px;background:#fff;color:#646a73;border:1px solid #e0e3ea;border-radius:4px;cursor:pointer;}
+.edit-action-group .btn-cancel:hover{border-color:#3b5998;color:#3b5998;}
+
+/* 可编辑字段高亮 */
+.form-item.editable .form-ctrl{border-color:#3b5998;background:#fff;}
+.form-item.editing-active .form-label{color:#3b5998;font-weight:600;}
+
+/* ====== 非标标签 ====== */
+.nonstd-badge{color:#E65100;font-weight:700;font-size:11px;background:#FFF3E0;padding:1px 5px;border-radius:3px;white-space:nowrap;display:inline-block;}
+
+/* ====== 设备清单表格 ====== */
+.equip-table-wrap{overflow-x:auto;max-height:320px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;}
+.equip-table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
+.equip-table thead{position:sticky;top:0;z-index:10;}
+.equip-table th{background:#f7f8fa;height:36px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
+.equip-table td{height:38px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.equip-table tr:hover td{background:rgba(59,89,152,.02);}
+.equip-table .td-input{border:1px solid #d0d3da;border-radius:3px;padding:3px 6px;font-size:13px;color:#1f2329;width:100%;min-width:60px;background:#fff;outline:none;transition:.15s;}
+.equip-table .td-input:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);background:#fff;}
+.equip-table .td-input:hover{border-color:#b0b5c0;}
+.equip-table .td-num{text-align:right;}
+.equip-table .td-center{text-align:center;}
+.equip-table .td-muted{color:#8f959e;}
+.equip-table .td-op{white-space:nowrap;text-align:center;}
+.equip-table .td-op a{color:#d32f2f;font-size:12px;cursor:pointer;}
+.equip-table .td-op a:hover{text-decoration:underline;}
+.equip-table-foot{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:#fafbfc;border-top:1px solid #f0f0f0;}
+.equip-table-foot .et-summary{font-size:12px;color:#646a73;}
+.equip-table-foot .et-summary span{color:#3b5998;font-weight:700;}
+.equip-limit-tip{font-size:12px;color:#8f959e;display:flex;align-items:center;gap:4px;}
+.equip-limit-tip.warn{color:#E65100;}
+
+/* 设备清单卡片头扩展 */
+.equip-card-hd{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:#f7f8fa;border-bottom:1px solid #f0f0f0;}
+.equip-card-hd-left{display:flex;align-items:center;gap:8px;}
+.equip-card-hd-right{display:flex;align-items:center;gap:8px;}
+.equip-summary-item{font-size:12px;color:#646a73;}
+.equip-summary-item span{color:#1f2329;font-weight:700;}
+.btn-sm{padding:4px 12px;font-size:12px;border-radius:3px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
+.btn-sm:hover{border-color:#3b5998;color:#3b5998;background:#f0f2f5;}
+
+/* ====== 附件区（只读展示） ====== */
+.attach-read-list{display:flex;flex-direction:column;gap:6px;}
+.attach-read-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f5f6fa;border-radius:4px;font-size:13px;}
+.attach-read-item .at-icon{width:32px;height:32px;border-radius:4px;background:#e8eaed;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+.attach-read-item .at-icon.img-icon{background:#E3F2FD;color:#1565C0;}
+.attach-read-item .at-icon.doc-icon{background:#FFF3E0;color:#E65100;}
+.attach-read-item .at-icon.xls-icon{background:#E8F5E9;color:#2E7D32;}
+.attach-read-item .at-icon.pdf-icon{background:#FFEBEE;color:#C62828;}
+.attach-read-item .at-name{color:#3b5998;cursor:pointer;text-decoration:none;}
+.attach-read-item .at-name:hover{text-decoration:underline;}
+.attach-read-item .at-size{font-size:12px;color:#8f959e;margin-left:auto;}
+
+/* ====== 审批记录表格 ====== */
+.approval-record-header{padding:12px 16px;font-size:14px;font-weight:700;border-bottom:1px solid #f0f0f0;background:#f7f8fa;display:flex;align-items:center;justify-content:space-between;}
+.approval-record-header .arh-left{display:flex;align-items:center;gap:8px;}
+.approval-record-header .fct-accent{width:4px;height:16px;background:#3b5998;border-radius:2px;}
+/* 展示所有信息 - 开关 */
+.arh-toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:#646a73;user-select:none;}
+.toggle-switch{position:relative;width:44px;height:22px;display:inline-block;vertical-align:middle;}
+.toggle-switch input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#c0c4cc;border-radius:11px;transition:.25s;}
+.toggle-slider:before{position:absolute;content:"";height:18px;width:18px;left:2px;bottom:2px;background:#fff;border-radius:50%;transition:.25s;}
+.toggle-switch input:checked + .toggle-slider{background-color:#3370ff;}
+.toggle-switch input:checked + .toggle-slider:before{transform:translateX(22px);}
+.toggle-label-on{color:#3370ff;font-weight:600;font-size:12px;}
+.record-table-wrap{overflow-x:auto;padding:20px 16px 16px;}
+.record-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:auto;}
+.record-table th{background:#fafbfc;height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:1px solid #e8eaed;white-space:nowrap;}
+.record-table td{height:42px;padding:6px 10px;border-bottom:1px solid #f0f0f0;font-size:12px;color:#1f2329;vertical-align:middle;}
+.record-table tr:last-child td{border-bottom:none;}
+.record-table tr:hover td{background:rgba(59,89,152,.02);}
+/* 关状态：隐藏内部备注(6)和内部附件(7)，保持网格对齐 */
+.record-table.compact th:nth-child(6),
+.record-table.compact td:nth-child(6),
+.record-table.compact th:nth-child(7),
+.record-table.compact td:nth-child(7){
+  width:0!important;min-width:0!important;max-width:0!important;
+  padding:0!important;border-left:0!important;border-right:0!important;
+  overflow:hidden;white-space:nowrap;font-size:0;
+}
+/* 数据列强制左对齐（覆盖 td-center） */
+.record-table .td-center{text-align:left;}
+
+/* 审批状态标签 */
+.status-pass{color:#2E7D32;font-weight:500;}
+.status-reject{color:#D32F2F;font-weight:500;}
+
+/* 审批意见截断 */
+.opinion-truncate{max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default;display:inline-block;}
+
+/* 查看链接 */
+.view-link{color:#3b5998;cursor:pointer;font-size:12px;}
+.view-link:hover{text-decoration:underline;}
+
+/* 无附件标记 */
+.no-attach{color:#c5cae9;}
+
+/* ====== 弹窗（Modal） ====== */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1000;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-content{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:520px;max-height:80vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.modal-title{font-size:15px;font-weight:700;color:#1f2329;}
+.modal-close{font-size:22px;color:#8f959e;cursor:pointer;line-height:1;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px;}
+.modal-close:hover{color:#1f2329;background:#f5f6fa;}
+.modal-body{padding:20px;overflow-y:auto;flex:1;}
+.modal-content.modal-lg{width:780px;}
+.modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid #e8eaed;flex-shrink:0;}
+.btn{padding:6px 16px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid #d0d3da;background:#fff;color:#1f2329;transition:.15s;}
+.btn:hover{border-color:#3b5998;color:#3b5998;}
+.btn-primary{background:#3b5998;color:#fff;border-color:#3b5998;}
+.btn-primary:hover{background:#2e477a;color:#fff;}
+
+/* 筛选区 */
+.filter-row{display:flex;align-items:flex-end;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.filter-item{display:flex;flex-direction:column;gap:4px;}
+.filter-label{font-size:11px;color:#646a73;}
+.filter-input{width:160px;height:32px;}
+.filter-actions{display:flex;gap:6px;padding-bottom:1px;}
+
+/* 商品选择表格 */
+.product-table-wrap{overflow-x:auto;max-height:280px;overflow-y:auto;border:1px solid #e8eaed;border-radius:4px;margin-bottom:10px;}
+.product-select-table{width:100%;border-collapse:collapse;font-size:13px;min-width:700px;}
+.product-select-table thead{position:sticky;top:0;z-index:10;}
+.product-select-table th{background:#f7f8fa;height:34px;padding:0 8px;text-align:left;font-weight:600;font-size:12px;color:#646a73;border-bottom:2px solid #e8eaed;white-space:nowrap;}
+.product-select-table td{height:42px;padding:4px 8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle;}
+.product-select-table tr:hover td{background:rgba(59,89,152,.02);}
+.prod-thumb{width:48px;height:48px;background:#f5f6fa;border-radius:4px;margin:0 auto;display:flex;align-items:center;justify-content:center;color:#c5cae9;font-size:10px;}
+
+/* 分页 */
+.pagination-bar{display:flex;align-items:center;justify-content:space-between;background:#fafbfc;padding:8px 12px;border:1px solid #e8eaed;border-radius:4px;margin-top:0;}
+.page-info{font-size:12px;color:#8f959e;}
+.page-controls{display:flex;gap:4px;align-items:center;}
+.page-btn{padding:4px 10px;font-size:12px;color:#646a73;background:#fff;border:1px solid #e0e3ea;border-radius:3px;cursor:pointer;transition:.1s;user-select:none;}
+.page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
+.page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+.page-btn.disabled{color:#c5cae9;cursor:default;}
+
+/* 导入控件 */
+.import-notice{background:#f5f6fa;border-radius:5px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#646a73;}
+.import-notice-item{padding:3px 0;}
+.import-file-zone{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.import-file-name{font-size:13px;color:#8f959e;}
+.import-result{background:#f0f4ff;border:1px solid #c5cae9;border-radius:5px;padding:12px 14px;margin-bottom:10px;}
+.import-result-row{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px;}
+.import-result-label{color:#646a73;font-size:12px;white-space:nowrap;min-width:64px;}
+.progress-bar{width:200px;height:8px;background:#e8eaed;border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;background:#3b5998;border-radius:4px;transition:width .3s;}
+.progress-text{font-size:12px;color:#3b5998;}
+.import-summary{font-size:13px;color:#1f2329;background:#fff;border:1px solid #e0e3ea;border-radius:4px;padding:8px 12px;margin-top:8px;}
+.import-fail-table-wrap{overflow-x:auto;border:1px solid #ffc8c8;border-radius:4px;padding:0;}
+.import-fail-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px;}
+.import-fail-table th{background:#FFF5F5;height:34px;padding:0 10px;text-align:left;font-weight:600;font-size:12px;color:#d32f2f;border-bottom:1px solid #ffc8c8;}
+.import-fail-table td{height:34px;padding:4px 10px;border-bottom:1px solid #fff0f0;font-size:12px;}
+
+/* 审批意见内容区 */
+.opinion-content-box{background:#f5f5f5;border-radius:6px;padding:16px;font-size:13px;color:#1f2329;line-height:1.8;white-space:pre-wrap;word-break:break-all;}
+
+/* 附件列表 */
+.modal-attach-section{margin-top:16px;}
+.modal-attach-label{font-size:13px;color:#646a73;margin-bottom:8px;}
+.modal-attach-list{display:flex;flex-direction:column;gap:6px;}
+.modal-attach-item{color:#3b5998;font-size:13px;cursor:pointer;text-decoration:none;}
+.modal-attach-item:hover{text-decoration:underline;}
+
+/* ====== 底部操作栏 ====== */
+.approval-footer{position:sticky;bottom:0;background:#fff;border-top:2px solid #e8eaed;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:40;box-shadow:0 -2px 8px rgba(0,0,0,.06);}
+.approval-footer-left{font-size:12px;color:#8f959e;}
+.approval-footer-right{display:flex;gap:12px;align-items:center;}
+.btn-approve{padding:8px 28px;font-size:14px;font-weight:700;background:#2E7D32;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-approve:hover{background:#1B5E20;box-shadow:0 2px 8px rgba(46,125,50,.3);}
+.btn-reject{padding:8px 28px;font-size:14px;font-weight:700;background:#D32F2F;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-reject:hover{background:#B71C1C;box-shadow:0 2px 8px rgba(211,47,47,.3);}
+.btn-quick-view{padding:8px 20px;font-size:13px;font-weight:600;background:#fff;color:#3370ff;border:1.5px solid #3370ff;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-quick-view:hover{background:#eef2ff;box-shadow:0 2px 8px rgba(51,112,255,.2);}
+
+.export-body{padding:20px 24px;overflow:auto;flex:1;}
+.export-table{width:100%;border-collapse:collapse;font-size:13px;}
+.export-table th{background:#f7f8fa;color:#1f2329;font-weight:600;padding:10px 12px;text-align:left;border:1px solid #d0d5dd;white-space:nowrap;font-size:13px;}
+.export-table td{padding:10px 12px;border:1px solid #d0d5dd;vertical-align:top;line-height:1.5;font-size:13px;}
+.export-table td.proj-info{background:#fafbfc;font-weight:500;color:#1f2329;vertical-align:middle;}
+.export-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 24px;border-top:1px solid #e8eaed;flex-shrink:0;background:#fafbfc;}
+.btn-export{padding:8px 22px;font-size:13px;font-weight:600;background:#2E7D32;color:#fff;border:none;border-radius:5px;cursor:pointer;transition:.15s;}
+.btn-export:hover{background:#1B5E20;box-shadow:0 2px 8px rgba(46,125,50,.3);}
+
+.st-ok{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#e8f8ea;color:#2E7D32;border:1px solid #a5d6a7;}
+.st-warn{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#fff8e1;color:#F57C00;border:1px solid #ffe082;}
+.st-rej{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#fce8e6;color:#D32F2F;border:1px solid #ef9a9a;}
+.st-info{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#f0f2f5;color:#646a73;border:1px solid #d0d5dd;}
+.st-done{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#e8eaf6;color:#3949AB;border:1px solid #c5cae9;}
+.st-gray{display:inline-block;font-size:12px;padding:1px 8px;border-radius:3px;background:#f5f5f5;color:#999;border:1px solid #ddd;}
+
+/* 审批意见输入 */
+.opinion-input-area{display:flex;flex-direction:column;gap:4px;max-width:420px;}
+.opinion-input-area label{font-size:12px;color:#646a73;}
+.opinion-input-area textarea{height:64px;resize:vertical;border:1px solid #e0e3ea;border-radius:4px;padding:8px 10px;font-size:13px;outline:none;transition:.15s;}
+.opinion-input-area textarea:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+
+/* 登录顺序圆圈标签 */
+.lo-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px 3px 4px;border-radius:14px;font-size:13px;border:1.5px solid #4CAF50;background:#E8F5E9;}
+.lo-num{width:22px;height:22px;border-radius:50%;background:#4CAF50;color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;line-height:1;}
+.lo-txt{color:#2E7D32;font-weight:500;}
+.lo-view-btn{font-size:12px;color:#3b5998;cursor:pointer;text-decoration:none;white-space:nowrap;}
+.lo-view-btn:hover{text-decoration:underline;}
+
+/* ===== 登录顺序·查看详情弹窗（从管理端-工程单详情.html同步） ===== */
+.lod-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:1001;display:none;align-items:center;justify-content:center}
+.lod-box{background:#fff;border-radius:8px;width:880px;max-width:92vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,.18)}
+.lod-hd{padding:14px 20px;border-bottom:1px solid var(--border-light,#e8eaed);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lod-title{font-size:15px;font-weight:600;color:var(--text,#1f2329)}
+.lod-x{font-size:18px;color:var(--text-aux,#8f959e);cursor:pointer;padding:4px 8px}
+.lod-x:hover{color:var(--text,#1f2329)}
+.lod-body{padding:16px 20px;overflow-y:auto;flex:1}
+.lod-info-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px;}
+.lod-info-label{color:var(--text-aux,#8f959e)}
+.lod-info-val{color:var(--text,#1f2329);font-weight:500}
+.lod-edit-link{font-size:13px;color:var(--primary,#3b5998);cursor:pointer;text-decoration:none}
+.lod-edit-link:hover{text-decoration:underline}
+.lod-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border-light,#e8eaed)}
+.lod-tab{padding:7px 18px;font-size:13px;color:var(--text-secondary,#646a73);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s}
+.lod-tab:hover{color:var(--primary,#3b5998)}
+.lod-tab.on{color:var(--primary,#3b5998);border-bottom-color:var(--primary,#3b5998);font-weight:600}
+.lod-tp{display:none}
+.lod-tp.on{display:block}
+.lod-table{width:100%;border-collapse:collapse;font-size:13px}
+.lod-table th{background:var(--bg-header,#f7f8fa);height:38px;padding:8px 10px;text-align:left;font-weight:600;font-size:12px;color:var(--text-secondary,#646a73);border-bottom:1px solid var(--border,#e8eaed)}
+.lod-table td{padding:8px 10px;border-bottom:1px solid var(--border-light,#f0f0f0);vertical-align:middle}
+.lod-table tr:hover td{background:rgba(59,89,152,.03)}
+.ls-badge{display:inline-flex;align-items:center;gap:4px}
+.ls-num{width:20px;height:20px;border-radius:50%;font-size:11px;font-weight:700;color:#fff;display:inline-flex;align-items:center;justify-content:center;line-height:1}
+.ls-num.ok{background:#4CAF50}
+.ls-num.sub{background:#2196F3}
+.ls-txt{font-size:12px;font-weight:500}
+.ls-txt.ok{color:#2E7D32}
+.ls-txt.sub{color:#1565C0}
+.fr-wrap{display:flex;flex-direction:column;gap:2px}
+.fr-item{border:1px solid var(--border,#e8eaed);border-radius:3px;overflow:hidden;background:#fff}
+.fr-hd{display:flex;align-items:center;gap:8px;padding:7px 10px;cursor:pointer;background:var(--bg-header,#F7F8FA);transition:background .12s;font-size:13px;user-select:none}
+.fr-hd:hover{background:#eef0f4}
+.fr-ico{width:20px;height:20px;border-radius:3px;background:var(--primary,#3b5998);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0;line-height:1;transition:transform .2s}
+.fr-item.open .fr-ico{transform:rotate(45deg);background:var(--text-aux,#8f959e)}
+.fr-time{color:var(--text,#1f2329);font-weight:500;min-width:140px}
+.fr-user{color:var(--text-secondary,#646a73);min-width:60px}
+.fr-remark{color:var(--text-aux,#8f959e);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fr-bd{display:none;padding:12px 14px;border-top:1px solid var(--border-light,#f0f0f0);background:#FAFBFC}
+.fr-item.open .fr-bd{display:block}
+.fr-cg{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.fr-cl{font-size:12px;font-weight:600;color:var(--text-aux,#8f959e);margin-bottom:8px}
+.fr-items{display:flex;flex-direction:column;gap:5px}
+.fr-item-row{font-size:13px;color:var(--text,#1f2329);display:flex;align-items:center;gap:6px}
+.fr-hdr{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--text-aux,#8f959e);background:var(--bg-header,#F7F8FA);border-bottom:1px solid var(--border,#e8eaed);margin-top:4px}
+.fr-hdr-ico{width:20px;flex-shrink:0}
+.fr-hdr-time{min-width:140px}
+.fr-hdr-user{min-width:60px}
+.fr-hdr-remark{flex:1}
+
+/* 表单页滚动容器 */
+.form-page-scroll{flex:1;overflow-y:auto;background:#f0f2f5;}
+.form-page-inner{padding:12px 24px 0 24px;}
+
+/* 使用方只读卡片网格特殊样式 */
+.readonly-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;}
+.readonly-grid .rg-item{display:flex;flex-direction:column;gap:4px;}
+.readonly-grid .rg-label{font-size:12px;color:#646a73;}
+.readonly-grid .rg-value{font-size:13px;color:#1f2329;display:flex;align-items:center;gap:6px;}
+.readonly-grid .span2{grid-column:span 2;}
+
+/* ====== 审批操作弹窗（通过/驳回） ====== */
+.approve-warn-bar{display:flex;align-items:flex-start;gap:8px;padding:12px 14px;background:#FFFBE6;border-radius:6px;margin-bottom:18px;font-size:13px;color:#B45309;line-height:1.55;}
+.approve-warn-ico{font-size:17px;flex-shrink:0;margin-top:1px;}
+.approve-form-group{margin-bottom:16px;}
+.approve-form-label{display:block;font-size:13px;font-weight:500;color:#1f2329;margin-bottom:6px;}
+.approve-form-label .req{color:#d32f2f;margin-left:2px;}
+.approve-textarea{width:100%;height:80px;padding:8px 10px;border:1px solid #e0e3ea;border-radius:4px;font-size:13px;color:#1f2329;outline:none;resize:vertical;line-height:1.5;transition:.15s;background:#fff;box-sizing:border-box;}
+.approve-textarea:focus{border-color:#3b5998;box-shadow:0 0 0 2px rgba(59,89,152,.08);}
+.approve-textarea::placeholder{color:#c5cae9;}
+.approve-upload-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 16px;font-size:13px;border:1px solid #d0d3da;border-radius:4px;cursor:pointer;background:#fff;color:#1f2329;transition:.15s;}
+.approve-upload-btn:hover{border-color:#3b5998;color:#3b5998;}
+.approve-file-list{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.approve-file-item{display:flex;align-items:center;gap:8px;padding:5px 10px;background:#f7f8fa;border-radius:4px;font-size:12px;}
+.approve-file-item .af-name{color:#3b5998;cursor:pointer;flex:1;}
+.approve-file-item .af-name:hover{text-decoration:underline;}
+.approve-file-item .af-del{color:#D32F2F;cursor:pointer;font-size:14px;opacity:.7;}
+.approve-file-item .af-del:hover{opacity:1;}
+.approve-upload-hint{font-size:11px;color:#8f959e;margin-top:4px;line-height:1.5;}
+.approve-nonpublic{background:#f5f6fa;border-radius:6px;padding:14px 16px;margin-top:4px;}
+.approve-nonpublic-title{font-size:12px;color:#1f2329;font-weight:600;margin-bottom:12px;}
+.approve-nonpublic-title::before{content:'*';color:#1f2329;margin-right:2px;}
+.approve-footer-tip{font-size:11px;color:#8f959e;}
+/* ====== 审批流程弹窗 ====== */
+.af-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:center;justify-content:center;}
+.af-modal{background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.18);width:820px;max-width:92vw;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;}
+.af-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.af-title{font-size:15px;font-weight:700;color:#1f2329;}
+.af-close{font-size:22px;color:#bbb;cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;}
+.af-close:hover{color:#666;background:#f5f5f5;}
+.af-tabs{display:flex;padding:0 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;gap:0;}
+.af-tab{padding:12px 20px;font-size:14px;font-weight:500;color:#666;cursor:pointer;position:relative;border:none;background:none;margin-bottom:-1px;transition:.15s;}
+.af-tab.active{color:#3370ff;font-weight:600;}
+.af-tab.active::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2.5px;background:#3370ff;border-radius:3px 3px 0 0;}
+.af-tab:hover:not(.active){color:#3370ff;}
+.af-body{flex:1;overflow:auto;padding:20px 24px;}
+.af-flow-wrap{overflow-x:auto;padding:10px 0;}
+.af-flow-svg{min-width:700px;height:420px;display:block;}
+.af-node-type{font-size:13px;font-weight:600;color:#333;margin-bottom:12px;}
+.af-node-table{width:100%;border-collapse:collapse;border:1px solid #e0e0e0;font-size:13px;}
+.af-node-table th{background:#fafafa;padding:10px 14px;text-align:left;font-weight:600;color:#333;border-bottom:1px solid #e0e0e0;white-space:nowrap;}
+.af-node-table td{padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#555;line-height:1.5;vertical-align:top;}
+.af-node-table tr:last-child td{border-bottom:none;}
+.af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
+
+/* ====== 快速查询工程单弹窗（复刻 管理端-关联项目单 · 选择关联工程单） ====== */
+.status-tag{display:inline-block;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:500;white-space:nowrap;}
+.qp-mask{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);z-index:1200;align-items:flex-start;justify-content:center;padding-top:60px;}
+.qp-mask.show{display:flex;}
+.qp-dialog{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:1600px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;animation:qpIn .25s ease-out;}
+@keyframes qpIn{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+.qp-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.qp-header h3{font-size:16px;font-weight:600;color:#1f2329;margin:0;}
+.qp-close{width:28px;height:28px;border:none;background:none;font-size:22px;color:#8f959e;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:.15s;}
+.qp-close:hover{color:#1f2329;background:#f5f6fa;}
+.qp-body{padding:20px 24px;overflow-y:auto;flex:1;}
+
+/* 搜索区：3 列网格，标签定宽右对齐，输入框自适应 */
+.qp-search-card{background:#FAFBFC;border:1px solid #e8eaed;border-radius:4px;padding:16px 18px 12px;margin-bottom:16px;}
+.qp-search-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 24px;}
+.qp-item{display:flex;align-items:center;gap:8px;font-size:13px;min-width:0;}
+.qp-item label{color:#1f2329;white-space:nowrap;font-size:13px;flex-shrink:0;width:72px;text-align:right;}
+.qp-item input,.qp-item select{height:32px;border:1px solid #e8eaed;border-radius:4px;padding:0 8px;font-size:12px;color:#1f2329;outline:none;flex:1 1 auto;min-width:0;box-sizing:border-box;transition:border .15s;}
+.qp-item input:focus,.qp-item select:focus{border-color:#3b5998;}
+.qp-item input::placeholder{color:#8f959e;}
+.qp-btns{grid-column:1 / -1;display:flex;justify-content:flex-end;gap:10px;padding-top:4px;}
+.qp-search-card .date-range-inline{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.qp-search-card .date-range-inline input[type="date"]{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;box-sizing:border-box;}
+.qp-search-card .num-range{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.qp-search-card .num-range input{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;text-align:center;box-sizing:border-box;}
+
+/* 快查表格：定宽列 + 结构化字段不换行 */
+.qp-table-wrap{overflow-x:auto;}
+.qp-table{width:100%;border-collapse:collapse;font-size:12px;text-align:left!important;table-layout:fixed;min-width:1540px;}
+.qp-table th,.qp-table td{text-align:left!important;padding:9px 8px!important;vertical-align:middle!important;line-height:1.5!important;overflow:hidden;text-overflow:ellipsis;}
+.qp-table thead th{background:#F7F8FA;color:#646a73;font-weight:600;white-space:nowrap;border-bottom:2px solid #e8eaed;font-size:12px;}
+.qp-table tbody td{color:#1f2329;border-bottom:1px solid #f0f0f0;}
+/* 短字段/结构化字段：单行显示，避免换行 */
+.qp-table tbody td:nth-child(1),.qp-table tbody td:nth-child(5),.qp-table tbody td:nth-child(6),
+.qp-table tbody td:nth-child(8),.qp-table tbody td:nth-child(9),.qp-table tbody td:nth-child(10),
+.qp-table tbody td:nth-child(11),.qp-table tbody td:nth-child(12),.qp-table tbody td:nth-child(13),
+.qp-table tbody td:nth-child(14){white-space:nowrap;}
+.qp-table tbody tr:nth-child(even){background:#FAFBFC;}
+.qp-table tbody tr:hover td{background:rgba(59,89,152,.04)!important;}
+
+/* 底部 */
+.qp-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;}
+.qp-total{font-size:13px;color:#646a73;}
+.qp-total span{color:#1f2329;font-weight:600;}
+.qp-dialog .pagination-bar{display:flex;align-items:center;justify-content:flex-end;gap:4px;border:none;background:none;padding:0;margin:0;}
+.qp-dialog .page-btn{padding:4px 10px;font-size:12px;color:#646a73;background:#fff;border:1px solid #e0e3ea;border-radius:3px;cursor:pointer;transition:.1s;user-select:none;}
+.qp-dialog .page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
+.qp-dialog .page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+.qp-dialog .page-btn.disabled{color:#c5cae9;cursor:default;}
+.qp-dialog .page-size{margin-left:8px;font-size:12px;color:#646a73;}
+.qp-dialog .page-size select{height:28px;border:1px solid #e0e3ea;border-radius:3px;font-size:12px;outline:none;padding:0 4px;background:#fff;color:#646a73;}
+.qp-dialog .page-jump{margin-left:12px;font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+.qp-dialog .page-jump input{width:42px;height:28px;border:1px solid #e0e3ea;border-radius:3px;text-align:center;font-size:12px;outline:none;}
+.qp-dialog .page-jump input:focus{border-color:#3b5998;}
+.qp-footer-btn{padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:center;align-items:center;gap:12px;flex-shrink:0;}
+.qp-btn-confirm{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid transparent;background:#1976D2;color:#fff;transition:.15s;}
+.qp-btn-confirm:hover{background:#1565C0;}
+.qp-btn-cancel{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid #e0e3ea;background:#fff;color:#646a73;transition:.15s;}
+.qp-btn-cancel:hover{color:#3b5998;border-color:#3b5998;}
+
+.qp-link{color:#0288D1;cursor:pointer;font-size:12px;}
+.qp-link:hover{text-decoration:underline;}
+
+/* ====== 新建关联工程（从 管理端-关联项目单.html 移植，类名加 rel- 前缀避免冲突） ====== */
+.rel-mask{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);justify-content:center;align-items:flex-start;padding-top:80px;}
+.rel-mask.show{display:flex;}
+.rel-mask-2{z-index:1400;}   /* 选择关联工程单 */
+.rel-dialog{background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.15);width:1300px;max-width:92vw;max-height:86vh;display:flex;flex-direction:column;overflow:hidden;animation:qpIn .25s ease-out;}
+.rel-header{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid #e8eaed;flex-shrink:0;}
+.rel-header h3{font-size:16px;font-weight:600;color:#1f2329;margin:0;}
+.rel-close{width:28px;height:28px;border:none;background:none;font-size:22px;color:#8f959e;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;border-radius:4px;transition:.15s;}
+.rel-close:hover{color:#1f2329;background:#f5f6fa;}
+.rel-body{padding:20px 24px;max-height:65vh;overflow-y:auto;flex:1;}
+.rel-footer{display:flex;justify-content:center;align-items:center;gap:12px;padding:16px 24px;border-top:1px solid #f0f0f0;flex-shrink:0;}
+/* 添加工程单按钮 */
+.rel-btn-add{display:inline-flex;align-items:center;gap:4px;padding:6px 16px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap;background:#1976D2;color:#fff;}
+.rel-btn-add:hover{background:#1565C0;}
+/* 登录顺序徽章 */
+.rel-seq{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;}
+.rel-seq-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:12px;font-weight:700;flex-shrink:0;}
+.rel-seq-num.active{background:#4CAF50;color:#fff;}
+.rel-seq-num.pending{background:transparent;color:#1976D2;border:1.5px solid #1976D2;}
+.rel-seq-txt{font-size:12px;}
+.rel-seq-txt.success{color:#4CAF50;}
+.rel-seq-txt.waiting{color:#1976D2;}
+/* 选择关联工程单：搜索区 */
+.rel-qs-search-card{background:#FAFBFC;border:1px solid #e8eaed;border-radius:4px;padding:16px 18px 12px;margin-bottom:16px;}
+.rel-qs-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 24px;}
+.rel-qs-item{display:flex;align-items:center;gap:8px;font-size:13px;min-width:0;}
+.rel-qs-item label{color:#1f2329;white-space:nowrap;font-size:13px;flex-shrink:0;width:72px;text-align:right;}
+.rel-qs-item input,.rel-qs-item select{height:32px;border:1px solid #e8eaed;border-radius:4px;padding:0 8px;font-size:12px;color:#1f2329;outline:none;flex:1 1 auto;min-width:0;box-sizing:border-box;transition:border .15s;}
+.rel-qs-item input:focus,.rel-qs-item select:focus{border-color:#3b5998;}
+.rel-qs-item input::placeholder{color:#8f959e;}
+.rel-qs-btns{grid-column:1 / -1;display:flex;justify-content:flex-end;gap:10px;padding-top:4px;}
+.rel-date-range{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.rel-date-range input[type="date"]{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;box-sizing:border-box;}
+.rel-num-range{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;}
+.rel-num-range input{flex:1 1 0;min-width:0;height:32px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;color:#1f2329;outline:none;padding:0 6px;text-align:center;box-sizing:border-box;}
+/* 选择关联工程单：表格 */
+.rel-qs-table-wrap{overflow-x:auto;}
+.rel-qs-table{width:100%;border-collapse:collapse;font-size:12px;text-align:left!important;table-layout:fixed;min-width:1240px;}
+.rel-qs-table th,.rel-qs-table td{text-align:left!important;padding:9px 8px!important;vertical-align:middle!important;line-height:1.5!important;overflow:hidden;text-overflow:ellipsis;}
+.rel-qs-table thead th{background:#F7F8FA;color:#646a73;font-weight:600;white-space:nowrap;border-bottom:2px solid #e8eaed;font-size:12px;}
+.rel-qs-table tbody td{color:#1f2329;border-bottom:1px solid #f0f0f0;}
+.rel-qs-table tbody td:nth-child(2),.rel-qs-table tbody td:nth-child(6),.rel-qs-table tbody td:nth-child(7),
+.rel-qs-table tbody td:nth-child(9),.rel-qs-table tbody td:nth-child(10),.rel-qs-table tbody td:nth-child(11),
+.rel-qs-table tbody td:nth-child(12){white-space:nowrap;}
+.rel-qs-table tbody tr:nth-child(even){background:#FAFBFC;}
+.rel-qs-table tbody tr:hover td{background:rgba(59,89,152,.04)!important;}
+/* 选择关联工程单：底部 */
+.rel-qs-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;}
+.rel-qs-total{font-size:13px;color:#646a73;}
+.rel-qs-total span{color:#1f2329;font-weight:600;}
+.rel-page-ctrl{display:flex;align-items:center;gap:4px;}
+.rel-page-btn{min-width:30px;height:30px;padding:0 8px;border:1px solid #e8eaed;border-radius:4px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;color:#646a73;cursor:pointer;transition:.15s;}
+.rel-page-btn:hover:not(.disabled):not(.active){border-color:#3b5998;color:#3b5998;}
+.rel-page-btn.active{background:#3b5998;color:#fff;border-color:#3b5998;}
+.rel-page-btn.disabled{color:#c5cae9;cursor:default;}
+.rel-page-size{margin-left:8px;}
+.rel-page-size select{height:30px;border:1px solid #e8eaed;border-radius:4px;font-size:12px;padding:0 4px;outline:none;background:#fff;color:#646a73;}
+.rel-page-jump{margin-left:12px;font-size:12px;color:#646a73;display:flex;align-items:center;gap:4px;}
+.rel-page-jump input{width:42px;height:30px;border:1px solid #e8eaed;border-radius:4px;text-align:center;font-size:12px;outline:none;}
+.rel-page-jump input:focus{border-color:#3b5998;}
+/* 按钮 */
+.rel-btn-confirm{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid transparent;background:#1976D2;color:#fff;transition:.15s;}
+.rel-btn-confirm:hover{background:#1565C0;}
+.rel-btn-cancel{padding:7px 40px;font-size:13px;border-radius:4px;cursor:pointer;border:1px solid #e8eaed;background:#fff;color:#646a73;transition:.15s;}
+.rel-btn-cancel:hover{color:#3b5998;border-color:#3b5998;}
+
+.qp-toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);padding:10px 24px;border-radius:6px;font-size:14px;color:#fff;z-index:1600;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+
+/* ===== 原型批注 · NEW 标签（标识本次新增范围，非 UI 需求，开发可忽略） ===== */
+.proto-new{position:relative;}
+.proto-new-tag{position:absolute;z-index:20;pointer-events:none;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;letter-spacing:.5px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.28);}
+.proto-new--title>.proto-new-tag{top:50%;right:-8px;transform:translateY(-50%);border-radius:4px;}
+.proto-new--nav>.proto-new-tag{top:50%;right:6px;transform:translateY(-50%);border-radius:4px;}
+
+
+/* NEW按通用规范贴合原有行；本次范围：审批业务线只读及经营区域。 */
+.approval-change-tag:after{content:'NEW';display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap;flex:0 0 auto}
+.approval-change-line{display:flex;align-items:center;gap:8px}
+.approval-change-line:after{margin-left:auto}
+
+.approval-biz-readonly{font-size:13px;font-weight:600;color:#1f2329;line-height:24px}
+.approval-biz-panel{margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #e8eaed;border-radius:5px}
+.approval-biz-heading{font-size:13px;font-weight:600;color:#1f2329;margin-bottom:7px}
+.approval-biz-region-list{display:flex;flex-wrap:wrap;gap:6px}
+.approval-biz-region-item{padding:5px 9px;border:1px solid #d9dde5;border-radius:4px;background:#fff;color:#646a73;font-size:12px;line-height:normal}
+</style>
+</head>
+<body>
+
+<div class="page-root" id="pageRoot">
+
+<!-- ========== 页面头部（改造1：标题格式化） ========== -->
+<div class="form-page-header">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      返回
+    </div>
+    <span class="form-page-title approval-change-tag">审批-省内跨区登录</span>
+    <span class="proj-no-display" id="headerProjNo">粤东GCDT202506250001 (希望小学A项目)</span>
+    <span class="status-badge sp" id="headerStatusBadge">审批中</span>
+  </div>
+  <div class="form-header-right">
+  </div>
+</div>
+
+
+<div class="form-page-scroll">
+<div class="form-page-inner">
+
+
+<!-- ========== 卡片0：业务线横向单选（与用户端-新建工程项目单.html一致） ========== -->
+<div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
+  <div class="form-card-body" style="padding:12px 16px;">
+    <div class="approval-change-line approval-change-tag" id="approvalBizLineRow" style="gap:12px;">
+      <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
+      <div class="approval-biz-readonly" id="approvalBizLineValue">中央空调</div>
+    </div>
+    <div class="approval-biz-panel" id="approvalBizRegionPanel"><div class="approval-biz-heading approval-change-tag approval-change-line">经营区域</div><div class="approval-biz-region-list" id="approvalBizRegionsList"><div class="approval-biz-region-item">广东省 / 珠海市 / 香洲区</div><div class="approval-biz-region-item">广东省 / 广州市 / 天河区</div><div class="approval-biz-region-item">广东省 / 深圳市 / 南山区</div><div class="approval-biz-region-item">广西壮族自治区 / 南宁市 / 青秀区</div><div class="approval-biz-region-item">湖南省 / 长沙市 / 岳麓区</div><div class="approval-biz-region-item">湖北省 / 武汉市 / 武昌区</div><div class="approval-biz-region-item">福建省 / 厦门市 / 思明区</div><div class="approval-biz-region-item">浙江省 / 杭州市 / 西湖区</div><div class="approval-biz-region-item">江苏省 / 南京市 / 鼓楼区</div><div class="approval-biz-region-item">四川省 / 成都市 / 武侯区</div></div></div>
+  </div>
+</div>
+
+<!-- ========== 卡片1：设备清单（从用户端-新建工程项目单.html完整复制） ========== -->
+<div class="form-card" id="cardEquipList">
+  <div class="equip-card-hd">
+    <div class="equip-card-hd-left">
+      <div class="fct-accent"></div>
+      <span style="font-size:14px;font-weight:700;color:#1f2329;">设备清单</span>
+      <span class="equip-limit-tip" id="equipLimitTip" style="margin-left:8px;"></span>
+    </div>
+    <div class="equip-card-hd-right">
+      <button class="btn btn-sm" onclick="showAddStdModal()">+ 添加标准商品</button>
+      <button class="btn btn-sm" onclick="addNonStdRow()">+ 添加非标商品</button>
+      <button class="btn btn-sm" onclick="showImportModal()">批量导入</button>
+    </div>
+  </div>
+  <div style="padding:12px 16px;">
+    <div class="equip-table-wrap">
+      <table class="equip-table">
+        <thead>
+          <tr>
+            <th style="width:44px;text-align:center;">序号</th>
+            <th style="width:36px;">&nbsp;</th>
+            <th style="min-width:80px;">品类</th>
+            <th style="min-width:160px;">商品名称</th>
+            <th style="min-width:110px;">SKU编码</th>
+            <th style="min-width:100px;">型号</th>
+            <th style="min-width:80px;">申请数量</th>
+            <th style="min-width:100px;">申请价格</th>
+            <th style="min-width:80px;">申请点位</th>
+            <th style="min-width:120px;">商品行备注</th>
+            <th style="width:64px;text-align:center;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="equipTbody">
+          <!-- 标准商品行1 -->
+          <tr data-nonstd="false">
+            <td style="text-align:center;color:#8f959e;">1</td>
+            <td></td>
+            <td style="color:#1f2329;">船用空调</td>
+            <td style="color:#1f2329;">格力 GMV-H140WL/A1 多联式空调</td>
+            <td style="color:#1f2329;">SKU-CEN-140A1</td>
+            <td style="color:#1f2329;">GMV-H140WL/A1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="18500" min="0" step="0.01" data-webprice="18500" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+          <!-- 标准商品行2 -->
+          <tr data-nonstd="false">
+            <td style="text-align:center;color:#8f959e;">2</td>
+            <td></td>
+            <td style="color:#1f2329;">多联机</td>
+            <td style="color:#1f2329;">格力 GMV-H280WL/A1 多联机组</td>
+            <td style="color:#1f2329;">SKU-MLJ-280A1</td>
+            <td style="color:#1f2329;">GMV-H280WL/A1</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="12" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="22000" min="0" step="0.01" data-webprice="22000" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+          <!-- 标准商品行3 -->
+          <tr data-nonstd="false">
+            <td style="text-align:center;color:#8f959e;">3</td>
+            <td></td>
+            <td style="color:#1f2329;">新风</td>
+            <td style="color:#1f2329;">格力 FGR3.5Pd/C1N 新风机</td>
+            <td style="color:#1f2329;">SKU-XF-35C1N</td>
+            <td style="color:#1f2329;">FGR3.5Pd/C1N</td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="15" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="3800" min="0" step="0.01" data-webprice="3800" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+          <!-- 非标商品行4 -->
+          <tr data-nonstd="true">
+            <td style="text-align:center;color:#8f959e;">4</td>
+            <td style="text-align:center;"><span class="nonstd-badge">非</span></td>
+            <td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option selected>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>
+            <td style="color:#1f2329;">定制机</td>
+            <td style="color:#8f959e;">--</td>
+            <td><input class="td-input" style="width:90px;" value="-"></td>
+            <td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="8" min="1" max="9999999" onchange="recalcSummary()"></td>
+            <td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="6800" min="0" step="0.01" onchange="recalcSummary()"></td>
+            <td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" value="" min="0" max="100" step="0.01" placeholder="0" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>
+            <td><input class="td-input" style="width:110px;" value="酒店大堂专用"></td>
+            <td class="td-op"><a onclick="delRow(this)">删除</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- 汇总统计行 -->
+    <div class="equip-table-foot">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="equip-summary-item">总套数：<span id="equipTotalQty">43</span> 套&nbsp;&nbsp;|&nbsp;&nbsp;总申请金额：<span id="equipTotalAmt">¥ 198,500.00</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== 卡片2：使用方信息（改造4：从用户端-新建搬运+4新字段） ========== -->
+<div class="form-card" id="cardUserInfo">
+  <div class="form-card-header" style="cursor:default;">
+    <div class="form-card-title">
+      <div class="fct-accent"></div>
+      <span class="fct-text">使用方信息</span>
+    </div>
+  </div>
+  <div class="form-card-body">
+    <div class="form-grid" id="userInfoGrid">
+
+      <!-- 项目名称 → 直接输入框 -->
+      <div class="form-item span1" id="fi_projectName">
+        <label class="form-label">项目名称 <span class="req">*</span></label>
+        <input type="text" class="form-ctrl" placeholder="请输入项目名称，最多100个字符" maxlength="100" value="珠海某酒店中央空调采购项目">
+      </div>
+
+      <!-- 客户类型，直接下拉 -->
+      <div class="form-item" id="fi_customerType">
+        <label class="form-label">客户类型 <span class="req">*</span></label>
+        <select class="form-ctrl">
+          <option value="">请选择</option>
+          <option value="customer" selected>客户</option>
+          <option value="supplier">供应商</option>
+          <option value="design">设计院</option>
+          <option value="engineer">工程商</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+
+      <!-- 行业大类，直接下拉 -->
+      <div class="form-item" id="fi_industry">
+        <label class="form-label">行业大类 <span class="req">*</span></label>
+        <select class="form-ctrl">
+          <option value="">请选择</option>
+          <option value="hotel" selected>酒店/宾馆</option>
+          <option value="estate">房地产</option>
+          <option value="hospital">医院</option>
+          <option value="school">学校</option>
+          <option value="government">政府/公共机构</option>
+          <option value="retail">商超/零售</option>
+          <option value="factory">工业厂房</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+
+      <!-- 客户名称（新字段，只读） -->
+      <div class="form-item">
+        <label class="form-label">客户名称 <span class="req">*</span></label>
+        <div class="field-readonly">珠海华邑酒店有限公司</div>
+      </div>
+
+      <!-- 采购单位（新字段，只读） -->
+      <div class="form-item">
+        <label class="form-label">采购单位 <span class="req">*</span></label>
+        <div class="field-readonly">珠海华邑酒店有限公司</div>
+      </div>
+
+      <!-- 使用方负责人（新字段，只读） -->
+      <div class="form-item">
+        <label class="form-label">使用方负责人 <span class="req">*</span></label>
+        <div class="field-readonly">张建华</div>
+      </div>
+
+      <!-- 联系方式（二选一）→ 只读 -->
+      <div class="form-item">
+        <label class="form-label">联系方式 <span class="req">*</span><span class="label-tip">（二选一）</span></label>
+        <div class="field-readonly">13812345678 <span class="ro-badge">手机</span></div>
+      </div>
+
+      <!-- 项目预计设备金额 -->
+      <div class="form-item">
+        <label class="form-label">项目预计设备金额（万元）<span class="req">*</span></label>
+        <div class="field-readonly">198.50</div>
+      </div>
+
+      <!-- 空调面积 -->
+      <div class="form-item">
+        <label class="form-label">空调面积（㎡）<span class="req">*</span></label>
+        <div class="field-readonly">3,200</div>
+      </div>
+
+      <!-- 容积（新字段，只读） -->
+      <div class="form-item" id="fi_volume" style="display:none;">
+        <label class="form-label">容积（m³）</label>
+        <div class="field-readonly">12,800</div>
+      </div>
+
+      <!-- 项目地址 → span1（文本溢出截断，消除列间空白） -->
+      <div class="form-item" style="overflow:hidden;">
+        <label class="form-label">项目地址 <span class="req">*</span></label>
+        <div class="field-readonly truncate" title="广东省 珠海市 斗门区 井岸镇 中兴路88号">广东省 珠海市 斗门区 井岸镇 中兴路88号</div>
+      </div>
+
+      <!-- 跨区类型（只读标签） -->
+      <div class="form-item">
+        <label class="form-label">跨区类型</label>
+        <div class="field-readonly"><span class="cross-region-tag none">省内跨区</span></div>
+      </div>
+
+      <!-- 执行单位 -->
+      <div class="form-item">
+        <label class="form-label">执行单位 <span class="req">*</span></label>
+        <div class="field-readonly">珠海某安装工程队（当前经销商）</div>
+      </div>
+
+    </div><!-- /form-grid -->
+
+    <!-- ===== 状态补充卡片（可编辑） ===== -->
+    <div class="state-ext-card">
+      <div class="state-ext-grid">
+        <!-- 项目状态（占整行） -->
+        <div class="form-item span3">
+          <label class="form-label">项目状态 <span class="req">*</span></label>
+          <select class="form-ctrl" id="spProjectStatus" onchange="spToggleStateExt(this.value)">
+            <option value="">请选择</option>
+            <option value="跟进中">跟进中</option><option value="已中标">已中标</option><option value="已签单">已签单</option><option value="已丢单">已丢单</option><option value="已流标">已流标</option>
+          </select>
+        </div>
+
+        <!-- 已中标：中标通知书上传 -->
+        <div class="form-item" id="spStateBidExt" style="display:none;">
+          <label class="form-label">中标通知书 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spBidFileInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spBidFileInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('bid','spBidFileInput',this)">
+          <div class="fl-list" id="spBidFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx，单个文件不超过20MB</div>
+        </div>
+
+        <!-- 已签单字段组 -->
+        <div class="form-item" id="spSignHasContract" style="display:none;">
+          <label class="form-label">是否有合同 <span class="req">*</span></label>
+          <select class="form-ctrl" onchange="spToggleSignFields(this.value)">
+            <option value="">请选择</option>
+            <option value="yes">是</option>
+            <option value="no">否</option>
+          </select>
+        </div>
+        <div class="form-item" id="spSignContractItem" style="display:none;">
+          <label class="form-label">合同附件 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spSignContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spSignContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('signContract','spSignContractInput',this)">
+          <div class="fl-list" id="spSignContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="spSignNoContractItem" style="display:none;">
+          <label class="form-label">无合同签单说明 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spSignNoContractInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spSignNoContractInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('signNoContract','spSignNoContractInput',this)">
+          <div class="fl-list" id="spSignNoContractFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+        <div class="form-item" id="spSignCustomerItem" style="display:none;">
+          <label class="form-label">合同客户 <span class="req">*</span></label>
+          <div style="display:flex;gap:6px;">
+            <input type="text" class="form-ctrl" id="spSignCustomer" placeholder="请输入客户名称" style="flex:1;">
+            <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+          </div>
+        </div>
+        <div class="form-item" id="spSignAmountItem" style="display:none;">
+          <label class="form-label">签单金额（元）<span class="req">*</span></label>
+          <input type="number" class="form-ctrl" id="spSignAmount" placeholder="0.00" min="0" step="0.01">
+        </div>
+
+        <!-- 已丢标字段组 -->
+        <div class="form-item" id="spStateFailExt" style="display:none;">
+          <label class="form-label">丢单原因 <span class="req">*</span></label>
+          <select class="form-ctrl">
+            <option value="">请选择丢单原因</option>
+            <option value="产品原因">产品原因</option>
+            <option value="技术原因">技术原因</option>
+            <option value="价格原因">价格原因</option>
+          </select>
+        </div>
+        <div class="form-item" id="spFailReportItem" style="display:none;">
+          <label class="form-label">丢单报告 <span class="req">*</span></label>
+          <div class="up-zone" onclick="document.getElementById('spFailReportInput').click()" style="border:1.5px dashed #c5cae9;border-radius:4px;padding:14px;text-align:center;cursor:pointer;background:#fafbfc;">
+            <span style="font-size:12px;color:#8f959e;">📎 上传文件</span>
+          </div>
+          <input type="file" id="spFailReportInput" style="display:none;" accept=".png,.jpg,.jpeg,.pdf,.dwg,.zip,.rar,.doc,.docx,.xls,.xlsx" onchange="spAddStateFile('fail','spFailReportInput',this)">
+          <div class="fl-list" id="spFailFileList" style="margin-top:4px;"></div>
+          <div class="form-hint">支持 .png/.jpg/.pdf/.dwg/.zip/.rar/.doc/.docx/.xls/.xlsx</div>
+        </div>
+      </div>
+    </div>
+    <!-- /状态补充卡片 -->
+
+  </div><!-- /form-card-body -->
+</div><!-- /cardUserInfo -->
+
+
+<!-- ========== 卡片3：基本信息（改造5：从管理端-工程单详情搬运） ========== -->
+<div class="form-card">
+  <div class="form-card-header" style="cursor:default;">
+    <div class="form-card-title">
+      <div class="fct-accent"></div>
+      <span class="fct-text">基本信息</span>
+    </div>
+  </div>
+  <div class="form-card-body">
+    <div class="form-grid col4">
+      <div class="form-item">
+        <label class="form-label">项目单号</label>
+        <div class="field-readonly">粤东GCDT202606250001</div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">登录时间</label>
+        <div class="field-readonly">2026-06-25 10:30</div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">经销商名称</label>
+        <div class="field-readonly">XX商贸有限公司</div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">经销商电话</label>
+        <div class="field-readonly">0756-*****88</div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">业务线</label>
+        <div class="field-readonly">中央空调</div>
+      </div>
+      <div class="form-item span2">
+        <label class="form-label">登录顺序</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="lo-badge">
+            <span class="lo-num">1</span>
+            <span class="lo-txt">登录成功</span>
+          </span>
+          <span class="lo-view-btn" onclick="showLoginOrderDetail()">查看</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== 卡片4：其他信息（备注+附件_只读，参考用户端-新建工程项目单.html） ========== -->
+<div class="form-card">
+  <div class="form-card-header" style="cursor:default;">
+    <div class="form-card-title">
+      <div class="fct-accent"></div>
+      <span class="fct-text">其他信息</span>
+    </div>
+  </div>
+  <div class="form-card-body">
+    <div class="form-grid">
+      <!-- 备注（只读） -->
+      <div class="form-item span3">
+        <label class="form-label">备注</label>
+        <div class="field-readonly">本项目为五星级酒店翻新，施工需避开营业时段，建议夜间10点后施工。</div>
+      </div>
+      <!-- 附件上传（只读） -->
+      <div class="form-item span3">
+        <label class="form-label">附件上传</label>
+        <div class="attach-read-list">
+          <div class="attach-read-item">
+            <div class="at-icon img-icon">📷</div>
+            <span class="at-name">现场勘察照片_20260625.jpg</span>
+            <span class="at-size">2.4 MB</span>
+          </div>
+          <div class="attach-read-item">
+            <div class="at-icon img-icon">📷</div>
+            <span class="at-name">平面布置图_v3.pdf</span>
+            <span class="at-size">5.1 MB</span>
+          </div>
+          <div class="attach-read-item">
+            <div class="at-icon doc-icon">📄</div>
+            <span class="at-name">项目需求说明书.docx</span>
+            <span class="at-size">128 KB</span>
+          </div>
+          <div class="attach-read-item">
+            <div class="at-icon xls-icon">📊</div>
+            <span class="at-name">设备报价清单.xlsx</span>
+            <span class="at-size">86 KB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ========== 卡片5：审批记录 ========== -->
+<div class="form-card">
+  <div class="approval-record-header">
+    <div class="arh-left">
+      <div class="fct-accent"></div>
+      <span>审批记录</span>
+    </div>
+    <div class="arh-toggle">
+      <span>展示所有信息：</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggleShowAll" checked onchange="toggleRecordColumns(this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="toggle-label-on">开</span>
+    </div>
+  </div>
+  <div class="record-table-wrap">
+    <table class="record-table">
+      <colgroup>
+        <col span="5"><!-- 序号/审批人/审批状态/审批意见/附件 -->
+        <col class="col-hide" data-col="internal-note"><!-- 内部备注 -->
+        <col class="col-hide" data-col="internal-attach"><!-- 内部附件 -->
+        <col><!-- 审批时间 -->
+      </colgroup>
+      <thead>
+        <tr>
+          <th>序号</th>
+          <th>审批人</th>
+          <th>审批状态</th>
+          <th>审批意见</th>
+          <th>附件</th>
+          <th>内部备注</th>
+          <th>内部附件</th>
+          <th>审批时间</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-center td-muted">1</td>
+          <td>张富贵</td>
+          <td class="td-center"><span class="status-pass">已通过</span></td>
+          <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
+          <td class="td-center">-</td>
+          <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
+          <td class="td-center">-</td>
+          <td>2026-06-25 09:30</td>
+        </tr>
+        <tr>
+          <td class="td-center td-muted">2</td>
+          <td>张富贵</td>
+          <td class="td-center"><span class="status-pass">已通过</span></td>
+          <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
+          <td class="td-center"><span class="view-link" onclick="showAttachModal('张富贵','file')">查看</span></td>
+          <td><span class="opinion-truncate" title="获取备注信息...显示前20字符，鼠标移入则显示全部">获取备注信息...显示前20字符，鼠标移入则显示全部</span></td>
+          <td class="td-center"><span class="view-link" onclick="showAttachModal('张富贵','inner')">查看</span></td>
+          <td>2026-06-25 10:15</td>
+        </tr>
+        <tr>
+          <td class="td-center td-muted">3</td>
+          <td>李明辉</td>
+          <td class="td-center"><span class="status-pass">已通过</span></td>
+          <td><span class="opinion-truncate" title="项目资料齐全，设备配置合理，同意登录">项目资料齐全，设备配置合理，同意登录</span></td>
+          <td class="td-center"><span class="view-link" onclick="showAttachModal('李明辉','file')">查看</span></td>
+          <td><span class="opinion-truncate" title="该经销商信用良好，历史合作无违约记录">该经销商信用良好，历史合作无违约记录</span></td>
+          <td class="td-center"><span class="view-link" onclick="showAttachModal('李明辉','inner')">查看</span></td>
+          <td>2026-06-26 11:20</td>
+        </tr>
+        <tr>
+          <td class="td-center td-muted">4</td>
+          <td>王芳</td>
+          <td class="td-center"><span class="status-pass">已通过</span></td>
+          <td><span class="opinion-truncate" title="现场勘察确认完毕，与申报内容一致">现场勘察确认完毕，与申报内容一致</span></td>
+          <td class="td-center"><span class="view-link" onclick="showAttachModal('王芳','file')">查看</span></td>
+          <td><span class="opinion-truncate" title="建议关注后续安装进度">建议关注后续安装进度</span></td>
+          <td class="td-center">-</td>
+          <td>2026-06-27 14:45</td>
+        </tr>
+        <tr>
+          <td class="td-center td-muted">5</td>
+          <td>陈建国</td>
+          <td class="td-center"><span class="status-reject">已驳回</span></td>
+          <td><span class="opinion-truncate" title="缺少消防验收报告，请补充后重新提交">缺少消防验收报告，请补充后重新提交</span></td>
+          <td class="td-center"><span class="view-link" onclick="showAttachModal('陈建国','file')">查看</span></td>
+          <td><span class="opinion-truncate" title="驳回后需重新走流程">驳回后需重新走流程</span></td>
+          <td class="td-center"><span class="view-link" onclick="showAttachModal('陈建国','inner')">查看</span></td>
+          <td>2026-06-28 16:00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+</div><!-- /form-page-inner -->
+</div><!-- /form-page-scroll -->
+
+
+<!-- ========== 底部操作栏 ========== -->
+<div class="approval-footer">
+  <div class="approval-footer-left">
+    <button class="btn-quick-view" onclick="openApprovalFlowModal()">审批流程</button>
+    <button class="btn-quick-view proto-new" onclick="openQuickProjectModal()">快速查询工程单<span class="proto-new-tag">NEW</span></button>
+  </div>
+  <div class="approval-footer-right">
+    <button class="btn-approve" onclick="doApprove()">通过</button>
+    <button class="btn-reject" onclick="doReject()">驳回</button>
+  </div>
+</div>
+
+
+</div><!-- /pageRoot -->
+
+
+<!-- ========== 审批意见查看弹窗 ========== -->
+<div class="modal-overlay" id="opinionModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title" id="opinionModalTitle">审批意见-张富贵</span>
+      <div class="modal-close" onclick="closeOpinionModal()">&times;</div>
+    </div>
+    <div class="modal-body">
+      <div class="opinion-content-box" id="opinionModalContent">我是备注信息...我是备注信息...我是备注信息...我是备注信息...我是备注信息...</div>
+      <div class="modal-attach-section" id="opinionModalAttachSection">
+        <div class="modal-attach-label">附件：</div>
+        <div class="modal-attach-list" id="opinionModalAttachList">
+          <div class="modal-attach-item">文件A.docx</div>
+          <div class="modal-attach-item">文件B.docx</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 添加标准商品弹窗 ===== -->
+<div class="modal-overlay" id="addStdModal" style="display:none;" onclick="if(event.target===this)closeAddStdModal()">
+  <div class="modal-content modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">添加商品</span>
+      <span class="modal-close" onclick="closeAddStdModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="filter-row">
+        <div class="filter-item">
+          <label class="filter-label">商品名称</label>
+          <input type="text" class="form-ctrl filter-input" placeholder="模糊搜索" maxlength="100">
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">SKU编码</label>
+          <input type="text" class="form-ctrl filter-input" placeholder="模糊搜索" maxlength="100">
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">产品型号</label>
+          <input type="text" class="form-ctrl filter-input" placeholder="模糊搜索" maxlength="100">
+        </div>
+        <div class="filter-actions">
+          <button class="btn btn-primary btn-sm">查询</button>
+          <button class="btn btn-sm">重置</button>
+        </div>
+      </div>
+      <div class="product-table-wrap">
+        <table class="product-select-table">
+          <thead>
+            <tr>
+              <th style="width:40px;text-align:center;"><input type="checkbox" onchange="toggleAllChecks(this)"></th>
+              <th style="width:64px;text-align:center;">商品图片</th>
+              <th>商品名称</th>
+              <th style="width:120px;">SKU编码</th>
+              <th style="width:90px;">产品类型</th>
+              <th style="width:100px;">产品型号</th>
+              <th style="width:90px;">产品系列</th>
+              <th style="width:100px;text-align:right;">网批售价</th>
+            </tr>
+          </thead>
+          <tbody id="addStdTbody">
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 GMV-H140WL/A1 多联式空调</td>
+              <td>SKU-CEN-140A1</td>
+              <td>中央空调</td>
+              <td>GMV-H140WL/A1</td>
+              <td>GMV系列</td>
+              <td style="text-align:right;">¥ 18,500.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 GMV-H280WL/A1 多联机组</td>
+              <td>SKU-MLJ-280A1</td>
+              <td>多联机</td>
+              <td>GMV-H280WL/A1</td>
+              <td>GMV系列</td>
+              <td style="text-align:right;">¥ 22,000.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 FGR3.5Pd/C1N 新风机</td>
+              <td>SKU-XF-35C1N</td>
+              <td>新风</td>
+              <td>FGR3.5Pd/C1N</td>
+              <td>FGR系列</td>
+              <td style="text-align:right;">¥ 3,800.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 KFRd-72LW/NhAa1BG 立式空调</td>
+              <td>SKU-LZ-72NA1B</td>
+              <td>中央空调</td>
+              <td>KFRd-72LW/NhAa1BG</td>
+              <td>NhAa系列</td>
+              <td style="text-align:right;">¥ 6,800.00</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;"><input type="checkbox" class="row-chk"></td>
+              <td style="text-align:center;"><div class="prod-thumb">图片</div></td>
+              <td>格力 GMV-H224WL/A1 多联机组</td>
+              <td>SKU-MLJ-224A1</td>
+              <td>多联机</td>
+              <td>GMV-H224WL/A1</td>
+              <td>GMV系列</td>
+              <td style="text-align:right;">¥ 19,800.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-bar">
+        <div class="page-info">共 5 条</div>
+        <div class="page-controls">
+          <span class="page-btn disabled">上一页</span>
+          <span class="page-btn active">1</span>
+          <span class="page-btn disabled">下一页</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeAddStdModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmAddStd()">添加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 批量导入弹窗 ===== -->
+<div class="modal-overlay" id="importModal" style="display:none;" onclick="if(event.target===this)closeImportModal()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="modal-title">批量添加商品</span>
+      <span class="modal-close" onclick="closeImportModal()">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="import-notice">
+        <div class="import-notice-item">① 单次最多导入 <b>500</b> 条商品记录</div>
+        <div class="import-notice-item">② 导入将<b>覆盖</b>当前已添加的旧数据</div>
+        <div class="import-notice-item">③ <a href="#" style="color:#3b5998;text-decoration:underline;" onclick="alert('演示：下载模板')">下载批量导入模板</a></div>
+      </div>
+      <div class="import-file-zone">
+        <button class="btn" onclick="document.getElementById('importFileInput').click()">选择文件</button>
+        <button class="btn" onclick="mockUpload()">上传文件</button>
+        <input type="file" id="importFileInput" style="display:none;" accept=".xlsx,.xls" onchange="onFileSelected(this)">
+        <span class="import-file-name" id="importFileName">未选择文件</span>
+      </div>
+      <div class="import-result" id="importResultArea" style="display:none;">
+        <div class="import-result-row">
+          <span class="import-result-label">文件名：</span>
+          <span>批量导入模板.xlsx</span>
+        </div>
+        <div class="import-result-row">
+          <span class="import-result-label">上传进度：</span>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+          <span class="progress-text">100%</span>
+        </div>
+        <div class="import-result-row">
+          <span class="import-result-label">上传时间：</span>
+          <span>2026-06-20 15:00:00</span>
+        </div>
+        <div class="import-result-row">
+          <span class="import-result-label">上传人：</span>
+          <span>当前经销商账号</span>
+        </div>
+        <div class="import-result-row">
+          <a href="#" style="color:#d32f2f;font-size:12px;" onclick="alert('演示：下载失败记录')">下载失败记录</a>
+        </div>
+        <div class="import-summary">总共 500 条记录，成功上传 300 条，导入失败 200 条；是否确认导入成功记录？</div>
+      </div>
+      <div class="import-fail-table-wrap" id="importFailWrap" style="display:none;margin-top:12px;">
+        <div style="font-size:13px;font-weight:700;color:#d32f2f;margin-bottom:8px;">导入失败记录</div>
+        <table class="import-fail-table">
+          <thead>
+            <tr>
+              <th style="width:50px;">序号</th>
+              <th>SKU编码</th>
+              <th style="width:100px;">申请数量</th>
+              <th>错误原因</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align:center;">1</td>
+              <td>SP1123913001</td>
+              <td style="text-align:center;">11</td>
+              <td style="color:#d32f2f;">sku编码xxx不存在</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;">2</td>
+              <td>SP1123913002</td>
+              <td style="text-align:center;">5</td>
+              <td style="color:#d32f2f;">sku编码xxx不存在</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;">3</td>
+              <td>SP1123913003</td>
+              <td style="text-align:center;">-1</td>
+              <td style="color:#d32f2f;">请填写1~9999999范围内</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeImportModal()">取消</button>
+      <button class="btn btn-primary" onclick="confirmImport()">确认导入</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 审批-登录通过 弹窗 ===== -->
+<div class="modal-overlay" id="approveModal" onclick="if(event.target===this)closeApproveModal()">
+  <div class="modal-content" style="width:580px;">
+    <div class="modal-header">
+      <span class="modal-title">审批-登录通过</span>
+      <div class="modal-close" onclick="closeApproveModal()">&times;</div>
+    </div>
+    <div class="modal-body">
+      <!-- 警告提示条 -->
+      <div class="approve-warn-bar">
+        <span class="approve-warn-ico">⚠️</span>
+        <span>确定通过此审批吗？请填写审批意见</span>
+      </div>
+      <!-- 登录顺序 -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+        <label style="font-size:13px;color:#646a73;font-weight:500;">登录顺序：</label>
+        <span class="lo-badge">
+          <span class="lo-num">1</span>
+          <span class="lo-txt">登录成功</span>
+        </span>
+      </div>
+      <!-- 备注 -->
+      <div class="approve-form-group">
+        <label class="approve-form-label">备注</label>
+        <textarea class="approve-textarea" id="approveRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+      </div>
+      <!-- 附件 -->
+      <div class="approve-form-group">
+        <label class="approve-form-label">附件：</label>
+        <button class="approve-upload-btn" onclick="document.getElementById('approveFileInput').click()">⬆ 上传</button>
+        <input type="file" id="approveFileInput" style="display:none;" onchange="addApproveFile(this,'approveFileList')">
+        <div class="approve-file-list" id="approveFileList">
+          <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+        </div>
+        <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+      </div>
+      <!-- 非公开信息区 -->
+      <div class="approve-nonpublic">
+        <div class="approve-nonpublic-title">非公开信息（仅管理端权限展示）</div>
+        <!-- 内部备注 -->
+        <div class="approve-form-group" style="margin-bottom:14px;">
+          <label class="approve-form-label">内部备注：</label>
+          <textarea class="approve-textarea" id="approveInnerRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+        </div>
+        <!-- 内部附件 -->
+        <div class="approve-form-group" style="margin-bottom:0;">
+          <label class="approve-form-label">内部附件：</label>
+          <button class="approve-upload-btn" onclick="document.getElementById('approveInnerFileInput').click()">⬆ 上传</button>
+          <input type="file" id="approveInnerFileInput" style="display:none;" onchange="addApproveFile(this,'approveInnerFileList')">
+          <div class="approve-file-list" id="approveInnerFileList">
+            <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+            <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          </div>
+          <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span class="approve-footer-tip">*取消或关闭弹窗，不会删除备注信息</span>
+      <button class="btn" onclick="closeApproveModal()" style="margin-left:auto;">取消</button>
+      <button class="btn btn-primary" onclick="confirmApprove()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 审批-驳回 弹窗 ===== -->
+<div class="modal-overlay" id="rejectModal" onclick="if(event.target===this)closeRejectModal()">
+  <div class="modal-content" style="width:580px;">
+    <div class="modal-header">
+      <span class="modal-title">审批-驳回</span>
+      <div class="modal-close" onclick="closeRejectModal()">&times;</div>
+    </div>
+    <div class="modal-body">
+      <!-- 警告提示条 -->
+      <div class="approve-warn-bar">
+        <span class="approve-warn-ico">⚠️</span>
+        <span>确定驳回此审批吗？请填写审批意见</span>
+      </div>
+      <!-- 备注（无登录顺序） -->
+      <div class="approve-form-group">
+        <label class="approve-form-label">备注</label>
+        <textarea class="approve-textarea" id="rejectRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+      </div>
+      <!-- 附件 -->
+      <div class="approve-form-group">
+        <label class="approve-form-label">附件：</label>
+        <button class="approve-upload-btn" onclick="document.getElementById('rejectFileInput').click()">⬆ 上传</button>
+        <input type="file" id="rejectFileInput" style="display:none;" onchange="addApproveFile(this,'rejectFileList')">
+        <div class="approve-file-list" id="rejectFileList">
+          <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+        </div>
+        <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+      </div>
+      <!-- 非公开信息区 -->
+      <div class="approve-nonpublic">
+        <div class="approve-nonpublic-title">非公开信息（仅管理端权限展示）</div>
+        <!-- 内部备注 -->
+        <div class="approve-form-group" style="margin-bottom:14px;">
+          <label class="approve-form-label">内部备注：</label>
+          <textarea class="approve-textarea" id="rejectInnerRemark" placeholder="请输入限于200字符" maxlength="200"></textarea>
+        </div>
+        <!-- 内部附件 -->
+        <div class="approve-form-group" style="margin-bottom:0;">
+          <label class="approve-form-label">内部附件：</label>
+          <button class="approve-upload-btn" onclick="document.getElementById('rejectInnerFileInput').click()">⬆ 上传</button>
+          <input type="file" id="rejectInnerFileInput" style="display:none;" onchange="addApproveFile(this,'rejectInnerFileList')">
+          <div class="approve-file-list" id="rejectInnerFileList">
+            <div class="approve-file-item"><span class="af-name">文件A.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+            <div class="approve-file-item"><span class="af-name">文件B.docx</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span></div>
+          </div>
+          <div class="approve-upload-hint">支持扩展名：.png .jpg .pdf .docx .excel ，每文件大小不超过10M，上传数量不超过5</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <span class="approve-footer-tip">*取消或关闭弹窗，不会删除备注信息</span>
+      <button class="btn" onclick="closeRejectModal()" style="margin-left:auto;">取消</button>
+      <button class="btn btn-primary" style="background:#D32F2F;border-color:#D32F2F;" onclick="confirmReject()">确定</button>
+    </div>
+  </div>
+</div>
+
+<!-- 登录顺序·查看详情弹窗 -->
+<div class="lod-modal" id="lodModal" onclick="if(event.target===this)hideLoginOrderDetail()">
+<div class="lod-box">
+<div class="lod-hd">
+<span class="lod-title">登录顺序-查看详情</span>
+<span class="lod-x" onclick="hideLoginOrderDetail()">✕</span>
+</div>
+<div class="lod-body">
+<div class="lod-info-row">
+<div><span class="lod-info-label">关联编号：</span><span class="lod-info-val">GL02202407180001</span></div>
+<a class="lod-edit-link" onclick="alert('演示：修改顺序')">修改顺序</a>
+</div>
+<div class="lod-tabs">
+<div class="lod-tab on" onclick="lodTab(this,'lodTp1')">关联工程信息</div>
+<div class="lod-tab" onclick="lodTab(this,'lodTp2')">修改记录</div>
+</div>
+<!-- Tab1: 关联工程信息 -->
+<div class="lod-tp on" id="lodTp1">
+<table class="lod-table">
+<thead><tr><th>登录书签</th><th>工程单号</th><th>经销商名称</th><th>工程状态</th><th>登录时间</th><th>业务经理</th></tr></thead>
+<tbody>
+<tr>
+<td><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span></td>
+<td>GC01202401010001</td><td>经销商名称A</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理a</td>
+</tr>
+<tr>
+<td><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span></td>
+<td>GC01202401010001</td><td>经销商名称B</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理d</td>
+</tr>
+<tr>
+<td><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span></td>
+<td>GC01202401010001</td><td>经销商名称C</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理c</td>
+</tr>
+<tr>
+<td><span class="ls-badge"><span class="ls-num sub">4</span><span class="ls-txt sub">候补登录</span></span></td>
+<td>GC01202401010001</td><td>经销商名称D</td><td>待提货</td><td>2024-11-11 11:11:11</td><td>业务经理d</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Tab2: 修改记录（折叠模式） -->
+<div class="lod-tp" id="lodTp2">
+  <p style="font-size:12px;color:#8f959e;margin:0 0 8px;line-height:1.5">共 2 条修改记录，点击 <strong>+</strong> 展开详情</p>
+  <div class="fr-hdr">
+    <span class="fr-hdr-ico"> </span>
+    <span class="fr-hdr-time">修改时间</span>
+    <span class="fr-hdr-user">修改人</span>
+    <span class="fr-hdr-remark">备注</span>
+  </div>
+  <div class="fr-wrap">
+    <div class="fr-item">
+      <div class="fr-hd" onclick="FoldRecord.toggle(this)">
+        <span class="fr-ico">+</span>
+        <span class="fr-time">2022-11-11 11:11:11</span>
+        <span class="fr-user">马华腾</span>
+        <span class="fr-remark">修改了登录顺序</span>
+      </div>
+      <div class="fr-bd">
+        <div class="fr-cg">
+          <div class="fr-col">
+            <div class="fr-cl">修改前</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010001</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010002</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010003</div>
+            </div>
+          </div>
+          <div class="fr-col">
+            <div class="fr-cl">修改后</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010003</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010002</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010001</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fr-item">
+      <div class="fr-hd" onclick="FoldRecord.toggle(this)">
+        <span class="fr-ico">+</span>
+        <span class="fr-time">2022-11-10 09:30:15</span>
+        <span class="fr-user">唐静安</span>
+        <span class="fr-remark">批量调整候补登录</span>
+      </div>
+      <div class="fr-bd">
+        <div class="fr-cg">
+          <div class="fr-col">
+            <div class="fr-cl">修改前</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010001</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010005</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010006</div>
+            </div>
+          </div>
+          <div class="fr-col">
+            <div class="fr-cl">修改后</div>
+            <div class="fr-items">
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num ok">1</span><span class="ls-txt ok">登录成功</span></span> GC01202401010001</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">2</span><span class="ls-txt sub">候补登录</span></span> GC01202401010006</div>
+              <div class="fr-item-row"><span class="ls-badge"><span class="ls-num sub">3</span><span class="ls-txt sub">候补登录</span></span> GC01202401010005</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- end lod-body -->
+</div><!-- end lod-box -->
+</div><!-- end lod-modal -->
+
+
+<script>
+// ==================== 全局提示函数 ====================
+function da(msg){alert(msg)}
+
+// ==================== 全局状态 ====================
+const currentBizType = 'central';
+
+// ==================== 业务线选择 ====================
+// 审批业务线取申请单原值，只读展示，不提供切换入口。
+
+// ==================== 设备清单操作 ====================
+var equipCount = 4;
+function delRow(el) {
+  var tr = el.closest('tr');
+  if(tr) { tr.remove(); equipCount = Math.max(0, equipCount-1); updateEquipCount(); recalcSummary(); }
+}
+function calcPriceFromPoint(pointInput) {
+  var row = pointInput.closest('tr');
+  var priceInput = row.querySelector('.equip-price');
+  var webPrice = parseFloat(priceInput.dataset.webprice);
+  if(!webPrice || webPrice <= 0) return;
+  var point = parseFloat(pointInput.value);
+  if(isNaN(point)) point = 0;
+  var newPrice = webPrice * (100 - point) / 100;
+  priceInput.value = newPrice.toFixed(2);
+}
+function recalcSummary() {
+  var rows = document.querySelectorAll('#equipTbody tr');
+  var totalQty = 0;
+  var totalAmt = 0;
+  rows.forEach(function(row) {
+    var qtyEl = row.querySelector('.equip-qty');
+    var priceEl = row.querySelector('.equip-price');
+    if(qtyEl && priceEl) {
+      var qty = parseInt(qtyEl.value) || 0;
+      var price = parseFloat(priceEl.value) || 0;
+      totalQty += qty;
+      totalAmt += qty * price;
+    }
+  });
+  var amtStr = '¥ ' + totalAmt.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('equipTotalQty').textContent = totalQty;
+  document.getElementById('equipTotalAmt').textContent = amtStr;
+}
+function addNonStdRow() {
+  if(equipCount >= 99) { alert('已达最大99条限制'); return; }
+  equipCount++;
+  var tbody = document.getElementById('equipTbody');
+  var tr = document.createElement('tr');
+  tr.setAttribute('data-nonstd','true');
+  tr.innerHTML = '<td style="text-align:center;color:#8f959e;">'+equipCount+'</td>'
+    +'<td style="text-align:center;"><span class="nonstd-badge">非</span></td>'
+    +'<td><select class="td-input form-ctrl" style="width:80px;padding:2px 6px;height:30px;"><option>中央空调</option><option>多联机</option><option>新风</option><option>冷水机组</option><option>精密空调</option><option>机房空调</option><option>船用空调</option><option>移动空调</option></select></td>'
+    +'<td style="color:#1f2329;">定制机</td>'
+    +'<td style="color:#8f959e;">--</td>'
+    +'<td><input class="td-input" style="width:90px;" value="-"></td>'
+    +'<td><input class="td-input td-num equip-qty" style="width:70px;" type="number" value="1" min="1" max="9999999" onchange="recalcSummary()"></td>'
+    +'<td><input class="td-input td-num equip-price" style="width:90px;" type="number" value="0" min="0" step="0.01" onchange="recalcSummary()"></td>'
+    +'<td><div style="display:flex;align-items:center;gap:2px;"><input class="td-input td-num equip-point" style="width:50px;" type="number" placeholder="0" min="0" max="100" step="0.01" onchange="calcPriceFromPoint(this);recalcSummary()"><span style="font-size:11px;color:#646a73;">%</span></div></td>'
+    +'<td><input class="td-input" style="width:110px;" placeholder="选填备注..."></td>'
+    +'<td class="td-op"><a onclick="delRow(this)">删除</a></td>';
+  tbody.appendChild(tr);
+  updateEquipCount();
+  recalcSummary();
+}
+function updateEquipCount() {
+  var tip = document.getElementById('equipLimitTip');
+  if(equipCount >= 99) {
+    tip.textContent = '⚠ 已达上限'; tip.classList.add('warn');
+  } else {
+    tip.textContent = ''; tip.classList.remove('warn');
+  }
+}
+function showAddStdModal() { document.getElementById('addStdModal').style.display = 'flex'; }
+function closeAddStdModal() { document.getElementById('addStdModal').style.display = 'none'; }
+function toggleAllChecks(master) {
+  document.querySelectorAll('#addStdTbody .row-chk').forEach(function(cb) { cb.checked = master.checked; });
+}
+function confirmAddStd() {
+  var checked = document.querySelectorAll('#addStdTbody .row-chk:checked');
+  if(checked.length === 0) { alert('请至少选择一条商品'); return; }
+  alert('演示：添加 '+checked.length+' 条标准商品');
+  closeAddStdModal();
+}
+function showImportModal() { document.getElementById('importModal').style.display = 'flex'; }
+function closeImportModal() { document.getElementById('importModal').style.display = 'none'; }
+function onFileSelected(input) {
+  if(input.files && input.files.length > 0) {
+    document.getElementById('importFileName').textContent = input.files[0].name;
+  }
+}
+function mockUpload() {
+  var fn = document.getElementById('importFileName').textContent;
+  if(fn === '未选择文件') { alert('请先选择文件'); return; }
+  document.getElementById('importResultArea').style.display = 'block';
+  document.getElementById('importFailWrap').style.display = 'block';
+}
+function confirmImport() {
+  alert('演示：确认导入成功记录');
+  closeImportModal();
+}
+
+// ==================== 审批记录：展示所有信息开关 ====================
+function toggleRecordColumns(showAll){
+  const tbl = document.querySelector('.record-table');
+  if(!tbl) return;
+  tbl.classList.toggle('compact', !showAll);
+  const label = document.querySelector('.toggle-label-on');
+  if(label) label.textContent = showAll ? '开' : '关';
+}
+
+// ==================== 审批操作（弹窗模式） ====================
+function doApprove(){
+  document.getElementById('approveModal').classList.add('show');
+}
+function closeApproveModal(){
+  document.getElementById('approveModal').classList.remove('show');
+}
+function confirmApprove(){
+  var remark = document.getElementById('approveRemark').value.trim();
+  // 演示：实际提交审批
+  alert('审批通过！\n' + (remark ? '备注：' + remark : '无备注'));
+  closeApproveModal();
+}
+
+function doReject(){
+  document.getElementById('rejectModal').classList.add('show');
+}
+function closeRejectModal(){
+  document.getElementById('rejectModal').classList.remove('show');
+}
+function confirmReject(){
+  var remark = document.getElementById('rejectRemark').value.trim();
+  if(!remark){alert('驳回时必须填写备注');document.getElementById('rejectRemark').focus();return;}
+  // 演示：实际提交驳回
+  alert('已驳回。\n原因：' + remark);
+  closeRejectModal();
+}
+
+// 审批弹窗文件上传（模拟）
+function addApproveFile(input,listId){
+  if(!input.files || !input.files.length) return;
+  var list = document.getElementById(listId);
+  for(var i=0;i<input.files.length;i++){
+    var f = input.files[i];
+    var div = document.createElement('div');
+    div.className = 'approve-file-item';
+    div.innerHTML = '<span class="af-name">'+f.name+'</span><span class="af-del" onclick="this.parentElement.remove()">🗑️</span>';
+    list.appendChild(div);
+  }
+  input.value = '';
+}
+
+// ==================== 审批意见弹窗 ====================
+function showAttachModal(name,type){
+  document.getElementById('opinionModalTitle').textContent = '审批意见-'+name;
+  const contentMap = {
+    '张富贵': '我是备注信息...我是备注信息...我是备注信息...我是备注信息...我是备注信息...',
+    '李明辉': '项目资料齐全，设备配置符合要求，现场情况与申报描述一致，同意通过本次登录审批。',
+    '王芳': '已完成现场实地勘察，建筑结构、安装条件均满足设备安装要求，平面布置方案可行，同意登录。',
+    '陈建国': '经核查，该项目的消防验收报告缺失，不符合登录要求。请在补充完整相关材料后重新提交审批流程。'
+  };
+  document.getElementById('opinionModalContent').textContent = contentMap[name] || name+'的审批意见内容...';
+
+  const attachSec = document.getElementById('opinionModalAttachSection');
+  if(type==='inner' || (name!=='张富贵')){
+    attachSec.style.display = '';
+  } else {
+    attachSec.style.display = 'none';
+  }
+
+  document.getElementById('opinionModal').classList.add('show');
+}
+
+function closeOpinionModal(){
+  document.getElementById('opinionModal').classList.remove('show');
+}
+
+// ==================== 登录顺序·查看详情弹窗 ====================
+function showLoginOrderDetail(){document.getElementById('lodModal').style.display='flex'}
+function hideLoginOrderDetail(){document.getElementById('lodModal').style.display='none'}
+function lodTab(e,tpId){
+ document.querySelectorAll('.lod-tab').forEach(function(t){t.classList.remove('on')});
+ e.classList.add('on');
+ document.querySelectorAll('.lod-tp').forEach(function(p){p.classList.remove('on')});
+ document.getElementById(tpId).classList.add('on');
+}
+var FoldRecord = (function() {
+  function toggle(headerEl) {
+    var item = headerEl.closest('.fr-item');
+    if (!item) return;
+    item.classList.toggle('open');
+    var ico = headerEl.querySelector('.fr-ico');
+    if (ico) { ico.textContent = item.classList.contains('open') ? '×' : '+'; }
+  }
+  return { toggle: toggle };
+})();
+
+/* ====== 审批流程弹窗 ====== */
+function openApprovalFlowModal(){
+  var o=document.getElementById('afOverlay');
+  o.style.display='flex';
+  switchAfTab('flow',document.querySelector('.af-tab[data-tab="flow"]'));
+}
+function closeApprovalFlowModal(){
+  document.getElementById('afOverlay').style.display='none';
+}
+function switchAfTab(tabName,btnEl){
+  document.querySelectorAll('.af-tab').forEach(function(t){t.classList.remove('active');});
+  if(btnEl) btnEl.classList.add('active');
+  document.getElementById('afFlowPanel').style.display=tabName==='flow'?'block':'none';
+  document.getElementById('afNodePanel').style.display=tabName==='node'?'block':'none';
+}
+
+// ==================== 状态补充字段（可编辑） ====================
+var spStateFiles = {};
+function spToggleStateExt(val) {
+  var groups = ['spStateBidExt','spSignHasContract','spSignContractItem','spSignNoContractItem','spSignCustomerItem','spSignAmountItem','spStateFailExt','spFailReportItem'];
+  groups.forEach(function(id){document.getElementById(id).style.display='none';});
+  if(val === '已中标') document.getElementById('spStateBidExt').style.display='block';
+  else if(val === '已签单') {
+    ['spSignHasContract','spSignCustomerItem','spSignAmountItem'].forEach(function(id){document.getElementById(id).style.display='block';});
+  } else if(val === '已丢单') {
+    ['spStateFailExt','spFailReportItem'].forEach(function(id){document.getElementById(id).style.display='block';});
+  }
+}
+function spToggleSignFields(val) {
+  document.getElementById('spSignContractItem').style.display='none';
+  document.getElementById('spSignNoContractItem').style.display='none';
+  if(val === 'yes') document.getElementById('spSignContractItem').style.display='block';
+  else if(val === 'no') document.getElementById('spSignNoContractItem').style.display='block';
+}
+function spAddStateFile(key, inputId, fileInput) {
+  if(!fileInput.files || !fileInput.files.length) return;
+  var file = fileInput.files[0];
+  if(!spStateFiles[key]) spStateFiles[key] = [];
+  spStateFiles[key].push({name: file.name, size: file.size});
+  fileInput.value = '';
+  spRenderStateFileList(key);
+}
+function spDelStateFile(key, idx) {
+  if(spStateFiles[key]) { spStateFiles[key].splice(idx, 1); spRenderStateFileList(key); }
+}
+function spRenderStateFileList(key) {
+  var listEl;
+  switch(key) {
+    case 'bid': listEl = document.getElementById('spBidFileList'); break;
+    case 'signContract': listEl = document.getElementById('spSignContractFileList'); break;
+    case 'signNoContract': listEl = document.getElementById('spSignNoContractFileList'); break;
+    case 'fail': listEl = document.getElementById('spFailFileList'); break;
+    default: return;
+  }
+  var files = spStateFiles[key] || [];
+  var html = '';
+  files.forEach(function(f, idx) {
+    var sizeStr = f.size > 1024*1024 ? (f.size/1024/1024).toFixed(1)+'MB' : (f.size/1024).toFixed(1)+'KB';
+    html += '<div class="fl-item">📎 <span>'+f.name+'</span><span style="color:#8f959e;font-size:11px;margin-left:4px;">'+sizeStr+'</span><span class="fl-del" onclick="spDelStateFile(\''+key+'\','+idx+')">×</span></div>';
+  });
+  listEl.innerHTML = html;
+}
+
+// ====== 审批页初始化：默认预填已中标数据 ======
+(function initApprovalExt(){
+  // 预填已中标状态
+  var st = document.getElementById('spProjectStatus');
+  if(st) {
+    st.value = '已中标';
+    spToggleStateExt('已中标');
+  }
+  // 预填一个中标通知书文件
+  spStateFiles['bid'] = [{name: '中标通知书_20260711.pdf', size: 1234567}];
+  spRenderStateFileList('bid');
+})();
+
+// ==================== 快速查询工程单（查询列表 + 查看入口） ====================
+function openQuickProjectModal(){
+  document.getElementById('qpModal').classList.add('show');
+}
+function closeQuickProjectModal(){
+  document.getElementById('qpModal').classList.remove('show');
+}
+/* 查看：跳转工程单详情（演示文案） */
+function qrViewDetail(no){
+  qpToast('跳转至工程单详情：' + no + '（演示）', 'info');
+}
+/* 查询 */
+function qpSearch(){
+  qpToast('查询中...', 'info');
+}
+/* 重置 */
+function qpReset(){
+  var card = document.querySelector('.qp-search-card');
+  if(!card) return;
+  card.querySelectorAll('input[type="text"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('input[type="number"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('select').forEach(function(el){el.selectedIndex=0;});
+  qpToast('已重置', 'success');
+}
+
+// ==================== 新建关联工程 → 直接进入「选择关联工程单」 ====================
+/* 打开「选择关联工程单」弹窗，并把「快速查询工程单」的搜索条件带入 */
+function relOpenQuickSearch(){
+  relCarrySearchConditions();
+  relUpdateSelCount();
+  document.getElementById('relModalQuickSearch').classList.add('show');
+}
+/* 带入搜索条件：按字段标签把快速查询页的输入值复制到本弹窗 */
+function relCarrySearchConditions(){
+  var src = document.querySelector('.qp-search-card');
+  var dst = document.querySelector('.rel-qs-search-card');
+  if(!src || !dst) return;
+  var carried = 0;
+  dst.querySelectorAll('.rel-qs-item').forEach(function(item){
+    var lb = item.querySelector('label');
+    if(!lb) return;
+    var key = lb.textContent.replace(/[：:]/g, '').trim();
+    var srcItem = null;
+    src.querySelectorAll('.qp-item').forEach(function(si){
+      var sl = si.querySelector('label');
+      if(sl && sl.textContent.replace(/[：:]/g, '').trim() === key) srcItem = si;
+    });
+    if(!srcItem) return;
+    var sIn = srcItem.querySelectorAll('input,select');
+    var dIn = item.querySelectorAll('input,select');
+    for(var i=0;i<sIn.length && i<dIn.length;i++){
+      var v = sIn[i].value;
+      if(v){ dIn[i].value = v; carried++; }
+    }
+  });
+  return carried;
+}
+/* 关闭弹窗 */
+function relCloseModal(id){
+  var el = document.getElementById(id);
+  if(el) el.classList.remove('show');
+}
+/* 全选/取消全选 */
+function relToggleAll(checkbox){
+  var cbs = document.querySelectorAll('#relQsTableBody input[type="checkbox"]');
+  for(var i=0;i<cbs.length;i++) cbs[i].checked = checkbox.checked;
+  relUpdateSelCount();
+}
+/* 已选条数刷新 */
+function relUpdateSelCount(){
+  var n = document.querySelectorAll('#relQsTableBody input[type="checkbox"]:checked').length;
+  var el = document.getElementById('relQsSelCount');
+  if(el) el.textContent = n;
+}
+/* 查询 */
+function relQsSearch(){
+  relUpdateSelCount();
+  qpToast('查询中...', 'info');
+}
+/* 重置 */
+function relQsReset(){
+  var card = document.querySelector('.rel-qs-search-card');
+  if(!card) return;
+  card.querySelectorAll('input[type="text"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('input[type="number"]').forEach(function(el){el.value='';});
+  card.querySelectorAll('select').forEach(function(el){el.selectedIndex=0;});
+  qpToast('已重置', 'success');
+}
+/* 生成新的关联编号：GL + yyyyMMdd + 4位流水 */
+function relNewRelationNo(){
+  var d = new Date();
+  var p = function(n){ return (n<10?'0':'') + n; };
+  var seq = String((window.__relSeq = (window.__relSeq || 0) + 1)).padStart(4, '0');
+  return 'GL' + d.getFullYear() + p(d.getMonth()+1) + p(d.getDate()) + seq;
+}
+/* 确定：对所选工程单新建组合【关联项目单】，并刷新快速查询列表 */
+function relConfirmQsSelect(){
+  var checked = document.querySelectorAll('#relQsTableBody input[type="checkbox"]:checked');
+  if(!checked.length){ qpToast('请至少选择一个工程单', 'error'); return; }
+
+  var picked = [];
+  checked.forEach(function(cb){
+    var cells = cb.closest('tr').cells;
+    picked.push({
+      no: cells[1].textContent.trim(),
+      dealer: cells[2].textContent.trim(),
+      project: cells[3].textContent.trim(),
+      statusHtml: cells[11].innerHTML.trim(),
+      loginTime: cells[10].textContent.trim()
+    });
+  });
+  /* 登录顺序按登录时间升序确定 */
+  picked.sort(function(a, b){ return a.loginTime.localeCompare(b.loginTime); });
+
+  var relationNo = relNewRelationNo();
+  /* 刷新「快速查询工程单」列表：回填关联编号 + 登录顺序 */
+  var qpRows = document.querySelectorAll('#qpTableBody tr');
+  qpRows.forEach(function(row){
+    var no = row.cells[0].textContent.trim();
+    var hit = -1;
+    for(var i=0;i<picked.length;i++){ if(picked[i].no === no) hit = i; }
+    /* 第11列(索引10)=关联编号，第8列(索引7)=登录顺序 */
+    if(hit >= 0){
+      row.cells[10].textContent = relationNo;
+      row.cells[7].innerHTML = (hit === 0)
+        ? '<span class="rel-seq"><span class="rel-seq-num active">1</span><span class="rel-seq-txt success">登录成功</span></span>'
+        : '<span class="rel-seq"><span class="rel-seq-num pending">'+(hit+1)+'</span><span class="rel-seq-txt waiting">候补登录</span></span>';
+    } else {
+      row.cells[10].textContent = '-';
+      row.cells[7].textContent = '-';
+    }
+  });
+
+  relCloseModal('relModalQuickSearch');
+  qpToast('已新建关联项目单 ' + relationNo + '（含 ' + picked.length + ' 个工程单），列表已刷新', 'success');
+}
+
+/* ===== 轻提示 ===== */
+function qpToast(msg, type){
+  var existing = document.getElementById('qpToast');
+  if(existing) existing.remove();
+  var el = document.createElement('div');
+  el.id = 'qpToast';
+  el.className = 'qp-toast';
+  el.textContent = msg;
+  if(type === 'info') el.style.background = '#0288D1';
+  else if(type === 'error') el.style.background = '#D32F2F';
+  else el.style.background = '#2E7D32';
+  document.body.appendChild(el);
+  setTimeout(function(){ el.remove(); }, 2000);
+}
+
+/* ===== 选择关联工程单：勾选变化时刷新"已选"条数（事件委托） ===== */
+document.addEventListener('change', function(e){
+  if(e.target && e.target.closest && e.target.closest('#relQsTableBody')) relUpdateSelCount();
+});
+
+/* ===== 表格被省略号截断的单元格：鼠标悬停显示完整内容 ===== */
+function qpFillCellTitles(){
+  document.querySelectorAll('.qp-table tbody td, .rel-qs-table tbody td').forEach(function(td){
+    if(td.querySelector('input')) return;
+    if(td.scrollWidth > td.clientWidth) td.title = td.textContent.trim();
+  });
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', qpFillCellTitles);
+else qpFillCellTitles();
+
+</script>
+
+<!-- ========== 审批流程弹窗 ========== -->
+<div class="af-overlay" id="afOverlay" style="display:none;">
+<div class="af-modal">
+  <div class="af-header">
+    <span class="af-title">审批流程</span>
+    <span class="af-close" onclick="closeApprovalFlowModal()">&times;</span>
+  </div>
+  <div class="af-tabs">
+    <button class="af-tab active" data-tab="flow" onclick="switchAfTab('flow',this)">审批流程</button>
+    <button class="af-tab" data-tab="node" onclick="switchAfTab('node',this)">当前节点</button>
+  </div>
+  <div class="af-body">
+    <div id="afFlowPanel" class="af-flow-wrap">
+      <svg class="af-flow-svg" viewBox="0 0 720 400">
+        <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="#f0f0f0" stroke-width=".5"/></pattern></defs>
+        <rect width="100%" height="100%" fill="#fff"/>
+        <rect width="100%" height="100%" fill="url(#grid)"/>
+        <defs>
+          <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#999"/></marker>
+          <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#4CAF50"/></marker>
+          <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3370ff"/></marker>
+        </defs>
+        <path d="M90 130 L130 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M170 110 L170 60 L280 60 L280 80" stroke="#4CAF50" stroke-width="2" fill="none" marker-end="url(#arrowGreen)"/>
+        <text x="200" y="52" font-size="11" fill="#4CAF50" font-weight="600">省内跨区</text>
+        <path d="M340 100 L380 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M420 100 L480 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M540 100 L595 100" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M190 130 L240 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/><text x="195" y="148" font-size="11" fill="#666">省外跨区</text>
+        <path d="M300 130 L350 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M390 130 L450 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M510 130 L565 130" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M150 150 L150 270 L280 270 L280 290" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/><text x="158" y="260" font-size="11" fill="#666">省外跨区</text>
+        <path d="M340 310 L390 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M430 310 L490 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M550 310 L595 310" stroke="#999" stroke-width="1.5" fill="none" marker-end="url(#arrowGray)"/>
+        <path d="M400 78 L400 45 L50 45 L50 120 L55 125" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <path d="M370 148 L370 180 L30 180 L30 135 L53 132" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <path d="M410 330 L410 365 L15 365 L15 138 L53 133" stroke="#ccc" stroke-width="1" fill="none" stroke-dasharray="4 3" marker-end="url(#arrowGray)"/>
+        <circle cx="70" cy="130" r="16" fill="none" stroke="#4CAF50" stroke-width="2"/>
+        <path d="M62 130 L68 136 L78 124" stroke="#4CAF50" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="92" y="112" width="56" height="36" rx="4" fill="#E8F5E9" stroke="#4CAF50" stroke-width="1.8"/>
+        <circle cx="104" cy="122" r="7" fill="#FFE0B2"/><text x="101" y="126" font-size="9" fill="#E65100">👤</text>
+        <text x="102" y="142" font-size="10" fill="#333" text-anchor="middle">经销商提交</text>
+        <polygon points="170,108 192,130 170,152 148,130" fill="#fff" stroke="#D32F2F" stroke-width="1.8"/>
+        <text x="170" y="134" font-size="14" fill="#D32F2F" text-anchor="middle">×</text>
+        <rect x="276" y="82" width="64" height="38" rx="4" fill="#FFF3E0" stroke="#E65100" stroke-width="2"/>
+        <circle cx="290" cy="94" r="7" fill="#FFE0B2"/><text x="287" y="98" font-size="9" fill="#E65100">👤</text>
+        <text x="308" y="106" font-size="10" fill="#333" text-anchor="middle">办事处内勤</text>
+        <polygon points="400,78 420,100 400,122 380,100" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="400" y="105" font-size="14" fill="#333" text-anchor="middle">×</text>
+        <rect x="482" y="81" width="58" height="38" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="496" cy="93" r="7" fill="#E3F2FD"/><text x="493" y="97" font-size="9" fill="#1976D2">👤</text>
+        <text x="511" y="106" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="612" cy="100" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+        <rect x="246" y="111" width="54" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="258" cy="121" r="7" fill="#FFE0B2"/><text x="255" y="125" font-size="9" fill="#E65100">👤</text>
+        <text x="273" y="134" font-size="10" fill="#666" text-anchor="middle">办事处内勤</text>
+        <polygon points="370,110 390,130 370,150 350,130" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="370" y="134" font-size="13" fill="#333" text-anchor="middle">×</text>
+        <rect x="454" y="111" width="56" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="466" cy="121" r="7" fill="#E3F2FD"/><text x="463" y="125" font-size="9" fill="#1976D2">👤</text>
+        <text x="482" y="134" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="582" cy="130" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+        <rect x="282" y="292" width="54" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="294" cy="302" r="7" fill="#FFE0B2"/><text x="291" y="306" font-size="9" fill="#E65100">👤</text>
+        <text x="309" y="315" font-size="10" fill="#666" text-anchor="middle">办事处内勤</text>
+        <polygon points="410,292 430,310 410,328 390,310" fill="#fff" stroke="#333" stroke-width="1.5"/>
+        <text x="410" y="315" font-size="13" fill="#333" text-anchor="middle">×</text>
+        <rect x="494" y="292" width="56" height="36" rx="4" fill="#fff" stroke="#999" stroke-width="1.3"/>
+        <circle cx="506" cy="302" r="7" fill="#E3F2FD"/><text x="503" y="306" font-size="9" fill="#1976D2">👤</text>
+        <text x="522" y="315" font-size="10" fill="#666" text-anchor="middle">工程科内勤</text>
+        <circle cx="612" cy="310" r="14" fill="none" stroke="#bbb" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div id="afNodePanel" style="display:none;">
+      <div class="af-node-type">节点类型：岗位</div>
+      <table class="af-node-table">
+        <thead><tr><th>岗位编号</th><th>岗位名称</th><th>员工</th></tr></thead>
+        <tbody>
+          <tr><td>XXX</td><td>部门名称二</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>部门名称三</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>...</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+          <tr><td>XXX</td><td>部门名称xxx</td><td>员工1（账号1）、员工2（账号2）、员工3（账号3）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="af-footer-btn">
+    <button class="btn-quick-view" onclick="closeApprovalFlowModal()" style="color:#666;border-color:#c0c4cc;">关闭</button>
+  </div>
+</div>
+</div>
+
+<!-- ========== 快速查询工程单弹窗（复刻 选择关联工程单） ========== -->
+<div class="qp-mask" id="qpModal" onclick="if(event.target===this)closeQuickProjectModal()">
+  <div class="qp-dialog">
+    <div class="qp-header">
+      <h3 class="proto-new proto-new--title">快速查询工程单<span class="proto-new-tag">NEW</span></h3>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="rel-btn-add proto-new" onclick="relOpenQuickSearch()">新建关联工程<span class="proto-new-tag">NEW</span></button>
+        <button class="qp-close" onclick="closeQuickProjectModal()">×</button>
+      </div>
+    </div>
+    <div class="qp-body">
+      <!-- 搜索区 -->
+      <div class="qp-search-card">
+        <div class="qp-search-grid">
+          <div class="qp-item"><label>关联编号：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item"><label>项目单号：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item"><label>项目名称：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item"><label>采购单位：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item">
+            <label>工程状态：</label>
+            <select>
+              <option value="">全部状态</option>
+              <option>审批中</option>
+              <option>已中标</option>
+              <option>已签单</option>
+              <option>跟进中</option>
+              <option>已驳回</option>
+            </select>
+          </div>
+          <div class="qp-item"><label>联系方式：</label><input type="text" placeholder="搜索手机或座机电话" /></div>
+          <div class="qp-item"><label>项目地址：</label><input type="text" placeholder="请输入" /></div>
+          <div class="qp-item">
+            <label>登录时间：</label>
+            <div class="date-range-inline">
+              <input type="date" />
+              <span>–</span>
+              <input type="date" />
+            </div>
+          </div>
+          <div class="qp-item">
+            <label>总套数：</label>
+            <div class="num-range">
+              <input type="number" placeholder="最低套数" />
+              <span>–</span>
+              <input type="number" placeholder="最高套数" />
+            </div>
+          </div>
+          <div class="qp-item qp-btns">
+            <button class="btn btn-sm btn-primary" onclick="qpSearch()">查 询</button>
+            <button class="btn btn-sm" onclick="qpReset()">重 置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="qp-table-wrap">
+      <table class="qp-table">
+        <colgroup>
+          <col style="width:145px;" /><!-- 项目单号 -->
+          <col style="width:160px;" /><!-- 经销商名称 -->
+          <col style="width:146px;" /><!-- 项目名称 -->
+          <col style="width:150px;" /><!-- 采购单位 -->
+          <col style="width:56px;" /><!-- 总套数 -->
+          <col style="width:70px;" /><!-- 跨区 -->
+          <col style="width:146px;" /><!-- 项目地址 -->
+          <col style="width:96px;" /><!-- 登录顺序 -->
+          <col style="width:74px;" /><!-- 业务负责人 -->
+          <col style="width:106px;" /><!-- 使用方联系方式 -->
+          <col style="width:126px;" /><!-- 关联编号 -->
+          <col style="width:138px;" /><!-- 登录时间 -->
+          <col style="width:78px;" /><!-- 工程状态 -->
+          <col style="width:56px;" /><!-- 操作 -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th>项目单号</th>
+            <th>经销商名称</th>
+            <th>项目名称</th>
+            <th>采购单位</th>
+            <th>总套数</th>
+            <th>跨区</th>
+            <th>项目地址</th>
+            <th>登录顺序</th>
+            <th>业务负责人</th>
+            <th>使用方联系方式</th>
+            <th>关联编号</th>
+            <th>登录时间</th>
+            <th>工程状态</th>
+            <th style="width:56px;">操作</th>
+          </tr>
+        </thead>
+        <tbody id="qpTableBody">
+          <tr>
+            <td>粤东GCDT202506250001</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海横琴总部大厦中央空调工程</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>500</td>
+            <td>非跨区</td>
+            <td>广东省珠海市横琴新区金融岛...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num active">1</span><span class="rel-seq-txt success">登录成功</span></span></td>
+            <td>张大伟</td>
+            <td>13800138001</td>
+            <td>GL01202111300001</td>
+            <td>2025-06-15 09:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506250001')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202505180002</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州天河城中央空调改造项目</td>
+            <td>广州天河城有限公司</td>
+            <td>360</td>
+            <td>省内跨区</td>
+            <td>广东省广州市天河区天河路208号...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num pending">2</span><span class="rel-seq-txt waiting">候补登录</span></span></td>
+            <td>陈小明</td>
+            <td>13928192819</td>
+            <td>GL01202111300001</td>
+            <td>2025-05-20 14:20:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202505180002')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202504120003</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳前海大厦新风系统安装</td>
+            <td>深圳市前海开发投资控股有限公司</td>
+            <td>800</td>
+            <td>省外跨区</td>
+            <td>广东省深圳市南山区前海深港合作区...</td>
+            <td>-</td>
+            <td>李华</td>
+            <td>13612345678</td>
+            <td>-</td>
+            <td>2025-04-15 11:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202504120003')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202506080004</td>
+            <td>东莞格力销售有限公司</td>
+            <td>东莞松山湖科技园区多联机工程</td>
+            <td>东莞市XX科技发展有限公司</td>
+            <td>280</td>
+            <td>非跨区</td>
+            <td>广东省东莞市松山湖科技产业园区...</td>
+            <td>-</td>
+            <td>王磊</td>
+            <td>13700001111</td>
+            <td>-</td>
+            <td>2025-06-10 16:45:00</td>
+            <td><span class="status-tag" style="background:#FFF3E0;color:#E65100;">跟进中</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506080004')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202503250005</td>
+            <td>佛山格力销售有限公司</td>
+            <td>佛山南海人民医院净化空调工程</td>
+            <td>佛山市南海区人民医院</td>
+            <td>420</td>
+            <td>省内跨区</td>
+            <td>广东省佛山市南海区桂城街道...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num pending">3</span><span class="rel-seq-txt waiting">候补登录</span></span></td>
+            <td>刘伟</td>
+            <td>13579246801</td>
+            <td>GL02202407180001</td>
+            <td>2025-03-28 08:15:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202503250005')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202506220006</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海金湾机场候机楼空调改造</td>
+            <td>珠海机场管理有限公司</td>
+            <td>1000</td>
+            <td>省外跨区</td>
+            <td>广东省珠海市金湾区机场路...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num active">1</span><span class="rel-seq-txt success">登录成功</span></span></td>
+            <td>赵强</td>
+            <td>15975324680</td>
+            <td>GL02202407180001</td>
+            <td>2025-06-25 13:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506220006')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202501100007</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州国际会展中心冷水机组项目</td>
+            <td>广州市会展服务中心有限公司</td>
+            <td>2000</td>
+            <td>非跨区</td>
+            <td>广东省广州市海珠区阅江中路...</td>
+            <td>-</td>
+            <td>孙涛</td>
+            <td>18600001111</td>
+            <td>-</td>
+            <td>2025-01-15 10:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202501100007')">查看</a></td>
+          </tr>
+          <tr>
+            <td>粤东GCDT202506300008</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳大疆创新基地中央空调工程</td>
+            <td>大疆创新科技有限公司</td>
+            <td>650</td>
+            <td>省内跨区</td>
+            <td>广东省深圳市南山区科技园...</td>
+            <td><span class="rel-seq"><span class="rel-seq-num pending">2</span><span class="rel-seq-txt waiting">候补登录</span></span></td>
+            <td>周文</td>
+            <td>13888889999</td>
+            <td>GL02202407180001</td>
+            <td>2025-06-30 09:00:00</td>
+            <td><span class="status-tag" style="background:#FFEBEE;color:#D32F2F;">已驳回</span></td>
+            <td><a class="qp-link" onclick="qrViewDetail('粤东GCDT202506300008')">查看</a></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="qp-footer">
+        <div class="qp-total">共<span id="qpTotal">201</span>条</div>
+        <div class="pagination-bar">
+          <button class="page-btn disabled">&lt;</button>
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">4</button>
+          <button class="page-btn disabled">···</button>
+          <button class="page-btn">21</button>
+          <button class="page-btn">&gt;</button>
+          <div class="page-size"><select><option>10条/页</option></select></div>
+          <div class="page-jump">跳至<input type="number" value="1" min="1" max="21" /> 页</div>
+        </div>
+      </div>
+    </div>
+    <div class="qp-footer-btn">
+      <button class="qp-btn-cancel" onclick="closeQuickProjectModal()">关 闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== 选择关联工程单弹窗（点击「新建关联工程」直接进入；照 123.rp「选择关联工程单」页） ========== -->
+<div class="rel-mask rel-mask-2" id="relModalQuickSearch">
+  <div class="rel-dialog" style="width:1350px;max-width:96vw;">
+    <div class="rel-header">
+      <h3 class="proto-new proto-new--title">选择关联工程单<span class="proto-new-tag">NEW</span></h3>
+      <button class="rel-close" onclick="relCloseModal('relModalQuickSearch')">×</button>
+    </div>
+    <div class="rel-body">
+      <!-- 搜索区 -->
+      <div class="rel-qs-search-card">
+        <div class="rel-qs-grid">
+          <div class="rel-qs-item"><label>项目单号：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item"><label>项目名称：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item"><label>采购单位：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item">
+            <label>工程状态：</label>
+            <select>
+              <option value="">全部状态</option>
+              <option>审批中</option>
+              <option>已中标</option>
+              <option>已签单</option>
+              <option>跟进中</option>
+              <option>已驳回</option>
+            </select>
+          </div>
+          <div class="rel-qs-item"><label>联系方式：</label><input type="text" placeholder="搜索手机或座机电话" /></div>
+          <div class="rel-qs-item"><label>项目地址：</label><input type="text" placeholder="请输入" /></div>
+          <div class="rel-qs-item">
+            <label>登录时间：</label>
+            <div class="rel-date-range">
+              <input type="date" value="2019-02-21" />
+              <span>–</span>
+              <input type="date" value="2019-02-21" />
+            </div>
+          </div>
+          <div class="rel-qs-item">
+            <label>总套数：</label>
+            <div class="rel-num-range">
+              <input type="number" placeholder="最低套数" />
+              <span>–</span>
+              <input type="number" placeholder="最高套数" />
+            </div>
+          </div>
+          <div class="rel-qs-item rel-qs-btns">
+            <button class="rel-btn-add" onclick="relQsSearch()">查 询</button>
+            <button class="rel-btn-cancel" style="padding:6px 16px;" onclick="relQsReset()">重 置</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据表格 -->
+      <div class="rel-qs-table-wrap">
+      <table class="rel-qs-table">
+        <colgroup>
+          <col style="width:44px;" /><!-- 勾选 -->
+          <col style="width:140px;" /><!-- 项目单号 -->
+          <col style="width:150px;" /><!-- 经销商名称 -->
+          <col style="width:130px;" /><!-- 项目名称 -->
+          <col style="width:130px;" /><!-- 采购单位 -->
+          <col style="width:56px;" /><!-- 总套数 -->
+          <col style="width:70px;" /><!-- 跨区 -->
+          <col style="width:140px;" /><!-- 项目地址 -->
+          <col style="width:76px;" /><!-- 业务负责人 -->
+          <col style="width:104px;" /><!-- 使用方联系方式 -->
+          <col style="width:132px;" /><!-- 登录时间 -->
+          <col style="width:76px;" /><!-- 工程状态 -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="relQsCheckAll" onchange="relToggleAll(this)" /></th>
+            <th>项目单号</th>
+            <th>经销商名称</th>
+            <th>项目名称</th>
+            <th>采购单位</th>
+            <th>总套数</th>
+            <th>跨区</th>
+            <th>项目地址</th>
+            <th>业务负责人</th>
+            <th>使用方联系方式</th>
+            <th>登录时间</th>
+            <th>工程状态</th>
+          </tr>
+        </thead>
+        <tbody id="relQsTableBody">
+          <tr>
+            <td><input type="checkbox" checked /></td>
+            <td>粤东GCDT202506250001</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海横琴总部大厦中央空调工程</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>500</td>
+            <td>非跨区</td>
+            <td>广东省珠海市横琴新区金融岛...</td>
+            <td>张大伟</td>
+            <td>13800138001</td>
+            <td>2025-06-15 09:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202505180002</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州天河城中央空调改造项目</td>
+            <td>广州天河城有限公司</td>
+            <td>360</td>
+            <td>省内跨区</td>
+            <td>广东省广州市天河区天河路208号...</td>
+            <td>陈小明</td>
+            <td>13928192819</td>
+            <td>2025-05-20 14:20:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202504120003</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳前海大厦新风系统安装</td>
+            <td>深圳市前海开发投资控股有限公司</td>
+            <td>800</td>
+            <td>省外跨区</td>
+            <td>广东省深圳市南山区前海深港合作区...</td>
+            <td>李华</td>
+            <td>13612345678</td>
+            <td>2025-04-15 11:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202506080004</td>
+            <td>东莞格力销售有限公司</td>
+            <td>东莞松山湖科技园区多联机工程</td>
+            <td>东莞市XX科技发展有限公司</td>
+            <td>280</td>
+            <td>非跨区</td>
+            <td>广东省东莞市松山湖科技产业园区...</td>
+            <td>王磊</td>
+            <td>13700001111</td>
+            <td>2025-06-10 16:45:00</td>
+            <td><span class="status-tag" style="background:#FFF3E0;color:#E65100;">跟进中</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202503250005</td>
+            <td>佛山格力销售有限公司</td>
+            <td>佛山南海人民医院净化空调工程</td>
+            <td>佛山市南海区人民医院</td>
+            <td>420</td>
+            <td>省内跨区</td>
+            <td>广东省佛山市南海区桂城街道...</td>
+            <td>刘伟</td>
+            <td>13579246801</td>
+            <td>2025-03-28 08:15:00</td>
+            <td><span class="status-tag" style="background:#C8E6C9;color:#2E7D32;">已中标</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202506220006</td>
+            <td>珠海格力电器股份有限公司</td>
+            <td>珠海金湾机场候机楼空调改造</td>
+            <td>珠海机场管理有限公司</td>
+            <td>1000</td>
+            <td>省外跨区</td>
+            <td>广东省珠海市金湾区机场路...</td>
+            <td>赵强</td>
+            <td>15975324680</td>
+            <td>2025-06-25 13:30:00</td>
+            <td><span class="status-tag" style="background:#E3F2FD;color:#1565C0;">审批中</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202501100007</td>
+            <td>广州格力销售有限公司</td>
+            <td>广州国际会展中心冷水机组项目</td>
+            <td>广州市会展服务中心有限公司</td>
+            <td>2000</td>
+            <td>非跨区</td>
+            <td>广东省广州市海珠区阅江中路...</td>
+            <td>孙涛</td>
+            <td>18600001111</td>
+            <td>2025-01-15 10:00:00</td>
+            <td><span class="status-tag" style="background:#E8F5E9;color:#2E7D32;">已签单</span></td>
+          </tr>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>粤东GCDT202506300008</td>
+            <td>深圳格力销售有限公司</td>
+            <td>深圳大疆创新基地中央空调工程</td>
+            <td>大疆创新科技有限公司</td>
+            <td>650</td>
+            <td>省内跨区</td>
+            <td>广东省深圳市南山区科技园...</td>
+            <td>周文</td>
+            <td>13888889999</td>
+            <td>2025-06-30 09:00:00</td>
+            <td><span class="status-tag" style="background:#FFEBEE;color:#D32F2F;">已驳回</span></td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <!-- 分页 -->
+      <div class="rel-qs-footer">
+        <div class="rel-qs-total">共<span id="relQsTotal">201</span>条，已选<span id="relQsSelCount">0</span>条</div>
+        <div class="rel-page-ctrl">
+          <button class="rel-page-btn disabled">&lt;</button>
+          <button class="rel-page-btn active">1</button>
+          <button class="rel-page-btn">2</button>
+          <button class="rel-page-btn">3</button>
+          <button class="rel-page-btn">4</button>
+          <button class="rel-page-btn disabled">···</button>
+          <button class="rel-page-btn">21</button>
+          <button class="rel-page-btn">&gt;</button>
+          <div class="rel-page-size"><select><option>10条/页</option></select></div>
+          <div class="rel-page-jump">跳至<input type="number" value="1" min="1" max="21" /> 页</div>
+        </div>
+      </div>
+    </div>
+    <div class="rel-footer">
+      <button class="rel-btn-confirm" onclick="relConfirmQsSelect()">确 定</button>
+      <button class="rel-btn-cancel" onclick="relCloseModal('relModalQuickSearch')">取 消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// 列表入口传递单据身份；其余字段仍为本地原型演示数据。
+(function(){var q=new URLSearchParams(location.search),no=q.get('no'),name=q.get('name'),dealer=q.get('dealer'),status=q.get('status');
+function set(id,text){var el=document.getElementById(id);if(el&&text)el.textContent=text;}
+if(no){set('headerProjNo',no+(name?' ('+name+')':''));set('objNo',no);if(name)set('objName','（'+name+'）');}
+if(status){set('headerStatusBadge',status);set('approvalPill',status);var pill=document.getElementById('approvalPill');if(pill)pill.className='pill '+(/通过/.test(status)?'pass':/驳回/.test(status)?'reject':'in');}
+if(name){var field=document.getElementById('usageProjectName');if(field){if(field.matches('input'))field.value=name;else field.textContent=name;}}
+document.querySelectorAll('.form-item,.row,.rg-item').forEach(function(row){var label=row.querySelector('.form-label,.lab,.rg-label');if(!label)return;var key=label.textContent.replace(/[*：:\s]/g,'');if(key==='项目名称'&&name){var project=row.querySelector('input,.field-readonly,.val,.rg-value');if(project){if(project.matches('input'))project.value=name;else{var control=project.querySelector('input');if(control)control.value=name;else project.textContent=name;}}}var value=row.querySelector('.field-readonly,.val,.rg-value');if(!value)return;if(key==='项目单号'&&no)value.textContent=no;if(key==='经销商名称'&&dealer)value.textContent=dealer;});
+})();</script>
+</body>
+</html>

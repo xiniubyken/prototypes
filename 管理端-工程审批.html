@@ -161,6 +161,8 @@ a:hover{text-decoration:underline;}
 
 /* 隐藏列 */
 .col-hidden{display:none!important;}
+
+.approval-inline-new{display:inline-block;vertical-align:middle;margin-left:5px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:white;font:600 9px/14px Arial,sans-serif;pointer-events:none}
 </style>
 </head>
 <body>
@@ -239,7 +241,7 @@ a:hover{text-decoration:underline;}
       <!-- 一级Tab -->
       <div class="tab-primary">
         <div class="tp-item active" data-tab="login" onclick="switchPrimaryTab('login',this)">
-          登录审批<span class="tp-badge">99+</span>
+          登录审批<span class="approval-inline-new">NEW</span><span class="tp-badge">99+</span>
         </div>
         <div class="tp-item" data-tab="price" onclick="switchPrimaryTab('price',this)">
           价格审批<span class="tp-badge">99+</span>
@@ -295,7 +297,7 @@ a:hover{text-decoration:underline;}
 var secondaryTabConfig = {
   login: [
     {key:'local',     label:'非跨区登录', badge:'99+'},
-    // {key:'inProvince',label:'省内跨区登录', badge:'99+'},  // 已移除
+    {key:'inProvince',label:'省内跨区登录', badge:'99+'},
     {key:'outProvince',label:'省外跨区登录', badge:'99+'},
     {key:'extend',    label:'登录延期',     badge:'99+'},
     {key:'addrRelief',label:'解除地址限制', badge:'99+'},
@@ -340,7 +342,6 @@ var columnDefs = {
     {key:'dealerName', label:'经销商名称',   w:'140'},
     {key:'useUnit',    label:'项目名称',     w:'130'},
     {key:'purUnit',    label:'采购单位',     w:'110'},
-    {key:'crossOffice',label:'被跨区办事处',  w:'120'},
     {key:'address',    label:'项目地址',     w:'170'},
     {key:'loginOrder', label:'登录顺序',     w:'90', highlight:true},
     {key:'status',     label:'状态',         w:'70'},
@@ -555,7 +556,7 @@ function renderSecondaryTabs() {
   html += subs.map(function(s) {
     return '<div class="ts-btn' + (s.key === currentSecondary ? ' active' : '') + '" ' +
            'onclick="switchSecondaryTab(\'' + s.key + '\',this)">' +
-           s.label +
+           s.label + (s.key==='inProvince'?'<span class="approval-inline-new">NEW</span>':'') +
            '<span class="ts-badge">' + s.badge + '</span>' +
            '</div>';
   }).join('');
@@ -629,7 +630,7 @@ function renderTable() {
         if (r.canApprove && r.status === '审批中') {
           ops += '<a class="op-approve-link" onclick="gotoApprovePage(\'' + r.no + '\')">审核</a>';
         }
-        ops += '<a class="op-view" onclick="gotoApprovePage(\'' + r.no + '\')">查看</a>';
+        ops += '<a class="op-view" onclick="gotoApprovePage(\'' + r.no + '\',true)">查看</a>';
         ops += '<a class="op-process" onclick="alert(\'演示：查看审批流程 ' + r.no + '\')">审批流程</a>';
         tbodyHtml += '<td class="op-cell">' + ops + '</td>';
         return;
@@ -698,10 +699,15 @@ function doReset() {
    跳转审批详情页
    ================================================================ */
 
-function gotoApprovePage(projectNo) {
-  // 解除地址限制页签 → 跳对应审批详情页；其余页签维持原跳转
-  var page = (currentSecondary === 'addrRelief') ? '管理端-解除地址限制审批页.html' : '管理端-审批进度页.html';
-  location.href = page + '?no=' + projectNo;
+function gotoApprovePage(projectNo,viewOnly) {
+ var types={local:'非跨区',inProvince:'省内跨区',outProvince:'省外跨区'};
+ if(currentPrimary==='login'&&types[currentSecondary]){
+  var row=(sampleData[currentSecondary]||[]).find(function(r){return r.no===projectNo;})||{};
+  var page='管理端-'+types[currentSecondary]+'审批页'+(viewOnly?'_查看版':'')+'.html';
+  location.href=page+'?'+new URLSearchParams({no:projectNo,name:row.useUnit||'',dealer:row.dealer||'',status:row.status||''}).toString();return;
+ }
+ var page=(currentSecondary==='addrRelief')?'管理端-解除地址限制审批页.html':'管理端-审批进度页.html';
+ location.href=page+'?no='+encodeURIComponent(projectNo);
 }
 
 /* 点击全局输入规则 */

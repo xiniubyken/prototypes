@@ -73,7 +73,9 @@ button,input{font:inherit}button{cursor:pointer}
 .scroll{padding:6px 14px 20px}
 .li{background:#fff;border-radius:14px;padding:14px 14px 0;margin-bottom:12px;overflow:hidden;cursor:pointer}
 .li-hd{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.li-name{flex:1;min-width:0;font-size:16px;font-weight:700;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-name{display:flex;align-items:center;flex:1;min-width:0;font-size:16px;font-weight:700;line-height:1.4;overflow:hidden;white-space:nowrap}
+.li-name-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-name .approval-inline-new{flex:0 0 auto}
 .pill{flex:0 0 auto;margin-top:1px;padding:3px 9px;border-radius:5px;font-size:12px;font-weight:700;background:#fff;line-height:1.35;white-space:nowrap}
 .pill.st-ap{color:var(--c-ap);border:1px solid rgba(21,101,192,.28)}
 .pill.st-ok{color:var(--c-ok);border:1px solid rgba(46,125,50,.32)}
@@ -155,6 +157,10 @@ button,input{font:inherit}button{cursor:pointer}
 .proto-new{position:relative}
 .proto-new-tag{display:inline-block;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:2px 4px;border-radius:3px;pointer-events:none;z-index:20}
 .proto-new-tag.inline{position:static;margin-left:5px;vertical-align:1px}
+
+.approval-inline-new{display:inline-block;vertical-align:middle;margin-left:5px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:white;font:600 9px/14px Arial,sans-serif;pointer-events:none}
+
+.act-view{border:0;background:transparent;padding:6px 0;color:var(--blue);font-size:13px;flex:0 0 auto}.li-act{gap:10px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -164,7 +170,7 @@ button,input{font:inherit}button{cursor:pointer}
   <!-- 导航 -->
   <header class="nav">
     <button class="back" onclick="toast('原型占位：返回')" aria-label="返回"><i></i></button>
-    <div class="nav-title">工程审批</div>
+    <div class="nav-title">工程审批<span class="approval-inline-new">NEW</span></div>
   </header>
 
   <!-- 一级 tab -->
@@ -260,9 +266,10 @@ var DATA=[
  {prim:"price",sub:"rePrice",     no:"GC202606190011",name:"深圳南山科技园二期工程",co:"粤东销售公司",dealer:"深圳市南山区恒远空调工程部",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-20 09:52",st:"通过",mine:false},
  {prim:"price",sub:"deliveryExt", no:"GC202606150012",name:"惠州潼湖生态智慧区厂房项目",co:"华东销售公司",dealer:"惠州市弘泰电器有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-16 08:30",st:"审批中",mine:true}
 ];
+DATA=DATA.concat(DATA.filter(function(d){return d.sub==='local';}).map(function(d,i){return Object.assign({},d,{sub:'inProvince',no:'GC20261104000'+(i+1),name:i===0?'斗门区学校空调工程':'珠海工业园空调项目'});}));
 /* 二级子类配置（随一级切换） */
 var SUB_CFG={
-  login:[{k:"local",t:"非跨区"},{k:"outProvince",t:"省外跨区"},{k:"addrLimit",t:"解除地址限制"},{k:"extend",t:"登录延期"},{k:"void",t:"作废"}],
+  login:[{k:"local",t:"非跨区登录"},{k:"inProvince",t:"省内跨区登录"},{k:"outProvince",t:"省外跨区登录"},{k:"addrLimit",t:"解除地址限制"},{k:"extend",t:"登录延期"},{k:"void",t:"作废"}],
   price:[{k:"pLocal",t:"工程批价"},{k:"rePrice",t:"二次批价"},{k:"deliveryExt",t:"提货延期"},{k:"void",t:"作废"}]
 };
 /* 单据类型 → 审批流程节点序列（演示固定序列） */
@@ -316,16 +323,22 @@ function filtered(){
   });
 }
 function kvHtml(k,v,cls){return '<div class="kv"><span class="k">'+esc(k)+'</span><span class="v'+(cls?" "+cls:"")+'">'+esc(v)+'</span></div>';}
+function goApproval(no,viewOnly){
+ var row=DATA.find(function(d){return d.no===no;});if(!row)return;
+ var types={local:'非跨区',inProvince:'省内跨区',outProvince:'省外跨区'};
+ if(row.prim==='login'&&types[row.sub]){var page='管理端-'+types[row.sub]+'审批页'+(viewOnly?'_查看版':'')+'_移动端.html';location.href=page+'?'+new URLSearchParams({no:row.no,name:row.name,dealer:row.dealer,status:row.st}).toString();return;}
+ toast('原型占位：进入审批');
+}
 function cardHtml(d){
   var acts='<button class="act-proc" onclick="event.stopPropagation();openAf(event,\''+esc(d.no)+'\')">审批流程<span class="arr">›</span></button>';
   if(d.st==="审批中"&&d.mine){
     acts='<div style="display:flex;align-items:center;gap:14px">'+acts+'</div>'
-      +'<button class="act-aprv" onclick="event.stopPropagation();toast(\'原型占位：进入审批\')">审核</button>';
+      +'<button class="act-aprv" onclick="event.stopPropagation();goApproval(\''+esc(d.no)+'\',false)">审核</button>';
   }else{
     acts='<span></span>'+acts;
   }
-  return '<div class="li" onclick="toast(\'原型占位：进入审批\')">'
-    +'<div class="li-hd"><div class="li-name">'+esc(d.name)+'</div>'
+  return '<div class="li" onclick="goApproval(\''+esc(d.no)+'\',true)">'
+    +'<div class="li-hd"><div class="li-name">'+'<span class="li-name-text">'+esc(d.name)+'</span>'+(d.prim==='login'&&d.sub==='inProvince'?'<span class="approval-inline-new">NEW</span>':'')+'</div>'
     +'<span class="pill '+pillCls[d.st]+'">'+esc(d.st)+'</span></div>'
     +'<div class="c-kv">'
     +kvHtml("项目单号",d.no)
@@ -335,7 +348,7 @@ function cardHtml(d){
     +kvHtml("登录顺序",d.lo,d.loCls)
     +kvHtml("审批时间",d.time)
     +'</div>'
-    +'<div class="li-act">'+acts+'</div>'
+    +'<div class="li-act">'+((d.prim==='login'&&['local','inProvince','outProvince'].indexOf(d.sub)>=0)?'<button class="act-view" onclick="event.stopPropagation();goApproval(\''+esc(d.no)+'\',true)">查看</button>':'')+acts+'</div>'
     +'</div>';
 }
 function renderTabs(){
@@ -345,13 +358,13 @@ function renderTabs(){
     {k:"login",t:"登录审批"},
     {k:"price",t:"价格审批"}
   ].map(function(t){
-    return '<button class="ptab '+(t.k===curP?"active":"")+'" onclick="switchPrimary(\''+t.k+'\')">'+t.t+'<span class="bdg">99+</span></button>';
+    return '<button class="ptab '+(t.k===curP?"active":"")+'" onclick="switchPrimary(\''+t.k+'\')">'+t.t+(t.k==='login'?'<span class="approval-inline-new">NEW</span>':'')+'<span class="bdg">99+</span></button>';
   }).join("");
   /* 二级子类 chips（保持同 key 选中，无则回退第一个） */
   var hit=curCfg.some(function(s){return s.k===curS;});
   if(!hit)curS=curCfg[0].k;
   document.getElementById("subs").innerHTML=curCfg.map(function(s){
-    return '<button class="sub '+(s.k===curS?"active":"")+'" onclick="switchSub(\''+s.k+'\',this)">'+s.t+'</button>';
+    return '<button class="sub '+(s.k===curS?"active":"")+'" onclick="switchSub(\''+s.k+'\',this)">'+s.t+(s.k==='inProvince'?'<span class="approval-inline-new">NEW</span>':'')+'</button>';
   }).join("");
 }
 function switchPrimary(k){
