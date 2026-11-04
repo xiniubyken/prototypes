@@ -1736,6 +1736,292 @@ function showToast(msg, type) {
 
 </script>
 
+
+<!-- 列表导出需求 2026-11-05 -->
+<style>
+/* 列表导出 2026-11-05：沿用现有 PC 密度 */
+.export-new{display:inline-block;margin-left:5px;padding:0 4px;background:#e53935;color:#fff;font-size:9px;font-weight:600;line-height:14px;border-radius:3px;vertical-align:middle;pointer-events:none;white-space:nowrap;}
+.export-heading{font-size:14px;font-weight:600;margin-right:auto;display:flex;align-items:center;}
+.export-button[hidden]{display:none!important;}
+.export-button:disabled{opacity:.65;cursor:wait;}
+.export-feedback{font-size:12px;color:var(--text-secondary);margin-top:8px;}
+.export-feedback:empty{display:none;}
+.export-feedback[data-kind=error]{color:var(--danger);}
+.export-feedback[data-kind=success]{color:var(--success);}
+.export-toast{position:fixed;top:24px;left:50%;max-width:calc(100vw - 32px);padding:10px 16px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);font-size:13px;line-height:1.6;box-shadow:0 4px 18px rgba(0,0,0,.16);z-index:10050;pointer-events:none;opacity:0;transform:translate(-50%,-8px);transition:opacity .28s ease,transform .28s ease;}
+.export-toast[hidden]{display:none;}
+.export-toast.is-visible{opacity:1;transform:translate(-50%,0);}
+.export-toast::before{content:'i';display:inline-block;min-width:16px;margin-right:8px;color:var(--info);font-weight:700;text-align:center;}
+.export-toast[data-kind=success]::before{content:'✓';color:var(--success);}
+.export-toast[data-kind=error]::before{content:'!';color:var(--danger);}
+.export-demo-tools{margin-top:20px;color:var(--text-secondary);font-size:12px;border-top:1px dashed var(--border);padding-top:8px;}
+.export-demo-tools summary{cursor:pointer;width:fit-content;}
+.export-demo-content{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;}
+.export-demo-content label{display:flex;align-items:center;gap:4px;}
+.export-demo-note{width:100%;color:var(--text-aux);}
+.export-config-note{font-size:12px;color:var(--text-secondary);margin-bottom:10px;}
+.export-empty{text-align:center!important;padding:45px 12px!important;color:var(--text-aux)!important;}
+.pagination{flex-wrap:wrap;gap:10px;}
+.search-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+.search-item{min-width:0;}
+.search-item input,.search-item select,.search-item .ms-wrap,.search-item .date-range,.search-item .range-inputs{min-width:0;}
+@media(max-width:1100px){.search-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:850px){.search-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.content-inner{padding-left:12px;padding-right:12px;}.search-footer{gap:10px;}.search-card{padding-left:12px;padding-right:12px;}.modal-box{max-width:calc(100vw - 24px);}}
+
+</style>
+<script>
+(function () {
+  'use strict';
+  var project = document.title.indexOf('工程项目列表') !== -1;
+  var pageName = project ? '工程项目列表' : '批价单列表';
+  var marker = '<span class="export-new">NEW</span>';
+  var state = {page:1, size:10, rows:[], permission:true, busy:false, configDraft:null, freeze:0, filters:[]};
+  var numericKeys = ['index','estimatedAmount','totalAmount','qty','pickedQty'];
+  // 表头以页面实际文字为准，修正旧配置中的“销售类型 / 价格类型”名称差异。
+  var originalHeaders=document.querySelectorAll('.data-table thead th');
+  columnConfig.forEach(function(c,i){c.name=originalHeaders[i].textContent.trim();});
+  var seeds = sampleRows.slice();
+  var extras = !project && typeof detailExtras !== 'undefined' ? detailExtras.slice() : [];
+  var projectStatuses = ['已签单','审批中','跟进中','已中标','已签单','已流标','已关闭','已完结'];
+  var quoteStatuses = ['待提货','审批中','待提货','部分提货','已完结','已关闭','已驳回','待提货'];
+  for (var i=seeds.length;i<64;i++) {
+    var base = i % seeds.length;
+    var row = Object.assign({}, seeds[base]);
+    row.projectNo = 'GC202606' + String(i+1).padStart(6,'0');
+    row.projectName += '（' + (Math.floor(i/seeds.length)+1) + '期）';
+    row.status = (project ? projectStatuses : quoteStatuses)[i%8];
+    row.canVoid = !project && (row.status==='待提货' || row.status==='已驳回');
+    row.canApprove = row.status==='审批中';
+    if (!project) {
+      row.priceId = row.projectNo + '-PJ001';
+      row.pickedQty = row.status==='已完结' ? row.qty : row.status==='部分提货' ? Math.max(1,Math.floor(row.qty/2)) : 0;
+      detailExtras.push(Object.assign({},extras[base]));
+    }
+    sampleRows.push(row);
+  }
+  sampleRows.forEach(function(r,i){
+    r.salesCompany = (project ? ['商用销司-华南','商用销司-华东','商用销司-华北','商用销司-华中'][Math.floor(i/8)%4] : detailExtras[i].salesCo);
+    r.merchantType = ['经销商','服务商','分销商','卖场客户'][i%4];
+    if(project){r.projStatus=r.status;} else {
+      r.purchaser=detailExtras[i].buyer;
+      if(r.salesType==='特批特价')r.salesType='特价';
+    }
+  });
+
+  function esc(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  var feedbackTimer,feedbackHideTimer;
+  function feedback(message,kind){
+    var el=document.getElementById('exportFeedback');
+    clearTimeout(feedbackTimer);clearTimeout(feedbackHideTimer);
+    el.textContent=message;el.dataset.kind=kind||'info';el.hidden=false;
+    el.setAttribute('role',kind==='error'?'alert':'status');el.setAttribute('aria-live',kind==='error'?'assertive':'polite');
+    void el.offsetWidth;
+    el.classList.add('is-visible');
+    feedbackTimer=setTimeout(function(){el.classList.remove('is-visible');feedbackHideTimer=setTimeout(function(){el.hidden=true;el.textContent='';},300);},2400);
+  }
+  function byLabel(name){return Array.from(document.querySelectorAll('.search-item')).filter(function(el){return el.querySelector('.label').textContent.trim()===name;});}
+  var keyMap = {'项目单号':'projectNo','关联项目单号':'projectNo','批价单号':'priceId','经销商名称':'dealer','客户名称':'customerName','采购单位':project?'purchaser':'purchaser','业务线':project?'bizLine':'businessLine','项目名称':'projectName','客户类型':'customerType','经销商账号':'account','项目状态':'status','批价单状态':'status','销售公司':'salesCompany','项目地址':'address','登录时间':'loginTime','关联编号':'relatedNo','登录状态':'loginOrder','商家类型':'merchantType','行业大类':'industry','项目预计设备金额':'estimatedAmount','价格类型':'salesType'};
+  function readFilters(){
+    var filters=[];
+    document.querySelectorAll('.search-item').forEach(function(el){
+      var name=el.querySelector('.label').textContent.trim(), key=keyMap[name];
+      if(!key)return;
+      var dates=el.querySelectorAll('input[type=date]'), nums=el.querySelectorAll('input[type=number]');
+      if(dates.length || nums.length){
+        var controls=dates.length?dates:nums, min=controls[0].value,max=controls[1].value;
+        if(nums.length && ((min!=='' && Number(min)<0)||(max!=='' && Number(max)<0))){throw Error(name+'不能小于 0');}
+        if(min!=='' && max!=='' && (dates.length ? min>max : Number(min)>Number(max))){throw Error(name+'的开始值不能大于结束值');}
+        if(min!==''||max!=='')filters.push({key:key,type:dates.length?'date':'number',min:min,max:max});
+        return;
+      }
+      var checked=Array.from(el.querySelectorAll('input[type=checkbox]:checked'));
+      if(checked.length){filters.push({key:key,type:'multi',values:checked.map(function(cb){return cb.value==='on'?cb.nextElementSibling.textContent.trim():cb.value;})});return;}
+      var control=el.querySelector('input[type=text],select');
+      if(control && control.value.trim() && control.value!=='全部')filters.push({key:key,type:control.tagName==='SELECT'?'select':'text',value:control.value.trim()});
+    });
+    return filters;
+  }
+  function displayValue(row,key,index){
+    if(key==='index')return index+1;
+    if(project && key==='projStatus')return row.status;
+    if(project && key==='loginOrder'){
+      if(row.status==='已关闭'||row.status==='已驳回'||row.loginOrder==='-'||row.loginOrder==='—')return '-';
+      return row.loginOrder+'-'+(row.loginOrder==='1'?'登录成功':'候补登录');
+    }
+    return row[key]==null?'--':row[key];
+  }
+  function filterRows(filters){
+    return sampleRows.filter(function(r){return filters.every(function(f){
+      var value=String(f.key==='loginOrder'?displayValue(r,'loginOrder',0):r[f.key]||'');
+      if(f.type==='multi')return f.values.indexOf(value)!==-1;
+      if(f.type==='select')return value===f.value;
+      if(f.type==='date'){var date=value.slice(0,10);return (!f.min||date>=f.min)&&(!f.max||date<=f.max);}
+      if(f.type==='number'){var n=Number(value);return (f.min===''||n>=Number(f.min))&&(f.max===''||n<=Number(f.max));}
+      return value.toLowerCase().indexOf(f.value.toLowerCase())!==-1;
+    });});
+  }
+
+  // 用现有工具栏承载外层 NEW，不增加独立标记行。
+  var toolbar=document.querySelector('.table-toolbar');
+  toolbar.insertAdjacentHTML('afterbegin','<span class="export-heading">'+pageName+marker+'</span>');
+  document.querySelector('.cfg-btn').insertAdjacentHTML('beforeend',marker);
+  document.querySelector('.search-footer-left').insertAdjacentHTML('beforeend','<button type="button" id="exportListButton" class="btn btn-primary export-button" title="导出当前查询的全部结果；修改条件后请先点击查询" onclick="exportCurrentList()">导出'+marker+'</button>');
+  document.body.insertAdjacentHTML('beforeend','<div id="exportFeedback" class="export-toast" role="status" aria-live="polite" aria-atomic="true" hidden></div>');
+  document.querySelector('#configModal .modal-body').insertAdjacentHTML('afterbegin','<p class="export-config-note">导出跟随已确定的显示列设置，不包含“操作”列。</p><div id="exportConfigFeedback" class="export-feedback" data-kind="error" role="alert"></div>');
+  var cfgDisplayTh=Array.from(document.querySelectorAll('.cfg-table th')).find(function(el){return el.textContent.trim()==='显示';});
+  if(cfgDisplayTh)cfgDisplayTh.insertAdjacentHTML('beforeend',marker);
+  document.querySelector('.content-inner').insertAdjacentHTML('beforeend','<details class="export-demo-tools"><summary>演示工具（仅评审）</summary><div class="export-demo-content"><label><input type="checkbox" id="demoExportPermission" checked>拥有导出权限</label><label><input type="checkbox" id="demoExportFailure">模拟导出失败</label><button class="btn btn-default" type="button" id="demoAcrossPages">跨页筛选示例</button><button class="btn btn-default" type="button" id="demoEmptyResult">空结果示例</button><span class="export-demo-note">使用 64 条本地样例演示；权限、失败开关仅用于评审，正式系统需由后台校验权限和数据范围。</span></div></details>');
+
+  function renderPagination(){
+    var total=state.rows.length, pages=Math.max(1,Math.ceil(total/state.size));
+    state.page=Math.max(1,Math.min(state.page,pages));
+    document.querySelector('.page-info').textContent='共 '+total+' 条记录，第 '+state.page+' / '+pages+' 页';
+    var html='<button type="button" class="page-btn '+(state.page===1?'disabled':'')+'" '+(state.page===1?'disabled':'')+' data-page="'+(state.page-1)+'" aria-label="上一页">◀</button>';
+    for(var n=1;n<=pages;n++){html+='<button type="button" class="page-btn '+(n===state.page?'active':'')+'" data-page="'+n+'">'+n+'</button>';}
+    html+='<button type="button" class="page-btn '+(state.page===pages?'disabled':'')+'" '+(state.page===pages?'disabled':'')+' data-page="'+(state.page+1)+'" aria-label="下一页">▶</button>';
+    document.querySelector('.page-ctrl').innerHTML=html;
+    var jump=document.querySelector('.page-jump input');jump.value=state.page;jump.max=pages;
+  }
+  function rowOperations(r){
+    var idx=sampleRows.indexOf(r);
+    if(project)return '<a class="op-view" onclick="alert(\'演示：进入工程单详情页\')">查看</a>'+(r.canVoid?'<a class="op-void" onclick="alert(\'演示：进入新建-作废页面\')">作废</a>':'');
+    return '<a class="op-view" onclick="showDetail('+idx+')">查看</a>'+(r.canVoid?'<a class="op-void" onclick="showVoid('+idx+')">作废</a>':(!r.canApprove&&r.status!=='已完结'&&r.status!=='已关闭'?'<a class="op-disabled" title="部分提货不能作废">作废</a>':''));
+  }
+  window.renderTable=function(){
+    renderPagination();
+    var start=(state.page-1)*state.size;
+    var html=state.rows.slice(start,start+state.size).map(function(r,i){
+      return '<tr>'+columnConfig.map(function(col){
+        var value=displayValue(r,col.key,start+i), cls=col.key==='op'?' class="op-cell"':'';
+        var cell=col.key==='op'?rowOperations(r):(col.key==='status'||col.key==='projStatus')?'<span class="status-tag '+(statusClassMap[r.status]||'')+'">'+esc(r.status)+'</span>':esc(value);
+        return '<td data-col="'+col.key+'"'+cls+'>'+cell+'</td>';
+      }).join('')+'</tr>';
+    }).join('');
+    document.getElementById('tableBody').innerHTML=html||'<tr><td class="export-empty" colspan="'+columnConfig.filter(function(c){return c.visible;}).length+'">暂无符合条件的数据，请调整查询条件</td></tr>';
+    syncColumnVisibility();
+  };
+  window.syncColumnVisibility=function(){
+    var ths=document.querySelectorAll('.data-table thead th');
+    columnConfig.forEach(function(c,i){
+      ths[i].classList.toggle('col-hidden',!c.visible);
+      document.querySelectorAll('#tableBody td[data-col="'+c.key+'"]').forEach(function(td){td.classList.toggle('col-hidden',!c.visible);});
+    });
+    var empty=document.querySelector('.export-empty');if(empty)empty.colSpan=Math.max(1,columnConfig.filter(function(c){return c.visible;}).length);
+    syncFreezeColumns();
+  };
+  window.syncFreezeColumns=function(){
+    var table=document.querySelector('.data-table'),n=Math.max(0,Number(document.getElementById('freezeColsInput').value)||0),left=0;
+    table.querySelectorAll('.col-frozen').forEach(function(el){el.classList.remove('col-frozen');el.style.left='';});
+    columnConfig.forEach(function(col,index){
+      if(!col.visible||n<=0)return;
+      var th=table.querySelectorAll('thead th')[index];
+      [th].concat(Array.from(table.querySelectorAll('td[data-col="'+col.key+'"]'))).forEach(function(el){el.classList.add('col-frozen');el.style.left=left+'px';});
+      left+=th.offsetWidth;n--;
+    });
+  };
+  window.demoSearch=function(){try{state.filters=readFilters();state.rows=filterRows(state.filters);state.page=1;renderTable();feedback('查询完成，共 '+state.rows.length+' 条记录');}catch(e){feedback(e.message,'error');}};
+  window.demoReset=function(){
+    document.querySelectorAll('.search-item input').forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value='';});
+    document.querySelectorAll('.search-item select').forEach(function(el){el.selectedIndex=0;});
+    MultiSelect.resetAll();
+    document.querySelectorAll('.assoc-search-dropdown .as-item').forEach(function(el){el.hidden=false;});
+    document.querySelectorAll('.ms-dropdown.open,.assoc-search-dropdown.open').forEach(function(el){el.classList.remove('open');});
+    state.filters=[];state.rows=sampleRows.slice();state.page=1;renderTable();feedback('已重置查询条件，共 '+state.rows.length+' 条记录');
+  };
+  document.querySelector('.page-ctrl').addEventListener('click',function(e){var b=e.target.closest('[data-page]');if(b&&!b.disabled){state.page=Number(b.dataset.page);renderTable();}});
+  document.querySelector('.page-size select').addEventListener('change',function(e){state.size=parseInt(e.target.value,10);state.page=1;renderTable();});
+  document.querySelector('.page-jump input').addEventListener('change',function(e){state.page=Number(e.target.value)||1;renderTable();});
+  document.querySelectorAll('.search-item input[type=text]').forEach(function(el){el.addEventListener('keydown',function(e){if(e.key==='Enter')demoSearch();});});
+  var nameFields=byLabel('项目名称');
+  nameFields.forEach(function(el){el.querySelector('input').addEventListener('input',function(e){nameFields.forEach(function(other){other.querySelector('input').value=e.target.value;});});});
+  var assoc=document.querySelector('.assoc-search-wrap input[type=text]');
+  if(assoc)assoc.addEventListener('input',function(){document.querySelectorAll('.as-item').forEach(function(el){el.hidden=el.textContent.toLowerCase().indexOf(assoc.value.toLowerCase())===-1;});});
+
+  // 配置弹窗采用草稿，取消不改变列表和导出列。
+  window.renderCfgRows=function(tbody){
+    tbody.innerHTML=state.configDraft.map(function(col,idx){return '<tr data-col-idx="'+idx+'"><td><span class="cfg-drag">☰</span></td><td>'+(idx+1)+'</td><td>'+esc(col.name)+'</td><td style="white-space:nowrap"><input type="number" class="cfg-width" data-idx="'+idx+'" min="40" max="600" value="'+esc(col.width)+'" placeholder="必填"><span class="cfg-unit">px</span></td><td style="text-align:center"><label class="toggle-switch"><input type="checkbox" data-idx="'+idx+'" '+(col.visible?'checked':'')+'><span class="toggle-slider"></span></label></td></tr>';}).join('');
+  };
+  window.openConfig=function(){
+    document.getElementById('exportConfigFeedback').textContent='';
+    measureColWidths();state.freeze=Number(document.getElementById('freezeColsInput').value)||0;
+    state.configDraft=columnConfig.map(function(c){return Object.assign({},c,{width:c.width||String(cfgWidthCache[c.key]||100)});});
+    renderCfgRows(document.getElementById('cfgTableBody'));document.getElementById('configModal').classList.add('open');
+  };
+  window.closeConfig=function(){
+    document.getElementById('freezeColsInput').value=state.freeze;
+    document.getElementById('configModal').classList.remove('open');state.configDraft=null;syncFreezeColumns();
+  };
+  window.restoreDefaultConfig=function(){state.configDraft.forEach(function(c){c.visible=true;c.width=String(cfgWidthCache[c.key]||100);});document.getElementById('freezeColsInput').value=0;renderCfgRows(document.getElementById('cfgTableBody'));};
+  window.applyConfig=function(){
+    var invalid=state.configDraft.filter(function(c){return !String(c.width).trim()||!Number.isFinite(Number(c.width))||Number(c.width)<=0;});
+    if(invalid.length){document.getElementById('exportConfigFeedback').textContent='请填写有效列宽：'+invalid.map(function(c){return c.name;}).join('、');document.querySelectorAll('#cfgTableBody .cfg-width').forEach(function(el){el.classList.toggle('err',invalid.indexOf(state.configDraft[Number(el.dataset.idx)])!==-1);});return;}
+    if(!state.configDraft.some(function(c){return c.visible;})){document.getElementById('exportConfigFeedback').textContent='请至少保留一个显示列';return;}
+    columnConfig=state.configDraft.map(function(c){return Object.assign({},c);});state.freeze=Number(document.getElementById('freezeColsInput').value)||0;
+    closeConfig();syncColumnVisibility();feedback('列显示配置已应用；导出将跟随当前显示列，不包含操作列');
+  };
+  document.getElementById('cfgTableBody').addEventListener('input',function(e){if(e.target.classList.contains('cfg-width')){state.configDraft[Number(e.target.dataset.idx)].width=e.target.value;e.target.classList.remove('err');}});
+  document.getElementById('cfgTableBody').addEventListener('change',function(e){if(e.target.type==='checkbox')state.configDraft[Number(e.target.dataset.idx)].visible=e.target.checked;});
+
+  // 真正的 XLSX：无外链依赖，OOXML + 无压缩 ZIP，单号等字段使用文本单元格。
+  function xml(v){return String(v==null?'':v).replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c];});}
+  function letters(n){var s='';for(n++;n;n=Math.floor((n-1)/26))s=String.fromCharCode(65+(n-1)%26)+s;return s;}
+  function zip(files){
+    var encoder=new TextEncoder(),parts=[],central=[],offset=0,table=[];
+    for(var i=0;i<256;i++){var c=i;for(var bit=0;bit<8;bit++)c=(c&1)?0xEDB88320^(c>>>1):c>>>1;table[i]=c;}
+    function crc(bytes){var c=0xFFFFFFFF;bytes.forEach(function(b){c=table[(c^b)&255]^(c>>>8);});return (c^0xFFFFFFFF)>>>0;}
+    function header(size,values){var a=new Uint8Array(size),d=new DataView(a.buffer);values.forEach(function(v){d[v[2]===2?'setUint16':'setUint32'](v[0],v[1],true);});return a;}
+    Object.keys(files).forEach(function(name){
+      var path=encoder.encode(name),data=encoder.encode(files[name]),sum=crc(data);
+      var local=header(30,[[0,0x04034B50],[4,20,2],[6,0x800,2],[12,33,2],[14,sum],[18,data.length],[22,data.length],[26,path.length,2]]);
+      parts.push(local,path,data);
+      central.push(header(46,[[0,0x02014B50],[4,20,2],[6,20,2],[8,0x800,2],[14,33,2],[16,sum],[20,data.length],[24,data.length],[28,path.length,2],[42,offset]]),path);
+      offset+=30+path.length+data.length;
+    });
+    var centralSize=central.reduce(function(n,a){return n+a.length;},0),count=Object.keys(files).length;
+    return new Blob(parts.concat(central,[header(22,[[0,0x06054B50],[8,count,2],[10,count,2],[12,centralSize],[16,offset]])]),{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  }
+  function workbook(rows,cols){
+    var head='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',main='http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+    var matrix=[cols.map(function(c){return c.name;})].concat(rows.map(function(r,i){return cols.map(function(c){return displayValue(r,c.key,i);});}));
+    var sheet=head+'<worksheet xmlns="'+main+'"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>'+cols.map(function(c,i){return '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+(c.key==='projectName'||c.key==='address'?38:23)+'" customWidth="1"/>';}).join('')+'</cols><sheetData>';
+    matrix.forEach(function(values,rowIndex){sheet+='<row r="'+(rowIndex+1)+'">';values.forEach(function(v,colIndex){var ref=letters(colIndex)+(rowIndex+1),numeric=rowIndex>0&&numericKeys.indexOf(cols[colIndex].key)!==-1,number=Number(String(v).replace(/[¥￥,]/g,''));sheet+=numeric&&Number.isFinite(number)?'<c r="'+ref+'"><v>'+number+'</v></c>':'<c r="'+ref+'" t="inlineStr"'+(rowIndex===0?' s="1"':'')+'><is><t xml:space="preserve">'+xml(v)+'</t></is></c>';});sheet+='</row>';});
+    sheet+='</sheetData><autoFilter ref="A1:'+letters(cols.length-1)+(rows.length+1)+'"/></worksheet>';
+    var files={};
+    files['[Content_Types].xml']=head+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>';
+    files['_rels/.rels']=head+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    files['xl/workbook.xml']=head+'<workbook xmlns="'+main+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'+pageName+'" sheetId="1" r:id="rId1"/></sheets></workbook>';
+    files['xl/_rels/workbook.xml.rels']=head+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+    files['xl/styles.xml']=head+'<styleSheet xmlns="'+main+'"><fonts count="2"><font><sz val="11"/><name val="Microsoft YaHei"/></font><font><b/><sz val="11"/><name val="Microsoft YaHei"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    files['xl/worksheets/sheet1.xml']=sheet;
+    return zip(files);
+  }
+  function updateButton(){var b=document.getElementById('exportListButton');b.hidden=!state.permission;b.disabled=state.busy;b.innerHTML=(state.busy?'导出中…':'导出')+marker;b.setAttribute('aria-busy',String(state.busy));}
+  window.exportCurrentList=async function(){
+    if(state.busy)return;
+    if(!state.permission){feedback('当前账号无导出权限','error');return;}
+    var rows,cols;
+    rows=state.rows.slice();
+    cols=columnConfig.filter(function(c){return c.visible&&c.key!=='op';}).map(function(c){return Object.assign({},c);});
+    if(!rows.length){feedback('当前查询结果为空，暂无可导出的数据','error');return;}
+    if(!cols.length){feedback('请在自定义配置中至少显示一个可导出字段','error');return;}
+    state.busy=true;updateButton();feedback('正在导出 '+rows.length+' 条数据，请稍候…');
+    try{
+      await new Promise(function(resolve){setTimeout(resolve,450);});
+      if(!state.permission)throw Error('当前账号无导出权限');
+      if(document.getElementById('demoExportFailure').checked)throw Error('导出失败，请稍后重试');
+      var blob=workbook(rows,cols),url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=pageName+'_'+new Date().toISOString().replace(/[-:TZ.]/g,'').slice(0,14)+'.xlsx';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},30000);
+      feedback('已导出 '+rows.length+' 条数据，共 '+cols.length+' 列，请查看下载文件','success');
+    }catch(e){feedback(e.message||'导出失败，请稍后重试','error');}finally{state.busy=false;updateButton();}
+  };
+  document.getElementById('demoExportPermission').addEventListener('change',function(e){state.permission=e.target.checked;updateButton();feedback(state.permission?'已切换为有导出权限的演示账号':'已切换为无导出权限的演示账号');});
+  document.getElementById('demoAcrossPages').addEventListener('click',function(){demoReset();var el=byLabel(project?'项目状态':'批价单状态')[0];if(project)el.querySelector('select').value='已签单';else {var cb=el.querySelector('input[value="待提货"]');cb.checked=true;cb.dispatchEvent(new Event('change',{bubbles:true}));}var grid=document.getElementById('searchGrid');if(grid&&!grid.classList.contains('expanded')&&typeof toggleSearch==='function')toggleSearch();demoSearch();});
+  document.getElementById('demoEmptyResult').addEventListener('click',function(){demoReset();byLabel(project?'项目单号':'批价单号')[0].querySelector('input').value='无匹配记录';demoSearch();});
+  window.listExportDemo={state:state,readFilters:readFilters,filterRows:filterRows,displayValue:displayValue};
+  state.rows=sampleRows.slice();renderTable();updateButton();
+})();
+
+</script>
 </body>
 
 </html>
