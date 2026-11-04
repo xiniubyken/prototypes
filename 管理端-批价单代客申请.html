@@ -301,6 +301,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .cert-file-icon svg{width:18px;height:18px;}
 
 .cert-foot{margin-top:12px;padding-top:10px;border-top:1px solid var(--border-light,#f0f0f0);font-size:12px;color:var(--text-aux,#8f959e);}
+/* 批价单顶部业务线卡片：NEW 贴合现有按钮行。 */
+.quote-change-new:after,.quote-biz-change:after{content:"NEW";display:inline-block;vertical-align:middle;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap;flex:0 0 auto}
+.quote-change-new:after{margin-left:6px}
+.quote-biz-change:after{margin-left:auto}
 </style>
 </head>
 <body>
@@ -314,7 +318,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <svg viewBox="0 0 14 14" fill="none" width="14" height="14"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">批价单代客申请</span>
+    <span class="form-page-title quote-change-new">批价单代客申请</span>
   </div>
   <div class="form-header-right">
     <span style="font-size:12px;color:#8f959e;background:#f5f6fa;padding:4px 10px;border-radius:4px;">管理端 · 代客批价</span>
@@ -365,7 +369,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
     <!-- 业务线选择（选完项目后可选） -->
     <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
       <div class="form-card-body" style="padding:12px 16px;">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div class="quote-biz-change" id="quoteBizLineRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
           <div class="sales-type-selector">
             <span class="sales-type-tag active" onclick="selectBizType(this,'central')">中央空调</span>

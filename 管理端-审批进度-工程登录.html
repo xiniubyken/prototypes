@@ -550,6 +550,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .fl-list{display:flex;flex-direction:column;gap:3px;margin-top:2px;}
 .fl-item{display:flex;align-items:center;gap:6px;padding:4px 8px;background:#f5f6fa;border-radius:4px;font-size:12px;color:#3b5998;}
 
+/* 工程登录：跨区类型演示及逐层变更标记。 */
+.progress-change-new:after{content:"NEW";display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -563,7 +565,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       返回
     </div>
-    <span class="form-page-title">查看-工程登录</span>
+    <span class="form-page-title progress-change-new">查看-工程登录</span>
     <span class="proj-no-display" id="headerProjNo">粤东GCDT202506250001 (希望小学A项目)</span>
   </div>
   <div class="form-header-right">
@@ -689,7 +691,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   <div class="form-card-header" style="cursor:default;">
     <div class="form-card-title">
       <div class="fct-accent"></div>
-      <span class="fct-text">使用方信息</span>
+      <span class="fct-text progress-change-new">使用方信息</span>
     </div>
   </div>
   <div class="form-card-body">
@@ -763,8 +765,8 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 
       <!-- 跨区类型（只读标签） -->
       <div class="form-item">
-        <label class="form-label">跨区类型</label>
-        <div class="field-readonly"><span class="cross-region-tag inter">省外跨区</span></div>
+        <label class="form-label progress-change-new">跨区类型</label>
+        <div class="field-readonly"><span class="cross-region-tag intra">省内跨区</span></div>
       </div>
 
       <!-- 跨区编码 -->

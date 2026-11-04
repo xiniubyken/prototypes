@@ -358,6 +358,8 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 .proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 8px 2px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
 .proto-new--title .proto-new-tag{top:50%;right:auto;left:100%;transform:translateY(-50%);margin-left:6px}
 .proto-new--blk{display:block}
+/* 工程单详情：跨区类型默认演示及逐层 NEW 标记。 */
+.detail-change-new:after{content:"NEW";display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -389,7 +391,7 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <div class="dh-r1">
 <div class="dh-l">
 <div class="dh-tl">
-<span class="dh-tt">项目单</span>
+<span class="dh-tt detail-change-new">项目单</span>
 <span class="dh-tc">粤东GCDT202606250001</span>
 <span class="dh-tn" id="pn">（某商业综合体空调项目）</span>
 </div>
@@ -405,7 +407,7 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 
 <!-- Tab -->
 <div class="tabs">
-<div class="tab on" onclick="st(this,'t1')">工程单详情</div>
+<div class="tab on" onclick="st(this,'t1')"><span class="detail-change-new">工程单详情</span></div>
 <div class="tab" onclick="st(this,'t2')">审批进度</div>
 <div class="tab" onclick="st(this,'t3')">关联批价单</div>
 </div>
@@ -434,7 +436,7 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 
 <!-- 使用方信息 -->
 <div class="card">
-<div class="ch"><span>使用方信息</span></div>
+<div class="ch"><span class="detail-change-new">使用方信息</span></div>
 <div class="cb"><div class="ig">
 <div class="ii"><div class="il">项目名称</div><div>某商业综合体空调项目</div></div>
 <div class="ii"><div class="il">客户类型</div><div>工程商</div></div>
@@ -446,7 +448,7 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 <div class="ii"><div class="il">项目预计设备金额</div><div>¥500万元</div></div>
 <div class="ii"><div class="il">空调面积/容积</div><div>8,000 m²</div></div>
 <div class="ii" style="grid-column:span 2"><div class="il">项目地址</div><div>广东省珠海市香洲区XX路88号XX大厦12层</div></div>
-<div class="ii"><div class="il">跨区类型</div><div><span class="cross-region-tag" id="crType">非跨区</span></div></div>
+<div class="ii"><div class="il detail-change-new">跨区类型</div><div><span class="cross-region-tag intra" id="crType">省内跨区</span></div></div>
 <div class="ii" id="crCodeWrap"><div class="il">跨区编号</div><div id="crCode">GZ-2026-001</div></div>
 <div class="ii"><div class="il">执行单位</div><div>XX工程服务有限公司</div></div>
 </div>
@@ -888,7 +890,7 @@ const C={
 '审批中':{
  b:'#E3F2FD/#1565C0',
  s:{
- '工程登录':{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:null,co:null,ft:true,a:[],ap:[
+ '工程登录':{cr:{type:'省内跨区',code:null},lo:{seq:1,order:'登录成功'},op:null,co:null,ft:true,a:[],ap:[
   {n:'经销商提交',t:'2026-06-25 10:30',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'待审批',r:'审批中',st:'c'},
   {n:'二级审批人·李总',t:'待审批',r:'待审批',st:'p'}

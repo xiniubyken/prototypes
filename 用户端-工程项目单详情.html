@@ -311,6 +311,8 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .abd-btn-cancel:hover{border-color:var(--text-secondary)}
 .abd-btn-confirm{border:1px solid var(--primary);background:var(--primary);color:#fff}
 .abd-btn-confirm:hover{opacity:.88}
+/* 工程单详情：跨区类型默认演示及逐层 NEW 标记。 */
+.detail-change-new:after{content:"NEW";display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -342,7 +344,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 <div class="dh-r1">
 <div class="dh-l">
 <div class="dh-tl">
-<span class="dh-tt">项目单</span>
+<span class="dh-tt detail-change-new">项目单</span>
 <span class="dh-tc">粤东GCDT202606250001</span>
 <span class="dh-tn" id="pn">（某商业综合体空调项目）</span>
 </div>
@@ -360,7 +362,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 
 <!-- Tab导航（固定在头部下方，不在滚动区内） -->
 <div class="tabs">
-<div class="tab on" onclick="st(this,'t1')">工程单详情</div>
+<div class="tab on" onclick="st(this,'t1')"><span class="detail-change-new">工程单详情</span></div>
 <div class="tab" onclick="st(this,'t2')">审批进度</div>
 <div class="tab" onclick="st(this,'t3')">关联批价单</div>
 </div>
@@ -393,7 +395,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 
 <!-- 使用方信息 -->
 <div class="card">
-<div class="ch"><span class="card-title">使用方信息</span></div>
+<div class="ch"><span class="card-title detail-change-new">使用方信息</span></div>
 <div class="cb">
 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px 24px">
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">项目名称</div><div>某商业综合体空调项目</div></div>
@@ -406,7 +408,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">项目预计设备金额</div><div>¥500万元</div></div>
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">空调面积/容积</div><div>8,000 m²</div></div>
 <div style="font-size:13px;grid-column:span 2"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">项目地址</div><div>广东省珠海市香洲区XX路88号XX大厦12层</div></div>
-<div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">跨区类型</div><div><span class="cross-region-tag" id="crType">非跨区</span></div></div>
+<div style="font-size:13px"><div class="detail-change-new" style="color:var(--text-aux);font-size:12px;margin-bottom:2px">跨区类型</div><div><span class="cross-region-tag intra" id="crType">省内跨区</span></div></div>
 <div style="font-size:13px" id="crCodeWrap"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">跨区编号</div><div id="crCode">GZ-2026-001</div></div>
 <div style="font-size:13px"><div style="color:var(--text-aux);font-size:12px;margin-bottom:2px">执行单位</div><div>XX工程服务有限公司</div></div>
 </div>
@@ -586,7 +588,7 @@ const C={
  b:'#E3F2FD/#1565C0',
  ps:'跟进中',
  s:{
- '工程登录':{cr:{type:'非跨区',code:null},lo:{seq:1,order:'登录成功'},op:null,co:null,lt:null,v:null,q:null,ft:true,a:[],sd:'放弃登录',ap:[
+ '工程登录':{cr:{type:'省内跨区',code:null},lo:{seq:1,order:'登录成功'},op:null,co:null,lt:null,v:null,q:null,ft:true,a:[],sd:'放弃登录',ap:[
   {n:'经销商提交',t:'2026-06-25 10:30',r:'已提交',st:'d'},
   {n:'一级审批人·张经理',t:'待审批',r:'审批中',st:'c'},
   {n:'二级审批人·李总',t:'待审批',r:'待审批',st:'p'}
