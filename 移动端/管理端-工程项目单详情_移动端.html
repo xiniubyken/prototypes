@@ -220,6 +220,11 @@ button{cursor:pointer}
 .cm-err.show{display:block}
 .proto-new{position:relative;display:inline-block}
 .proto-new-tag{position:absolute;top:-8px;right:-8px;background:#e53935;color:#fff;font-size:10px;font-weight:700;line-height:1;padding:3px 5px;border-radius:8px 8px 2px 8px;pointer-events:none;z-index:20;letter-spacing:.5px;white-space:nowrap}
+/* 2026-11-06：售后跨区结果，沿既有标题行逐层标记。 */
+.detail-change-new:after{content:"NEW";display:inline-block;vertical-align:middle;margin-left:6px;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;pointer-events:none;white-space:nowrap}
+#basicKv .k.detail-change-new{position:relative}
+#basicKv .k.detail-change-new:after{position:absolute;top:4px;margin-left:4px;padding:0 3px;font-size:8px}
+@media(max-width:370px){#basicKv .k.detail-change-new{font-size:14px}}
 </style>
 </head>
 <body>
@@ -232,7 +237,7 @@ button{cursor:pointer}
   <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi">◉</span><span class="battery"></span></span></div>
   <header class="nav">
     <button class="nav-btn" onclick="goBack()" aria-label="返回"><span class="back"></span></button>
-    <div class="nav-title">工程项目详情</div>
+    <div class="nav-title detail-change-new">工程项目详情</div>
     <div class="nav-more-wrap">
       <button class="nav-ico" id="moreBtn" onclick="toggleMoreMenu(event)" aria-label="更多">⋯</button>
       <div class="more-menu" id="moreMenu">
@@ -249,7 +254,7 @@ button{cursor:pointer}
   <div class="expiry" id="expiry"></div>
 
   <nav class="tabs">
-    <button class="tab active" data-panel="detail" onclick="switchPanel('detail',this)">工程项目详情</button>
+    <button class="tab active" data-panel="detail" onclick="switchPanel('detail',this)"><span class="detail-change-new">工程项目详情</span></button>
     <button class="tab" data-panel="progress" onclick="switchPanel('progress',this)">审批进度</button>
     <button class="tab" data-panel="related" onclick="switchPanel('related',this)">关联批价单</button>
   </nav>
@@ -276,7 +281,7 @@ button{cursor:pointer}
       </section>
 
       <section class="section" id="basicSection">
-        <div class="section-title" onclick="toggleSection('basicSection')"><span>基本信息</span><span class="chevron"></span></div>
+        <div class="section-title" onclick="toggleSection('basicSection')"><span class="detail-change-new">基本信息</span><span class="chevron"></span></div>
         <div class="section-body">
           <div class="kv" id="basicKv"></div>
         </div>
@@ -592,7 +597,9 @@ function render(){
     ["登录时间", "2026-06-25 10:30", null],
     ["经销商名称", "家经部观察正式环境账号", null],
     ["经销商电话", "137 1234 5678", null],
-    ["业务线", BIZ_TAG, null]
+    ["业务线", BIZ_TAG, null],
+    // 只读字段；预览参数支持“跨区自装”和“委托”两种演示值。
+    ["售后跨区结果", new URLSearchParams(location.search).get("afterSalesCrossRegion")==="委托"?"委托":"跨区自装", null]
   ];
   document.getElementById("basicKv").innerHTML = b.map(function(r){
     return kvRow(r[0], r[1], r[2]);
@@ -662,7 +669,7 @@ function kvRow(k, v, fn){
   } else {
     val = '<div class="v">'+esc(v)+'</div>';
   }
-  return '<div class="k">'+esc(k)+'</div>'+val;
+  return '<div class="k'+(k==="售后跨区结果"?' detail-change-new':'')+'">'+esc(k)+'</div>'+val;
 }
 
 /* ---- 状态子区块（PC ext） ---- */

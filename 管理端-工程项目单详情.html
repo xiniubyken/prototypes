@@ -457,13 +457,14 @@ textarea.fi{min-height:64px;padding:8px 10px;resize:vertical}
 
 <!-- 基本信息 -->
 <div class="card">
-<div class="ch"><span>基本信息</span></div>
+<div class="ch"><span class="detail-change-new">基本信息</span></div>
 <div class="cb"><div class="ig">
 <div class="ii"><div class="il">项目单号</div><div id="pno">粤东GCDT202606250001</div></div>
 <div class="ii"><div class="il">登录时间</div><div id="loginTime">2026-06-25 10:30</div></div>
 <div class="ii"><div class="il">经销商名称</div><div id="dn">XX商贸有限公司</div></div>
 <div class="ii"><div class="il">经销商电话</div><div id="dt">0756-*****88</div></div>
 <div class="ii"><div class="il">业务线</div><div id="blVal">中央空调</div></div>
+<div class="ii"><div class="il detail-change-new">售后跨区结果</div><div id="afterSalesCrossRegion">跨区自装</div></div>
 <div class="ii" style="grid-column:span 2" id="loWrap"><div class="il">登录顺序</div><div style="display:flex;align-items:center;gap:8px"><span class="lo-badge" id="loBadge"><span class="lo-num">1</span><span class="lo-txt">登录成功</span></span><span class="lo-view-btn" onclick="showLoginOrderDetail()">查看</span></div></div>
 </div></div></div>
 
@@ -1328,6 +1329,8 @@ function clearErr(/*...ids*/){
 
 /* 核心渲染引擎 */
 function render(){
+// 2026-11-06：只读演示售后跨区结果；通过预览参数切换两种已确认枚举。
+document.getElementById('afterSalesCrossRegion').textContent = new URLSearchParams(location.search).get('afterSalesCrossRegion') === '委托' ? '委托' : '跨区自装';
 var cfg=C[curM];
 if(!cfg)return;
 var d=(cfg.s&&cfg.s[curS])?cfg.s[curS]:cfg.d;
