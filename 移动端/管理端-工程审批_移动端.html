@@ -181,7 +181,7 @@ button,input{font:inherit}button{cursor:pointer}
   <div class="listbar">
     <span class="bar-info" id="barInfo"></span>
     <button class="bar-filter" id="filBtn" onclick="openFilter()">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>筛选
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>筛选<span class="approval-inline-new">NEW</span>
     </button>
   </div>
 
@@ -197,9 +197,13 @@ button,input{font:inherit}button{cursor:pointer}
       <div class="f-sec">
         <div class="fld"><span class="lb">项目单号</span><input id="fNo" type="text" placeholder="请输入项目单号"></div>
         <!-- 【新增 · 2026-10-16】批价单号（紧随「项目单号」之后） -->
-        <div class="fld"><span class="lb proto-new">批价单号<span class="proto-new-tag">NEW</span></span><input id="fQuoteNo" type="text" placeholder="请输入批价单号"></div>
+        <div class="fld"><span class="lb">批价单号</span><input id="fQuoteNo" type="text" placeholder="请输入批价单号"></div>
         <div class="fld"><span class="lb">经销商名称</span><input id="fDealer" type="text" placeholder="请输入经销商名称"></div>
         <div class="fld"><span class="lb">项目名称</span><input id="fName" type="text" placeholder="请输入项目名称"></div>
+      </div>
+      <div class="f-sec">
+        <div class="f-sec-t">业务线<span class="approval-inline-new">NEW</span><span class="hint">单选</span></div>
+        <div class="chips" id="fBizLine"></div>
       </div>
       <div class="f-sec">
         <div class="f-sec-t">销售公司<span class="hint">单选 · 请选择</span></div>
@@ -266,6 +270,7 @@ var DATA=[
  {prim:"price",sub:"rePrice",     no:"GC202606190011",name:"深圳南山科技园二期工程",co:"粤东销售公司",dealer:"深圳市南山区恒远空调工程部",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-20 09:52",st:"通过",mine:false},
  {prim:"price",sub:"deliveryExt", no:"GC202606150012",name:"惠州潼湖生态智慧区厂房项目",co:"华东销售公司",dealer:"惠州市弘泰电器有限公司",lo:"1—登录成功",loCls:"lo-ok",time:"2026-06-16 08:30",st:"审批中",mine:true}
 ];
+DATA.forEach(function(d,i){d.businessLine=i%2===0?"中央空调":"冷链";});
 DATA=DATA.concat(DATA.filter(function(d){return d.sub==='local';}).map(function(d,i){return Object.assign({},d,{sub:'inProvince',no:'GC20261104000'+(i+1),name:i===0?'斗门区学校空调工程':'珠海工业园空调项目'});}));
 /* 二级子类配置（随一级切换） */
 var SUB_CFG={
@@ -282,13 +287,14 @@ var PJ_NO_DEMO="粤东GCDT202506250001-PJ001";
 var pillCls={"审批中":"st-ap","通过":"st-ok","已驳回":"st-rj","已取消":"st-cl"};
 var ST_OPTS=["全部","审批中","通过","驳回"];
 var CO_OPTS=["安徽销售公司","粤东销售公司","华东销售公司","华南销售公司"];
+var BIZ_LINE_OPTS=["中央空调","冷链"];
 var SCOPE_OPTS=["待我审批","所有单据"];
 
 var curP="login",curS="local";
 /* 当前生效过滤 */
-var cur={no:"",quoteNo:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
+var cur={no:"",quoteNo:"",dealer:"",name:"",businessLine:"",co:"",st:[],scope:"所有单据"};
 /* 面板临时值 */
-var tmp={co:"",st:[],scope:"所有单据"};
+var tmp={businessLine:"",co:"",st:[],scope:"所有单据"};
 var lastType="login"; /* 审批流程弹层所用单据类型 */
 var zoomSt="审批中";  /* 放大层跟随最近一次打开的单据状态 */
 
@@ -308,6 +314,7 @@ function filtered(){
     if(cur.no && d.no.indexOf(cur.no)<0)return false;
     /* 【新增 · 2026-10-16】批价单号过滤：口径与卡片展示一致 —— 批价单号只属于「价格审批」一级 tab 下的单据 */
     if(cur.quoteNo && (curP==="price"?PJ_NO_DEMO:"").indexOf(cur.quoteNo)<0)return false;
+    if(cur.businessLine && d.businessLine!==cur.businessLine)return false;
     if(cur.dealer && d.dealer.indexOf(cur.dealer)<0)return false;
     if(cur.name && d.name.indexOf(cur.name)<0)return false;
     if(cur.co && d.co!==cur.co)return false;
@@ -386,12 +393,15 @@ function refresh(){
   box.innerHTML=list.length?list.map(cardHtml).join(""):'<div class="empty"><svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="#c3c9d1" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg><div class="empty-t">暂无数据</div></div>';
   var scopeNote=cur.scope==="待我审批"?" · 待我审批":"";
   document.getElementById("barInfo").innerHTML="共 <b>"+list.length+"</b> 条"+scopeNote;
-  var on=cur.no||cur.quoteNo||cur.dealer||cur.name||cur.co||cur.st.length||cur.scope!=="所有单据";
+  var on=cur.no||cur.quoteNo||cur.dealer||cur.name||cur.businessLine||cur.co||cur.st.length||cur.scope!=="所有单据";
   document.getElementById("filBtn").classList.toggle("on",!!on);
 }
 
 /* ====== 筛选面板 ====== */
 function renderChips(){
+  document.getElementById("fBizLine").innerHTML=BIZ_LINE_OPTS.map(function(v){
+    return '<span class="chip '+(v===tmp.businessLine?"on":"")+'" onclick="pickBizLine(\''+esc(v)+'\')">'+esc(v)+'</span>';
+  }).join("");
   document.getElementById("fCo").innerHTML=CO_OPTS.map(function(v){
     return '<span class="chip '+(v===tmp.co?"on":"")+'" onclick="pickCo(\''+esc(v)+'\')">'+esc(v)+'</span>';
   }).join("");
@@ -404,7 +414,7 @@ function renderChips(){
   }).join("");
 }
 function openFilter(){
-  tmp.co=cur.co;tmp.st=cur.st.slice();tmp.scope=cur.scope;
+  tmp.businessLine=cur.businessLine;tmp.co=cur.co;tmp.st=cur.st.slice();tmp.scope=cur.scope;
   document.getElementById("fNo").value=cur.no;
   document.getElementById("fQuoteNo").value=cur.quoteNo;
   document.getElementById("fDealer").value=cur.dealer;
@@ -412,6 +422,7 @@ function openFilter(){
   renderChips();
   document.getElementById("filterMask").classList.add("show");
 }
+function pickBizLine(v){tmp.businessLine=(tmp.businessLine===v)?"":v;renderChips();}
 function pickCo(v){tmp.co=(tmp.co===v)?"":v;renderChips();}
 function pickScope(v){tmp.scope=v;renderChips();}
 function pickSt(v){
@@ -427,12 +438,12 @@ function applyFilter(){
   cur.quoteNo=(document.getElementById("fQuoteNo").value||"").trim();
   cur.dealer=(document.getElementById("fDealer").value||"").trim();
   cur.name=(document.getElementById("fName").value||"").trim();
-  cur.co=tmp.co;cur.st=tmp.st.slice();cur.scope=tmp.scope;
+  cur.businessLine=tmp.businessLine;cur.co=tmp.co;cur.st=tmp.st.slice();cur.scope=tmp.scope;
   closeFilter();refresh();
 }
 function resetFilter(){
-  cur={no:"",quoteNo:"",dealer:"",name:"",co:"",st:[],scope:"所有单据"};
-  tmp={co:"",st:[],scope:"所有单据"};
+  cur={no:"",quoteNo:"",dealer:"",name:"",businessLine:"",co:"",st:[],scope:"所有单据"};
+  tmp={businessLine:"",co:"",st:[],scope:"所有单据"};
   document.getElementById("fNo").value="";
   document.getElementById("fQuoteNo").value="";
   document.getElementById("fDealer").value="";

@@ -351,7 +351,7 @@ button{cursor:pointer}
   <div class="statusbar"><span>9:41</span><span class="status-icons"><span class="signal">▮▮▮</span><span class="wifi">◉</span><span class="battery"></span></span></div>
   <header class="nav">
     <button class="back" onclick="toast('原型占位：返回')" aria-label="返回"><i></i></button>
-    <div class="nav-title">二次批价审批页</div>
+    <div class="nav-title">二次批价审批页<span class="proto-new-tag">NEW</span></div>
     <button class="more" onclick="openActionSheet()">⋮</button>
   </header>
   <!-- ===== 对象卡 ===== -->
@@ -372,7 +372,7 @@ button{cursor:pointer}
         <div class="section-head"><span>价格类型</span><button class="price-trigger" id="priceTypeBtn" onclick="openPricePicker()"><span id="priceTypeText">常规价</span><span class="chev">›</span></button></div>
       </div>
       <div class="section">
-        <div class="section-head"><span>设备清单</span><button class="add-btn" onclick="openAddChooser()">添加商品 &gt;</button></div>
+        <div class="section-head"><span>设备清单<span class="proto-new-tag">NEW</span></span><button class="add-btn" onclick="openAddChooser()">添加商品 &gt;</button></div>
         <div class="section-body">
           <div id="equipCount" style="font-size:14px;color:#999;margin-bottom:6px">已添加：5 项</div>
           <div id="equipHost"></div>
@@ -771,7 +771,7 @@ function openBatchProductDetail(idx){
     ['原申请价格',`<input class="pd-input" value="${esc(item.origPrice||'--')}" readonly>`],
     ['申请点位',`<input class="pd-input" value="${esc(item.point)}">`],
     ['批复价格',`<input class="pd-input" value="${esc(item.approve||'')}">`],
-    ['权限区间',`<input class="pd-input" value="${esc(item.range||'¥41,500 ~ ¥48,000')}" readonly>`],
+    ['权限区间：<span class="proto-new-tag">NEW</span>',`<input class="pd-input" value="${esc(item.range||'¥41,500 ~ ¥48,000')}" readonly>`],
     ['批复点位%',`<input class="pd-input" value="${esc(item.resetPoint||'2.5%')}" readonly>`],
     ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
     ['返利比例上限%：<span class="proto-new-tag">NEW</span>',`<input class="pd-input pd-rebate" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${item.rebateLimit!=null?esc(item.rebateLimit):''}" placeholder="0~100" oninput="clampRebateRate(this)">`],
@@ -792,7 +792,7 @@ function openBatchProductDetail(idx){
     ['原申请价格',`<input class="pd-input" value="${esc(item.origPrice||'--')}" readonly>`],
     ['申请点位',`<input class="pd-input" value="${esc(item.point)}">`],
     ['批复价格',`<div style="color:#b4b9c2;font-size:13px;line-height:1.5">待绑定商品后填写</div>`],
-    ['权限区间',`<input class="pd-input" value="--" readonly>`],
+    ['权限区间：<span class="proto-new-tag">NEW</span>',`<input class="pd-input" value="--" readonly>`],
     ['批复点位%',`<input class="pd-input" value="--" readonly>`],
     ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
     ['返利比例上限%：<span class="proto-new-tag">NEW</span>',`<input class="pd-input pd-rebate" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${item.rebateLimit!=null?esc(item.rebateLimit):''}" placeholder="0~100" oninput="clampRebateRate(this)">`],
@@ -813,7 +813,7 @@ function openBatchProductDetail(idx){
     ['原申请价格',`<input class="pd-input" value="${esc(item.origPrice||'--')}" readonly>`],
     ['申请点位',`<input class="pd-input" value="${esc(item.point)}">`],
     ['批复价格',`<input class="pd-input" value="${esc(item.approve||item.price)}">`],
-    ['权限区间',`<input class="pd-input" value="${esc(item.range||'¥0 ~ '+money(item.boundOnlinePrice||0))}" readonly>`],
+    ['权限区间：<span class="proto-new-tag">NEW</span>',`<input class="pd-input" value="${esc(item.range||'¥0 ~ '+money(item.boundOnlinePrice||0))}" readonly>`],
     ['批复点位%',`<input class="pd-input" value="${esc(item.resetPoint||'2.5%')}" readonly>`],
     ['定金比例',`<input class="pd-input" value="${esc(item.depositRate||'10%')}">`],
     ['返利比例上限%：<span class="proto-new-tag">NEW</span>',`<input class="pd-input pd-rebate" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${item.rebateLimit!=null?esc(item.rebateLimit):''}" placeholder="0~100" oninput="clampRebateRate(this)">`],

@@ -185,6 +185,10 @@ a:hover{text-decoration:underline;}
           <input type="text" placeholder="请输入" class="global-input">
         </div>
         <div class="search-item">
+          <span class="label">业务线<span class="approval-inline-new">NEW</span></span>
+          <select id="searchBusinessLine"><option value="">全部</option><option value="中央空调">中央空调</option><option value="冷链">冷链</option></select>
+        </div>
+        <div class="search-item">
           <span class="label">经销商名称</span>
           <input type="text" placeholder="请输入" class="global-input">
         </div>
@@ -318,6 +322,7 @@ var currentSecondary = 'local';
 
 /* 批价单号演示值（仅价格审批 tab 展示；若单行数据自带 priceNo 字段则以行内值为准） */
 var PJ_NO_DEMO = '粤东GCDT202506250001-PJ001';
+var currentBusinessLine = '';
 
 /* ----- 列定义（按二级Tab） ----- */
 var columnDefs = {
@@ -520,6 +525,13 @@ var sampleData = {
   ]
 };
 
+/* 为列表演示数据补充业务线字段，便于验证业务线筛选 */
+Object.keys(sampleData).forEach(function(key) {
+  sampleData[key].forEach(function(row, index) {
+    row.businessLine = index % 2 === 0 ? '中央空调' : '冷链';
+  });
+});
+
 /* ================================================================
    核心渲染逻辑
    ================================================================ */
@@ -576,6 +588,9 @@ function switchSecondaryTab(subKey, el) {
 function renderTable() {
   var cols = columnDefs[currentSecondary] || [];
   var rows = sampleData[currentSecondary] || [];
+  if (currentBusinessLine) {
+    rows = rows.filter(function(row) { return row.businessLine === currentBusinessLine; });
+  }
 
   /* 「批价单号」列仅在价格审批一级 tab 下展示
      （作废二级 tab 为登录审批/价格审批共用 key，故按一级 tab 判别） */
@@ -687,12 +702,15 @@ function getCellValue(key, row) {
    ================================================================ */
 
 function doSearch() {
-  alert('演示：根据条件筛选当前Tab的审批数据');
+  currentBusinessLine = document.getElementById('searchBusinessLine').value;
+  renderTable();
 }
 
 function doReset() {
   document.querySelectorAll('.search-item input').forEach(function(el){el.value='';});
   document.querySelectorAll('.search-item select').forEach(function(el){el.selectedIndex=0;});
+  currentBusinessLine = '';
+  renderTable();
 }
 
 /* ================================================================
