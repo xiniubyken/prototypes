@@ -471,8 +471,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .biz-type-option:hover { color: #3b5998; background: rgba(59,89,152,.06); }
 .biz-type-option.active { background: #fff; color: #3b5998; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.10); }
 .biz-region-panel{margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #e8eaed;border-radius:5px;}
-.biz-region-title{display:flex;align-items:center;gap:8px;font-size:12px;color:#646a73;margin-bottom:7px;}
+.biz-region-title{display:flex;align-items:center;gap:8px;font-size:12px;color:#646a73;margin-bottom:0;}
+.biz-region-panel.expanded .biz-region-title{margin-bottom:7px;}
 .biz-region-title strong{font-size:13px;color:#1f2329;}
+.biz-region-toggle{margin-left:auto;border:0;background:transparent;color:#3b5998;font-size:12px;cursor:pointer;padding:2px 4px;}
 .biz-region-list{display:flex;flex-wrap:wrap;gap:6px;}
 .biz-region-option{padding:5px 9px;border:1px solid #d9dde5;border-radius:4px;background:#fff;color:#646a73;font-size:12px;cursor:default;}
 
@@ -751,6 +753,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="biz-type-option" onclick="m5SelectBizType(this,'central')">中央空调</div>
         <div class="biz-type-option" onclick="m5SelectBizType(this,'coldchain')">冷链</div>
       </div>
+      <button class="biz-region-toggle" id="m5BizRegionToggle" type="button" aria-expanded="false" onclick="m5ToggleBizRegions()" style="margin-left:auto;" hidden>展开经营区域</button>
     </div>
     <div>
       <div class="biz-region-panel" id="m5BizRegionPanel" style="display:none;">
@@ -1600,8 +1603,12 @@ function m5RenderBizRegions() {
   var biz = m5BizLines[m5CurrentBizType];
   if(!panel || !list) return;
   list.innerHTML = '';
-  if(!biz) { panel.style.display = 'none'; m5UpdateCrossRegion(); return; }
-  panel.style.display = '';
+  var toggle = document.getElementById('m5BizRegionToggle');
+  if(!biz) { panel.style.display = 'none'; if(toggle) toggle.hidden = true; m5UpdateCrossRegion(); return; }
+  panel.style.display = 'none';
+  if(toggle) toggle.hidden = false;
+  panel.classList.remove('expanded');
+  if(toggle) { toggle.textContent = '展开经营区域'; toggle.setAttribute('aria-expanded','false'); }
   biz.regions.forEach(function(region) {
     var item = document.createElement('div');
     item.className = 'biz-region-option';
@@ -1609,6 +1616,18 @@ function m5RenderBizRegions() {
     list.appendChild(item);
   });
   m5UpdateCrossRegion();
+}
+function m5ToggleBizRegions() {
+  var panel = document.getElementById('m5BizRegionPanel');
+  var list = document.getElementById('m5BizRegionList');
+  var toggle = document.getElementById('m5BizRegionToggle');
+  if(!panel || !list || !toggle || toggle.hidden) return;
+  var expanded = toggle.getAttribute('aria-expanded') !== 'true';
+  panel.style.display = expanded ? '' : 'none';
+  panel.classList.toggle('expanded', expanded);
+  toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  toggle.textContent = expanded ? '收起经营区域' : '展开经营区域';
+  panel.classList.toggle('expanded', expanded);
 }
 function m5UpdateCrossRegion() {
   var tag = document.getElementById('m5CrossRegionTag');

@@ -466,8 +466,11 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 #pdMask .sheet-hd>span{display:none}
 .phone .biz-check-wrap{grid-column:2}
 .phone .biz-check-status{justify-content:flex-end;text-align:right}
+.biz-line-row{display:grid;grid-template-columns:88px minmax(0,1fr) auto;align-items:center;gap:8px}
+.biz-line-row .field-label{flex:none}
+.biz-line-row .field-value{flex:0 1 auto;text-align:left}
 .biz-region-panel{margin:10px 0 8px;padding:12px;background:#f7f9fc;border:1px solid #e5eaf1;border-radius:8px;min-width:0}.biz-region-title{font-size:14px;font-weight:600;margin-bottom:8px}.biz-region-list{display:flex;flex-direction:column;gap:6px}.biz-region-item{font-size:13px;line-height:1.6;color:#606875;overflow-wrap:anywhere;padding:5px 8px;background:#fff;border:1px solid #e5eaf1;border-radius:5px}
-.biz-region-toggle{display:block;width:100%;min-height:40px;margin-top:6px;padding:6px 0;border:0;background:transparent;color:var(--blue);font-size:13px;text-align:center}
+.biz-region-toggle{min-width:54px;min-height:36px;margin:0;padding:0 10px;border:1px solid #b9d4f5;border-radius:6px;background:#f3f8ff;color:var(--blue);font-size:13px;white-space:nowrap}
 #dealerMask .sheet{overflow:hidden}
 #dealerMask .sheet-bd{min-height:0;overflow-y:auto;overscroll-behavior:contain}
 #dealerMask .dealer-picker-foot{flex-shrink:0;margin:0;padding:12px 16px 0;background:#fff;border-top:1px solid var(--line)}
@@ -514,11 +517,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
     <div id="formWrap" style="display:none;">
       <div class="section-block">
         <div class="section-body" style="padding-top:14px;padding-bottom:6px;">
-          <div class="field-row" style="min-height:38px;padding:0;border-bottom:0;">
+          <div class="field-row biz-line-row" style="min-height:38px;padding:0;border-bottom:0;">
             <div class="field-label"><span class="req">*</span>业务线：</div>
             <div class="field-value"><button type="button" class="field-action small biz-picker-button" id="v_biz" aria-haspopup="dialog" onclick="openPick('biz')">中央空调</button></div>
+            <button type="button" class="biz-region-toggle" id="mobileBizRegionToggle" aria-controls="mobileBizRegionPanel" aria-expanded="false" onclick="toggleBizRegions()" style="display:none">展开</button>
           </div>
-          <div class="biz-region-panel" id="mobileBizRegionPanel" style="display:none"><div class="biz-region-title">经营区域</div><div class="biz-region-list" id="mobileBizRegionList"></div><button type="button" class="biz-region-toggle" id="mobileBizRegionToggle" aria-controls="mobileBizRegionList" aria-expanded="false" onclick="toggleBizRegions()"></button></div>
+          <div class="biz-region-panel" id="mobileBizRegionPanel" style="display:none"><div class="biz-region-title revision-new-line">经营区域</div><div class="biz-region-list" id="mobileBizRegionList"></div></div>
         </div>
       </div>
 
@@ -946,11 +950,11 @@ function toggleBizRegions(){mobileRegionsExpanded=!mobileRegionsExpanded;renderB
 function renderBizRegions(){
   if(mobileRegionsBiz!==vals.biz){mobileRegionsBiz=vals.biz;mobileRegionsExpanded=false;}
   var panel=document.getElementById('mobileBizRegionPanel'), biz=currentBizRegions();
-  panel.style.display=biz?'':'none';
-  document.getElementById('mobileBizRegionList').innerHTML=biz?(mobileRegionsExpanded?biz.regions:biz.regions.slice(0,3)).map(function(r){return '<div class="biz-region-item">'+r.map(esc).join(' / ')+'</div>';}).join(''):'';
+  panel.style.display=biz&&mobileRegionsExpanded?'':'none';
+  document.getElementById('mobileBizRegionList').innerHTML=biz?biz.regions.map(function(r){return '<div class="biz-region-item">'+r.map(esc).join(' / ')+'</div>';}).join(''):'';
   var toggle=document.getElementById('mobileBizRegionToggle');
-  toggle.style.display=biz&&biz.regions.length>3?'':'none';
-  toggle.textContent=mobileRegionsExpanded?'收起':'展开全部（共'+(biz?biz.regions.length:0)+'个）';
+  toggle.style.display=biz?'':'none';
+  toggle.textContent=mobileRegionsExpanded?'收起':'展开';
   toggle.setAttribute('aria-expanded',String(mobileRegionsExpanded));
 }
 function crossRegionText(){

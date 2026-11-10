@@ -441,7 +441,7 @@ html,body{height:100%;margin:0;overflow:hidden;}
 .tianyan-info{display:flex;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}
 .tianyan-label{width:140px;color:#646a73;flex-shrink:0;}
 .tianyan-val{color:#1f2329;font-weight:500;}
-.biz-region-panel{margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #e8eaed;border-radius:5px;}
+.biz-region-panel{display:none!important;margin-top:10px;padding:10px 12px;background:#fff;border:1px solid #e8eaed;border-radius:5px;}
 .biz-region-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#1f2329;margin-bottom:7px;}
 .biz-region-list{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px;}
 .biz-region-item{padding:5px 9px;border:1px solid #d9dde5;border-radius:4px;background:#fff;color:#646a73;font-size:12px;line-height:normal;}
@@ -533,7 +533,6 @@ html,body{height:100%;margin:0;overflow:hidden;}
         <div class="biz-type-option" onclick="selectBizType(this,'coldchain')">冷链</div>
       </div>
     </div>
-    <div class="biz-region-panel" id="mobileBizRegionPanel" style="display:none"><div class="biz-region-title">经营区域</div><div class="biz-region-list" id="mobileBizRegionList"></div></div>
   </div>
 </div>
 
@@ -1203,7 +1202,7 @@ function switchContact(type) {
 
 var userBizLines={"central":{"name":"中央空调","managementProvinces":["广东省","广西壮族自治区","湖南省","湖北省","福建省","浙江省","江苏省","四川省"],"regions":[["广东省","珠海市","香洲区"],["广东省","广州市","天河区"],["广东省","深圳市","南山区"],["广西壮族自治区","南宁市","青秀区"],["湖南省","长沙市","岳麓区"],["湖北省","武汉市","武昌区"],["福建省","厦门市","思明区"],["浙江省","杭州市","西湖区"],["江苏省","南京市","鼓楼区"],["四川省","成都市","武侯区"]]},"coldchain":{"name":"冷链","managementProvinces":["广东省","广西壮族自治区"],"regions":[["广东省","广州市","天河区"],["广东省","珠海市","香洲区"],["广西壮族自治区","南宁市","青秀区"]]}}, userAddressData={"广东省":{"珠海市":["香洲区","斗门区","金湾区"],"广州市":["天河区"],"深圳市":["南山区"]},"广西壮族自治区":{"南宁市":["青秀区"]},"湖南省":{"长沙市":["岳麓区"]},"湖北省":{"武汉市":["武昌区"]},"福建省":{"厦门市":["思明区"]},"浙江省":{"杭州市":["西湖区"]},"江苏省":{"南京市":["鼓楼区"]},"四川省":{"成都市":["武侯区"]},"贵州省":{"贵阳市":["云岩区"]}};
 function selectedUserBiz(){return userBizLines[currentBizType];}
-function renderUserRegions(){var biz=selectedUserBiz();document.getElementById('mobileBizRegionPanel').style.display=biz?'':'none';document.getElementById('mobileBizRegionList').innerHTML=biz?biz.regions.map(function(r){return '<div class="biz-region-item">'+r.join(' / ')+'</div>';}).join(''):'';updateUserCrossRegion();}
+function renderUserRegions(){updateUserCrossRegion();}
 function updateUserCrossRegion(){var biz=selectedUserBiz(),p=document.getElementById('userProvince').value,c=document.getElementById('userCity').value,d=document.getElementById('userDistrict').value;var text=!biz||!p||!c||!d?'待判断':biz.regions.some(function(r){return r[0]===p&&r[1]===c&&r[2]===d})?'非跨区':biz.managementProvinces.indexOf(p)>=0?'省内跨区':'省外跨区';document.querySelector('#crossRegionDisplay span').textContent=text;}
 function setAddressOptions(id,items,preferred){var el=document.getElementById(id);el.innerHTML=items.map(function(x){return '<option>'+x+'</option>';}).join('');if(items.indexOf(preferred)>=0)el.value=preferred;}
 function userAddressChanged(level){if(level===0)setAddressOptions('userCity',Object.keys(userAddressData[document.getElementById('userProvince').value]||{}));if(level<2)setAddressOptions('userDistrict',(userAddressData[document.getElementById('userProvince').value]||{})[document.getElementById('userCity').value]||[]);updateUserCrossRegion();}
@@ -1613,7 +1612,7 @@ setAddressOptions('userProvince',Object.keys(userAddressData),'广东省');setAd
     mark(document.querySelector('.form-page-title,.nav-title'),'page');
     var biz=document.getElementById('m5BizSelectorCard')||document.getElementById('headerBizSelector')||document.getElementById('v_biz');
     if(biz)parents(biz);
-    var regions=document.getElementById('m5BizRegionPanel')||document.getElementById('mobileBizRegionPanel');
+    var regions=document.getElementById('m5BizRegionPanel');
     if(regions){mark(regions.querySelector('.biz-region-title'),'line');parents(regions);}
     field(document.getElementById('m5ProjectProvince')||document.getElementById('userProvince')||document.getElementById('v_prov'));
     field(document.getElementById('m5CrossRegionDisplay')||document.getElementById('crossRegionDisplay')||document.getElementById('mobileCrossRegionTag'));

@@ -1157,12 +1157,14 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
 .approval-change-line{display:flex;align-items:center;gap:8px}
 .approval-change-line:after{margin-left:auto}
 
-.approval-biz-panel{margin:8px 0 0;padding:12px;background:#f7f9fc;border:1px solid #e5eaf1;border-radius:8px;min-width:0}
+.biz-line-row{display:grid;grid-template-columns:76px minmax(0,1fr) auto;align-items:center;column-gap:8px}
+.biz-line-row .lab{flex:none;max-width:none}
+.biz-line-row .val{text-align:left;flex:none}
+.approval-biz-panel{display:none;margin:8px 0 0;padding:12px;background:#f7f9fc;border:1px solid #e5eaf1;border-radius:8px;min-width:0}
 .approval-biz-heading{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px}
 .approval-biz-region-list{display:flex;flex-direction:column;gap:6px}
 .approval-biz-region-item{padding:5px 8px;border:1px solid #e5eaf1;border-radius:5px;background:#fff;color:#606875;font-size:13px;line-height:1.6;overflow-wrap:anywhere}
-#approvalBizRegionsList:not(.is-expanded) .approval-biz-region-item:nth-child(n+4){display:none}
-.approval-region-toggle{display:block;width:100%;min-height:40px;margin-top:6px;padding:6px 0;border:0;background:transparent;color:var(--blue);font-size:13px;text-align:center}
+.approval-region-toggle{min-height:36px;padding:0 10px;border:1px solid #b9d4f5;border-radius:6px;background:#f3f8ff;color:var(--blue);font-size:13px;white-space:nowrap;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -1197,11 +1199,12 @@ textarea.input{min-height:92px;padding:10px 12px;font-size:14px;resize:none;line
   <section class="panel on" id="docPanel">
     <div class="section">
       <div class="section-bd" style="padding-top:10px">
-        <div class="row" id="approvalBizLineRow" style="border-top:0;padding-top:6px">
+        <div class="row biz-line-row" id="approvalBizLineRow" style="border-top:0;padding-top:6px">
           <div class="lab req approval-change-tag">业务线：</div>
           <div class="val" id="approvalBizLineValue">中央空调</div>
+          <button class="approval-region-toggle" id="approvalRegionsToggle" type="button" aria-controls="approvalBizRegionPanel" aria-expanded="false" onclick="toggleApprovalRegions()">展开</button>
         </div>
-        <div class="approval-biz-panel" id="approvalBizRegionPanel"><div class="approval-biz-heading approval-change-tag approval-change-line">经营区域</div><div class="approval-biz-region-list" id="approvalBizRegionsList"><div class="approval-biz-region-item">广东省 / 珠海市 / 香洲区</div><div class="approval-biz-region-item">广东省 / 广州市 / 天河区</div><div class="approval-biz-region-item">广东省 / 深圳市 / 南山区</div><div class="approval-biz-region-item">广西壮族自治区 / 南宁市 / 青秀区</div><div class="approval-biz-region-item">湖南省 / 长沙市 / 岳麓区</div><div class="approval-biz-region-item">湖北省 / 武汉市 / 武昌区</div><div class="approval-biz-region-item">福建省 / 厦门市 / 思明区</div><div class="approval-biz-region-item">浙江省 / 杭州市 / 西湖区</div><div class="approval-biz-region-item">江苏省 / 南京市 / 鼓楼区</div><div class="approval-biz-region-item">四川省 / 成都市 / 武侯区</div></div><button class="approval-region-toggle" id="approvalRegionsToggle" type="button" aria-controls="approvalBizRegionsList" aria-expanded="false" onclick="toggleApprovalRegions()">展开全部（共10个）</button></div>
+        <div class="approval-biz-panel" id="approvalBizRegionPanel"><div class="approval-biz-heading approval-change-tag approval-change-line">经营区域</div><div class="approval-biz-region-list" id="approvalBizRegionsList"><div class="approval-biz-region-item">广东省 / 珠海市 / 香洲区</div><div class="approval-biz-region-item">广东省 / 广州市 / 天河区</div><div class="approval-biz-region-item">广东省 / 深圳市 / 南山区</div><div class="approval-biz-region-item">广西壮族自治区 / 南宁市 / 青秀区</div><div class="approval-biz-region-item">湖南省 / 长沙市 / 岳麓区</div><div class="approval-biz-region-item">湖北省 / 武汉市 / 武昌区</div><div class="approval-biz-region-item">福建省 / 厦门市 / 思明区</div><div class="approval-biz-region-item">浙江省 / 杭州市 / 西湖区</div><div class="approval-biz-region-item">江苏省 / 南京市 / 鼓楼区</div><div class="approval-biz-region-item">四川省 / 成都市 / 武侯区</div></div></div>
       </div>
     </div>
 
@@ -1985,11 +1988,13 @@ function qpSearch(){
 </script>
 <script>
 function toggleApprovalRegions(){
-  var list=document.getElementById('approvalBizRegionsList');
-  var expanded=list.classList.toggle('is-expanded');
+  var panel=document.getElementById('approvalBizRegionPanel');
   var button=document.getElementById('approvalRegionsToggle');
+  if(!panel||!button)return;
+  var expanded=button.getAttribute('aria-expanded')!=='true';
+  panel.style.display=expanded?'block':'none';
   button.setAttribute('aria-expanded',String(expanded));
-  button.textContent=expanded?'收起':'展开全部（共10个）';
+  button.textContent=expanded?'收起':'展开';
 }
 </script>
 <script>
