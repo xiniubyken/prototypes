@@ -212,6 +212,7 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 .proto-new-tag.inline{position:static;display:inline-block;margin-left:4px;border-radius:3px;vertical-align:middle}
 .rebate-sum{color:var(--text-secondary)}
 .rebate-sum b{font-weight:600;color:var(--primary)}
+.accounting-revision{display:inline-block;flex:0 0 auto;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;white-space:nowrap;pointer-events:none;margin-left:auto;}
 </style>
 </head>
 <body>
@@ -308,13 +309,14 @@ select.ds-sel,select.ds-sub{padding:4px 8px;border:1px solid var(--border);borde
 
 <!-- 1.4 基本信息 -->
 <div class="card">
-  <div class="ch"><span>基本信息</span></div>
+  <div class="ch"><span>基本信息</span><span class="accounting-revision">NEW 1220</span></div>
   <div class="cb"><div class="ig">
     <div class="ii"><div class="il">批价单号</div><div>粤东GCDT202606250001-PJ001</div></div>
     <div class="ii"><div class="il">创建时间</div><div>2026-06-25 10:30</div></div>
     <div class="ii"><div class="il">经销商名称</div><div>XX商贸有限公司</div></div>
     <div class="ii"><div class="il">保证金类型</div><div>比例保证金-A（10%）</div></div>
     <div class="ii"><div class="il">业务线</div><div>中央空调</div></div>
+    <div class="ii" id="accountingUnitDetail"><div class="il" style="display:flex;align-items:center;gap:8px;">核算单位<span class="accounting-revision">NEW 1220</span></div><div>货款</div></div>
     <div class="ii"><div class="il">价格类型</div><div>常规价</div></div>
   </div></div>
 </div>

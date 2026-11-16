@@ -209,6 +209,9 @@ button{font:inherit;cursor:pointer}
 .rbate-ft{display:flex;gap:10px;padding:12px 16px 16px;border-top:1px solid #f1f1f1;flex:0 0 auto}
 .rbate-ft .ft-btn{flex:1;float:none;padding:0}
 .rbate-ft .ft-btn:not(.primary){background:#f2f3f5;color:#333}
+.accounting-revision{display:inline-block;flex:0 0 auto;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;white-space:nowrap;pointer-events:none;margin-left:auto;}
+.accounting-detail-row{display:flex;align-items:center;gap:8px;}
+.accounting-detail-row .v{flex:1;min-width:0;}
 </style>
 </head>
 <body>
@@ -259,7 +262,7 @@ button{font:inherit;cursor:pointer}
       </div>
 
       <div class="section">
-        <div class="sec-hd">基本信息</div>
+        <div class="sec-hd"><span>基本信息</span><span class="accounting-revision">NEW 1220</span></div>
         <div class="kv" id="basicInfo"></div>
       </div>
     </div>
@@ -364,7 +367,7 @@ const CERT_GROUPS=[
   {label:'销司其他附件',req:true,file:'这是一个文件名这是一个文件名这是一个文件名.pdf',kind:'pdf'}
 ];
 const D_PROJ='前海商业综合体空调项目',D_SUB='展示完整超出回行',D_LINE='中央空调-批价',D_TYPE='常规价';
-const D_BASIC=[['批价单号','粤东GCDT202606250001-PJ001'],['创建时间','2026-06-25 10:30'],['经销商名称','家经部观察正式环境账号'],['保证金类型','比例保证金-A（10%）'],['业务线','中央空调'],['价格类型','常规价']];
+const D_BASIC=[['批价单号','粤东GCDT202606250001-PJ001'],['创建时间','2026-06-25 10:30'],['经销商名称','家经部观察正式环境账号'],['保证金类型','比例保证金-A（10%）'],['业务线','中央空调'],['核算单位','货款'],['价格类型','常规价']];
 const D_EXP='提货有效期：剩余29天 2026-06-27 至 2026-09-25';
 const STATES={
   '审批中-价格审批':Object.assign({},D_BASIC.length&&{basic:D_BASIC,project:D_PROJ,subline:D_SUB,line:D_LINE,priceType:D_TYPE,expiry:null,totalQty:23,totalAmt:556000,approveAmt:null,main:'审批中',chip2:'价格审批',devices:DEV_PENDING,certNote:'经销商提交的项目凭证材料，包含合同扫描件、中标通知书等。\n\n审核进度：\n1. 销司已初审通过\n2. 工程部复审中\n3. 待价格审批确认',progress:[{type:'工程批价',status:'审批中',created:'2026-06-25 10:30:00',updated:'--'}],footer:'pill'}),
@@ -458,9 +461,10 @@ function toggleCertFold(){certOpen=!certOpen;document.getElementById('certBody')
 function renderBasic(){
   const d=STATES[curKey];
   document.getElementById('basicInfo').innerHTML=d.basic.map((r,i)=>`
-    <div class="kv-row">
+    <div class="kv-row ${r[0]==='核算单位'?'accounting-detail-row':''}" ${r[0]==='核算单位'?'id="accountingUnitDetail"':''}>
       <span class="k">${esc(r[0])}</span>
       <span class="v">${i===0?`${esc(r[1])}<button class="copy-mini" onclick="copyNo()">复制</button>`:esc(r[1])}</span>
+      ${r[0]==='核算单位'?'<span class="accounting-revision">NEW 1220</span>':''}
     </div>`).join('');
 }
 function openProd(idx){
