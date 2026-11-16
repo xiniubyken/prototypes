@@ -159,6 +159,16 @@ button{cursor:pointer}
   .project-name{font-size:17px}.nav-title{font-size:18px}.section{padding-left:14px;padding-right:14px}.biz-row,.tabs,.project-zone,.project-empty{padding-left:14px;padding-right:14px}
   .equip-main{padding-right:69px}.equip-card{gap:8px}.prod-img{width:60px;height:60px}.equip-title{font-size:14px}.submit-btn{width:144px;flex-basis:144px}
 }
+/* 核算单位版本标记：沿用移动端字段密度，整行右侧展示。 */
+.accounting-row{background:#fff;padding:12px 18px;border-bottom:1px solid var(--line);margin-bottom:8px;}
+.accounting-line{display:flex;align-items:center;gap:8px;min-height:44px;}
+.accounting-label{flex:0 0 auto;font-size:16px;font-weight:600;white-space:nowrap;}
+.accounting-trigger{width:100%;border:0;background:#fff;padding:0;text-align:left;cursor:pointer;}
+.accounting-value{flex:1;min-width:0;color:var(--blue);font-size:15px;text-align:right;white-space:nowrap;}
+.accounting-value.empty{color:#999;}
+.accounting-option{width:100%;background:#fff;border:0;border-bottom:1px solid #f0f0f0;text-align:left;padding:0;}
+.accounting-revision{flex:0 0 auto;margin-left:auto;display:inline-block;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;white-space:nowrap;pointer-events:none;}
+.accounting-error{font-size:12px;color:var(--red);padding-top:4px;}
 </style>
 </head>
 <body>
@@ -195,6 +205,13 @@ button{cursor:pointer}
 
 <div class="mask" id="bizMask" onclick="if(event.target===this)closeMask('bizMask')">
   <div class="sheet" onclick="event.stopPropagation()"><div class="sheet-head"><span>选择业务线</span><button class="sheet-x" onclick="closeMask('bizMask')">×</button></div><div class="sheet-scroll" id="bizOptions"></div></div>
+</div>
+
+<div class="mask" id="accountingMask" onclick="if(event.target===this)closeMask('accountingMask')">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="accountingSheetTitle" onclick="event.stopPropagation()">
+    <div class="sheet-head"><span id="accountingSheetTitle">选择核算单位</span><span class="accounting-revision">NEW 1220</span><button class="sheet-x" aria-label="关闭核算单位选择" onclick="closeMask('accountingMask')">×</button></div>
+    <div class="sheet-scroll" id="accountingOptions"></div>
+  </div>
 </div>
 
 <div class="mask" id="typeMask" onclick="if(event.target===this)closeMask('typeMask')">
@@ -294,6 +311,7 @@ function goBack(){toast("原型占位：返回上一页")}
 
 function setScene(scene){
   currentScene=scene;
+  mainData.accountingUnit="";accountingError=false;
   if(scene==="new"){selectedProject=null;selectedProjectIndex=-1;mainData.biz="中央空调";document.getElementById("navTitle").textContent="新建-批价单申请"}
   else {selectedProjectIndex=0;selectProjectData(PROJECTS[0]);document.getElementById("navTitle").textContent=scene==="reject"?"驳回重提":"复制新建"}
   document.getElementById("sceneSwitch").value=scene;renderApp()
@@ -309,6 +327,8 @@ function renderNotice(){
 function toggleNotice(){var e=document.getElementById("sceneNotice");if(e)e.classList.toggle("collapsed")}
 function renderApp(){renderNotice();renderMain();updateSubmit()}
 function selectProjectData(p){
+  mainData.accountingUnit="";
+  accountingError=false;
   selectedProject=p;mainData.biz=p.biz;
   equip=BASE_EQUIP.map(function(x){return Object.assign({},x)})
   if(currentScene==="reject")mainData.remark="（驳回重提）已根据驳回意见调整设备清单价格与点位，重新提交审批。";
@@ -323,6 +343,7 @@ function renderMain(){
   var p=selectedProject,tag=statusClass(p.status);
   host.innerHTML='<section class="project-zone"><div class="project-head"><div class="project-name">'+esc(p.name)+'</div><button class="pill-btn" onclick="openProjectPicker()">更换项目单 <span class="arrow">›</span></button></div><div class="project-meta"><div class="project-meta-row">项目单号：<strong>'+esc(p.id)+'</strong></div><div class="project-meta-row">经销商：<strong>'+esc(p.dealer)+'</strong></div><div class="tags"><span class="tag">'+esc(p.biz)+'</span><span class="tag '+(p.status==="已驳回"?"warn":p.status==="审批中"?"blue":"ok")+'">'+esc(p.status)+'</span></div></div></section>'
   +'<div class="biz-row" onclick="openBiz()"><span class="biz-label"><span class="req">*</span>业务线</span><span class="biz-value">'+esc(mainData.biz)+'<i class="row-arrow"></i></span></div>'
+  +renderAccountingUnit()
   +'<div class="tabs"><div class="tab-switch"><button class="'+(activeTab==="project"?"on":"")+'" onclick="switchTab(\'project\')">项目单信息</button><button class="'+(activeTab==="ref"?"on":"")+'" onclick="switchTab(\'ref\')">关联项目参考</button></div></div>'
   +(activeTab==="project"?renderProjectInfo():renderReference());
 }
@@ -425,7 +446,15 @@ function runBatchImport(){var e=document.getElementById("batchFileName");if(e.te
 
 function validate(){return !!selectedProject&&equip.length>0&&equip.every(function(x){return clampQty(x.qty)>=1&&Number(x.price)>=0})}
 function updateSubmit(){var btn=document.getElementById("submitBtn"),tip=document.getElementById("submitTip");btn.disabled=!validate();if(!selectedProject){tip.textContent="请先选择工程项目单，系统自动带入设备清单"}else if(currentScene==="reject"){tip.innerHTML='原批价单：<b>粤东GCDT202606250001-PJ001</b>｜驳回重提保留原单号'}else if(currentScene==="copy"){tip.innerHTML='来源项目单号：<b>粤东GCDT202112010001</b>｜提交后生成全新项目单号'}else{tip.innerHTML='已选项目单：<b>'+esc(selectedProject.id)+'</b>，请确认设备清单后提交'}btn.textContent=currentScene==="reject"?"重新提交":"提交批价申请"}
-function submitFlow(){if(!validate()){toast("请先选择工程项目单并添加商品");return}showMask("confirmMask")}
+function submitFlow(){if(!validate()){toast("请先选择工程项目单并添加商品");return}if(!mainData.accountingUnit){accountingError=true;renderMain();var field=document.getElementById("accountingUnit");field.scrollIntoView({block:"center"});field.focus();return}showMask("confirmMask")}
+
+var ACCOUNTING_UNITS=["货款","返利","工程保证金","市场保证金","信用","贷款"];
+var accountingError=false;
+function renderAccountingUnit(){
+  return '<div class="accounting-row" id="accountingUnitRow"><button type="button" class="accounting-line accounting-trigger" id="accountingUnit" aria-haspopup="dialog" aria-invalid="'+(accountingError?'true':'false')+'" aria-describedby="accountingUnitError" onclick="openAccountingUnit()"><span class="accounting-label"><span class="req">*</span>核算单位</span><span class="accounting-value '+(mainData.accountingUnit?'':'empty')+'">'+esc(mainData.accountingUnit||'请选择')+'<i class="row-arrow"></i></span><span class="accounting-revision">NEW 1220</span></button><div class="accounting-error" id="accountingUnitError" role="alert"'+(accountingError?'':' hidden')+'>请选择核算单位</div></div>';
+}
+function openAccountingUnit(){document.getElementById('accountingOptions').innerHTML=ACCOUNTING_UNITS.map(function(unit,index){return '<button type="button" class="option accounting-option" aria-pressed="'+(mainData.accountingUnit===unit)+'" onclick="setAccountingUnit(ACCOUNTING_UNITS['+index+'])"><span>'+unit+'</span>'+(mainData.accountingUnit===unit?'<span class="check">✓</span>':'')+'</button>'}).join('');showMask('accountingMask')}
+function setAccountingUnit(value){mainData.accountingUnit=ACCOUNTING_UNITS.indexOf(value)>=0?value:"";accountingError=false;closeMask('accountingMask');renderMain();updateSubmit();document.getElementById('accountingUnit').focus({preventScroll:true})}
 function confirmSubmit(){closeMask("confirmMask");document.getElementById("resultTitle").textContent=currentScene==="reject"?"重新提交成功":currentScene==="copy"?"复制新建成功":"提交成功";document.getElementById("resultMsg").textContent=currentScene==="copy"?"已复制新建，提交后将生成全新项目单号":"批价申请已提交，已进入审批流程";showMask("resultMask")}
 
 (function init(){
