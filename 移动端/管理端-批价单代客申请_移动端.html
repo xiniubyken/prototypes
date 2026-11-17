@@ -452,7 +452,7 @@ function validate(){return !!selectedProject&&equip.length>0&&equip.every(functi
 function updateSubmit(){var btn=document.getElementById("submitBtn"),tip=document.getElementById("submitTip");btn.disabled=!validate();if(!selectedProject){tip.textContent="请先选择工程项目单，系统自动带入设备清单"}else{tip.innerHTML='已选项目单：<b>'+esc(selectedProject.id)+'</b>，请确认设备清单后提交'}btn.textContent="提交批价申请"}
 function submitFlow(){if(!validate()){toast("请先选择工程项目单并添加商品");return}if(!mainData.accountingUnit){accountingError=true;renderMain();var field=document.getElementById("accountingUnit");field.scrollIntoView({block:"center"});field.focus();return}showMask("confirmMask")}
 
-var ACCOUNTING_UNITS=["货款","返利","工程保证金","市场保证金","信用","贷款"];
+var ACCOUNTING_UNITS=["家装","工装","地产","中央空调"];
 var accountingError=false;
 function renderAccountingUnit(){
   return '<div class="accounting-row" id="accountingUnitRow"><button type="button" class="accounting-line accounting-trigger" id="accountingUnit" aria-haspopup="dialog" aria-invalid="'+(accountingError?'true':'false')+'" aria-describedby="accountingUnitError" onclick="openAccountingUnit()"><span class="accounting-label"><span class="req">*</span>核算单位</span><span class="accounting-value '+(mainData.accountingUnit?'':'empty')+'">'+esc(mainData.accountingUnit||'请选择')+'<i class="row-arrow"></i></span><span class="accounting-revision">NEW 1220</span></button><div class="accounting-error" id="accountingUnitError" role="alert"'+(accountingError?'':' hidden')+'>请选择核算单位</div></div>';

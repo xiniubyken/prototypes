@@ -372,7 +372,7 @@ button{cursor:pointer}
         <div class="section-head"><span><span style="color:var(--red)">*</span>价格类型</span><button class="price-trigger" id="priceTypeBtn" onclick="openPricePicker()"><span id="priceTypeText">常规价</span><span class="chev">›</span></button></div>
       </div>
       <div class="section" id="accountingSection">
-        <div class="section-head"><button class="accounting-trigger" id="accountingUnit" aria-haspopup="dialog" onclick="openAccountingPicker()"><span><span style="color:var(--red)">*</span>核算单位</span><span id="accountingUnitText" style="margin-left:auto;color:var(--blue);font-size:16px;">货款</span><span style="color:#b2b7c1">›</span><span class="accounting-revision">NEW 1220</span></button></div>
+        <div class="section-head"><button class="accounting-trigger" id="accountingUnit" aria-haspopup="dialog" onclick="openAccountingPicker()"><span><span style="color:var(--red)">*</span>核算单位</span><span id="accountingUnitText" style="margin-left:auto;color:var(--blue);font-size:16px;">家装</span><span style="color:#b2b7c1">›</span><span class="accounting-revision">NEW 1220</span></button></div>
       </div>
       <div class="section">
         <div class="section-head"><span>设备清单</span><button class="add-btn" onclick="openAddChooser()">添加商品 &gt;</button></div>
@@ -841,8 +841,8 @@ function openRefProductDetail(idx){
 function closeRefPd(e){if(e&&e.target!==document.getElementById('refPdMask'))return;document.getElementById('refPdMask').classList.remove('show')}
 function openActionSheet(){document.getElementById('actionMask').classList.add('show')}
 function closeActionSheet(){document.getElementById('actionMask').classList.remove('show')}
-var accountingUnit='货款';
-var ACCOUNTING_UNITS=['货款','返利','工程保证金','市场保证金','信用','贷款'];
+var accountingUnit='家装';
+var ACCOUNTING_UNITS=['家装','工装','地产','中央空调'];
 function openAccountingPicker(){
   var mask=document.getElementById('accountingMask');
   if(!mask){mask=document.createElement('div');mask.id='accountingMask';mask.className='mask';mask.onclick=function(e){if(e.target===mask)closeMask('accountingMask')};document.body.appendChild(mask)}
