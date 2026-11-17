@@ -524,6 +524,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .af-node-table td{padding:10px 14px;border-bottom:1px solid #f0f0f0;color:#555;line-height:1.5;vertical-align:top;}
 .af-node-table tr:last-child td{border-bottom:none;}
 .af-footer-btn{padding:12px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;flex-shrink:0;}
+.accounting-revision{margin-left:auto;display:inline-block;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;white-space:nowrap;pointer-events:none;flex:0 0 auto;}
 </style>
 </head>
 <body>
@@ -574,7 +575,7 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
   <div class="form-card" style="background:#FFFBE6;border:1px solid #ffe58f;">
     <div class="form-card-body" style="padding:12px 16px;">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">价格类型</label>
+        <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">价格类型 <span style="color:#d32f2f;">*</span></label>
         <div class="sales-type-selector">
           <span class="sales-type-tag active" onclick="selectSalesType(this,'normal')">常规价</span>
           <span class="sales-type-tag" onclick="selectSalesType(this,'buyout')">买断价</span>
@@ -586,6 +587,14 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
           <span class="sales-type-tag" onclick="selectSalesType(this,'oneprice')">一票价</span>
         </div>
       </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+        <label for="accountingUnit" style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">核算单位 <span style="color:#d32f2f;">*</span></label>
+        <select class="form-ctrl" id="accountingUnit" style="width:240px;" required onchange="document.getElementById('accountingUnitError').hidden=true;this.removeAttribute('aria-invalid')" aria-describedby="accountingUnitError">
+          <option value="">请选择核算单位</option><option selected>货款</option><option>返利</option><option>工程保证金</option><option>市场保证金</option><option>信用</option><option>贷款</option>
+        </select>
+        <span class="accounting-revision">NEW 1220</span>
+      </div>
+      <div id="accountingUnitError" role="alert" hidden style="color:#d32f2f;font-size:12px;margin-top:4px;">请选择核算单位</div>
     </div>
   </div>
 
@@ -2401,12 +2410,15 @@ function toggleRecordColumns(showAll){
 
 // ==================== 审批操作（弹窗模式） ====================
 function doApprove(){
+  if(!currentSalesType){alert('请选择价格类型');return;}
+  if(!document.getElementById('accountingUnit').value){document.getElementById('accountingUnitError').hidden=false;document.getElementById('accountingUnit').setAttribute('aria-invalid','true');document.getElementById('accountingUnit').focus();return;}
   document.getElementById('approveModal').classList.add('show');
 }
 function closeApproveModal(){
   document.getElementById('approveModal').classList.remove('show');
 }
 function confirmApprove(){
+  if(!currentSalesType||!document.getElementById('accountingUnit').value){closeApproveModal();doApprove();return;}
   var remark = document.getElementById('approveRemark').value.trim();
   alert('审批通过！\n' + (remark ? '备注：' + remark : '无备注'));
   closeApproveModal();
