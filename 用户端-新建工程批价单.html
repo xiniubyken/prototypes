@@ -434,16 +434,16 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         </div>
         <div id="accountingUnitRow" style="display:flex;align-items:flex-start;gap:12px;margin-top:12px;">
           <label for="accountingUnit" style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;padding-top:7px;">核算单位 <span style="color:#d32f2f;">*</span></label>
-          <div style="width:240px;max-width:100%;">
-            <select id="accountingUnit" class="form-ctrl" required aria-describedby="accountingUnitError" onchange="clearAccountingUnitError()">
-              <option value="">请选择核算单位</option>
-              <option value="货款">货款</option>
-              <option value="返利">返利</option>
-              <option value="工程保证金">工程保证金</option>
-              <option value="市场保证金">市场保证金</option>
-              <option value="信用">信用</option>
-              <option value="贷款">贷款</option>
-            </select>
+          <div style="min-width:0;max-width:100%;">
+            <input type="hidden" id="accountingUnit" value="">
+            <div class="sales-type-selector" id="accountingUnitOptions" role="group" aria-label="核算单位（必填）" aria-describedby="accountingUnitError" tabindex="-1" style="flex-wrap:wrap;max-width:100%;">
+              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">货款</button>
+              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">返利</button>
+              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">工程保证金</button>
+              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">市场保证金</button>
+              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">信用</button>
+              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">贷款</button>
+            </div>
             <div id="accountingUnitError" role="alert" style="display:none;color:#d32f2f;font-size:12px;margin-top:4px;">请选择核算单位</div>
           </div>
           <span class="accounting-revision" style="margin-left:auto;margin-top:7px;flex:0 0 auto;display:inline-block;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;white-space:nowrap;pointer-events:none;">NEW 1220</span>
@@ -1054,7 +1054,7 @@ function confirmProject() {
 var currentBizType = 'central'; // 默认选中第一个
 
 function selectBizType(el, val) {
-  document.querySelectorAll('.sales-type-tag').forEach(function(t){ t.classList.remove('active'); });
+  document.querySelectorAll('#quoteBizLineRow .sales-type-tag').forEach(function(t){ t.classList.remove('active'); });
   el.classList.add('active');
   currentBizType = val;
 }
@@ -1069,7 +1069,7 @@ function autoMatchBizType(bizName) {
   clearAccountingUnitError();
   var map = { '中央空调':'central', '多联机':'multi', '新风':'fresh', '热水':'hotwater', '冷链':'coldchain', '精密空调':'precision' };
   var val = map[bizName] || 'central'; // 匹配不到默认第一个
-  var tags = document.querySelectorAll('.sales-type-tag');
+  var tags = document.querySelectorAll('#quoteBizLineRow .sales-type-tag');
   tags.forEach(function(t){
     t.classList.remove('active');
     if(t.getAttribute('onclick') && t.getAttribute('onclick').indexOf("'" + val + "'") >= 0) {
@@ -1239,17 +1239,19 @@ function openSubmitModal() {
     document.getElementById('accountingUnitError').style.display = '';
     unit.setAttribute('aria-invalid','true');
     unit.style.borderColor = '#d32f2f';
-    unit.focus();
+    document.getElementById('accountingUnitOptions').focus();
     return;
   }
   document.getElementById('submitModal').style.display = 'flex';
 }
 function clearAccountingUnitError() {
+  document.querySelectorAll('#accountingUnitOptions button').forEach(function(button){var selected=button.textContent.trim()===document.getElementById('accountingUnit').value;button.classList.toggle('active',selected);button.setAttribute('aria-pressed',String(selected));});
   var unit = document.getElementById('accountingUnit');
   document.getElementById('accountingUnitError').style.display = 'none';
   unit.removeAttribute('aria-invalid');
   unit.style.borderColor = '';
 }
+function selectAccountingUnit(button){document.getElementById('accountingUnit').value=button.textContent.trim();clearAccountingUnitError();}
 function closeSubmitModal() {
   document.getElementById('submitModal').style.display = 'none';
 }
