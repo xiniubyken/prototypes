@@ -372,7 +372,7 @@ button{cursor:pointer}
         <div class="section-head"><span><span style="color:var(--red)">*</span>价格类型</span><button class="price-trigger" id="priceTypeBtn" onclick="openPricePicker()"><span id="priceTypeText">常规价</span><span class="chev">›</span></button></div>
       </div>
       <div class="section" id="accountingSection">
-        <div class="section-head"><button class="accounting-trigger" id="accountingUnit" aria-haspopup="dialog" onclick="openAccountingPicker()"><span><span style="color:var(--red)">*</span>核算单位</span><span id="accountingUnitText" style="margin-left:auto;color:var(--blue);font-size:16px;">家装</span><span style="color:#b2b7c1">›</span><span class="accounting-revision">NEW 1220</span></button></div>
+        <div class="section-head"><div class="accounting-trigger" id="accountingUnit" aria-label="自动匹配的核算单位" tabindex="-1"><span>核算单位</span><span id="accountingUnitText" style="margin-left:auto;color:var(--blue);font-size:16px;">中央空调核算单位</span><span class="accounting-revision">NEW 1220</span></div></div>
       </div>
       <div class="section">
         <div class="section-head"><span>设备清单</span><button class="add-btn" onclick="openAddChooser()">添加商品 &gt;</button></div>
@@ -903,6 +903,10 @@ function loginTab(tab,btn){
 }
 function init(){renderAll();document.querySelector('.footer .action').onclick=()=>openReview('pass');document.querySelector('.footer .action.ghost').onclick=()=>openReview('reject');openFlow();closeAf();openPricePicker();closePricePicker()}
 init();
+
+accountingUnit='中央空调核算单位';
+function openAccountingPicker(){return;}
+
 </script>
 </body>
 </html>

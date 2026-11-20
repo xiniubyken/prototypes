@@ -423,25 +423,13 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
       <div class="form-card-body" style="padding:12px 16px;">
         <div class="quote-biz-change" id="quoteBizLineRow" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <label style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;">业务线 <span style="color:#d32f2f;">*</span></label>
-          <div class="sales-type-selector">
-            <span class="sales-type-tag active" onclick="selectBizType(this,'central')">中央空调</span>
-            <span class="sales-type-tag" onclick="selectBizType(this,'multi')">多联机</span>
-            <span class="sales-type-tag" onclick="selectBizType(this,'fresh')">新风</span>
-            <span class="sales-type-tag" onclick="selectBizType(this,'hotwater')">热水</span>
-            <span class="sales-type-tag" onclick="selectBizType(this,'coldchain')">冷链</span>
-            <span class="sales-type-tag" onclick="selectBizType(this,'precision')">精密空调</span>
-          </div>
+          <div class="sales-type-selector"><button type="button" class="sales-type-tag" onclick="selectBizType(this,'home')">家装业务线</button><button type="button" class="sales-type-tag" onclick="selectBizType(this,'fitout')">工装业务线</button><button type="button" class="sales-type-tag" onclick="selectBizType(this,'estate')">地产业务线</button><button type="button" class="sales-type-tag" onclick="selectBizType(this,'central')">中央空调业务线</button></div>
         </div>
         <div id="accountingUnitRow" style="display:flex;align-items:flex-start;gap:12px;margin-top:12px;">
           <label for="accountingUnit" style="font-size:13px;color:#1f2329;font-weight:600;white-space:nowrap;padding-top:7px;">核算单位 <span style="color:#d32f2f;">*</span></label>
           <div style="min-width:0;max-width:100%;">
             <input type="hidden" id="accountingUnit" value="">
-            <div class="sales-type-selector" id="accountingUnitOptions" role="group" aria-label="核算单位（必填）" aria-describedby="accountingUnitError" tabindex="-1" style="flex-wrap:wrap;max-width:100%;">
-              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">家装</button>
-              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">工装</button>
-              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">地产</button>
-              <button type="button" class="sales-type-tag" aria-pressed="false" onclick="selectAccountingUnit(this)">中央空调</button>
-            </div>
+            <div id="accountingUnitOptions" tabindex="-1" aria-live="polite" style="font-size:13px;padding:7px 0;color:#1f2329;">请选择业务线后自动匹配</div>
             <div id="accountingUnitError" role="alert" style="display:none;color:#d32f2f;font-size:12px;margin-top:4px;">请选择核算单位</div>
           </div>
           <span class="accounting-revision" style="margin-left:auto;margin-top:7px;flex:0 0 auto;display:inline-block;padding:0 4px;border-radius:3px;background:#ff4d4f;color:#fff;font:600 9px/14px Arial,sans-serif;white-space:nowrap;pointer-events:none;">NEW 1220</span>
@@ -1055,6 +1043,7 @@ function selectBizType(el, val) {
   document.querySelectorAll('#quoteBizLineRow .sales-type-tag').forEach(function(t){ t.classList.remove('active'); });
   el.classList.add('active');
   currentBizType = val;
+  syncLinkedAccounting();
 }
 
 function getCurrentBizType() {
@@ -1075,6 +1064,7 @@ function autoMatchBizType(bizName) {
     }
   });
   currentBizType = val;
+  syncLinkedAccounting();
 }
 
 // ====================== 填充参考区 ======================
@@ -1652,4 +1642,14 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+<script>
+
+var linkedBizMap={home:'家装',fitout:'工装',estate:'地产',central:'中央空调'};
+function syncLinkedAccounting(){var name=linkedBizMap[currentBizType]||'';document.getElementById('accountingUnit').value=name?name+'核算单位':'';document.getElementById('accountingUnitOptions').textContent=name?name+'核算单位':'请选择业务线后自动匹配';document.getElementById('accountingUnitError').style.display='none';document.getElementById('accountingUnitError').hidden=true;}
+function selectBizType(el,val){document.querySelectorAll('#quoteBizLineRow .sales-type-tag').forEach(function(b){b.classList.toggle('active',b===el)});currentBizType=val;syncLinkedAccounting();}
+function autoMatchBizType(name){var key=Object.keys(linkedBizMap).find(function(k){return name===linkedBizMap[k]||name===linkedBizMap[k]+'业务线'});currentBizType=key||'';document.querySelectorAll('#quoteBizLineRow .sales-type-tag').forEach(function(b){b.classList.toggle('active',!!key&&b.textContent===linkedBizMap[key]+'业务线')});syncLinkedAccounting();}
+function selectAccountingUnit(){return;}
+document.addEventListener('DOMContentLoaded',function(){autoMatchBizType('中央空调')});
+
+</script>
 </body>

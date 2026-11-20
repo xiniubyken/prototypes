@@ -263,7 +263,7 @@ button{cursor:pointer}
 
 <script>
 "use strict";
-var BUSINESS=["中央空调","冷链","多联机","新风","热水","精密空调"];
+var BUSINESS=["家装业务线","工装业务线","地产业务线","中央空调业务线"];
 var STATUS=["全部","审批中","已驳回","跟进中","已中标","已签单","已流标"];
 var PROJECTS=[
   {id:"粤东GCDT202606250001",name:"某商业综合体空调项目",dealer:"珠海华鸿电器销售有限公司",biz:"中央空调",status:"审批中",login:"1-登录成功",count:10},
@@ -456,6 +456,10 @@ function renderAccountingUnit(){
 function openAccountingUnit(){document.getElementById('accountingOptions').innerHTML=ACCOUNTING_UNITS.map(function(unit,index){return '<button type="button" class="option accounting-option" aria-pressed="'+(mainData.accountingUnit===unit)+'" onclick="setAccountingUnit(ACCOUNTING_UNITS['+index+'])"><span>'+unit+'</span>'+(mainData.accountingUnit===unit?'<span class="check">✓</span>':'')+'</button>'}).join('');showMask('accountingMask')}
 function setAccountingUnit(value){mainData.accountingUnit=ACCOUNTING_UNITS.indexOf(value)>=0?value:"";accountingError=false;closeMask('accountingMask');renderMain();updateSubmit();document.getElementById('accountingUnit').focus({preventScroll:true})}
 function confirmSubmit(){closeMask("confirmMask");document.getElementById("resultTitle").textContent=currentScene==="reject"?"重新提交成功":currentScene==="copy"?"复制新建成功":"提交成功";document.getElementById("resultMsg").textContent=currentScene==="copy"?"已复制新建，提交后将生成全新项目单号":"批价申请已提交，已进入审批流程";showMask("resultMask")}
+
+
+function renderAccountingUnit(){var name=String(mainData.biz||'').replace(/业务线$/,'');mainData.accountingUnit=name?name+'核算单位':'';return '<div class="accounting-row" id="accountingUnitRow"><div class="accounting-line" id="accountingUnit" tabindex="-1"><span class="accounting-label">核算单位</span><span class="accounting-value">'+esc(mainData.accountingUnit||'请选择业务线后自动匹配')+'</span><span class="accounting-revision">NEW 1220</span></div></div>';}
+function openAccountingUnit(){return;}
 
 (function init(){
   var s=(location.hash||"").replace("#","")||new URLSearchParams(location.search).get("scene")||"";if(s==="reject"||s==="copy")currentScene=s;
