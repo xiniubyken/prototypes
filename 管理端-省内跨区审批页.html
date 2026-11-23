@@ -164,6 +164,12 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
 .business-check-btn{height:32px;padding:0 14px;font-size:12px;font-weight:600;color:#fff;background:#3b5998;border:none;border-radius:4px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.15s;}
 .business-check-btn:hover{background:#2e477a;}
 .business-check-btn:active{background:#1f3460;}
+.biz-check-wrap{display:flex;flex-direction:column;gap:4px;}
+.biz-check-input.state-verified{border-color:#2E7D32;background:#f1f8f1;}
+.biz-check-input.state-unmatched{border-color:#D32F2F;background:#fff5f5;}
+.biz-check-status{font-size:12px;min-height:18px;}
+.biz-verified{color:#2E7D32;font-weight:500;}
+.biz-unmatched{color:#D32F2F;font-size:12px;}
 
 /* "修改使用方信息"按钮 */
 .edit-info-btn{padding:4px 12px;font-size:12px;color:#3b5998;border:1px solid #c5cae9;border-radius:4px;background:#fff;cursor:pointer;transition:.15s;font-weight:500;}
@@ -936,9 +942,10 @@ textarea.form-ctrl{height:72px;resize:vertical;padding-top:7px;line-height:1.5;}
         <div class="form-item" id="spSignCustomerItem" style="display:none;">
           <label class="form-label">合同客户 <span class="req">*</span></label>
           <div style="display:flex;gap:6px;">
-            <input type="text" class="form-ctrl" id="spSignCustomer" placeholder="请输入客户名称" style="flex:1;">
-            <button class="business-check-btn" onclick="alert('演示：工商校验')">工商校验</button>
+<input type="text" class="form-ctrl biz-check-input state-verified" id="spSignCustomer" placeholder="请输入客户名称" value="珠海华邑建设工程有限公司" style="flex:1;" oninput="spOnBizChange()">
+            <button class="business-check-btn" onclick="spDoBizCheck()">工商校验</button>
           </div>
+          <div class="biz-check-status" id="spBizStatus"><span class="biz-verified">✓ 工商校验通过</span></div>
         </div>
         <div class="form-item" id="spSignAmountItem" style="display:none;">
           <label class="form-label">签单金额（元）<span class="req">*</span></label>
@@ -1871,6 +1878,8 @@ function spToggleSignFields(val) {
   if(val === 'yes') document.getElementById('spSignContractItem').style.display='block';
   else if(val === 'no') document.getElementById('spSignNoContractItem').style.display='block';
 }
+var spBizVerifiedName = '珠海华邑建设工程有限公司';
+function spOnBizChange(){var i=document.getElementById('spSignCustomer'),s=document.getElementById('spBizStatus');if(!i||!s)return;if(i.value.trim()!==spBizVerifiedName){i.classList.remove('state-verified');i.classList.add('state-unmatched');s.innerHTML='<span class="biz-unmatched">名称已修改，请重新工商校验</span>';}else{i.classList.add('state-verified');i.classList.remove('state-unmatched');s.innerHTML='<span class="biz-verified">✓ 工商校验通过</span>';}}
 function spAddStateFile(key, inputId, fileInput) {
   if(!fileInput.files || !fileInput.files.length) return;
   var file = fileInput.files[0];
@@ -1905,12 +1914,15 @@ function spRenderStateFileList(key) {
   // 预填已中标状态
   var st = document.getElementById('spProjectStatus');
   if(st) {
-    st.value = '已中标';
-    spToggleStateExt('已中标');
+    st.value = '已签单';
+    spToggleStateExt('已签单');
+    document.querySelector('#spSignHasContract select').value = 'yes';
+    spToggleSignFields('yes');
   }
   // 预填一个中标通知书文件
-  spStateFiles['bid'] = [{name: '中标通知书_20260711.pdf', size: 1234567}];
-  spRenderStateFileList('bid');
+  document.getElementById('spSignAmount').value = '1860000.00';
+  spStateFiles['signContract'] = [{name: '工程合同_珠海华邑.pdf', size: 823456}];
+  spRenderStateFileList('signContract');
 })();
 
 // ==================== 快速查询工程单（查询列表 + 查看入口） ====================
